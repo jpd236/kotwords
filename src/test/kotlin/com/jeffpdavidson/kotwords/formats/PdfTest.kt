@@ -1,0 +1,80 @@
+package com.jeffpdavidson.kotwords.formats
+
+import com.jeffpdavidson.kotwords.readBinaryResource
+import org.apache.pdfbox.pdmodel.PDDocument
+import org.apache.pdfbox.pdmodel.font.PDType1Font
+import org.apache.pdfbox.rendering.PDFRenderer
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import java.awt.image.BufferedImage
+
+class PdfTest {
+    init {
+        // Speed up rendering on Java 8.
+        System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider")
+    }
+
+    @Test
+    fun asPdf() {
+        assertPdfEquals(PdfTest::class.readBinaryResource("pdf/test.pdf"),
+                AcrossLite(PdfTest::class.readBinaryResource("puz/test.puz"))
+                        .asCrossword().asPdf())
+    }
+
+    // Note for splitTextToLines tests: a 100 pt line fits 16 10pt Courier characters.
+
+    @Test
+    fun splitTextToLines_standardText() {
+        assertEquals(
+                listOf(
+                        "a b c d e f g h",
+                        "i jj kk ll mm nn",
+                        "oo ppp qqq rrr",
+                        "sss tttt uuuu",
+                        "vvvv"),
+                com.jeffpdavidson.kotwords.formats.splitTextToLines(
+                        "a b c d e f g h i jj kk ll mm nn oo ppp qqq rrr sss tttt uuuu vvvv",
+                        PDType1Font.COURIER,
+                        10f,
+                        100f)
+        )
+    }
+
+    @Test
+    fun splitTextToLines_longWords() {
+        assertEquals(
+                listOf(
+                        "1234567890123456",
+                        "7890 12345678901",
+                        "234567890 123456",
+                        "78901234567890"),
+                com.jeffpdavidson.kotwords.formats.splitTextToLines(
+                        "12345678901234567890 12345678901234567890 12345678901234567890",
+                        PDType1Font.COURIER,
+                        10f,
+                        100f)
+        )
+    }
+
+    private fun assertPdfEquals(expected: ByteArray, actual: ByteArray) {
+        // Raw PDF contents are non-deterministic, so compare the rendered images instead.
+        val expectedImage = render(expected)
+        val actualImage = render(actual)
+        assertEquals(expectedImage.width, actualImage.width)
+        assertEquals(expectedImage.height, actualImage.height)
+
+        for (y in 0 until expectedImage.height) {
+            for (x in 0 until expectedImage.width) {
+                assertEquals(expectedImage.getRGB(x, y), actualImage.getRGB(x, y))
+            }
+        }
+    }
+
+    private fun render(pdfBytes: ByteArray): BufferedImage {
+        PDDocument.load(pdfBytes).use {
+            assertEquals(1, it.numberOfPages)
+            val renderer = PDFRenderer(it)
+            return renderer.renderImage(0)
+        }
+    }
+}

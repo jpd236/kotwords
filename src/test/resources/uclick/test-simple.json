@@ -1,0 +1,10 @@
+{
+  "DownClue": "01|First down clue\n02|Second down clue\n03|Third down clue\n04|Fourth down clue\n07|Fifth down clue",
+  "AcrossClue": "01|First across clue\n05|Second across clue\n06|Third across clue\n08|Fourth across clue\n09|Fifth across clue",
+  "Date": "20180101",
+  "Author": "Jeff Davidson",
+  "Title": "Example Puzzle for Kotwords",
+  "Height": "5",
+  "Width": "5",
+  "AllAnswer": "ABCD-EFGH-IJKLM-NOPQ-RSTU"
+}

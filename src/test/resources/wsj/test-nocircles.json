@@ -1,0 +1,154 @@
+{
+  "data": {
+    "copy": {
+      "title": "Example Puzzle for Kotwords",
+      "description": "Notepad text goes here.",
+      "publisher": "Jeff Davidson",
+      "byline": "Jeff Davidson",
+      "date-publish": "Tuesday, 10 April 2018",
+      "gridsize": {
+        "cols": "5",
+        "rows": "5"
+      },
+      "clues": [
+        {
+          "title": "Across",
+          "clues": [
+            {
+              "number": "1",
+              "clue": "First across clue"
+            },
+            {
+              "number": "5",
+              "clue": "Second across clue"
+            },
+            {
+              "number": "6",
+              "clue": "Third across clue"
+            },
+            {
+              "number": "8",
+              "clue": "Fourth across clue"
+            },
+            {
+              "number": "9",
+              "clue": "Fifth across clue"
+            }
+          ]
+        },
+        {
+          "title": "Down",
+          "clues": [
+            {
+              "number": "1",
+              "clue": "First down clue"
+            },
+            {
+              "number": "2",
+              "clue": "Second down clue"
+            },
+            {
+              "number": "3",
+              "clue": "Third down clue"
+            },
+            {
+              "number": "4",
+              "clue": "Fourth down clue"
+            },
+            {
+              "number": "7",
+              "clue": "Fifth down clue"
+            }
+          ]
+        }
+      ]
+    },
+    "grid": [
+      [
+        {
+          "Letter": "A"
+        },
+        {
+          "Letter": "B"
+        },
+        {
+          "Letter": "C"
+        },
+        {
+          "Letter": "D"
+        },
+        {
+          "Letter": ""
+        }
+      ],
+      [
+        {
+          "Letter": "E"
+        },
+        {
+          "Letter": "F"
+        },
+        {
+          "Letter": "G"
+        },
+        {
+          "Letter": "H"
+        },
+        {
+          "Letter": ""
+        }
+      ],
+      [
+        {
+          "Letter": "I"
+        },
+        {
+          "Letter": "J"
+        },
+        {
+          "Letter": "XYZ"
+        },
+        {
+          "Letter": "L"
+        },
+        {
+          "Letter": "M"
+        }
+      ],
+      [
+        {
+          "Letter": ""
+        },
+        {
+          "Letter": "N"
+        },
+        {
+          "Letter": "O"
+        },
+        {
+          "Letter": "P"
+        },
+        {
+          "Letter": "Q"
+        }
+      ],
+      [
+        {
+          "Letter": ""
+        },
+        {
+          "Letter": "1"
+        },
+        {
+          "Letter": "2"
+        },
+        {
+          "Letter": "$"
+        },
+        {
+          "Letter": "@"
+        }
+      ]
+    ]
+  }
+}

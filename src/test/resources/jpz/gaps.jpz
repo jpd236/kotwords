@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<crossword-compiler>
+  <rectangular-puzzle>
+    <metadata>
+      <title>Test</title>
+      <creator>Test</creator>
+      <copyright>Test</copyright>
+      <description/>
+    </metadata>
+    <crossword>
+      <grid width="7" height="5">
+        <cell x="1" y="1" solution="X" number="1"/>
+        <cell x="2" y="1" solution="X"/>
+        <cell x="3" y="1" solution="X" number="2"/>
+        <cell x="4" y="1" type="block"/>
+        <cell x="5" y="1" type="block"/>
+        <cell x="6" y="1" type="block"/>
+        <cell x="7" y="1" type="block"/>
+        <cell x="1" y="2" solution="X"/>
+        <cell x="2" y="2" solution="X"/>
+        <cell x="3" y="2" solution="X"/>
+        <cell x="4" y="2" type="block"/>
+        <cell x="5" y="2" solution="X"/>
+        <cell x="6" y="2" solution="X" number="3"/>
+        <cell x="7" y="2" solution="X" number="4"/>
+        <cell x="1" y="3" solution="X" number="5"/>
+        <cell x="2" y="3" solution="X"/>
+        <cell x="3" y="3" solution="X"/>
+        <cell x="4" y="3" type="block"/>
+        <cell x="5" y="3" solution="X" number="6"/>
+        <cell x="6" y="3" solution="X"/>
+        <cell x="7" y="3" solution="X" number="7"/>
+        <cell x="1" y="4" solution="X" number="8"/>
+        <cell x="2" y="4" solution="X"/>
+        <cell x="3" y="4" solution="X"/>
+        <cell x="4" y="4" type="block"/>
+        <cell x="5" y="4" solution="X" number="9"/>
+        <cell x="6" y="4" solution="X"/>
+        <cell x="7" y="4" solution="X"/>
+        <cell x="1" y="5" type="block"/>
+        <cell x="2" y="5" type="block"/>
+        <cell x="3" y="5" type="block"/>
+        <cell x="4" y="5" type="block"/>
+        <cell x="5" y="5" solution="X" number="10"/>
+        <cell x="6" y="5" solution="X"/>
+        <cell x="7" y="5" solution="X"/>
+      </grid>
+      <word id="1" x="1-3" y="1"/>
+      <word id="2" x="1-3" y="2"/>
+      <word id="3" x="5-7" y="2"/>
+      <word id="4" x="1-3" y="3"/>
+      <word id="5" x="5-7" y="3"/>
+      <word id="6" x="1-3" y="4"/>
+      <word id="7" x="5-7" y="4"/>
+      <word id="8" x="5-7" y="5"/>
+      <word id="9" x="1" y="1-4"/>
+      <word id="10" x="2" y="1-4"/>
+      <word id="11" x="3" y="1-4"/>
+      <word id="12" x="5" y="2-5"/>
+      <word id="13" x="6" y="2-5"/>
+      <word id="14" x="7" y="2-5"/>
+      <word id="15" x="7" y="3-5"/>
+      <clues>
+        <title>Across</title>
+        <clue word="1" number="1">See 3-Down</clue>
+        <clue word="4" number="5">See 1- and 6-Across</clue>
+        <clue word="5" number="6">Normal clue</clue>
+        <clue word="6" number="8">See 1-, 5- and 10-Across and 3- and 4-Down</clue>
+        <clue word="7" number="9">Normal clue</clue>
+        <clue word="8" number="10">See 2-Down</clue>
+      </clues>
+      <clues>
+        <title>Down</title>
+        <clue word="9" number="1">9-Across, for example</clue>
+        <clue word="11" number="2">Normal clue</clue>
+        <clue word="13" number="3">See 4-Down</clue>
+        <clue word="14" number="4">See 3-Down and 1-, 6- and 9-Across</clue>
+        <clue word="15" number="7">Will be removed</clue>
+      </clues>
+    </crossword>
+  </rectangular-puzzle>
+</crossword-compiler>
