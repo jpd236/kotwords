@@ -7,7 +7,7 @@ import se.ansman.kotshi.KotshiJsonAdapterFactory
 import java.lang.reflect.Type
 
 /** Utility class for serializing to / deserializing from Json. */
-object JsonSerializer {
+internal object JsonSerializer {
     @KotshiJsonAdapterFactory
     abstract class ApplicationJsonAdapterFactory : JsonAdapter.Factory {
         companion object {
