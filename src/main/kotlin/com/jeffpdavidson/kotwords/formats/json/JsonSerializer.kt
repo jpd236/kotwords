@@ -1,4 +1,4 @@
-package com.jeffpdavidson.kotwords.formats
+package com.jeffpdavidson.kotwords.formats.json
 
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
@@ -33,4 +33,4 @@ internal object JsonSerializer {
 }
 
 @JsonDefaultValue
-fun <T> provideDefaultList() = emptyList<T>()
+internal fun <T> provideDefaultList() = emptyList<T>()

@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.toAcrossLiteBinary
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Square
 import com.jeffpdavidson.kotwords.readBinaryResource

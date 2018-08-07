@@ -11,7 +11,7 @@ import java.io.StringReader
 import java.util.Locale
 import javax.xml.parsers.DocumentBuilderFactory
 
-val CROSS_REFERENCE_PATTERN = "([1-9][0-9]*)-(?:(?!Across|Down).)*(Across|Down)".toRegex()
+private val CROSS_REFERENCE_PATTERN = "([1-9][0-9]*)-(?:(?!Across|Down).)*(Across|Down)".toRegex()
 
 /** Container for a puzzle in the JPZ file format. */
 class Jpz(private val xml: String) : Crosswordable {

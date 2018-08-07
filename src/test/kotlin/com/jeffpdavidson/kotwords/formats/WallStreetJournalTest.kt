@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.toAcrossLiteBinary
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readUtf8Resource
 import org.junit.jupiter.api.Assertions

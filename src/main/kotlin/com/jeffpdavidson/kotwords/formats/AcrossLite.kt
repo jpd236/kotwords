@@ -21,6 +21,8 @@ private const val FORMAT_VERSION = "1.4"
  * This implements [Crosswordable] and as such can create a [Crossword] structure for the puzzle it
  * represents with [asCrossword]. However, in the common case that the puzzle is just being
  * serialized to disk in this format, prefer [binaryData] which is already in the correct format.
+ *
+ * @param binaryData The raw binary data in Across Lite format.
  */
 class AcrossLite(val binaryData: ByteArray) : Crosswordable {
 
@@ -152,174 +154,176 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
             )
         }
     }
-}
 
-/**
- * Serialize this crossword into Across Lite binary format.
- *
- * @param solved If true, the grid will be filled in with the correct solution.
- */
-fun Crossword.toAcrossLiteBinary(solved: Boolean = false): ByteArray {
-    // Extra section positions are not fixed, so prepare a map from offset of checksum to
-    // offset+length of data to be checksummed as we construct the puzzle data.
-    val checksumsToCalculate: MutableMap<Int, Pair<Int, Int>> = mutableMapOf()
-    fun BytePacketBuilder.writeExtraSection(name: String, length: Int, writeDataFn: () -> Unit) {
-        writeStringUtf8(name)
-        writeShort(length.toShort())
-        // Checksum placeholder
-        val checksumOffset = size
-        writeShort(0)
-        checksumsToCalculate[checksumOffset] = Pair(size, length)
-        writeDataFn()
-        writeByte(0)
-    }
-
-    val clueCount = acrossClues.size + downClues.size
-    val squareCount = grid.size * grid[0].size
-
-    // Construct the puzzle data, leaving placeholders for each checksum.
-    val output = buildPacket {
-        byteOrder = ByteOrder.LITTLE_ENDIAN
-
-        // 0x00-0x01: file checksum placeholder
-        writeShort(0)
-
-        // 0x02-0x0D: file magic
-        writeNullTerminatedString(FILE_MAGIC)
-
-        // 0x0E-0x17: checksum placeholders
-        writeFully(ByteArray(10))
-
-        // 0x18-0x1B: format version
-        writeNullTerminatedString(FORMAT_VERSION)
-
-        // 0x1C-0x1D: unknown
-        writeShort(0)
-
-        // 0x1E-0x1F: solution checksum for scrambled puzzles
-        writeShort(0)
-
-        // 0x20-0x2B: unknown
-        writeFully(ByteArray(12))
-
-        // 0x2C: width
-        writeByte(grid[0].size.toByte())
-
-        // 0x2D: height
-        writeByte(grid.size.toByte())
-
-        // 0x2E-0x2F: number of clues
-        writeShort(clueCount.toShort())
-
-        // 0x30-0x31: puzzle type (normal vs. diagramless)
-        writeShort(1)
-
-        // 0x32-0x33: scrambled tag (unscrambled vs. scrambled vs. no solution)
-        writeShort(0)
-
-        // Board solution, reading left to right, top to bottom
-        writeGrid(grid, '.'.toByte()) { it.solution!!.toByte() }
-
-        // Player state, reading left to right, top to bottom
-        writeGrid(grid, '.'.toByte()) {
-            if (solved) {
-                it.solution!!.toByte()
-            } else {
-                '-'.toByte()
+    companion object {
+        /**
+         * Serialize this crossword into Across Lite binary format.
+         *
+         * @param solved If true, the grid will be filled in with the correct solution.
+         */
+        fun Crossword.toAcrossLiteBinary(solved: Boolean = false): ByteArray {
+            // Extra section positions are not fixed, so prepare a map from offset of checksum to
+            // offset+length of data to be checksummed as we construct the puzzle data.
+            val checksumsToCalculate: MutableMap<Int, Pair<Int, Int>> = mutableMapOf()
+            fun BytePacketBuilder.writeExtraSection(name: String, length: Int, writeDataFn: () -> Unit) {
+                writeStringUtf8(name)
+                writeShort(length.toShort())
+                // Checksum placeholder
+                val checksumOffset = size
+                writeShort(0)
+                checksumsToCalculate[checksumOffset] = Pair(size, length)
+                writeDataFn()
+                writeByte(0)
             }
-        }
 
-        // Strings
-        writeNullTerminatedString(title)
-        writeNullTerminatedString(author)
-        writeNullTerminatedString(copyright)
+            val clueCount = acrossClues.size + downClues.size
+            val squareCount = grid.size * grid[0].size
 
-        // Clues in numerical order. If two clues have the same number, across comes before down.
-        acrossClues.keys.plus(downClues.keys).sorted().forEach { clueNum ->
-            if (clueNum in acrossClues) {
-                writeNullTerminatedString(acrossClues[clueNum]!!)
-            }
-            if (clueNum in downClues) {
-                writeNullTerminatedString(downClues[clueNum]!!)
-            }
-        }
+            // Construct the puzzle data, leaving placeholders for each checksum.
+            val output = buildPacket {
+                byteOrder = ByteOrder.LITTLE_ENDIAN
 
-        writeNullTerminatedString(notes)
+                // 0x00-0x01: file checksum placeholder
+                writeShort(0)
 
-        // GRBS/RUSR/RTBL sections for rebus squares.
-        if (grid.flatAny { !it.solutionRebus.isEmpty() }) {
-            // Create map from solution rebus to a unique index for that rebus, starting at 1.
-            val rebusTable = grid.flatMap { row ->
-                row.map { square ->
-                    square.solutionRebus
-                }
-            }.filterNot { it == "" }.distinct().mapIndexed { index, it -> it to index + 1 }.toMap()
+                // 0x02-0x0D: file magic
+                writeNullTerminatedString(FILE_MAGIC)
 
-            // GRBS section: map grid squares to rebus table entries.
-            writeExtraSection("GRBS", squareCount) {
-                // 0 for non-rebus squares, 1+n for entry with key n in the rebus table.
-                writeGrid(grid, 0) {
-                    if (it.solutionRebus in rebusTable) {
-                        (1 + rebusTable[it.solutionRebus]!!).toByte()
+                // 0x0E-0x17: checksum placeholders
+                writeFully(ByteArray(10))
+
+                // 0x18-0x1B: format version
+                writeNullTerminatedString(FORMAT_VERSION)
+
+                // 0x1C-0x1D: unknown
+                writeShort(0)
+
+                // 0x1E-0x1F: solution checksum for scrambled puzzles
+                writeShort(0)
+
+                // 0x20-0x2B: unknown
+                writeFully(ByteArray(12))
+
+                // 0x2C: width
+                writeByte(grid[0].size.toByte())
+
+                // 0x2D: height
+                writeByte(grid.size.toByte())
+
+                // 0x2E-0x2F: number of clues
+                writeShort(clueCount.toShort())
+
+                // 0x30-0x31: puzzle type (normal vs. diagramless)
+                writeShort(1)
+
+                // 0x32-0x33: scrambled tag (unscrambled vs. scrambled vs. no solution)
+                writeShort(0)
+
+                // Board solution, reading left to right, top to bottom
+                writeGrid(grid, '.'.toByte()) { it.solution!!.toByte() }
+
+                // Player state, reading left to right, top to bottom
+                writeGrid(grid, '.'.toByte()) {
+                    if (solved) {
+                        it.solution!!.toByte()
                     } else {
-                        0
+                        '-'.toByte()
                     }
                 }
-            }
 
-            // RTBL section: rebus table.
-            val rtblData = rebusTable.entries.joinToString(";", postfix = ";") {
-                "% 2d:%s".format(Locale.ROOT, it.value, it.key)
-            }
-            writeExtraSection("RTBL", rtblData.length) {
-                writeStringUtf8(rtblData)
-            }
+                // Strings
+                writeNullTerminatedString(title)
+                writeNullTerminatedString(author)
+                writeNullTerminatedString(copyright)
 
-            if (solved) {
-                // RUSR section: user rebus entries.
-                writeExtraSection("RUSR", grid.flatten().sumBy { it.solutionRebus.length + 1 }) {
-                    grid.forEach { row ->
-                        row.forEach { square ->
-                            writeNullTerminatedString(square.solutionRebus)
+                // Clues in numerical order. If two clues have the same number, across comes before down.
+                acrossClues.keys.plus(downClues.keys).sorted().forEach { clueNum ->
+                    if (clueNum in acrossClues) {
+                        writeNullTerminatedString(acrossClues[clueNum]!!)
+                    }
+                    if (clueNum in downClues) {
+                        writeNullTerminatedString(downClues[clueNum]!!)
+                    }
+                }
+
+                writeNullTerminatedString(notes)
+
+                // GRBS/RUSR/RTBL sections for rebus squares.
+                if (grid.flatAny { !it.solutionRebus.isEmpty() }) {
+                    // Create map from solution rebus to a unique index for that rebus, starting at 1.
+                    val rebusTable = grid.flatMap { row ->
+                        row.map { square ->
+                            square.solutionRebus
+                        }
+                    }.filterNot { it == "" }.distinct().mapIndexed { index, it -> it to index + 1 }.toMap()
+
+                    // GRBS section: map grid squares to rebus table entries.
+                    writeExtraSection("GRBS", squareCount) {
+                        // 0 for non-rebus squares, 1+n for entry with key n in the rebus table.
+                        writeGrid(grid, 0) {
+                            if (it.solutionRebus in rebusTable) {
+                                (1 + rebusTable[it.solutionRebus]!!).toByte()
+                            } else {
+                                0
+                            }
+                        }
+                    }
+
+                    // RTBL section: rebus table.
+                    val rtblData = rebusTable.entries.joinToString(";", postfix = ";") {
+                        "% 2d:%s".format(Locale.ROOT, it.value, it.key)
+                    }
+                    writeExtraSection("RTBL", rtblData.length) {
+                        writeStringUtf8(rtblData)
+                    }
+
+                    if (solved) {
+                        // RUSR section: user rebus entries.
+                        writeExtraSection("RUSR", grid.flatten().sumBy { it.solutionRebus.length + 1 }) {
+                            grid.forEach { row ->
+                                row.forEach { square ->
+                                    writeNullTerminatedString(square.solutionRebus)
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
 
-        // GEXT section for circled squares.
-        if (grid.flatAny { it.isCircled }) {
-            writeExtraSection("GEXT", squareCount) {
-                // 0x80 for circled squares, 0 otherwise.
-                writeGrid(grid, 0) { if (it.isCircled) 0x80.toByte() else 0 }
-            }
-        }
+                // GEXT section for circled squares.
+                if (grid.flatAny { it.isCircled }) {
+                    writeExtraSection("GEXT", squareCount) {
+                        // 0x80 for circled squares, 0 otherwise.
+                        writeGrid(grid, 0) { if (it.isCircled) 0x80.toByte() else 0 }
+                    }
+                }
 
-        if (solved) {
-            // LTIM section: timer (stopped at 0).
-            writeExtraSection("LTIM", 3) {
-                writeStringUtf8("0,1")
-            }
-        }
+                if (solved) {
+                    // LTIM section: timer (stopped at 0).
+                    writeExtraSection("LTIM", 3) {
+                        writeStringUtf8("0,1")
+                    }
+                }
 
+            }
+            val puzBytes = output.readBytes()
+
+            val puzByteBuffer = ByteBuffer.wrap(puzBytes)
+            puzByteBuffer.order(java.nio.ByteOrder.LITTLE_ENDIAN)
+
+            // Calculate puzzle checksums.
+            puzByteBuffer.putShort(0x0E, checksumCib(puzBytes).toShort())
+            puzByteBuffer.putShort(0, checksumPrimaryBoard(puzBytes, squareCount, clueCount).toShort())
+            puzByteBuffer.putLong(0x10, checksumPrimaryBoardMasked(puzBytes, squareCount, clueCount))
+
+            // Calculate extra section checksums.
+            checksumsToCalculate.forEach { (checksumOffset, dataEntry) ->
+                puzByteBuffer.putShort(checksumOffset,
+                        checksumRegion(puzBytes, dataEntry.first, dataEntry.second, 0).toShort())
+            }
+
+            return puzBytes
+        }
     }
-    val puzBytes = output.readBytes()
-
-    val puzByteBuffer = ByteBuffer.wrap(puzBytes)
-    puzByteBuffer.order(java.nio.ByteOrder.LITTLE_ENDIAN)
-
-    // Calculate puzzle checksums.
-    puzByteBuffer.putShort(0x0E, checksumCib(puzBytes).toShort())
-    puzByteBuffer.putShort(0, checksumPrimaryBoard(puzBytes, squareCount, clueCount).toShort())
-    puzByteBuffer.putLong(0x10, checksumPrimaryBoardMasked(puzBytes, squareCount, clueCount))
-
-    // Calculate extra section checksums.
-    checksumsToCalculate.forEach { (checksumOffset, dataEntry) ->
-        puzByteBuffer.putShort(checksumOffset,
-                checksumRegion(puzBytes, dataEntry.first, dataEntry.second, 0).toShort())
-    }
-
-    return puzBytes
 }
 
 private inline fun BytePacketBuilder.writeGrid(

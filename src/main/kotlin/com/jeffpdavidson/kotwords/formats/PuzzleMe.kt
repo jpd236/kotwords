@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
+import com.jeffpdavidson.kotwords.formats.json.PuzzleMeJson
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
@@ -9,30 +11,10 @@ import se.ansman.kotshi.JsonSerializable
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 
-var PUZZLE_DATA_REGEX = """\bwindow\.rawc\s*=\s*'([^']+)'""".toRegex()
+private val PUZZLE_DATA_REGEX = """\bwindow\.rawc\s*=\s*'([^']+)'""".toRegex()
 
 /** Container for a puzzle in the PuzzleMe (Amuse Labs) format. */
 class PuzzleMe(private val html: String) : Crosswordable {
-    @JsonSerializable
-    internal data class Clue(val clue: String)
-
-    @JsonSerializable
-    internal data class PlacedWord(val clue: Clue, val clueNum: Int, val acrossNotDown: Boolean)
-
-    @JsonSerializable
-    internal data class CellInfo(val x: Int, val y: Int, val isCircled: Boolean)
-
-    @JsonSerializable
-    internal data class Data(
-            val title: String,
-            val description: String,
-            val copyright: String,
-            val author: String,
-            val box: List<List<String>>,
-            @JsonDefaultValue val cellInfos: List<CellInfo>,
-            val placedWords: List<PlacedWord>,
-            // List of circled squares locations in the form [x, y]
-            @JsonDefaultValue val backgroundShapeBoxes: List<List<Int>>)
 
     override fun asCrossword(): Crossword {
         return toCrossword(extractPuzzleJson(html))
@@ -54,7 +36,7 @@ class PuzzleMe(private val html: String) : Crosswordable {
         }
 
         internal fun toCrossword(json: String): Crossword {
-            val data = JsonSerializer.fromJson(Data::class.java, json)
+            val data = JsonSerializer.fromJson(PuzzleMeJson.Data::class.java, json)
             val grid: MutableList<MutableList<Square>> = mutableListOf()
             val circledCells = data.cellInfos.filter { it.isCircled }.map { it -> it.x to it.y }
             for (y in 0 until data.box[0].size) {

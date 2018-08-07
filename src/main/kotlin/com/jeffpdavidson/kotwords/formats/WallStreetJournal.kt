@@ -1,10 +1,10 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.squareup.moshi.Json
+import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
+import com.jeffpdavidson.kotwords.formats.json.WallStreetJournalJson
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
-import se.ansman.kotshi.JsonSerializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -13,36 +13,9 @@ private val PUBLISH_DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyy
 /** Container for a puzzle in the Wall Street Journal JSON format. */
 class WallStreetJournal(private val json: String,
                         private val includeDateInTitle: Boolean = true) : Crosswordable {
-    @JsonSerializable
-    internal data class Gridsize(val cols: Int, val rows: Int)
-
-    @JsonSerializable
-    internal data class Clue(val number: Int, val clue: String)
-
-    @JsonSerializable
-    internal data class ClueSet(val title: String, val clues: List<Clue>)
-
-    @JsonSerializable
-    internal data class Copy(
-            val title: String,
-            val byline: String,
-            val description: String,
-            @Json(name = "date-publish") val datePublish: String,
-            val publisher: String,
-            val gridsize: Gridsize,
-            val clues: List<ClueSet>)
-
-    @JsonSerializable
-    internal data class Square(@Json(name = "Letter") val letter: String)
-
-    @JsonSerializable
-    internal data class Data(val copy: Copy, val grid: List<List<Square>>)
-
-    @JsonSerializable
-    internal data class Response(val data: Data)
 
     override fun asCrossword(): Crossword {
-        val response = JsonSerializer.fromJson(Response::class.java, json)
+        val response = JsonSerializer.fromJson(WallStreetJournalJson.Response::class.java, json)
         val grid = response.data.grid.map { row ->
             row.map { square ->
                 if (square.letter == "") {
@@ -70,7 +43,8 @@ class WallStreetJournal(private val json: String,
                 downClues = getClueMap(response, "Down"))
     }
 
-    private fun getClueMap(response: Response, direction: String): Map<Int, String> {
+    private fun getClueMap(response: WallStreetJournalJson.Response, direction: String):
+            Map<Int, String> {
         return response.data.copy.clues.first { it.title == direction }
                 .clues.map { it.number to it.clue }.toMap()
     }

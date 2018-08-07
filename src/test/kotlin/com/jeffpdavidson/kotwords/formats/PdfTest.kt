@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.formats.Pdf.asPdf
+import com.jeffpdavidson.kotwords.formats.Pdf.splitTextToLines
 import com.jeffpdavidson.kotwords.readBinaryResource
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.font.PDType1Font
@@ -32,7 +34,7 @@ class PdfTest {
                         "oo ppp qqq rrr",
                         "sss tttt uuuu",
                         "vvvv"),
-                com.jeffpdavidson.kotwords.formats.splitTextToLines(
+                splitTextToLines(
                         "a b c d e f g h i jj kk ll mm nn oo ppp qqq rrr sss tttt uuuu vvvv",
                         PDType1Font.COURIER,
                         10f,
@@ -48,7 +50,7 @@ class PdfTest {
                         "7890 12345678901",
                         "234567890 123456",
                         "78901234567890"),
-                com.jeffpdavidson.kotwords.formats.splitTextToLines(
+                splitTextToLines(
                         "12345678901234567890 12345678901234567890 12345678901234567890",
                         PDType1Font.COURIER,
                         10f,

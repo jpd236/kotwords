@@ -1,11 +1,10 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
+import com.jeffpdavidson.kotwords.formats.json.UclickJson
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
-import com.squareup.moshi.Json
-import se.ansman.kotshi.JsonDefaultValueString
-import se.ansman.kotshi.JsonSerializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -17,20 +16,8 @@ class Uclick(private val json: String,
              private val copyright: String = "",
              private val addDateToTitle: Boolean = true) : Crosswordable {
 
-    @JsonSerializable
-    internal data class Response(
-            @Json(name = "AllAnswer") val allAnswer: String,
-            @Json(name = "Width") val width: Int,
-            @Json(name = "Height") val height: Int,
-            @Json(name = "Title") val title: String,
-            @Json(name = "Author") val author: String,
-            @Json(name = "Date") val date: String,
-            @Json(name = "AcrossClue") val acrossClue: String,
-            @Json(name = "DownClue") val downClue: String,
-            @Json(name = "Copyright") @JsonDefaultValueString(value = "") val copyright: String)
-
     override fun asCrossword(): Crossword {
-        val response = JsonSerializer.fromJson(Response::class.java, json)
+        val response = JsonSerializer.fromJson(UclickJson.Response::class.java, json)
         val date = LocalDate.parse(response.date, JSON_DATE_FORMAT)
         val copyright = if (!response.copyright.isEmpty()) response.copyright else copyright
         val grid = response.allAnswer.chunked(response.width).map { row ->

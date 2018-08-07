@@ -16,8 +16,8 @@ private val WINDOWS_1252 = Charset.forName("windows-1252")
  * @param author The author of the puzzle.
  * @param copyright The copyright of the puzzle.
  * @param notes Optional notes about the puzzle.
- * @param grid The grid of {@link Square}s in the form of a list of rows going from top to bottom,
- *             with each row going from left to right.
+ * @param grid The grid of [Square]s in the form of a list of rows going from top to bottom, with
+ *             each row going from left to right.
  * @param acrossClues Mapping from across clue number to the clue for that number.
  * @param downClues Mapping from down clue number to the clue for that number.
  */
