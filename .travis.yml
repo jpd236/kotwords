@@ -11,3 +11,6 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+
+script:
+  - ./gradlew check && ./publish-snapshot-on-commit.sh
