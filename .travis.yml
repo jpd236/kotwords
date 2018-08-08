@@ -13,4 +13,4 @@ cache:
     - $HOME/.gradle/wrapper/
 
 script:
-  - ./gradlew check && ./publish-snapshot-on-commit.sh
+  - ./gradlew check && ./publish-snapshot.sh
