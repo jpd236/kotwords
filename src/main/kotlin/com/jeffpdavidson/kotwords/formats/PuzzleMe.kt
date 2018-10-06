@@ -62,11 +62,15 @@ class PuzzleMe(private val html: String) : Crosswordable {
                     copyright = data.copyright,
                     notes = data.description,
                     grid = grid,
-                    acrossClues = data.placedWords
-                            .filter { it.acrossNotDown }.map { it.clueNum to it.clue.clue }.toMap(),
-                    downClues = data.placedWords
-                            .filter { !it.acrossNotDown }.map { it.clueNum to it.clue.clue }.toMap()
+                    acrossClues = buildClueMap(data.placedWords.filter { it.acrossNotDown }),
+                    downClues = buildClueMap(data.placedWords.filter { !it.acrossNotDown })
             )
+        }
+
+        private fun buildClueMap(clueList: List<PuzzleMeJson.PlacedWord>): Map<Int, String> {
+            return clueList
+                    .map { it.clueNum to it.clue.clue.replace("</?i>".toRegex(), "\"") }
+                    .toMap()
         }
     }
 }

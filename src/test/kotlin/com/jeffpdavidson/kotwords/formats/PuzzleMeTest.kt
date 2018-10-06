@@ -32,4 +32,13 @@ class PuzzleMeTest {
                         PuzzleMeTest::class.readUtf8Resource("puzzleme/test.json"))
                         .toAcrossLiteBinary())
     }
+
+    @Test
+    fun toCrossword_italics() {
+        assertArrayEquals(
+                PuzzleMeTest::class.readBinaryResource("puzzleme/test-italics.puz"),
+                PuzzleMe.toCrossword(
+                        PuzzleMeTest::class.readUtf8Resource("puzzleme/test-italics.json"))
+                        .toAcrossLiteBinary())
+    }
 }

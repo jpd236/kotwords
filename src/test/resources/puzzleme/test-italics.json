@@ -1,0 +1,47 @@
+{
+  "title": "Example Puzzle for Kotwords",
+  "description": "",
+  "copyright": "© 2018 Jeff Davidson",
+  "author": "Jeff Davidson",
+  "w": 1,
+  "h": 1,
+  "box": [
+    [
+      "A",
+      "B"
+    ],
+    [ "C",
+      "D"
+    ]
+  ],
+  "placedWords": [
+    {
+      "acrossNotDown": true,
+      "clueNum": 1,
+      "clue": {
+        "clue": "First <i>across</i> clue"
+      }
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 3,
+      "clue": {
+        "clue": "Second <i>across</i> clue"
+      }
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 1,
+      "clue": {
+        "clue": "First <i>down</i> clue"
+      }
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 2,
+      "clue": {
+        "clue": "Second <i>down</i> clue"
+      }
+    }
+  ]
+}
