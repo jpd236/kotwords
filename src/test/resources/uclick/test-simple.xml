@@ -1,0 +1,22 @@
+<crossword>
+    <Title v="Example Puzzle for Kotwords"/>
+    <Author v="Jeff Davidson"/>
+    <Copyright v="Jeff Davidson"/>
+    <Width v="5"/>
+    <Height v="5"/>
+    <AllAnswer v="ABCD-EFGH-IJKLM-NOPQ-RSTU"/>
+    <across>
+        <a1 a="ABCD" c="%46irst across clue" n="1" cn="1"/>
+        <a2 a="EFGH" c="Second across clue" n="6" cn="5"/>
+        <a3 a="IJKLM" c="Third across clue" n="11" cn="6"/>
+        <a4 a="NOPQ" c="Fourth across clue" n="16" cn="8"/>
+        <a5 a="RSTU" c="Fifth across clue" n="21" cn="9"/>
+    </across>
+    <down>
+        <d1 a="AEI" c="First down clue" n="1" cn="1"/>
+        <d2 a="BFJNR" c="Second down clue" n="2" cn="2"/>
+        <d3 a="CGKOS" c="Third down clue" n="3" cn="3"/>
+        <d4 a="DHLPT" c="Fourth down clue" n="4" cn="4"/>
+        <d5 a="MQU" c="Fifth down clue" n="15" cn="7"/>
+    </down>
+</crossword>

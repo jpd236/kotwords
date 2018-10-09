@@ -6,12 +6,12 @@ import com.jeffpdavidson.kotwords.readUtf8Resource
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class UclickTest {
+class UclickJsonTest {
     @Test
     fun crossword() {
         Assertions.assertArrayEquals(
-                UclickTest::class.readBinaryResource("puz/test-simple.puz"),
-                Uclick(UclickTest::class.readUtf8Resource("uclick/test-simple.json"),
+                UclickJsonTest::class.readBinaryResource("puz/test-simple.puz"),
+                UclickJson(UclickJsonTest::class.readUtf8Resource("uclick/test-simple.json"),
                         copyright = "Jeff Davidson",
                         addDateToTitle = false).asCrossword().toAcrossLiteBinary())
     }

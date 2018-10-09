@@ -1,15 +1,12 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.formats.Xml.getElementByTagName
+import com.jeffpdavidson.kotwords.formats.Xml.getElementListByTagName
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
 import org.w3c.dom.Element
-import org.w3c.dom.Node
-import org.w3c.dom.NodeList
-import org.xml.sax.InputSource
-import java.io.StringReader
 import java.util.Locale
-import javax.xml.parsers.DocumentBuilderFactory
 
 private val CROSS_REFERENCE_PATTERN = "([1-9][0-9]*)-(?:(?!Across|Down).)*(Across|Down)".toRegex()
 
@@ -17,8 +14,7 @@ private val CROSS_REFERENCE_PATTERN = "([1-9][0-9]*)-(?:(?!Across|Down).)*(Acros
 class Jpz(private val xml: String) : Crosswordable {
 
     override fun asCrossword(): Crossword {
-        val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-        val document = documentBuilder.parse(InputSource(StringReader(xml))).documentElement
+        val document = Xml.parseDocument(xml)
 
         val metadataElement = document.getElementByTagName("metadata")
         val title = metadataElement.getElementByTagName("title").textContent
@@ -175,20 +171,4 @@ class Jpz(private val xml: String) : Crosswordable {
             return sanitizedClue.toString()
         }
     }
-}
-
-private fun Element.getElementListByTagName(tagName: String): List<Element> {
-    return NodeStandardList(getElementsByTagName(tagName)).map { it as Element }
-}
-
-private fun Element.getElementByTagName(tagName: String): Element {
-    return getElementsByTagName(tagName).item(0) as Element
-}
-
-private class NodeStandardList(private val list: NodeList) : AbstractList<Node>(), RandomAccess {
-    override fun get(index: Int): Node {
-        return list.item(index)
-    }
-
-    override val size = list.length
 }
