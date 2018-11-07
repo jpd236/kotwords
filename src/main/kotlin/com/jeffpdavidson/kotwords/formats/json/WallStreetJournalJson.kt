@@ -1,6 +1,7 @@
 package com.jeffpdavidson.kotwords.formats.json
 
 import com.squareup.moshi.Json
+import se.ansman.kotshi.JsonDefaultValue
 import se.ansman.kotshi.JsonSerializable
 
 internal object WallStreetJournalJson {
@@ -24,7 +25,15 @@ internal object WallStreetJournalJson {
             val clues: List<ClueSet>)
 
     @JsonSerializable
-    internal data class Square(@Json(name = "Letter") val letter: String)
+    internal data class Style(val shapebg: String, val highlight: Boolean)
+
+    @JsonDefaultValue
+    val defaultStyle = Style(shapebg = "", highlight = false)
+
+    @JsonSerializable
+    internal data class Square(
+            @Json(name = "Letter") val letter: String,
+            @JsonDefaultValue val style: Style)
 
     @JsonSerializable
     internal data class Data(val copy: Copy, val grid: List<List<Square>>)

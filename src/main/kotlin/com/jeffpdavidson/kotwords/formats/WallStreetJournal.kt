@@ -21,9 +21,12 @@ class WallStreetJournal(private val json: String,
                 if (square.letter == "") {
                     BLACK_SQUARE
                 } else {
+                    // Treat any kind of special square style as circled, since that's all Across
+                    // Lite can render.
                     Square(
                             solution = square.letter[0],
-                            solutionRebus = if (square.letter.length > 1) square.letter else "")
+                            solutionRebus = if (square.letter.length > 1) square.letter else "",
+                            isCircled = square.style.highlight || !square.style.shapebg.isEmpty())
                 }
             }
         }.toList()

@@ -100,7 +100,11 @@
       ],
       [
         {
-          "Letter": "I"
+          "Letter": "I",
+          "style": {
+            "shapebg": "circle",
+            "highlight": false
+          }
         },
         {
           "Letter": "J"
@@ -112,7 +116,11 @@
           "Letter": "L"
         },
         {
-          "Letter": "M"
+          "Letter": "M",
+          "style": {
+            "shapebg": "circle",
+            "highlight": false
+          }
         }
       ],
       [

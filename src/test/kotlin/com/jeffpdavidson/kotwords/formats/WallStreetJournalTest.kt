@@ -10,8 +10,8 @@ class WallStreetJournalTest {
     @Test
     fun basicPuzzle() {
         Assertions.assertArrayEquals(
-                WallStreetJournalTest::class.readBinaryResource("puz/test-nocircles.puz"),
-                WallStreetJournal(WallStreetJournalTest::class.readUtf8Resource("wsj/test-nocircles.json"),
+                WallStreetJournalTest::class.readBinaryResource("puz/test.puz"),
+                WallStreetJournal(WallStreetJournalTest::class.readUtf8Resource("wsj/test.json"),
                         includeDateInTitle = false)
                         .asCrossword().toAcrossLiteBinary())
     }
