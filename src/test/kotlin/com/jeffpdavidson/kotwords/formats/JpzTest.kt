@@ -73,16 +73,14 @@ class JpzTest {
     fun sanitizeClue_normalClue() {
         val givenClue = "Just a normal clue"
         val givenToSanitizedClueNumMap: Map<Int, Int> = mapOf()
-        assertEquals("Just a normal clue", Jpz.sanitizeClue(givenClue, givenToSanitizedClueNumMap)
-        )
+        assertEquals("Just a normal clue", Jpz.sanitizeClue(givenClue, givenToSanitizedClueNumMap))
     }
 
     @Test
     fun sanitizeClue_simpleReplacement() {
         val givenClue = "See 25-Down"
         val givenToSanitizedClueNumMap = mapOf(25 to 27)
-        assertEquals("See 27-Down", Jpz.sanitizeClue(givenClue, givenToSanitizedClueNumMap)
-        )
+        assertEquals("See 27-Down", Jpz.sanitizeClue(givenClue, givenToSanitizedClueNumMap))
     }
 
     @Test
@@ -91,7 +89,13 @@ class JpzTest {
         val givenToSanitizedClueNumMap = mapOf(14 to 14, 17 to 17, 25 to 26, 28 to 29, 47 to 49)
         assertEquals(
                 "Where the end of 17-, 26- and 49-Across and 14- and 29-Down may be found",
-                Jpz.sanitizeClue(givenClue, givenToSanitizedClueNumMap)
-        )
+                Jpz.sanitizeClue(givenClue, givenToSanitizedClueNumMap))
+    }
+
+    @Test
+    fun sanitizeClue_specialCharacters() {
+        val givenClue = "★Clue with a star"
+        val givenToSanitizedClueNumMap: Map<Int, Int> = mapOf()
+        assertEquals("*Clue with a star", Jpz.sanitizeClue(givenClue, givenToSanitizedClueNumMap))
     }
 }

@@ -106,6 +106,9 @@ class Jpz(private val xml: String) : Crosswordable {
          *    also need to be updated to point to the new location.
          * 2. Clues may be omitted where they should be present. Any missing clues are set to a
          *    dummy "-".
+         *
+         * Characters that aren't encodable in Windows-1252 must also be replaced with equivalents
+         * which are.
          */
         private fun sanitizeClues(grid: List<List<Square>>,
                                   givenSquareNumbers: Map<Pair<Int, Int>, Int>,
@@ -148,7 +151,8 @@ class Jpz(private val xml: String) : Crosswordable {
          * Sanitize the given clue.
          *
          * Missing clues are set to "-", and cross references are updated to reflect any shifted
-         * clue numbers in the sanitized grid.
+         * clue numbers in the sanitized grid. Invalid characters in Windows-1252 are replaced with
+         * encodable equivalents.
          */
         internal fun sanitizeClue(givenClue: String?, givenToSanitizedClueNumberMap: Map<Int, Int>):
                 String {
@@ -168,7 +172,7 @@ class Jpz(private val xml: String) : Crosswordable {
                 }
             } while (matchResult != null)
             sanitizedClue.append(givenClue.substring(startIndex))
-            return sanitizedClue.toString()
+            return sanitizedClue.toString().replace('★', '*')
         }
     }
 }
