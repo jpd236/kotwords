@@ -6,8 +6,6 @@ import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
 import org.jsoup.Jsoup
-import se.ansman.kotshi.JsonDefaultValue
-import se.ansman.kotshi.JsonSerializable
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 
@@ -69,7 +67,11 @@ class PuzzleMe(private val html: String) : Crosswordable {
 
         private fun buildClueMap(clueList: List<PuzzleMeJson.PlacedWord>): Map<Int, String> {
             return clueList
-                    .map { it.clueNum to it.clue.clue.replace("</?i>".toRegex(), "\"") }
+                    .map {
+                        // TODO(#2): Generalize and centralize accented character replacement.
+                        it.clueNum to
+                                it.clue.clue.replace("</?i>".toRegex(), "\"").replace('ł', 'l')
+                    }
                     .toMap()
         }
     }
