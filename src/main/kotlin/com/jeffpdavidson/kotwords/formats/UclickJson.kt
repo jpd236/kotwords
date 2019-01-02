@@ -5,6 +5,7 @@ import com.jeffpdavidson.kotwords.formats.json.UclickJson
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
+import java.net.URLDecoder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -19,18 +20,19 @@ class UclickJson(private val json: String,
     override fun asCrossword(): Crossword {
         val response = JsonSerializer.fromJson(UclickJson.Response::class.java, json)
         val date = LocalDate.parse(response.date, JSON_DATE_FORMAT)
-        val copyright = if (!response.copyright.isEmpty()) response.copyright else copyright
+        val copyright = if (!response.copyright.isEmpty()) decode(response.copyright) else copyright
         val grid = response.allAnswer.chunked(response.width).map { row ->
             row.map { square -> if (square == '-') BLACK_SQUARE else Square(square) }
         }
+        val rawTitle = decode(response.title)
         val title = if (addDateToTitle) {
-            "${response.title} - ${TITLE_DATE_FORMAT.format(date)}"
+            "${rawTitle} - ${TITLE_DATE_FORMAT.format(date)}"
         } else {
-            response.title
+            rawTitle
         }
         return Crossword(
                 title = title,
-                author = response.author,
+                author = decode(response.author),
                 copyright = "\u00a9 ${date.year} $copyright",
                 grid = grid,
                 acrossClues = toClueMap(response.acrossClue),
@@ -43,4 +45,6 @@ class UclickJson(private val json: String,
             parts[0].toInt() to parts[1]
         }.toMap()
     }
+
+    private fun decode(input: String): String = URLDecoder.decode(input, "UTF-8")
 }

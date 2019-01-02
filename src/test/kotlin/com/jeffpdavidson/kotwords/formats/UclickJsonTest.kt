@@ -15,4 +15,13 @@ class UclickJsonTest {
                         copyright = "Jeff Davidson",
                         addDateToTitle = false).asCrossword().toAcrossLiteBinary())
     }
+
+    @Test
+    fun urlDecoding() {
+        val crossword =
+                UclickJson(UclickJsonTest::class.readUtf8Resource("uclick/test-urldecode.json"))
+                        .asCrossword()
+        Assertions.assertEquals("Author A & Author B", crossword.author)
+        Assertions.assertEquals("\"Example Puzzle\" - Monday, January 1, 2018", crossword.title)
+    }
 }
