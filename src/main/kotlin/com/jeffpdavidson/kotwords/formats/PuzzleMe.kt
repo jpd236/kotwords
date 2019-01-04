@@ -70,7 +70,10 @@ class PuzzleMe(private val html: String) : Crosswordable {
                     .map {
                         // TODO(#2): Generalize and centralize accented character replacement.
                         it.clueNum to
-                                it.clue.clue.replace("</?i>".toRegex(), "\"").replace('ł', 'l')
+                                it.clue.clue
+                                        .replace("</?i>".toRegex(), "\"")
+                                        .replace('ł', 'l')
+                                        .replace('ă', 'a')
                     }
                     .toMap()
         }
