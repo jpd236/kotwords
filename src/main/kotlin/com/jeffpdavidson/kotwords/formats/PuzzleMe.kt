@@ -74,6 +74,7 @@ class PuzzleMe(private val html: String) : Crosswordable {
                                         .replace("</?i>".toRegex(), "\"")
                                         .replace('ł', 'l')
                                         .replace('ă', 'a')
+                                        .replace("π", "pi")
                     }
                     .toMap()
         }
