@@ -65,16 +65,44 @@ class PuzzleMe(private val html: String) : Crosswordable {
             )
         }
 
+        private val clueReplacements = mapOf(
+                "</?i>" to "\"",
+                "ł" to "l",
+                "ă" to "a",
+                "[Αα]" to "[Alpha]",
+                "[Ββ]" to "[Beta]",
+                "[Γγ]" to "[Gamma]",
+                "[Δδ]" to "[Delta]",
+                "[Εε]" to "[Epsilon]",
+                "[Ζζ]" to "[Zeta]",
+                "[Ηη]" to "[Eta]",
+                "[Θθ]" to "[Theta]",
+                "[Ιι]" to "[Iota]",
+                "[Κκ]" to "[Kappa]",
+                "[Λλ]" to "[Lambda]",
+                "[Μμ]" to "[Mu]",
+                "[Νν]" to "[Nu]",
+                "[Ξξ]" to "[Xi]",
+                "[Οο]" to "[Omicron]",
+                "[Ππ]" to "[Pi]",
+                "[Ρρ]" to "[Rho]",
+                "[Σσς]" to "[Sigma]",
+                "[Ττ]" to "[Tau]",
+                "[Υυ]" to "[Upsilon]",
+                "[Φφ]" to "[Phi]",
+                "[Χχ]" to "[Chi]",
+                "[Ψψ]" to "[Psi]",
+                "[Ωω]" to "[Omega]")
+                .map { (key, value) -> key.toRegex() to value }.toMap()
+
         private fun buildClueMap(clueList: List<PuzzleMeJson.PlacedWord>): Map<Int, String> {
             return clueList
                     .map {
                         // TODO(#2): Generalize and centralize accented character replacement.
                         it.clueNum to
-                                it.clue.clue
-                                        .replace("</?i>".toRegex(), "\"")
-                                        .replace('ł', 'l')
-                                        .replace('ă', 'a')
-                                        .replace("π", "pi")
+                                clueReplacements.entries.fold(it.clue.clue) { clue, (from, to) ->
+                                    clue.replace(from, to)
+                                }
                     }
                     .toMap()
         }
