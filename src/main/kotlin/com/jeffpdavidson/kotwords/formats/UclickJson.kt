@@ -42,7 +42,7 @@ class UclickJson(private val json: String,
     private fun toClueMap(clueString: String): Map<Int, String> {
         return clueString.split("\n").takeWhile { it != "end" }.map {
             val parts = it.split('|')
-            parts[0].toInt() to parts[1]
+            parts[0].toInt() to parts[1].replace('\u0092', '\'')
         }.toMap()
     }
 
