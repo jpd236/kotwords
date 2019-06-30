@@ -1,0 +1,302 @@
+{
+  "title": "Example Puzzle for Kotwords",
+  "description": "Notepad text goes here.",
+  "copyright": "© 2018 Jeff Davidson",
+  "author": "Jeff Davidson",
+  "w": 7,
+  "h": 7,
+  "box": [
+    [
+      "\u0000",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "\u0000"
+    ],
+    [
+      "X",
+      "A",
+      "E",
+      "I",
+      "\u0000",
+      "\u0000",
+      "X"
+    ],
+    [
+      "X",
+      "B",
+      "F",
+      "J",
+      "N",
+      "1",
+      "X"
+    ],
+    [
+      "X",
+      "C",
+      "G",
+      "XYZ",
+      "O",
+      "2",
+      "X"
+    ],
+    [
+      "X",
+      "D",
+      "H",
+      "L",
+      "P",
+      "$",
+      "X"
+    ],
+    [
+      "X",
+      "\u0000",
+      "\u0000",
+      "M",
+      "Q",
+      "@",
+      "X"
+    ],
+    [
+      "\u0000",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "\u0000"
+    ]
+  ],
+  "placedWords": [
+    {
+      "acrossNotDown": true,
+      "clueNum": 1,
+      "clue": {
+        "clue": "First across clue"
+      }
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 5,
+      "clue": {
+        "clue": "Second across clue"
+      }
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 6,
+      "clue": {
+        "clue": "Third across clue"
+      }
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 8,
+      "clue": {
+        "clue": "Fourth across clue"
+      }
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 9,
+      "clue": {
+        "clue": "Fifth across clue"
+      }
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 1,
+      "clue": {
+        "clue": "First down clue"
+      }
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 2,
+      "clue": {
+        "clue": "Second down clue"
+      }
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 3,
+      "clue": {
+        "clue": "Third down clue"
+      }
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 4,
+      "clue": {
+        "clue": "Fourth down clue"
+      }
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 7,
+      "clue": {
+        "clue": "Fifth down clue"
+      }
+    }
+  ],
+  "cellInfos": [
+    {
+      "x": 0,
+      "y": 0,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 2,
+      "y": 0,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 3,
+      "y": 0,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 4,
+      "y": 0,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 5,
+      "y": 0,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 6,
+      "y": 0,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 0,
+      "y": 1,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 6,
+      "y": 1,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 0,
+      "y": 2,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 6,
+      "y": 2,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 0,
+      "y": 3,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 1,
+      "y": 3,
+      "isCircled": true,
+      "isVoid": false
+    },
+    {
+      "x": 5,
+      "y": 3,
+      "isCircled": true,
+      "isVoid": false
+    },
+    {
+      "x": 6,
+      "y": 3,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 0,
+      "y": 4,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 6,
+      "y": 4,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 0,
+      "y": 5,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 6,
+      "y": 5,
+      "isCircled": false,
+      "isVoid": true
+    },{
+      "x": 0,
+      "y": 6,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 1,
+      "y": 6,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 2,
+      "y": 6,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 3,
+      "y": 6,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 4,
+      "y": 6,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 5,
+      "y": 6,
+      "isCircled": false,
+      "isVoid": true
+    },
+    {
+      "x": 6,
+      "y": 6,
+      "isCircled": false,
+      "isVoid": true
+    }
+  ]
+}

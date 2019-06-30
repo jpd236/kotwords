@@ -37,9 +37,13 @@ class PuzzleMe(private val html: String) : Crosswordable {
             val data = JsonSerializer.fromJson(PuzzleMeJson.Data::class.java, json)
             val grid: MutableList<MutableList<Square>> = mutableListOf()
             val circledCells = data.cellInfos.filter { it.isCircled }.map { it -> it.x to it.y }
+            val voidCells = data.cellInfos.filter { it.isVoid }.map { it -> it.x to it.y }
             for (y in 0 until data.box[0].size) {
                 val row: MutableList<Square> = mutableListOf()
                 for (x in 0 until data.box.size) {
+                    if (voidCells.contains(x to y)) {
+                        continue
+                    }
                     if (data.box[x][y] == "\u0000") {
                         row.add(BLACK_SQUARE)
                     } else {
@@ -52,7 +56,12 @@ class PuzzleMe(private val html: String) : Crosswordable {
                                 isCircled = isCircled))
                     }
                 }
-                grid.add(row)
+                if (!row.isEmpty()) {
+                    if (grid.size > 0 && grid[0].size != row.size) {
+                        throw InvalidFormatException("Grid is not square (due to void cells?)")
+                    }
+                    grid.add(row)
+                }
             }
             return Crossword(
                     title = data.title,

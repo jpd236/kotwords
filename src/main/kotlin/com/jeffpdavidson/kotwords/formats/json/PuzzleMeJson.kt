@@ -11,7 +11,11 @@ internal object PuzzleMeJson {
     internal data class PlacedWord(val clue: Clue, val clueNum: Int, val acrossNotDown: Boolean)
 
     @JsonSerializable
-    internal data class CellInfo(val x: Int, val y: Int, val isCircled: Boolean)
+    internal data class CellInfo(
+            val x: Int,
+            val y: Int,
+            val isCircled: Boolean,
+            val isVoid: Boolean)
 
     @JsonSerializable
     internal data class Data(
