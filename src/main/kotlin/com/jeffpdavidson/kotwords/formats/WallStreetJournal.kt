@@ -5,6 +5,7 @@ import com.jeffpdavidson.kotwords.formats.json.WallStreetJournalJson
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
+import org.jsoup.parser.Parser
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -48,7 +49,9 @@ class WallStreetJournal(private val json: String,
 
     private fun getClueMap(response: WallStreetJournalJson.Response, direction: String):
             Map<Int, String> {
-        return response.data.copy.clues.first { it.title == direction }
-                .clues.map { it.number to it.clue }.toMap()
+        return response.data.copy.clues.first { it.title == direction }.clues
+                .map {
+                    it.number to Parser.unescapeEntities(it.clue, /* inAttribute= */ false)
+                }.toMap()
     }
 }
