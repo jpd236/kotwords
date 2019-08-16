@@ -49,9 +49,7 @@ class WallStreetJournal(private val json: String,
 
     private fun getClueMap(response: WallStreetJournalJson.Response, direction: String):
             Map<Int, String> {
-        return response.data.copy.clues.first { it.title == direction }.clues
-                .map {
-                    it.number to Parser.unescapeEntities(it.clue, /* inAttribute= */ false)
-                }.toMap()
+        return response.data.copy.clues.first { it.title == direction }
+                .clues.map { it.number to it.clue }.toMap()
     }
 }

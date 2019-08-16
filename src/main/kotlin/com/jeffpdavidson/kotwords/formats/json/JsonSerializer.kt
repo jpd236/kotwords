@@ -17,7 +17,10 @@ internal object JsonSerializer {
     }
 
     private var INSTANCE: Moshi =
-            Moshi.Builder().add(ApplicationJsonAdapterFactory.INSTANCE).build()
+            Moshi.Builder()
+                    .add(ApplicationJsonAdapterFactory.INSTANCE)
+                    .add(WallStreetJournalJson.HtmlStringAdapter())
+                    .build()
 
     fun <T> toJson(type: Class<T>, value: T): String {
         return INSTANCE.adapter(type).toJson(value)
