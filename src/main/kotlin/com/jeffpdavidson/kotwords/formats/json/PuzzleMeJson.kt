@@ -1,6 +1,7 @@
 package com.jeffpdavidson.kotwords.formats.json
 
 import se.ansman.kotshi.JsonDefaultValue
+import se.ansman.kotshi.JsonDefaultValueString
 import se.ansman.kotshi.JsonSerializable
 
 internal object PuzzleMeJson {
@@ -15,7 +16,8 @@ internal object PuzzleMeJson {
             val x: Int,
             val y: Int,
             val isCircled: Boolean,
-            val isVoid: Boolean)
+            val isVoid: Boolean,
+            @JsonDefaultValueString(value = "") val bgColor: String)
 
     @JsonSerializable
     internal data class Data(

@@ -36,7 +36,22 @@ class PuzzleMe(private val html: String) : Crosswordable {
         internal fun toCrossword(json: String): Crossword {
             val data = JsonSerializer.fromJson(PuzzleMeJson.Data::class.java, json)
             val grid: MutableList<MutableList<Square>> = mutableListOf()
-            val circledCells = data.cellInfos.filter { it.isCircled }.map { it -> it.x to it.y }
+
+            // PuzzleMe supports circled cells, cells with special background shapes, and different
+            // background colors per cell, but Across Lite only supports circled cells. We pick one
+            // mechanism to map to circles (preferring "isCircled" which is a direct match) and
+            // ignore any others.
+            val circledCells =
+                    if (data.cellInfos.find { it.isCircled } != null) {
+                        data.cellInfos.filter { it.isCircled }.map { it.x to it.y }
+                    } else if (!data.backgroundShapeBoxes.isEmpty()) {
+                        data.backgroundShapeBoxes.filter { it.size == 2 }.map { it[0] to it[1] }
+                    } else {
+                        // Note that if there are multiple distinct colors, all of them will be
+                        // mapped to circles.
+                        data.cellInfos.filter { it.bgColor != "" }.map { it.x to it.y }
+                    }
+
             val voidCells = data.cellInfos.filter { it.isVoid }.map { it -> it.x to it.y }
             for (y in 0 until data.box[0].size) {
                 val row: MutableList<Square> = mutableListOf()
@@ -48,8 +63,7 @@ class PuzzleMe(private val html: String) : Crosswordable {
                         row.add(BLACK_SQUARE)
                     } else {
                         val solutionRebus = if (data.box[x][y].length > 1) data.box[x][y] else ""
-                        val isCircled = data.backgroundShapeBoxes.contains(listOf(x, y))
-                                || circledCells.contains(x to y)
+                        val isCircled = circledCells.contains(x to y)
                         row.add(Square(
                                 solution = data.box[x][y][0],
                                 solutionRebus = solutionRebus,

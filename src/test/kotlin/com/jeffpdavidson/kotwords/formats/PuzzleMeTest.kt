@@ -34,6 +34,24 @@ class PuzzleMeTest {
     }
 
     @Test
+    fun toCrossword_isCircled() {
+        assertArrayEquals(
+                PuzzleMeTest::class.readBinaryResource("puz/test.puz"),
+                PuzzleMe.toCrossword(
+                        PuzzleMeTest::class.readUtf8Resource("puzzleme/test-isCircled.json"))
+                        .toAcrossLiteBinary())
+    }
+
+    @Test
+    fun toCrossword_shadedCells() {
+        assertArrayEquals(
+                PuzzleMeTest::class.readBinaryResource("puz/test.puz"),
+                PuzzleMe.toCrossword(
+                        PuzzleMeTest::class.readUtf8Resource("puzzleme/test-shadedCells.json"))
+                        .toAcrossLiteBinary())
+    }
+
+    @Test
     fun toCrossword_voids() {
         assertArrayEquals(
                 PuzzleMeTest::class.readBinaryResource("puz/test.puz"),
