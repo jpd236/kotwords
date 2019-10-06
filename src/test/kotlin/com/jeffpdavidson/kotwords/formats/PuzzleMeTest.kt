@@ -61,6 +61,15 @@ class PuzzleMeTest {
     }
 
     @Test
+    fun toCrossword_hiddenSquares() {
+        assertArrayEquals(
+                PuzzleMeTest::class.readBinaryResource("puz/test.puz"),
+                PuzzleMe.toCrossword(
+                        PuzzleMeTest::class.readUtf8Resource("puzzleme/test-hiddenSquares.json"))
+                        .toAcrossLiteBinary())
+    }
+
+    @Test
     fun toCrossword_italics() {
         assertArrayEquals(
                 PuzzleMeTest::class.readBinaryResource("puzzleme/test-italics.puz"),

@@ -1,0 +1,164 @@
+{
+  "title": "Example Puzzle for Kotwords",
+  "description": "Notepad text goes here.",
+  "copyright": "© 2018 Jeff Davidson",
+  "author": "Jeff Davidson",
+  "w": 5,
+  "h": 5,
+  "box": [
+    [
+      "A",
+      "E",
+      "I",
+      "Z",
+      "\u0000"
+    ],
+    [
+      "B",
+      "F",
+      "J",
+      "N",
+      "1"
+    ],
+    [
+      "C",
+      "G",
+      "XYZ",
+      "O",
+      "2"
+    ],
+    [
+      "D",
+      "H",
+      "L",
+      "P",
+      "$"
+    ],
+    [
+      "\u0000",
+      "\u0000",
+      "M",
+      "Q",
+      "@"
+    ]
+  ],
+  "placedWords": [
+    {
+      "acrossNotDown": true,
+      "clueNum": 1,
+      "clue": {
+        "clue": "First across clue"
+      }
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 5,
+      "clue": {
+        "clue": "Second across clue"
+      }
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 6,
+      "clue": {
+        "clue": "Third across clue"
+      }
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 8,
+      "clue": {
+        "clue": "Fourth across clue"
+      }
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 9,
+      "clue": {
+        "clue": "Fifth across clue"
+      }
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 1,
+      "clue": {
+        "clue": "First down clue"
+      }
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 2,
+      "clue": {
+        "clue": "Second down clue"
+      }
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 3,
+      "clue": {
+        "clue": "Third down clue"
+      }
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 4,
+      "clue": {
+        "clue": "Fourth down clue"
+      }
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 7,
+      "clue": {
+        "clue": "Fifth down clue"
+      }
+    }
+  ],
+  "backgroundShapeBoxes": [
+    [
+      0,
+      2
+    ],
+    [
+      4,
+      2
+    ]
+  ],
+  "boxToPlacedWordsIdxs": [
+    [
+      [],
+      [],
+      [],
+      null,
+      null
+    ],
+    [
+      [],
+      [],
+      [],
+      [],
+      []
+    ],
+    [
+      [],
+      [],
+      [],
+      [],
+      []
+    ],
+    [
+      [],
+      [],
+      [],
+      [],
+      []
+    ],
+    [
+      null,
+      null,
+      [],
+      [],
+      []
+    ]
+  ]
+}

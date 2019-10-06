@@ -59,7 +59,10 @@ class PuzzleMe(private val html: String) : Crosswordable {
                     if (voidCells.contains(x to y)) {
                         continue
                     }
-                    if (data.box[x][y] == "\u0000") {
+                    // Even if a box has a letter in it, if there's no word intersecting that box, it can't be filled,
+                    // so we assume it should be treated like a black square.
+                    if (data.box[x][y] == "\u0000" ||
+                            (data.boxToPlacedWordsIdxs.isNotEmpty() && data.boxToPlacedWordsIdxs[x][y] == null)) {
                         row.add(BLACK_SQUARE)
                     } else {
                         val solutionRebus = if (data.box[x][y].length > 1) data.box[x][y] else ""

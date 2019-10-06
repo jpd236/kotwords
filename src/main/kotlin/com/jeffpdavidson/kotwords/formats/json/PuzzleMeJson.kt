@@ -29,5 +29,7 @@ internal object PuzzleMeJson {
             @JsonDefaultValue val cellInfos: List<CellInfo>,
             val placedWords: List<PlacedWord>,
             // List of circled squares locations in the form [x, y]
-            @JsonDefaultValue val backgroundShapeBoxes: List<List<Int>>)
+            @JsonDefaultValue val backgroundShapeBoxes: List<List<Int>>,
+            // List of words intersecting a particular location
+            @JsonDefaultValue val boxToPlacedWordsIdxs: List<List<List<Int>?>>)
 }
