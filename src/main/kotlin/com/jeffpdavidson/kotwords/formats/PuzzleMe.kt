@@ -94,7 +94,7 @@ class PuzzleMe(private val html: String) : Crosswordable {
         private val clueReplacements = mapOf(
                 "</?i>" to "\"",
                 "ł" to "l",
-                "ă" to "a",
+                "[ăā]" to "a",
                 "Ō" to "O",
                 "[Αα]" to "[Alpha]",
                 "[Ββ]" to "[Beta]",
