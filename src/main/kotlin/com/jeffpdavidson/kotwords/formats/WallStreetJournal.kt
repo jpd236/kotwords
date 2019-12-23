@@ -49,7 +49,8 @@ class WallStreetJournal(private val json: String,
 
     private fun getClueMap(response: WallStreetJournalJson.Response, direction: String):
             Map<Int, String> {
+        // TODO(#2): Generalize and centralize accented character replacement.
         return response.data.copy.clues.first { it.title == direction }
-                .clues.map { it.number to it.clue }.toMap()
+                .clues.map { it.number to it.clue.replace('⁄', '/') }.toMap()
     }
 }
