@@ -12,7 +12,7 @@ class PuzzleMeTest {
     @Test
     fun extractPuzzleJson() {
         assertEquals(
-                PuzzleMeTest::class.readUtf8Resource("puzzleme/test.json"),
+                PuzzleMeTest::class.readUtf8Resource("puzzleme/test.json").replace("\r\n", "\n"),
                 PuzzleMe.extractPuzzleJson(
                         PuzzleMeTest::class.readUtf8Resource("puzzleme/test.html")))
     }
