@@ -226,6 +226,8 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 writeGrid(grid, '.'.toByte()) {
                     if (solved) {
                         it.solution!!.toByte()
+                    } else if (it.entry != null) {
+                        it.entry.toByte()
                     } else {
                         '-'.toByte()
                     }
@@ -289,11 +291,15 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                     }
                 }
 
-                // GEXT section for circled squares.
-                if (grid.flatAny { it.isCircled }) {
+                // GEXT section for circled/given squares.
+                if (grid.flatAny { it.isCircled || it.isGiven }) {
                     writeExtraSection("GEXT", squareCount) {
-                        // 0x80 for circled squares, 0 otherwise.
-                        writeGrid(grid, 0) { if (it.isCircled) 0x80.toByte() else 0 }
+                        writeGrid(grid, 0) {
+                            var status = 0
+                            if (it.isCircled) status = status or 0x80
+                            if (it.isGiven) status = status or 0x40
+                            status.toByte()
+                        }
                     }
                 }
 

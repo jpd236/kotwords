@@ -17,6 +17,7 @@ internal object PuzzleMeJson {
             val y: Int,
             val isCircled: Boolean,
             val isVoid: Boolean,
+            @JsonDefaultValueString(value = "") val fgColor: String,
             @JsonDefaultValueString(value = "") val bgColor: String)
 
     @JsonSerializable
@@ -31,5 +32,9 @@ internal object PuzzleMeJson {
             // List of circled squares locations in the form [x, y]
             @JsonDefaultValue val backgroundShapeBoxes: List<List<Int>>,
             // List of words intersecting a particular location
-            @JsonDefaultValue val boxToPlacedWordsIdxs: List<List<List<Int>?>>)
+            @JsonDefaultValue val boxToPlacedWordsIdxs: List<List<List<Int>?>>,
+            // Squares which should have their solution revealed at the start
+            @JsonDefaultValue val preRevealIdxs: List<List<Boolean>>,
+            // Clue numbers for each square. Normally inferrable but may be needed for non-traditional grids.
+            @JsonDefaultValue val clueNums: List<List<Int>>)
 }

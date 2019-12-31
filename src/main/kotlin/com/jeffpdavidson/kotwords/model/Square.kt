@@ -19,34 +19,41 @@ package com.jeffpdavidson.kotwords.model
  *                      letters in a single square). Only upper-case letters and numbers are
  *                      permitted, and the maximum length is 8.
  * @param isCircled Whether the square contains a circle.
+ * @param entry Optional field denoting the user's entry for the square.
  */
+// TODO: Support entry rebuses.
 data class Square(
         val solution: Char?,
         val isBlack: Boolean = false,
         val solutionRebus: String = "",
-        val isCircled: Boolean = false) {
+        val isCircled: Boolean = false,
+        val entry: Char? = null,
+        val isGiven: Boolean = false) {
     private val validSymbols = setOf('@', '#', '$', '%', '&', '+', '?')
 
     init {
         if (isBlack) {
-            require(solution == null && solutionRebus == "" && !isCircled) {
+            require(solution == null && solutionRebus == "" && !isCircled && entry == null && !isGiven) {
                 "Black squares must not set other properties"
             }
         } else {
-            require(isValidCharacter()) {
+            require(isValidCharacter(solution!!)) {
                 "Unsupported solution character: $solution"
             }
+            require(entry == null || isValidCharacter(entry)) {
+                "Unsupported entry character: $entry"
+            }
         }
-        require(solutionRebus.length <= 8 && !solutionRebus.any { !isValidCharacter() }) {
+        require(solutionRebus.length <= 8 && !solutionRebus.any { !isValidCharacter(it) }) {
             "Invalid rebus: $solutionRebus"
         }
     }
 
-    private fun isValidCharacter(): Boolean {
-        if (solution!!.isLetterOrDigit()) {
-            return !solution.isLetter() || solution.isUpperCase()
+    private fun isValidCharacter(character: Char): Boolean {
+        if (character.isLetterOrDigit()) {
+            return !character.isLetter() || character.isUpperCase()
         }
-        return validSymbols.contains(solution)
+        return validSymbols.contains(character)
     }
 }
 

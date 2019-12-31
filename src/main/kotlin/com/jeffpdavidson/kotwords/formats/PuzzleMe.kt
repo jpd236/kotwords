@@ -52,42 +52,74 @@ class PuzzleMe(private val html: String) : Crosswordable {
                         data.cellInfos.filter { it.bgColor != "" }.map { it.x to it.y }
                     }
 
-            val voidCells = data.cellInfos.filter { it.isVoid }.map { it -> it.x to it.y }
+            // If bgColor == fgColor, assume the square is meant to be hidden/black and revealed after solving.
+            val voidCells = data.cellInfos
+                    .filter { it.isVoid || (it.bgColor.isNotEmpty() && it.bgColor == it.fgColor) }.map { it.x to it.y }
+
             for (y in 0 until data.box[0].size) {
                 val row: MutableList<Square> = mutableListOf()
                 for (x in 0 until data.box.size) {
-                    if (voidCells.contains(x to y)) {
-                        continue
-                    }
-                    // Even if a box has a letter in it, if there's no word intersecting that box, it can't be filled,
-                    // so we assume it should be treated like a black square.
+                    // Treat black squares, void squares, and squares with no intersecting words that aren't pre-filled
+                    // (which likely means they're meant to be revealed after solving) as black squares.
                     if (data.box[x][y] == "\u0000" ||
-                            (data.boxToPlacedWordsIdxs.isNotEmpty() && data.boxToPlacedWordsIdxs[x][y] == null)) {
+                            voidCells.contains(x to y) ||
+                            (data.boxToPlacedWordsIdxs.isNotEmpty() && data.boxToPlacedWordsIdxs[x][y] == null &&
+                                    (data.preRevealIdxs.isEmpty() || !data.preRevealIdxs[x][y]))) {
                         row.add(BLACK_SQUARE)
                     } else {
                         val solutionRebus = if (data.box[x][y].length > 1) data.box[x][y] else ""
                         val isCircled = circledCells.contains(x to y)
+                        val isPrefilled = data.preRevealIdxs.isNotEmpty() && data.preRevealIdxs[x][y]
                         row.add(Square(
                                 solution = data.box[x][y][0],
                                 solutionRebus = solutionRebus,
-                                isCircled = isCircled))
+                                isCircled = isCircled,
+                                entry = if (isPrefilled) data.box[x][y][0] else null,
+                                isGiven = isPrefilled))
                     }
                 }
-                if (!row.isEmpty()) {
-                    if (grid.size > 0 && grid[0].size != row.size) {
-                        throw InvalidFormatException("Grid is not square (due to void cells?)")
-                    }
-                    grid.add(row)
+                if (grid.size > 0 && grid[0].size != row.size) {
+                    throw InvalidFormatException("Grid is not square")
                 }
+                grid.add(row)
             }
+
+            // Void cells can lead to entirely black rows/columns on the outer edges. Delete these.
+            val anyNonBlackSquare =  { row: List<Square> -> row.any { it != BLACK_SQUARE } }
+            val topRowsToDelete = grid.indexOfFirst(anyNonBlackSquare)
+            val bottomRowsToDelete = grid.size - grid.indexOfLast(anyNonBlackSquare) - 1
+            val leftRowsToDelete =
+                    grid.filter(anyNonBlackSquare).map { row -> row.indexOfFirst { it != BLACK_SQUARE } }.min()!!
+            val rightRowsToDelete = grid[0].size -
+                    grid.filter(anyNonBlackSquare).map { row -> row.indexOfLast { it != BLACK_SQUARE } }.max()!! - 1
+            fun <T> subGrid(g: List<List<T>>): List<List<T>> = g.drop(topRowsToDelete).dropLast(bottomRowsToDelete)
+                    .map { row -> row.drop(leftRowsToDelete).dropLast(rightRowsToDelete) }
+            val filteredGrid = subGrid(grid)
+
+            // Sanitize clues since PuzzleMe grids can have non-standard numbering.
+            var sanitizedClues =
+                    buildClueMap(data.placedWords.filter { it.acrossNotDown }) to
+                            buildClueMap(data.placedWords.filter { !it.acrossNotDown })
+            if (data.clueNums.isNotEmpty()) {
+                sanitizedClues = ClueSanitizer.sanitizeClues(
+                        filteredGrid,
+                        subGrid(data.clueNums).mapIndexed { x, col ->
+                            col.mapIndexed { y, clueNum ->
+                                (x to y) to clueNum
+                            }
+                        }.flatten().toMap(),
+                        sanitizedClues.first,
+                        sanitizedClues.second)
+            }
+
             return Crossword(
                     title = data.title,
                     author = data.author,
                     copyright = data.copyright,
                     notes = data.description,
-                    grid = grid,
-                    acrossClues = buildClueMap(data.placedWords.filter { it.acrossNotDown }),
-                    downClues = buildClueMap(data.placedWords.filter { !it.acrossNotDown })
+                    grid = filteredGrid,
+                    acrossClues = sanitizedClues.first,
+                    downClues = sanitizedClues.second
             )
         }
 
