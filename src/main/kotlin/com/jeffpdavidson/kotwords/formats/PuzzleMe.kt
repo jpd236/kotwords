@@ -128,6 +128,7 @@ class PuzzleMe(private val html: String) : Crosswordable {
                 "ł" to "l",
                 "[ăā]" to "a",
                 "Ō" to "O",
+                "ę" to "e",
                 "[Αα]" to "[Alpha]",
                 "[Ββ]" to "[Beta]",
                 "[Γγ]" to "[Gamma]",
