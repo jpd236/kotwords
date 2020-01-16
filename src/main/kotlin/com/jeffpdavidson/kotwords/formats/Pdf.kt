@@ -71,7 +71,7 @@ object Pdf {
         val gridRows = crossword.grid.size
         val gridCols = crossword.grid[0].size
         val gridWidth = getGridWidthPercentage(gridRows) * (pageWidth - 2 * MARGIN)
-        val gridHeight = gridWidth * gridCols / gridRows
+        val gridHeight = gridWidth * gridRows / gridCols
         val gridSquareSize = gridHeight / gridRows
         val gridNumberSize = getGridNumberSize(gridRows)
         val gridX = pageWidth - MARGIN - gridWidth
