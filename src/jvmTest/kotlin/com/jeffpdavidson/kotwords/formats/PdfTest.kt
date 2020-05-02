@@ -9,6 +9,7 @@ import org.apache.pdfbox.rendering.PDFRenderer
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.awt.image.BufferedImage
+import java.io.File
 
 class PdfTest {
     init {
@@ -18,9 +19,11 @@ class PdfTest {
 
     @Test
     fun asPdf() {
-        assertPdfEquals(PdfTest::class.readBinaryResource("pdf/test.pdf"),
-                AcrossLite(PdfTest::class.readBinaryResource("puz/test.puz"))
-                        .asCrossword().asPdf())
+//        assertPdfEquals(PdfTest::class.readBinaryResource("pdf/test.pdf"),
+//                AcrossLite(PdfTest::class.readBinaryResource("puz/test.puz"))
+//                        .asCrossword().asPdf())
+        File("C:/Users/Jeff/Google Drive/Wedding/Puzzle pack/Crossword.pdf").writeBytes(AcrossLite(File("C:/Users/Jeff/Google Drive/Wedding/Puzzle pack/Crossword.puz").readBytes())
+                .asCrossword().asPdf())
     }
 
     // Note for splitTextToLines tests: a 100 pt line fits 16 10pt Courier characters.
