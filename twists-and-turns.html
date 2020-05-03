@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Twists and Turns</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="kotwords.js" defer onload="document.getElementById('generate-jpz').disabled = false;"></script>
     <script>
         function createJpz() {
@@ -16,9 +18,13 @@
             var turnsAnswers = document.getElementById("turns-answers").value;
             var turnsClues = document.getElementById("turns-clues").value;
             var twistsClues = document.getElementById("twists-clues").value;
-            var link = document.getElementById("download-link");
-            link.innerText = ""
+            var lightTwistsColor = document.getElementById("light-twists-color").value;
+            var darkTwistsColor = document.getElementById("dark-twists-color").value;
+            var crosswordSolverCursorColor = document.getElementById("crossword-solver-cursor-color").value;
+            var crosswordSolverSelectionColor = document.getElementById("crossword-solver-selection-color").value;
+            var crosswordSolverCompletionMessage = document.getElementById("crossword-solver-completion-message").value;
             var errorMsg = document.getElementById("error-msg");
+
             try {
                 var twistsAndTurns =
                         kotwords.com.jeffpdavidson.kotwords.model.TwistsAndTurns.Companion.fromRawInput(
@@ -32,59 +38,117 @@
                                 turnsAnswers,
                                 turnsClues,
                                 twistsClues,
-                                "#ffffff",
-                                "#888888",
+                                lightTwistsColor,
+                                darkTwistsColor,
                                 new kotwords.com.jeffpdavidson.kotwords.model.CrosswordSolverSettings(
-                                    "#00b100",
-                                    "#80ff80",
-                                    "Congratulations!  The puzzle is solved correctly."));
+                                    crosswordSolverCursorColor,
+                                    crosswordSolverSelectionColor,
+                                    crosswordSolverCompletionMessage));
                 twistsAndTurns.asJpz().asBase64JpzZip().then(function(result) {
-                    errorMsg.innerText = "";
+                    errorMsg.style.display = "none";
                     // TODO: This doesn't work in Edge
+                    var link = document.createElement("a");
                     link.download = title.replace("[^A-Za-z0-9]", "") + ".jpz";
                     link.href = "data:application/zip;base64," + result;
-                    link.innerText = "Download JPZ";
+                    link.click();
                 }).catch(function(err) {
+                    errorMsg.style.display = "";
                     errorMsg.innerText = "Error generating JPZ: " + err.message;
                 });
             } catch (err) {
+                errorMsg.style.display = "";
                 errorMsg.innerText = "Error generating JPZ: " + err.message
             }
         }
     </script>
 </head>
 <body>
-    <label for="title">Title:</label>
-    <input type="text" id="title"/>
-    <br />
-    <label for="creator">Creator:</label>
-    <input type="text" id="creator"/>
-    <br />
-    <label for="copyright">Copyright:</label>
-    <input type="text" id="copyright"/>
-    <br />
-    <label for="description">Description:</label>
-    <textarea id="description"></textarea>
-    <br />
-    <label for="width">Width:</label>
-    <input type="number" id="width"/>
-    <label for="height">Height:</label>
-    <input type="number" id="height"/>
-    <label for="twist-box-size">Twist box size:</label>
-    <input type="number" id="twist-box-size"/>
-    <br />
-    <label for="turns-answers">Turns answers:</label>
-    <textarea id="turns-answers"></textarea>
-    <br />
-    <label for="turns-clues">Turns clues:</label>
-    <textarea id="turns-clues"></textarea>
-    <br />
-    <label for="twists-clues">Twists clues:</label>
-    <textarea id="twists-clues"></textarea>
-    <br />
-    <button id="generate-jpz" disabled="disabled" onclick="createJpz()">Generate JPZ</button>
-    <br />
-    <span id="error-msg"></span>
-    <a id="download-link"></a>
+    <div class="container-fluid">
+        <h1>Twists and Turns</h1>
+        <form action="" onsubmit="createJpz(); return false;">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" id="title" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="creator">Creator (optional)</label>
+                <input type="text" id="creator" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="copyright">Copyright (optional)</label>
+                <input type="text" id="copyright" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="description">Description (optional)</label>
+                <textarea id="description" class="form-control" rows="5"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="width">Width</label>
+                    <input type="number" id="width" class="form-control" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="height">Height</label>
+                    <input type="number" id="height" class="form-control" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="twist-box-size">Twist width/height</label>
+                    <input type="number" id="twist-box-size" class="form-control"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="turns-answers">Turns answers</label>
+                <textarea id="turns-answers" class="form-control" rows="2" placeholder="In sequential order, separated by whitespace. Non-alphabetical characters are ignored."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="turns-clues">Turns clues</label>
+                <textarea id="turns-clues" class="form-control" rows="10" placeholder="One clue per row. Omit clue numbers."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="twists-clues">Twists clues</label>
+                <textarea id="twists-clues" class="form-control" rows="10" placeholder="Ordered from left-to-right, top-to-bottom. One clue per row. Omit clue numbers."></textarea>
+            </div>
+            <p>
+                <a class="btn btn-secondary" data-toggle="collapse" href="#advanced-options">
+                    Advanced options
+                </a>
+            </p>
+            <div class="collapse" id="advanced-options">
+                <div class="card card-body form-group">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="light-twists-color">Light twists color</label>
+                            <input type="color" id="light-twists-color" class="form-control" value="#ffffff" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="dark-twists-color">Dark twists color</label>
+                            <input type="color" id="dark-twists-color" class="form-control" value="#888888" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="crossword-solver-cursor-color">Crossword Solver cursor color</label>
+                            <input type="color" id="crossword-solver-cursor-color" class="form-control" value="#00b100" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="crossword-solver-selection-color">Crossword Solver selected cells color</label>
+                            <input type="color" id="crossword-solver-selection-color" class="form-control" value="#80ff80" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="crossword-solver-completion-message">Crossword Solver completion message</label>
+                        <input type="text" id="crossword-solver-completion-message" class="form-control" value="Congratulations! The puzzle is solved correctly." />
+                    </div>
+                </div>
+            </div>
+            <div class="alert alert-primary" role="alert" id="error-msg" style="display: none;"></div>
+            <p>
+                <button type="submit" class="btn btn-primary" id="generate-jpz" disabled="disabled">Generate JPZ</button>
+            </p>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 </body>
 </html>
