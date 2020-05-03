@@ -99,7 +99,7 @@ artifactory {
             password = System.env.CI_DEPLOY_PASSWORD
         }
         defaults {
-            publications('library')
+            publications('jsPublication', 'jvmPublication', 'metadataPublication')
         }
     }
 }
