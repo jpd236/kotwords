@@ -123,11 +123,16 @@ data class TwistsAndTurns(
                 darkTwistsColor: String,
                 crosswordSolverSettings: CrosswordSolverSettings): TwistsAndTurns {
             return TwistsAndTurns(
-                    title, creator, copyright, description,
-                    width.toInt(), height.toInt(), twistBoxSize.toInt(),
-                    turnsAnswers.toUpperCase().replace("[^A-Z ]", "").split(" +".toRegex()),
-                    turnsClues.split("\n"),
-                    twistsClues.split("\n"),
+                    title.trim(),
+                    creator.trim(),
+                    copyright.trim(),
+                    description.trim(),
+                    width.toInt(),
+                    height.toInt(),
+                    twistBoxSize.toInt(),
+                    turnsAnswers.trim().toUpperCase().replace("[^A-Z ]", "").split(" +".toRegex()),
+                    turnsClues.trim().split("\n").map { it.trim() },
+                    twistsClues.trim().split("\n").map { it.trim() },
                     lightTwistsColor,
                     darkTwistsColor,
                     crosswordSolverSettings)
