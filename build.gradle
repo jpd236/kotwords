@@ -31,7 +31,11 @@ kotlin {
     }
 
     js {
-        browser { }
+        browser {
+            dceTask {
+                keep 'kotwords'
+            }
+        }
     }
 }
 
