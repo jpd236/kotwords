@@ -30,7 +30,9 @@ kotlin {
         }
     }
 
-    js {}
+    js {
+        browser { }
+    }
 }
 
 dependencies {
@@ -47,6 +49,11 @@ dependencies {
 
     jvmTestImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
     jvmTestRuntime "org.junit.jupiter:junit-jupiter-engine:$junit_version"
+
+    jsMainImplementation "org.jetbrains.kotlin:kotlin-stdlib-js"
+    jsMainImplementation(npm("jszip", "3.4.0"))
+
+    jsTestImplementation "org.jetbrains.kotlin:kotlin-test-js"
 }
 
 jvmTest {

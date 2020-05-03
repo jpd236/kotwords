@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Twists and Turns</title>
+    <script src="kotwords.js" defer onload="document.getElementById('generate-jpz').disabled = false;"></script>
+    <script>
+        function createJpz() {
+            var title = document.getElementById("title").value;
+            var creator = document.getElementById("creator").value;
+            var copyright = document.getElementById("copyright").value;
+            var description = document.getElementById("description").value;
+            var width = document.getElementById("width").value;
+            var height = document.getElementById("height").value;
+            var twistBoxSize = document.getElementById("twist-box-size").value;
+            var turnsAnswers = document.getElementById("turns-answers").value;
+            var turnsClues = document.getElementById("turns-clues").value;
+            var twistsClues = document.getElementById("twists-clues").value;
+            var link = document.getElementById("download-link");
+            link.innerText = ""
+            var errorMsg = document.getElementById("error-msg");
+            try {
+                var twistsAndTurns =
+                        kotwords.com.jeffpdavidson.kotwords.model.TwistsAndTurns.Companion.fromRawInput(
+                                title,
+                                creator,
+                                copyright,
+                                description,
+                                width,
+                                height,
+                                twistBoxSize,
+                                turnsAnswers,
+                                turnsClues,
+                                twistsClues,
+                                "#ffffff",
+                                "#888888",
+                                new kotwords.com.jeffpdavidson.kotwords.model.CrosswordSolverSettings(
+                                    "#00b100",
+                                    "#80ff80",
+                                    "Congratulations!  The puzzle is solved correctly."));
+                twistsAndTurns.asJpz().asBase64JpzZip().then(function(result) {
+                    errorMsg.innerText = "";
+                    // TODO: This doesn't work in Edge
+                    link.download = title.replace("[^A-Za-z0-9]", "") + ".jpz";
+                    link.href = "data:application/zip;base64," + result;
+                    link.innerText = "Download JPZ";
+                }).catch(function(err) {
+                    errorMsg.innerText = "Error generating JPZ: " + err.message;
+                });
+            } catch (err) {
+                errorMsg.innerText = "Error generating JPZ: " + err.message
+            }
+        }
+    </script>
+</head>
+<body>
+    <label for="title">Title:</label>
+    <input type="text" id="title"/>
+    <br />
+    <label for="creator">Creator:</label>
+    <input type="text" id="creator"/>
+    <br />
+    <label for="copyright">Copyright:</label>
+    <input type="text" id="copyright"/>
+    <br />
+    <label for="description">Description:</label>
+    <textarea id="description"></textarea>
+    <br />
+    <label for="width">Width:</label>
+    <input type="number" id="width"/>
+    <label for="height">Height:</label>
+    <input type="number" id="height"/>
+    <label for="twist-box-size">Twist box size:</label>
+    <input type="number" id="twist-box-size"/>
+    <br />
+    <label for="turns-answers">Turns answers:</label>
+    <textarea id="turns-answers"></textarea>
+    <br />
+    <label for="turns-clues">Turns clues:</label>
+    <textarea id="turns-clues"></textarea>
+    <br />
+    <label for="twists-clues">Twists clues:</label>
+    <textarea id="twists-clues"></textarea>
+    <br />
+    <button id="generate-jpz" disabled="disabled" onclick="createJpz()">Generate JPZ</button>
+    <br />
+    <span id="error-msg"></span>
+    <a id="download-link"></a>
+</body>
+</html>
