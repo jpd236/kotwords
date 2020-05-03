@@ -2,7 +2,7 @@ package com.jeffpdavidson.kotwords.jslib
 
 import kotlin.js.Promise
 
-@JsModule("JSZip")
+@JsModule("jszip")
 @JsNonModule
 external class JSZip {
     fun file(name: String, data: String): JSZip
