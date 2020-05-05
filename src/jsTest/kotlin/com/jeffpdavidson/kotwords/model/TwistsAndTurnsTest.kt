@@ -8,7 +8,7 @@ class TwistsAndTurnsTest {
     @Test
     fun jpzGeneration() {
         // TODO: Figure out how to load this from a resource file.
-        val expected = "<?xml version=1.0?>" +
+        val expected = "<?xml version=\"1.0\"?>" +
                 "<crossword-compiler-applet xmlns=\"http://crossword.info/xml/crossword-compiler\">" +
                 "<applet-settings cursor-color=\"#00b100\" selected-cells-color=\"#80ff80\">" +
                 "<completion friendly-submit=\"false\" only-if-correct=\"true\">All done!</completion>" +

@@ -50,7 +50,7 @@ data class Jpz(
     fun asXmlString(): String {
         val doc = document.implementation.createDocument("", "", null)
 
-        doc.appendChild(doc.createProcessingInstruction("xml", "version=1.0"))
+        doc.appendChild(doc.createProcessingInstruction("xml", "version=\"1.0\""))
 
         val root = doc.createElement("crossword-compiler-applet")
         root.setAttribute("xmlns", "http://crossword.info/xml/crossword-compiler")
