@@ -15,12 +15,20 @@ data class CrosswordSolverSettings(
         val selectedCellsColor: String,
         val completionMessage: String)
 
+enum class CellType {
+    REGULAR,
+    BLOCK,
+    CLUE
+}
+
 data class Cell(
         val x: Int,
         val y: Int,
-        val solution: String,
-        val backgroundColor: String,
-        val number: String?)
+        val solution: String = "",
+        val backgroundColor: String = "",
+        val number: String = "",
+        val topRightNumber: String = "",
+        val cellType: CellType = CellType.REGULAR)
 
 data class Word(
         val id: Int,
@@ -35,6 +43,11 @@ data class ClueList(
         val title: String,
         val clues: List<Clue>)
 
+enum class PuzzleType {
+    CROSSWORD,
+    ACROSTIC
+}
+
 data class Jpz(
         val title: String,
         val creator: String,
@@ -42,7 +55,8 @@ data class Jpz(
         val description: String,
         val grid: List<List<Cell>>,
         val clues: List<ClueList>,
-        val crosswordSolverSettings: CrosswordSolverSettings) {
+        val crosswordSolverSettings: CrosswordSolverSettings,
+        val puzzleType: PuzzleType = PuzzleType.CROSSWORD) {
     // TODO: Validate data structures.
     // TODO: Generalize for other puzzle types.
 
@@ -104,10 +118,13 @@ data class Jpz(
         }
         rectangularPuzzle.appendChild(metadata)
 
-        val crossword = doc.createElement("crossword")
+        val crossword = doc.createElement(when(puzzleType) {
+            PuzzleType.CROSSWORD -> "crossword"
+            PuzzleType.ACROSTIC -> "acrostic"
+        })
         val gridElem = doc.createElement("grid")
-        gridElem.setAttribute("width", "${grid.size}")
-        gridElem.setAttribute("height", "${grid[0].size}")
+        gridElem.setAttribute("width", "${grid[0].size}")
+        gridElem.setAttribute("height", "${grid.size}")
         val gridLook = doc.createElement("grid-look")
         gridLook.setAttribute("numbering-scheme", "normal")
         gridElem.appendChild(gridLook)
@@ -116,10 +133,25 @@ data class Jpz(
                 val cellElem = doc.createElement("cell")
                 cellElem.setAttribute("x", "${cell.x}")
                 cellElem.setAttribute("y", "${cell.y}")
-                cellElem.setAttribute("solution", cell.solution)
-                cellElem.setAttribute("background-color", cell.backgroundColor)
-                if (cell.number != null) {
+                if (cell.solution != "") {
+                    cellElem.setAttribute("solution", cell.solution)
+                }
+                if (cell.backgroundColor != "") {
+                    cellElem.setAttribute("background-color", cell.backgroundColor)
+                }
+                if (cell.number != "") {
                     cellElem.setAttribute("number", cell.number)
+                }
+                when (cell.cellType) {
+                    CellType.BLOCK -> cellElem.setAttribute("type", "block")
+                    CellType.CLUE -> {
+                        cellElem.setAttribute("type", "clue")
+                        cellElem.setAttribute("solve-state", cell.solution)
+                    }
+                    CellType.REGULAR -> {}
+                }
+                if (cell.topRightNumber != "") {
+                    cellElem.setAttribute("top-right-number", cell.topRightNumber)
                 }
                 gridElem.appendChild(cellElem)
             }
