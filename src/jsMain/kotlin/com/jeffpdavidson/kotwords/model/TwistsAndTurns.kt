@@ -40,7 +40,7 @@ data class TwistsAndTurns(
             val word = mutableListOf<Cell>()
             val clueNumber = answerIndex + 1
             answer.forEachIndexed { chIndex, ch ->
-                val number = if (chIndex == 0) { "$clueNumber" } else { null }
+                val number = if (chIndex == 0) { "$clueNumber" } else { "" }
                 val backgroundColor =
                         if ((((x - 1) / twistBoxSize) % 2) == (((y - 1) / twistBoxSize) % 2)) {
                             "#FFFFFF"
