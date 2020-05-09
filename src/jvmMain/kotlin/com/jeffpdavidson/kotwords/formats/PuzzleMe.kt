@@ -126,6 +126,7 @@ class PuzzleMe(private val html: String) : Crosswordable {
 
         private val clueReplacements = mapOf(
                 "</?i>" to "\"",
+                "</?span>" to "",
                 "ł" to "l",
                 "[ăā]" to "a",
                 "Ō" to "O",
