@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.formats
 import com.jeffpdavidson.kotwords.formats.Pdf.asPdf
 import com.jeffpdavidson.kotwords.formats.Pdf.splitTextToLines
 import com.jeffpdavidson.kotwords.readBinaryResource
+import com.jeffpdavidson.kotwords.runTest
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.font.PDType1Font
 import org.apache.pdfbox.rendering.PDFRenderer
@@ -17,9 +18,9 @@ class PdfTest {
     }
 
     @Test
-    fun asPdf() {
-        assertPdfEquals(PdfTest::class.readBinaryResource("pdf/test.pdf"),
-                AcrossLite(PdfTest::class.readBinaryResource("puz/test.puz"))
+    fun asPdf() = runTest {
+        assertPdfEquals(readBinaryResource(PdfTest::class, "pdf/test.pdf"),
+                AcrossLite(readBinaryResource(PdfTest::class, "puz/test.puz"))
                         .asCrossword().asPdf())
     }
 

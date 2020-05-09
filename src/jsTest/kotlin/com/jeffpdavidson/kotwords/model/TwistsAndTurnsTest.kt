@@ -1,14 +1,14 @@
 package com.jeffpdavidson.kotwords.model
 
-import com.jeffpdavidson.kotwords.readUtf8Resource
-import kotlin.js.Promise
+import com.jeffpdavidson.kotwords.readStringResource
+import com.jeffpdavidson.kotwords.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 // TODO: Expand test coverage
 class TwistsAndTurnsTest {
     @Test
-    fun jpzGeneration(): Promise<Any> {
+    fun jpzGeneration() = runTest {
         val puzzle = TwistsAndTurns.fromRawInput(
                 "Test title",
                 "Test creator",
@@ -24,8 +24,7 @@ class TwistsAndTurnsTest {
                 "#888888",
                 CrosswordSolverSettings("#00b100", "#80ff80", "All done!"))
 
-        return readUtf8Resource("twists-and-turns.jpz").then { expected ->
-            assertEquals(expected, puzzle.asJpz().asXmlString())
-        }
+        val expected = readStringResource(TwistsAndTurnsTest::class, "twists-and-turns.jpz")
+        assertEquals(expected, puzzle.asJpz().asXmlString())
     }
 }

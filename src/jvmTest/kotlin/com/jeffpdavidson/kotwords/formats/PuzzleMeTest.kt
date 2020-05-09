@@ -2,7 +2,8 @@ package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.toAcrossLiteBinary
 import com.jeffpdavidson.kotwords.readBinaryResource
-import com.jeffpdavidson.kotwords.readUtf8Resource
+import com.jeffpdavidson.kotwords.readStringResource
+import com.jeffpdavidson.kotwords.runTest
 import org.junit.Assert.assertArrayEquals
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -10,11 +11,12 @@ import kotlin.test.fail
 
 class PuzzleMeTest {
     @Test
-    fun extractPuzzleJson() {
+    fun extractPuzzleJson() = runTest {
         assertEquals(
-                PuzzleMeTest::class.readUtf8Resource("puzzleme/test.json").replace("\r\n", "\n"),
+                readStringResource(PuzzleMeTest::class, "puzzleme/test.json")
+                        .replace("\r\n", "\n"),
                 PuzzleMe.extractPuzzleJson(
-                        PuzzleMeTest::class.readUtf8Resource("puzzleme/test.html")))
+                        readStringResource(PuzzleMeTest::class, "puzzleme/test.html")))
     }
 
     @Test
@@ -28,56 +30,57 @@ class PuzzleMeTest {
     }
 
     @Test
-    fun toCrossword() {
+    fun toCrossword() = runTest {
         assertArrayEquals(
-                PuzzleMeTest::class.readBinaryResource("puz/test.puz"),
+                readBinaryResource(PuzzleMeTest::class, "puz/test.puz"),
                 PuzzleMe.toCrossword(
-                        PuzzleMeTest::class.readUtf8Resource("puzzleme/test.json"))
+                        readStringResource(PuzzleMeTest::class, "puzzleme/test.json"))
                         .toAcrossLiteBinary())
     }
 
     @Test
-    fun toCrossword_isCircled() {
+    fun toCrossword_isCircled() = runTest {
         assertArrayEquals(
-                PuzzleMeTest::class.readBinaryResource("puz/test.puz"),
+                readBinaryResource(PuzzleMeTest::class, "puz/test.puz"),
                 PuzzleMe.toCrossword(
-                        PuzzleMeTest::class.readUtf8Resource("puzzleme/test-isCircled.json"))
+                        readStringResource(PuzzleMeTest::class, "puzzleme/test-isCircled.json"))
                         .toAcrossLiteBinary())
     }
 
     @Test
-    fun toCrossword_shadedCells() {
+    fun toCrossword_shadedCells() = runTest {
         assertArrayEquals(
-                PuzzleMeTest::class.readBinaryResource("puz/test.puz"),
+                readBinaryResource(PuzzleMeTest::class, "puz/test.puz"),
                 PuzzleMe.toCrossword(
-                        PuzzleMeTest::class.readUtf8Resource("puzzleme/test-shadedCells.json"))
+                        readStringResource(PuzzleMeTest::class, "puzzleme/test-shadedCells.json"))
                         .toAcrossLiteBinary())
     }
 
     @Test
-    fun toCrossword_voids() {
+    fun toCrossword_voids() = runTest {
         assertArrayEquals(
-                PuzzleMeTest::class.readBinaryResource("puz/test.puz"),
+                readBinaryResource(PuzzleMeTest::class, "puz/test.puz"),
                 PuzzleMe.toCrossword(
-                        PuzzleMeTest::class.readUtf8Resource("puzzleme/test-void.json"))
+                        readStringResource(PuzzleMeTest::class, "puzzleme/test-void.json"))
                         .toAcrossLiteBinary())
     }
 
     @Test
-    fun toCrossword_hiddenSquares() {
+    fun toCrossword_hiddenSquares() = runTest {
         assertArrayEquals(
-                PuzzleMeTest::class.readBinaryResource("puz/test.puz"),
+                readBinaryResource(PuzzleMeTest::class, "puz/test.puz"),
                 PuzzleMe.toCrossword(
-                        PuzzleMeTest::class.readUtf8Resource("puzzleme/test-hiddenSquares.json"))
+                        readStringResource(PuzzleMeTest::class,
+                                "puzzleme/test-hiddenSquares.json"))
                         .toAcrossLiteBinary())
     }
 
     @Test
-    fun toCrossword_italics() {
+    fun toCrossword_italics() = runTest {
         assertArrayEquals(
-                PuzzleMeTest::class.readBinaryResource("puzzleme/test-italics.puz"),
+                readBinaryResource(PuzzleMeTest::class, "puzzleme/test-italics.puz"),
                 PuzzleMe.toCrossword(
-                        PuzzleMeTest::class.readUtf8Resource("puzzleme/test-italics.json"))
+                        readStringResource(PuzzleMeTest::class, "puzzleme/test-italics.json"))
                         .toAcrossLiteBinary())
     }
 }

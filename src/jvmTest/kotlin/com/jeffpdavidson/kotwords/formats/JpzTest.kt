@@ -2,24 +2,25 @@ package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.toAcrossLiteBinary
 import com.jeffpdavidson.kotwords.readBinaryResource
-import com.jeffpdavidson.kotwords.readUtf8Resource
+import com.jeffpdavidson.kotwords.readStringResource
+import com.jeffpdavidson.kotwords.runTest
 import org.junit.Assert.assertArrayEquals
 import org.junit.Test
 
 class JpzTest {
     @Test
-    fun crossword() {
+    fun crossword() = runTest {
         assertArrayEquals(
-                JpzTest::class.readBinaryResource("puz/test.puz"),
-                Jpz(JpzTest::class.readUtf8Resource("jpz/test.jpz"))
+                readBinaryResource(JpzTest::class, "puz/test.puz"),
+                Jpz(readStringResource(JpzTest::class, "jpz/test.jpz"))
                         .asCrossword().toAcrossLiteBinary())
     }
 
     @Test
-    fun crosswordWithClueGaps() {
+    fun crosswordWithClueGaps() = runTest {
         assertArrayEquals(
-                JpzTest::class.readBinaryResource("puz/gaps.puz"),
-                Jpz(JpzTest::class.readUtf8Resource("jpz/gaps.jpz"))
+                readBinaryResource(JpzTest::class, "puz/gaps.puz"),
+                Jpz(readStringResource(JpzTest::class, "jpz/gaps.jpz"))
                         .asCrossword().toAcrossLiteBinary())
     }
 }
