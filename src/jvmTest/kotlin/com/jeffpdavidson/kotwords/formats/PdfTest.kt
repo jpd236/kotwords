@@ -6,10 +6,9 @@ import com.jeffpdavidson.kotwords.readBinaryResource
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.font.PDType1Font
 import org.apache.pdfbox.rendering.PDFRenderer
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
+import org.junit.Test
 import java.awt.image.BufferedImage
-import java.io.File
+import kotlin.test.assertEquals
 
 class PdfTest {
     init {

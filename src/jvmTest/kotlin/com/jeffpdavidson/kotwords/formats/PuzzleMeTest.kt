@@ -3,10 +3,10 @@ package com.jeffpdavidson.kotwords.formats
 import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.toAcrossLiteBinary
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readUtf8Resource
-import org.junit.jupiter.api.Assertions.assertArrayEquals
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertThrows
-import org.junit.jupiter.api.Test
+import org.junit.Assert.assertArrayEquals
+import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.fail
 
 class PuzzleMeTest {
     @Test
@@ -19,8 +19,11 @@ class PuzzleMeTest {
 
     @Test
     fun extractPuzzleJson_invalid() {
-        assertThrows(InvalidFormatException::class.java) {
+        try {
             PuzzleMe.extractPuzzleJson("nothing to see here <script>empty</script>")
+            fail()
+        } catch (e: InvalidFormatException) {
+            // expected
         }
     }
 

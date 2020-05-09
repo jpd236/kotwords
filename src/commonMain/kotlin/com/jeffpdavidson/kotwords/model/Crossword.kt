@@ -1,15 +1,10 @@
 package com.jeffpdavidson.kotwords.model
 
-import java.nio.charset.Charset
-import java.nio.charset.CharsetEncoder
-
-private val WINDOWS_1252 = Charset.forName("windows-1252")
-
 /**
  * A representation of a crossword puzzle.
  *
- * While this is a generic container, it only includes features that are supported by Across Lite.
- * All string data must be encodable in the Windows-1252 charset.
+ * While this is a generic container, it currently only includes features that are supported by
+ * Across Lite.
  *
  * @constructor Construct a new puzzle.
  * @param title The title of the puzzle.
@@ -37,27 +32,7 @@ data class Crossword(
                 "Invalid grid - row $index has width ${row.size} but should be $width"
             }
         }
-
-        // Validate that all strings are encodable.
-        val encoder = WINDOWS_1252.newEncoder()
-        requireEncodableString(encoder, "title", title)
-        requireEncodableString(encoder, "author", author)
-        requireEncodableString(encoder, "copyright", copyright)
-        requireEncodableString(encoder, "notes", notes)
-        acrossClues.forEach { clueNum, clue ->
-            requireEncodableString(encoder, "Across clue $clueNum", clue)
-        }
-        downClues.forEach { clueNum, clue ->
-            requireEncodableString(encoder, "Down clue $clueNum", clue)
-        }
-
         // TODO: Validate standard grid numbering / clues.
-    }
-
-    private fun requireEncodableString(encoder: CharsetEncoder, name: String, value: String) {
-        require(encoder.canEncode(value)) {
-            "Provided string for $name cannot be encoded to Windows-1252: $value"
-        }
     }
 
     companion object {

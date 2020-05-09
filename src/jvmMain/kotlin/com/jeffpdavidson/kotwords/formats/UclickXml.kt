@@ -33,7 +33,11 @@ class UclickXml(private val xml: String,
         val allAnswer = document.getElementByTagName("AllAnswer").getAttribute("v")
         val width = document.getElementByTagName("Width").getAttribute("v").toInt()
         val grid = allAnswer.chunked(width).map { row ->
-            row.map { square -> if (square == '-') { BLACK_SQUARE } else { Square(square) } }
+            row.map { square -> if (square == '-') {
+                BLACK_SQUARE
+            } else {
+                Square(square)
+            } }
         }
 
         val acrossClues = document.getElementByTagName("across").getChildElementList()

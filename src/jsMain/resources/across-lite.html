@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Across Lite</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="kotwords.js" defer onload="document.getElementById('generate-jpz').disabled = false;"></script>
+    <script>
+        function createJpz() {
+            var file = document.getElementById('file');
+            var crosswordSolverCursorColor = document.getElementById("crossword-solver-cursor-color").value;
+            var crosswordSolverSelectionColor = document.getElementById("crossword-solver-selection-color").value;
+            var crosswordSolverCompletionMessage = document.getElementById("crossword-solver-completion-message").value;
+            var errorMsg = document.getElementById("error-msg");
+
+            if (!file.files.length) {
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var data = new Int8Array(e.target.result);
+                    var crossword = new kotwords.com.jeffpdavidson.kotwords.formats.AcrossLite(data).asCrossword();
+                    var crosswordSolverSettings = new kotwords.com.jeffpdavidson.kotwords.model.CrosswordSolverSettings(
+                            crosswordSolverCursorColor,
+                            crosswordSolverSelectionColor,
+                            crosswordSolverCompletionMessage)
+                    var jpz = kotwords.com.jeffpdavidson.kotwords.model.Jpz.Companion.fromCrossword(
+                            crossword, crosswordSolverSettings);
+                    jpz.asBase64JpzZip().then(function(result) {
+                        errorMsg.style.display = "none";
+                        // TODO: This doesn't work in Edge
+                        var link = document.createElement("a");
+                        link.download = file.files[0].name.replace(".puz", ".jpz");
+                        link.href = "data:application/zip;base64," + result;
+                        link.click();
+                    }).catch(function(err) {
+                        errorMsg.style.display = "";
+                        errorMsg.innerText = "Error generating JPZ: " + err.message;
+                    });
+                } catch(err) {
+                    errorMsg.style.display = "";
+                    errorMsg.innerText = "Error generating JPZ: " + err.message;
+                };
+            };
+            reader.readAsArrayBuffer(file.files[0]);
+        }
+    </script>
+</head>
+<body>
+    <div class="container-fluid">
+        <h1>Across Lite</h1>
+        <form action="" onsubmit="createJpz(); return false;">
+            <div class="form-group">
+                <label for="file">Across Lite File</label>
+                <input type="file" id="file" class="form-control-file" />
+            </div>
+            <div class="alert alert-primary" role="alert" id="error-msg" style="display: none;"></div>
+            <p>
+                <a class="btn btn-secondary" data-toggle="collapse" href="#advanced-options">
+                    Advanced options
+                </a>
+            </p>
+            <div class="collapse" id="advanced-options">
+                <div class="card card-body form-group">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="crossword-solver-cursor-color">Crossword Solver cursor color</label>
+                            <input type="color" id="crossword-solver-cursor-color" class="form-control" value="#00b100" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="crossword-solver-selection-color">Crossword Solver selected cells color</label>
+                            <input type="color" id="crossword-solver-selection-color" class="form-control" value="#80ff80" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="crossword-solver-completion-message">Crossword Solver completion message</label>
+                        <input type="text" id="crossword-solver-completion-message" class="form-control" value="Congratulations! The puzzle is solved correctly." />
+                    </div>
+                </div>
+            </div>
+            <p>
+                <button type="submit" class="btn btn-primary" id="generate-jpz" disabled="disabled">Generate JPZ</button>
+            </p>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+</html>
