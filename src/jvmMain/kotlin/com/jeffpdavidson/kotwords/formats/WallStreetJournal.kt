@@ -5,7 +5,6 @@ import com.jeffpdavidson.kotwords.formats.json.WallStreetJournalJson
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
-import org.jsoup.parser.Parser
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 

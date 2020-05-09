@@ -1,15 +1,17 @@
 package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.toAcrossLiteBinary
+import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.readBinaryResource
-import org.junit.jupiter.api.Assertions.assertArrayEquals
-import org.junit.jupiter.api.Test
+import org.junit.Assert.assertArrayEquals
+import org.junit.Test
 
 class AcrossLiteTest {
     @Test
     fun readAndWrite_basic() {
         val data = AcrossLiteTest::class.readBinaryResource("puz/test-simple.puz")
-        assertArrayEquals(data, AcrossLite(data).asCrossword().toAcrossLiteBinary())
+        val result = AcrossLite(data).asCrossword()
+        assertArrayEquals(data, result.toAcrossLiteBinary())
     }
 
     @Test

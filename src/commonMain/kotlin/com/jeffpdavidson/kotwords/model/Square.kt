@@ -29,7 +29,7 @@ data class Square(
         val isCircled: Boolean = false,
         val entry: Char? = null,
         val isGiven: Boolean = false) {
-    private val validSymbols = setOf('@', '#', '$', '%', '&', '+', '?')
+    private val validSymbolRegex = "[@#$%&+?A-Z0-9]".toRegex()
 
     init {
         if (isBlack) {
@@ -50,10 +50,7 @@ data class Square(
     }
 
     private fun isValidCharacter(character: Char): Boolean {
-        if (character.isLetterOrDigit()) {
-            return !character.isLetter() || character.isUpperCase()
-        }
-        return validSymbols.contains(character)
+        return character.toString().matches(validSymbolRegex)
     }
 }
 

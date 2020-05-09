@@ -21,6 +21,11 @@ enum class CellType {
     CLUE
 }
 
+enum class BackgroundShape {
+    NONE,
+    CIRCLE
+}
+
 data class Cell(
         val x: Int,
         val y: Int,
@@ -28,7 +33,8 @@ data class Cell(
         val backgroundColor: String = "",
         val number: String = "",
         val topRightNumber: String = "",
-        val cellType: CellType = CellType.REGULAR)
+        val cellType: CellType = CellType.REGULAR,
+        val backgroundShape: BackgroundShape = BackgroundShape.NONE)
 
 data class Word(
         val id: Int,
@@ -71,7 +77,8 @@ data class Jpz(
 
         val appletSettings = doc.createElement("applet-settings")
         appletSettings.setAttribute("cursor-color", crosswordSolverSettings.cursorColor)
-        appletSettings.setAttribute("selected-cells-color", crosswordSolverSettings.selectedCellsColor)
+        appletSettings.setAttribute("selected-cells-color",
+                crosswordSolverSettings.selectedCellsColor)
         val completion = doc.createElement("completion")
         completion.setAttribute("friendly-submit", "false")
         completion.setAttribute("only-if-correct", "true")
@@ -153,6 +160,9 @@ data class Jpz(
                 if (cell.topRightNumber != "") {
                     cellElem.setAttribute("top-right-number", cell.topRightNumber)
                 }
+                if (cell.backgroundShape == BackgroundShape.CIRCLE) {
+                    cellElem.setAttribute("background-shape", "circle")
+                }
                 gridElem.appendChild(cellElem)
             }
         }
@@ -202,5 +212,81 @@ data class Jpz(
         zip.file("${title.replace("[^A-Za-z0-9]".toRegex(), "")}.xml", asXmlString())
         val options = newGenerateAsyncOptions(type = ZipOutputType.BASE64)
         return zip.generateAsync(options).unsafeCast<Promise<String>>()
+    }
+
+    companion object {
+        @JsName("fromCrossword")
+        fun fromCrossword(crossword: Crossword,
+                          crosswordSolverSettings: CrosswordSolverSettings): Jpz {
+            val gridMap = mutableMapOf<Pair<Int, Int>, Cell>()
+            Crossword.forEachSquare(crossword.grid) { x, y, clueNumber, _, _, square ->
+                if (square == BLACK_SQUARE) {
+                    gridMap[x to y] = Cell(x + 1, y + 1, cellType = CellType.BLOCK)
+                } else {
+                    val solution =
+                            if (square.solutionRebus.isEmpty()) {
+                                "${square.solution}"
+                            } else {
+                                square.solutionRebus
+                            }
+                    val number = if (clueNumber != null) "$clueNumber" else ""
+                    val backgroundShape =
+                            if (square.isCircled) {
+                                BackgroundShape.CIRCLE
+                            } else {
+                                BackgroundShape.NONE
+                            }
+                    gridMap[x to y] =
+                            Cell(x + 1, y + 1,
+                                    solution = solution,
+                                    number = number,
+                                    backgroundShape = backgroundShape)
+                }
+            }
+            val grid = mutableListOf<List<Cell>>()
+            crossword.grid.indices.forEach { y ->
+                val row = mutableListOf<Cell>()
+                crossword.grid[y].indices.forEach { x ->
+                    row.add(gridMap[x to y]!!)
+                }
+                grid.add(row)
+            }
+
+            val acrossClues = mutableListOf<Clue>()
+            val downClues = mutableListOf<Clue>()
+            Crossword.forEachNumberedSquare(crossword.grid) { x, y, number, isAcross, isDown ->
+                if (isAcross) {
+                    val word = mutableListOf<Cell>()
+                    var i = x
+                    while (i < crossword.grid[y].size && crossword.grid[y][i] != BLACK_SQUARE) {
+                        word.add(grid[y][i])
+                        i++
+                    }
+                    acrossClues.add(Clue(Word(number, word), "$number",
+                            crossword.acrossClues[number] ?:
+                            error("No across clue for number $number")))
+                }
+                if (isDown) {
+                    val word = mutableListOf<Cell>()
+                    var j = y
+                    while (j < crossword.grid.size && crossword.grid[j][x] != BLACK_SQUARE) {
+                        word.add(grid[j][x])
+                        j++
+                    }
+                    downClues.add(Clue(Word(1000 + number, word), "$number",
+                            crossword.downClues[number] ?:
+                            error("No down clue for number $number")))
+                }
+            }
+
+            return Jpz(
+                    crossword.title,
+                    crossword.author,
+                    crossword.copyright,
+                    crossword.notes,
+                    grid,
+                    listOf(ClueList("Across", acrossClues), ClueList("Down", downClues)),
+                    crosswordSolverSettings)
+        }
     }
 }
