@@ -39,6 +39,18 @@ kotlin {
     }
 }
 
+// HACK: To make JS test resources accessible to tests, we copy them to the Karma server's base
+// directory where they can be served (see karma.config.d/resources.js).
+jsTestProcessResources.doLast {
+    delete {
+        delete("$buildDir/js/packages/kotwords-test/node_modules/resources/test")
+    }
+    copy {
+        from("$buildDir/processedResources/js/test")
+        into("$buildDir/js/packages/kotwords-test/node_modules/resources/test")
+    }
+}
+
 dependencies {
     commonMainImplementation "org.jetbrains.kotlin:kotlin-stdlib"
     commonMainImplementation "org.jetbrains.kotlinx:kotlinx-io:0.1.16"
