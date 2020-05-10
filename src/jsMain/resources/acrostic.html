@@ -28,6 +28,7 @@
                         var file = document.getElementById('apz-file');
                         filename = file.files[0].name.replace(".apz", ".jpz");
                     } else {
+                        var title = document.getElementById("title").value;
                         filename = title.replace("[^A-Za-z0-9]", "") + ".jpz";
                     }
                     link.download = filename
