@@ -72,7 +72,7 @@ data class TwistsAndTurns(
                 listOf(
                         ClueList("Turns", turnsCluesList),
                         ClueList("Twists", generateTwistsCluesList(grid))),
-                crosswordSolverSettings)
+                crosswordSolverSettings = crosswordSolverSettings)
     }
 
     private fun generateGrid(cellMap: Map<Pair<Int, Int>, Cell>): List<List<Cell>> {

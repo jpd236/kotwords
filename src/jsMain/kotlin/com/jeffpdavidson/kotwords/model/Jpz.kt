@@ -61,6 +61,7 @@ data class Jpz(
         val description: String,
         val grid: List<List<Cell>>,
         val clues: List<ClueList>,
+        val hasHtmlClues: Boolean = false,
         val crosswordSolverSettings: CrosswordSolverSettings,
         val puzzleType: PuzzleType = PuzzleType.CROSSWORD) {
     // TODO: Validate data structures.
@@ -192,8 +193,7 @@ data class Jpz(
                 val clueElem = doc.createElement("clue")
                 clueElem.setAttribute("word", "${clue.word.id}")
                 clueElem.setAttribute("number", clue.number)
-                // TODO: Handle HTML in clues
-                clueElem.appendText(clue.text)
+                clueElem.innerHTML = if (hasHtmlClues) clue.text else formatClue(clue.text)
                 cluesElem.appendChild(clueElem)
             }
             crossword.appendChild(cluesElem)
@@ -286,7 +286,17 @@ data class Jpz(
                     crossword.notes,
                     grid,
                     listOf(ClueList("Across", acrossClues), ClueList("Down", downClues)),
-                    crosswordSolverSettings)
+                    crosswordSolverSettings = crosswordSolverSettings)
+        }
+
+        /**
+         * Format a raw clue as valid inner HTML for a JPZ file.
+         *
+         * <p>Invalid XML characters are escaped, and text surrounded by asterisks is italicized.
+         */
+        private fun formatClue(rawClue: String): String {
+            return rawClue.replace("&", "&amp;").replace("<", "&lt;")
+                    .replace("\\*([^*]+)\\*".toRegex(), "<i>$1</i>")
         }
     }
 }
