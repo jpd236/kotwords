@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Acrostic</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="kotwords.js" defer onload="document.getElementById('generate-jpz').disabled = false;"></script>
+    <script>
+        function createJpz() {
+            var errorMsg = document.getElementById("error-msg");
+            try {
+                var activeTab = $("ul#tab a.active").get()[0].id;
+                var acrosticPromise;
+                if (activeTab === "file-tab") {
+                    acrosticPromise = createAcrosticFromFile();
+                } else {
+                    acrosticPromise = Promise.resolve(createAcrosticFromForm());
+                }
+                acrosticPromise.then(function(acrostic) {
+                    return acrostic.asJpz().asBase64JpzZip();
+                }).then(function(result) {
+                    errorMsg.style.display = "none";
+                    // TODO: This doesn't work in Edge
+                    var link = document.createElement("a");
+                    var filename;
+                    if (activeTab === "file-tab") {
+                        var file = document.getElementById('apz-file');
+                        filename = file.files[0].name.replace(".apz", ".jpz");
+                    } else {
+                        filename = title.replace("[^A-Za-z0-9]", "") + ".jpz";
+                    }
+                    link.download = filename
+                    link.href = "data:application/zip;base64," + result;
+                    link.click();
+                }).catch(function(err) {
+                    errorMsg.style.display = "";
+                    errorMsg.innerText = "Error generating JPZ: " + err.message;
+                });
+            } catch (err) {
+                errorMsg.style.display = "";
+                errorMsg.innerText = "Error generating JPZ: " + err.message;
+            }
+        }
+
+        function createAcrosticFromForm() {
+            var title = document.getElementById("title").value;
+            var creator = document.getElementById("creator").value;
+            var copyright = document.getElementById("copyright").value;
+            var description = document.getElementById("description").value;
+            var suggestedWidth = document.getElementById("suggested-width").value;
+            var solution = document.getElementById("solution").value;
+            var gridKey = document.getElementById("grid-key").value;
+            var clues = document.getElementById("clues").value;
+            var answers = document.getElementById("answers").value;
+            var crosswordSolverCursorColor = document.getElementById("form-crossword-solver-cursor-color").value;
+            var crosswordSolverSelectionColor = document.getElementById("form-crossword-solver-selection-color").value;
+            var crosswordSolverCompletionMessage = document.getElementById("form-crossword-solver-completion-message").value;
+
+            return kotwords.com.jeffpdavidson.kotwords.model.Acrostic.Companion.fromRawInput(
+                    title,
+                    creator,
+                    copyright,
+                    description,
+                    suggestedWidth,
+                    solution,
+                    gridKey,
+                    clues,
+                    answers,
+                    new kotwords.com.jeffpdavidson.kotwords.model.CrosswordSolverSettings(
+                        crosswordSolverCursorColor,
+                        crosswordSolverSelectionColor,
+                        crosswordSolverCompletionMessage));
+        }
+
+        function createAcrosticFromFile() {
+            var file = document.getElementById('apz-file');
+            var crosswordSolverCursorColor = document.getElementById("file-crossword-solver-cursor-color").value;
+            var crosswordSolverSelectionColor = document.getElementById("file-crossword-solver-selection-color").value;
+            var crosswordSolverCompletionMessage = document.getElementById("file-crossword-solver-completion-message").value;
+
+            if (!file.files.length) {
+                return;
+            }
+
+            var reader = new FileReader();
+            return new Promise((resolve, reject) => {
+                reader.onload = function(e) {
+                    try {
+                        var crosswordSolverSettings =
+                                new kotwords.com.jeffpdavidson.kotwords.model.CrosswordSolverSettings(
+                                        crosswordSolverCursorColor,
+                                        crosswordSolverSelectionColor,
+                                        crosswordSolverCompletionMessage)
+                        var acrostic = kotwords.com.jeffpdavidson.kotwords.model.Acrostic.Companion.fromApz(
+                                e.target.result, crosswordSolverSettings);
+                        resolve(acrostic);
+                    } catch(err) {
+                        reject(err);
+                    };
+                };
+                reader.readAsText(file.files[0]);
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container-fluid">
+        <h1>Acrostic</h1>
+        <form action="" onsubmit="createJpz(); return false;">
+        <ul class="nav nav-tabs" id="tab" role="tablist" style="margin-bottom: 1rem;">
+            <li class="nav-item">
+                <a class="nav-link active" id="form-tab" data-toggle="tab" href="#form" role="tab" aria-controls="form-tab" aria-selected="true">Form</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="file-tab" data-toggle="tab" href="#file" role="tab" aria-controls="file-tab" aria-selected="false">APZ file</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="tab-content">
+            <div class="tab-pane fade show active" id="form" role="tabpanel" aria-labelledby="form-tab">
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <input type="text" id="title" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="creator">Creator (optional)</label>
+                        <input type="text" id="creator" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="copyright">Copyright (optional)</label>
+                        <input type="text" id="copyright" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description (optional)</label>
+                        <textarea id="description" class="form-control" rows="5"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="suggested-width">Suggested width (optional)</label>
+                        <input type="number" id="suggested-width" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="solution">Solution</label>
+                        <textarea id="solution" class="form-control" rows="2" placeholder="The quote of the acrostic. Use spaces for word breaks. Any non-alphabetical characters will be prefilled and uneditable in the quote grid."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="grid-key">Grid key</label>
+                        <textarea id="grid-key" class="form-control" rows="10" placeholder="The numeric positions in the quote of each letter in the clue answers. One clue per row, with numbers separated by spaces. Omit clue letters."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="clues">Clues</label>
+                        <textarea id="clues" class="form-control" rows="10" placeholder="One clue per row. Omit clue letters."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="answers">Answers (optional)</label>
+                        <textarea id="answers" class="form-control" rows="10" placeholder="One answer per row. Only use alphabetical characters. Only used to validate that the quote and grid key are consistent with the intended answers."></textarea>
+                    </div>
+                <p>
+                    <a class="btn btn-secondary" data-toggle="collapse" href="#advanced-options-form">
+                        Advanced options
+                    </a>
+                </p>
+                <div class="collapse" id="advanced-options-form">
+                    <div class="card card-body form-group">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="form-crossword-solver-cursor-color">Crossword Solver cursor color</label>
+                                <input type="color" id="form-crossword-solver-cursor-color" class="form-control" value="#00b100" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="form-crossword-solver-selection-color">Crossword Solver selected cells color</label>
+                                <input type="color" id="form-crossword-solver-selection-color" class="form-control" value="#80ff80" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="form-crossword-solver-completion-message">Crossword Solver completion message</label>
+                            <input type="text" id="form-crossword-solver-completion-message" class="form-control" value="Congratulations! The puzzle is solved correctly." />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="file" role="tabpanel" aria-labelledby="file-tab">
+                <div class="form-group">
+                    <label for="file">APZ file</label>
+                    <input type="file" id="apz-file" class="form-control-file" />
+                </div>
+                <p>
+                    <a class="btn btn-secondary" data-toggle="collapse" href="#advanced-options-file">
+                        Advanced options
+                    </a>
+                </p>
+                <div class="collapse" id="advanced-options-file">
+                    <div class="card card-body form-group">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="file-crossword-solver-cursor-color">Crossword Solver cursor color</label>
+                                <input type="color" id="file-crossword-solver-cursor-color" class="form-control" value="#00b100" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="file-crossword-solver-selection-color">Crossword Solver selected cells color</label>
+                                <input type="color" id="file-crossword-solver-selection-color" class="form-control" value="#80ff80" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="file-crossword-solver-completion-message">Crossword Solver completion message (optional)</label>
+                            <input type="text" id="file-crossword-solver-completion-message" class="form-control" />
+                            <small id="file-crossword-solver-completion-message-help" class="form-text text-muted">
+                                If blank, will be generated from the quote and source.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <div class="alert alert-primary" role="alert" id="error-msg" style="display: none;"></div>
+            <p>
+                <button type="submit" class="btn btn-primary" id="generate-jpz" disabled="disabled">Generate JPZ</button>
+            </p>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+</html>
