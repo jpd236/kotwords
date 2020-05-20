@@ -8,6 +8,7 @@ plugins {
     id 'org.jetbrains.dokka' version '0.10.1'
     id 'org.jetbrains.kotlin.multiplatform' version '1.3.72'
     id 'org.jetbrains.kotlin.kapt' version '1.3.72'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.3.72'
 }
 
 group = 'com.jeffpdavidson.kotwords'
@@ -54,16 +55,20 @@ jsTestProcessResources.doLast {
 dependencies {
     commonMainImplementation "org.jetbrains.kotlin:kotlin-stdlib"
     commonMainImplementation "org.jetbrains.kotlinx:kotlinx-io:0.1.16"
+    commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:0.20.0"
+    commonMainImplementation "net.mamoe.yamlkt:yamlkt-common:0.3.0"
 
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common"
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-common"
 
+    jvmMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0"
     jvmMainImplementation "org.jetbrains.kotlinx:kotlinx-io-jvm:0.1.16"
     jvmMainImplementation "com.squareup.moshi:moshi:1.5.0"
     jvmMainImplementation "org.apache.pdfbox:pdfbox:2.0.9"
     jvmMainImplementation "org.glassfish:javax.json:1.1.2"
     jvmMainImplementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     jvmMainImplementation "org.jsoup:jsoup:1.11.2"
+    jvmMainImplementation "net.mamoe.yamlkt:yamlkt:0.3.0"
 
     jvmMainImplementation "se.ansman.kotshi:api:1.0.4"
     kapt "se.ansman.kotshi:compiler:1.0.4"
@@ -71,11 +76,13 @@ dependencies {
     jvmTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.6"
     jvmTestImplementation "org.jetbrains.kotlin:kotlin-test-junit"
 
+    jsMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:0.20.0"
     jsMainImplementation "org.jetbrains.kotlinx:kotlinx-io-js:0.1.16"
     jsMainImplementation(npm("jszip", "3.4.0"))
     jsMainImplementation(npm("text-encoding", "0.7.0"))
+    jsMainImplementation "net.mamoe.yamlkt:yamlkt-js:0.3.0"
+    jsMainImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.6"
 
-    jsTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.6"
     jsTestImplementation "org.jetbrains.kotlin:kotlin-test-js"
 }
 
