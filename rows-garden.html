@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Rows Garden</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="kotwords.js" defer onload="document.getElementById('generate-jpz').disabled = false;"></script>
+    <script>
+        function createJpz() {
+            var errorMsg = document.getElementById("error-msg");
+            try {
+                var lightBloomColor = document.getElementById("light-bloom-color").value;
+                var mediumBloomColor = document.getElementById("medium-bloom-color").value;
+                var darkBloomColor = document.getElementById("dark-bloom-color").value;
+                var addAnnotations = document.getElementById("add-annotations").checked;
+                var crosswordSolverCursorColor = document.getElementById("crossword-solver-cursor-color").value;
+                var crosswordSolverSelectionColor = document.getElementById("crossword-solver-selection-color").value;
+                var crosswordSolverCompletionMessage = document.getElementById("crossword-solver-completion-message").value;
+
+                var activeTab = $("ul#tab a.active").get()[0].id;
+                var rowsGardenPromise;
+                if (activeTab === "file-tab") {
+                    rowsGardenPromise = createRowsGardenFromFile();
+                } else {
+                    rowsGardenPromise = Promise.resolve(createRowsGardenFromForm());
+                }
+                var crosswordSolverSettings = new kotwords.com.jeffpdavidson.kotwords.model.CrosswordSolverSettings(
+                            crosswordSolverCursorColor,
+                            crosswordSolverSelectionColor,
+                            crosswordSolverCompletionMessage);
+                rowsGardenPromise.then(function(rowsGarden) {
+                    return rowsGarden.asJpz(
+                            lightBloomColor,
+                            mediumBloomColor,
+                            darkBloomColor,
+                            /* addWordCount= */ addAnnotations,
+                            /* addHyphenated= */ addAnnotations,
+                            crosswordSolverSettings).asBase64JpzZip();
+                }).then(function(result) {
+                    errorMsg.style.display = "none";
+                    // TODO: This doesn't work in Edge
+                    var link = document.createElement("a");
+                    var filename;
+                    if (activeTab === "file-tab") {
+                        var file = document.getElementById('rgz-file');
+                        filename = file.files[0].name.replace(".rgz", ".jpz").replace(".rg", ".jpz");
+                    } else {
+                        var title = document.getElementById("title").value;
+                        filename = title.replace("[^A-Za-z0-9]", "") + ".jpz";
+                    }
+                    link.download = filename
+                    link.href = "data:application/zip;base64," + result;
+                    link.click();
+                }).catch(function(err) {
+                    errorMsg.style.display = "";
+                    errorMsg.innerText = "Error generating JPZ: " + err.message;
+                });
+            } catch (err) {
+                errorMsg.style.display = "";
+                errorMsg.innerText = "Error generating JPZ: " + err.message;
+            }
+        }
+
+        function createRowsGardenFromForm() {
+            var title = document.getElementById("title").value;
+            var author = document.getElementById("author").value;
+            var copyright = document.getElementById("copyright").value;
+            var notes = document.getElementById("notes").value;
+            var rowClues = document.getElementById("row-clues").value;
+            var rowAnswers = document.getElementById("row-answers").value;
+            var lightClues = document.getElementById("light-clues").value;
+            var lightAnswers = document.getElementById("light-answers").value;
+            var mediumClues = document.getElementById("medium-clues").value;
+            var mediumAnswers = document.getElementById("medium-answers").value;
+            var darkClues = document.getElementById("dark-clues").value;
+            var darkAnswers = document.getElementById("dark-answers").value;
+
+            return new kotwords.com.jeffpdavidson.kotwords.formats.JsRowsGarden(
+                    kotwords.com.jeffpdavidson.kotwords.formats.RowsGarden.Companion.fromRawInput(
+                            title,
+                            author,
+                            copyright,
+                            notes,
+                            rowClues,
+                            rowAnswers,
+                            lightClues,
+                            lightAnswers,
+                            mediumClues,
+                            mediumAnswers,
+                            darkClues,
+                            darkAnswers));
+        }
+
+        function createRowsGardenFromFile() {
+            var file = document.getElementById('rgz-file');
+
+            if (!file.files.length) {
+                return;
+            }
+
+            var reader = new FileReader();
+            return new Promise((resolve, reject) => {
+                reader.onload = function(e) {
+                    try {
+                        resolve(new Int8Array(e.target.result));
+                    } catch(err) {
+                        reject(err);
+                    };
+                };
+                reader.readAsArrayBuffer(file.files[0]);
+            }).then(function(result) {
+                return kotwords.com.jeffpdavidson.kotwords.formats.JsRowsGarden.Companion.parseRowsGarden(result);
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container-fluid">
+        <h1>Rows Garden</h1>
+        <form action="" onsubmit="createJpz(); return false;">
+        <ul class="nav nav-tabs" id="tab" role="tablist" style="margin-bottom: 1rem;">
+            <li class="nav-item">
+                <a class="nav-link active" id="form-tab" data-toggle="tab" href="#form" role="tab" aria-controls="form-tab" aria-selected="true">Form</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="file-tab" data-toggle="tab" href="#file" role="tab" aria-controls="file-tab" aria-selected="false">RG or RGZ file</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="tab-content">
+            <div class="tab-pane fade show active" id="form" role="tabpanel" aria-labelledby="form-tab">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="author">Author (optional)</label>
+                    <input type="text" id="author" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="copyright">Copyright (optional)</label>
+                    <input type="text" id="copyright" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes (optional)</label>
+                    <textarea id="notes" class="form-control" rows="5"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="row-clues">Row clues</label>
+                        <textarea id="row-clues" class="form-control" rows="12" placeholder="The clues for each row; one line per row. Separate multiple clues for a row with a /."></textarea>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="row-answers">Row answers</label>
+                        <textarea id="row-answers" class="form-control" rows="12" placeholder="The answers for each row; one line per row. Separate multiple answers for a row with a /."></textarea>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="light-clues">Light clues</label>
+                        <textarea id="light-clues" class="form-control" rows="14" placeholder="The light bloom clues; one clue per line."></textarea>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="light-answers">Light answers</label>
+                        <textarea id="light-answers" class="form-control" rows="14" placeholder="The light bloom answers; one answer per line."></textarea>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="medium-clues">Medium clues</label>
+                        <textarea id="medium-clues" class="form-control" rows="14" placeholder="The medium bloom clues; one clue per line."></textarea>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="medium-answers">Medium answers</label>
+                        <textarea id="medium-answers" class="form-control" rows="14" placeholder="The medium bloom answers; one answer per line."></textarea>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="dark-clues">Dark clues</label>
+                        <textarea id="dark-clues" class="form-control" rows="10" placeholder="The dark bloom clues; one clue per line."></textarea>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="dark-answers">Dark answers</label>
+                        <textarea id="dark-answers" class="form-control" rows="10" placeholder="The dark bloom answers; one answer per line."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="file" role="tabpanel" aria-labelledby="file-tab">
+                <div class="form-group">
+                    <label for="file">RG or RGZ file</label>
+                    <input type="file" id="rgz-file" class="form-control-file" />
+                </div>
+            </div>
+            <p>
+                <a class="btn btn-secondary" data-toggle="collapse" href="#advanced-options-form">
+                    Advanced options
+                </a>
+            </p>
+            <div class="collapse" id="advanced-options-form">
+                <div class="card card-body form-group">
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="add-annotations" class="form-check-input" checked="checked" />
+                            <label for="add-annotations" class="form-check-label">Add clue annotations (e.g. "hyph.", "2 wds.")</label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="light-bloom-color">Light bloom color</label>
+                            <input type="color" id="light-bloom-color" class="form-control" value="#ffffff" />
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="medium-bloom-color">Medium bloom color</label>
+                            <input type="color" id="medium-bloom-color" class="form-control" value="#c3c8fa" />
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="dark-bloom-color">Dark bloom color</label>
+                            <input type="color" id="dark-bloom-color" class="form-control" value="#5765f7" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="crossword-solver-cursor-color">Crossword Solver cursor color</label>
+                            <input type="color" id="crossword-solver-cursor-color" class="form-control" value="#00b100" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="crossword-solver-selection-color">Crossword Solver selected cells color</label>
+                            <input type="color" id="crossword-solver-selection-color" class="form-control" value="#80ff80" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="crossword-solver-completion-message">Completion message</label>
+                        <input type="text" id="crossword-solver-completion-message" class="form-control" value="Congratulations! The puzzle is solved correctly." />
+                    </div>
+                </div>
+            </div>
+        </div>
+            <div class="alert alert-primary" role="alert" id="error-msg" style="display: none;"></div>
+            <p>
+                <button type="submit" class="btn btn-primary" id="generate-jpz" disabled="disabled">Generate JPZ</button>
+            </p>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+</html>
