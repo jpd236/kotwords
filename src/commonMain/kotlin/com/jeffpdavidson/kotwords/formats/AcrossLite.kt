@@ -4,8 +4,6 @@ import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
 import kotlinx.io.charsets.Charsets
-import kotlinx.io.charsets.MalformedInputException
-import kotlinx.io.charsets.encodeToByteArray
 import kotlinx.io.core.ByteOrder
 import kotlinx.io.core.BytePacketBuilder
 import kotlinx.io.core.ByteReadPacket

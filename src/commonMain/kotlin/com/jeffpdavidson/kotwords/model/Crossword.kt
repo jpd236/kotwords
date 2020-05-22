@@ -54,7 +54,11 @@ data class Crossword(
                         val isAcross = needsAcrossNumber(grid, x, y)
                         val isDown = needsDownNumber(grid, x, y)
                         val clueNumber =
-                                if (isAcross || isDown) { currentClueNumber++ } else { null }
+                                if (isAcross || isDown) {
+                                    currentClueNumber++
+                                } else {
+                                    null
+                                }
                         fn(x, y, clueNumber, isAcross, isDown, grid[y][x])
                     }
                 }

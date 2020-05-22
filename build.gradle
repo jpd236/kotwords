@@ -18,7 +18,7 @@ repositories {
     jcenter()
     // TODO: Remove once https://github.com/pdvrieze/xmlutil/issues/26 is resolved.
     maven {
-        url  "https://dl.bintray.com/pdvrieze/maven"
+        url "https://dl.bintray.com/pdvrieze/maven"
     }
 }
 

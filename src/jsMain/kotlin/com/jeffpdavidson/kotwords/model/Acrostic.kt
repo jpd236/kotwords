@@ -24,7 +24,7 @@ data class Acrostic(
             "Grid key must contain exactly one of each number from 1 to the size of the grid"
         }
         val solutionLetters = solution.filter { it in 'A'..'Z' }
-        require (solutionLetters.length == allNumbers.size) {
+        require(solutionLetters.length == allNumbers.size) {
             "Grid key must have same number of letters as the solution"
         }
         if (answers.isNotEmpty()) {

@@ -13,7 +13,7 @@ import javax.json.JsonArray
 class WorldOfCrosswords(private val json: String,
                         private val date: LocalDate,
                         private val author: String,
-                        private val copyright: String): Crosswordable {
+                        private val copyright: String) : Crosswordable {
     override fun asCrossword(): Crossword {
         // This format is so unstructured that there's no reason to use a data-class parser.
         val data = Json.createReader(StringReader(json)).readObject()

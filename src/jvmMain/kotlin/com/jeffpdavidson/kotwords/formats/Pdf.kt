@@ -14,30 +14,56 @@ object Pdf {
 
     /** Top/bottom and left/right margin size. */
     private const val MARGIN = 36f
+
     /** Size of the puzzle title. */
     private const val TITLE_SIZE = 16f
+
     /** Size of the puzzle author. */
     private const val AUTHOR_SIZE = 14f
+
     /** Size of the puzzle copyright. */
     private const val COPYRIGHT_SIZE = 9f
+
     /** Size of clue section headers ("ACROSS" and "DOWN"). */
     private const val CLUE_HEADER_SIZE = 12f
+
     /** Size of the space between adjacent clue columns. */
     private const val COLUMN_PADDING = 12f
+
     /** X offset of clue numbers in grid squares. (The Y offset is based on font size). */
     private const val GRID_NUMBER_X_OFFSET = 2f
+
     /** Color to use for "black" squares from 0 (black) to 1 (white). */
     private const val GRID_BLACK_COLOR = 0.75f
 
     /** Returns the number of columns to use for the clues. */
-    private fun getClueColumns(gridRows: Int): Int = if (gridRows >= 15) { 4 } else { 3 }
+    private fun getClueColumns(gridRows: Int): Int = if (gridRows >= 15) {
+        4
+    } else {
+        3
+    }
+
     /** Returns the size of the grid number text. */
-    private fun getGridNumberSize(gridRows: Int): Float = if (gridRows <= 17) { 8f } else { 6f }
+    private fun getGridNumberSize(gridRows: Int): Float = if (gridRows <= 17) {
+        8f
+    } else {
+        6f
+    }
+
     /** Returns the size of the clue text. */
-    private fun getClueTextSize(gridRows: Int): Float = if (gridRows <= 17) { 11f } else { 8.5f }
+    private fun getClueTextSize(gridRows: Int): Float = if (gridRows <= 17) {
+        11f
+    } else {
+        8.5f
+    }
+
     /** Returns the percentage of the content width to use for the grid. */
     private fun getGridWidthPercentage(gridRows: Int): Float =
-            if (gridRows >= 15) { 0.7f } else { 0.6f }
+            if (gridRows >= 15) {
+                0.7f
+            } else {
+                0.6f
+            }
 
     /**
      * Render this crossword as a PDF document.
@@ -115,7 +141,11 @@ object Pdf {
                 val lines = splitTextToLines(
                         clue, PDType1Font.TIMES_ROMAN, clueSize, columnWidth - prefixWidth)
                 val clueHeight = lines.size * clueSize +
-                        if (index == 0) { CLUE_HEADER_SIZE } else { 0f }
+                        if (index == 0) {
+                            CLUE_HEADER_SIZE
+                        } else {
+                            0f
+                        }
 
                 if (positionY + clueSize - clueHeight < clueBottomY) {
                     // This clue extends below the grid, so move to the next column.

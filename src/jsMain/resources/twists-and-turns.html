@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
     <title>Twists and Turns</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <script src="kotwords.js" defer onload="document.getElementById('generate-jpz').disabled = false;"></script>
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" rel="stylesheet">
+    <script defer onload="document.getElementById('generate-jpz').disabled = false;" src="kotwords.js"></script>
     <script>
         function createJpz() {
             var title = document.getElementById("title").value;
@@ -60,95 +61,106 @@
                 errorMsg.innerText = "Error generating JPZ: " + err.message;
             }
         }
+
     </script>
 </head>
 <body>
-    <div class="container-fluid">
-        <h1>Twists and Turns</h1>
-        <form action="" onsubmit="createJpz(); return false;">
-            <div class="form-group">
-                <label for="title">Title</label>
-                <input type="text" id="title" class="form-control" />
+<div class="container-fluid">
+    <h1>Twists and Turns</h1>
+    <form action="" onsubmit="createJpz(); return false;">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input class="form-control" id="title" type="text"/>
+        </div>
+        <div class="form-group">
+            <label for="creator">Creator (optional)</label>
+            <input class="form-control" id="creator" type="text"/>
+        </div>
+        <div class="form-group">
+            <label for="copyright">Copyright (optional)</label>
+            <input class="form-control" id="copyright" type="text"/>
+        </div>
+        <div class="form-group">
+            <label for="description">Description (optional)</label>
+            <textarea class="form-control" id="description" rows="5"></textarea>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="width">Width</label>
+                <input class="form-control" id="width" type="number"/>
             </div>
-            <div class="form-group">
-                <label for="creator">Creator (optional)</label>
-                <input type="text" id="creator" class="form-control" />
+            <div class="form-group col-md-4">
+                <label for="height">Height</label>
+                <input class="form-control" id="height" type="number"/>
             </div>
-            <div class="form-group">
-                <label for="copyright">Copyright (optional)</label>
-                <input type="text" id="copyright" class="form-control" />
+            <div class="form-group col-md-4">
+                <label for="twist-box-size">Twist width/height</label>
+                <input class="form-control" id="twist-box-size" type="number"/>
             </div>
-            <div class="form-group">
-                <label for="description">Description (optional)</label>
-                <textarea id="description" class="form-control" rows="5"></textarea>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="width">Width</label>
-                    <input type="number" id="width" class="form-control" />
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="height">Height</label>
-                    <input type="number" id="height" class="form-control" />
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="twist-box-size">Twist width/height</label>
-                    <input type="number" id="twist-box-size" class="form-control"/>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="turns-answers">Turns answers</label>
-                <textarea id="turns-answers" class="form-control" rows="2" placeholder="In sequential order, separated by whitespace. Non-alphabetical characters are ignored."></textarea>
-            </div>
-            <div class="form-group">
-                <label for="turns-clues">Turns clues</label>
-                <textarea id="turns-clues" class="form-control" rows="10" placeholder="One clue per row. Omit clue numbers."></textarea>
-            </div>
-            <div class="form-group">
-                <label for="twists-clues">Twists clues</label>
-                <textarea id="twists-clues" class="form-control" rows="10" placeholder="Ordered from left-to-right, top-to-bottom. One clue per row. Omit clue numbers."></textarea>
-            </div>
-            <p>
-                <a class="btn btn-secondary" data-toggle="collapse" href="#advanced-options">
-                    Advanced options
-                </a>
-            </p>
-            <div class="collapse" id="advanced-options">
-                <div class="card card-body form-group">
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="light-twists-color">Light twists color</label>
-                            <input type="color" id="light-twists-color" class="form-control" value="#ffffff" />
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="dark-twists-color">Dark twists color</label>
-                            <input type="color" id="dark-twists-color" class="form-control" value="#888888" />
-                        </div>
+        </div>
+        <div class="form-group">
+            <label for="turns-answers">Turns answers</label>
+            <textarea class="form-control" id="turns-answers" placeholder="In sequential order, separated by whitespace. Non-alphabetical characters are ignored."
+                      rows="2"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="turns-clues">Turns clues</label>
+            <textarea class="form-control" id="turns-clues" placeholder="One clue per row. Omit clue numbers."
+                      rows="10"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="twists-clues">Twists clues</label>
+            <textarea class="form-control" id="twists-clues" placeholder="Ordered from left-to-right, top-to-bottom. One clue per row. Omit clue numbers."
+                      rows="10"></textarea>
+        </div>
+        <p>
+            <a class="btn btn-secondary" data-toggle="collapse" href="#advanced-options">
+                Advanced options
+            </a>
+        </p>
+        <div class="collapse" id="advanced-options">
+            <div class="card card-body form-group">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="light-twists-color">Light twists color</label>
+                        <input class="form-control" id="light-twists-color" type="color" value="#ffffff"/>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="crossword-solver-cursor-color">Crossword Solver cursor color</label>
-                            <input type="color" id="crossword-solver-cursor-color" class="form-control" value="#00b100" />
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="crossword-solver-selection-color">Crossword Solver selected cells color</label>
-                            <input type="color" id="crossword-solver-selection-color" class="form-control" value="#80ff80" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="crossword-solver-completion-message">Completion message</label>
-                        <input type="text" id="crossword-solver-completion-message" class="form-control" value="Congratulations! The puzzle is solved correctly." />
+                    <div class="form-group col-md-6">
+                        <label for="dark-twists-color">Dark twists color</label>
+                        <input class="form-control" id="dark-twists-color" type="color" value="#888888"/>
                     </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="crossword-solver-cursor-color">Crossword Solver cursor color</label>
+                        <input class="form-control" id="crossword-solver-cursor-color" type="color" value="#00b100"/>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="crossword-solver-selection-color">Crossword Solver selected cells color</label>
+                        <input class="form-control" id="crossword-solver-selection-color" type="color" value="#80ff80"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="crossword-solver-completion-message">Completion message</label>
+                    <input class="form-control" id="crossword-solver-completion-message" type="text"
+                           value="Congratulations! The puzzle is solved correctly."/>
+                </div>
             </div>
-            <div class="alert alert-primary" role="alert" id="error-msg" style="display: none;"></div>
-            <p>
-                <button type="submit" class="btn btn-primary" id="generate-jpz" disabled="disabled">Generate JPZ</button>
-            </p>
-        </form>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+        </div>
+        <div class="alert alert-primary" id="error-msg" role="alert" style="display: none;"></div>
+        <p>
+            <button class="btn btn-primary" disabled="disabled" id="generate-jpz" type="submit">Generate JPZ</button>
+        </p>
+    </form>
+</div>
+<script crossorigin="anonymous"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 </body>
 </html>

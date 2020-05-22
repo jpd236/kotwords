@@ -54,6 +54,7 @@ data class RowsGarden(
                 val color: String,
                 val clues: List<Entry>,
                 val puzzleClues: MutableList<Puzzle.Clue> = mutableListOf())
+
         val blooms = mapOf(
                 BloomType.LIGHT to BloomData(lightBloomColor, light),
                 BloomType.MEDIUM to BloomData(mediumBloomColor, medium),
@@ -103,6 +104,7 @@ data class RowsGarden(
                     }
             return cellMap.getValue(x to y)
         }
+
         val grid = (0 until 12).map { y ->
             (0 until 21).map { x ->
                 getOrCreateCell(x, y)
@@ -132,7 +134,7 @@ data class RowsGarden(
                 crosswordSolverSettings = crosswordSolverSettings)
     }
 
-    private fun isAlphanumeric(ch : Char) = ch in 'A'..'Z' || ch in 'a'..'z' || ch in '0'..'9'
+    private fun isAlphanumeric(ch: Char) = ch in 'A'..'Z' || ch in 'a'..'z' || ch in '0'..'9'
 
     private fun formatClue(entry: Entry,
                            addWordCount: Boolean,
@@ -214,12 +216,12 @@ data class RowsGarden(
 
         suspend fun parse(rgz: ByteArray): RowsGarden {
             val rg =
-                try {
-                    Zip.unzip(rgz)
-                } catch (e: InvalidZipException) {
-                    // Try as a plain-text file.
-                    rgz
-                }
+                    try {
+                        Zip.unzip(rgz)
+                    } catch (e: InvalidZipException) {
+                        // Try as a plain-text file.
+                        rgz
+                    }
             return parseRg(String(rg, charset = Charsets.UTF_8))
         }
 

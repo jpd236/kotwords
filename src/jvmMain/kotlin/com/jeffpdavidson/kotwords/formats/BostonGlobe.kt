@@ -33,7 +33,11 @@ class BostonGlobe(private val html: String) : Crosswordable {
             (1..width).map { x ->
                 if (squareMap.containsKey(x to y)) {
                     val solution = squareMap[x to y]!!
-                    val solutionRebus = if (solution.length > 1) { solution } else { "" }
+                    val solutionRebus = if (solution.length > 1) {
+                        solution
+                    } else {
+                        ""
+                    }
                     Square(solution = solution[0], solutionRebus = solutionRebus)
                 } else {
                     BLACK_SQUARE

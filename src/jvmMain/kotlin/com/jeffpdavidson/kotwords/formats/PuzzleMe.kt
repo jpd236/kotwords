@@ -85,7 +85,7 @@ class PuzzleMe(private val html: String) : Crosswordable {
             }
 
             // Void cells can lead to entirely black rows/columns on the outer edges. Delete these.
-            val anyNonBlackSquare =  { row: List<Square> -> row.any { it != BLACK_SQUARE } }
+            val anyNonBlackSquare = { row: List<Square> -> row.any { it != BLACK_SQUARE } }
             val topRowsToDelete = grid.indexOfFirst(anyNonBlackSquare)
             val bottomRowsToDelete = grid.size - grid.indexOfLast(anyNonBlackSquare) - 1
             val leftRowsToDelete =

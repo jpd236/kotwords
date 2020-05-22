@@ -40,7 +40,11 @@ data class TwistsAndTurns(
             val word = mutableListOf<Puzzle.Cell>()
             val clueNumber = answerIndex + 1
             answer.forEachIndexed { chIndex, ch ->
-                val number = if (chIndex == 0) { "$clueNumber" } else { "" }
+                val number = if (chIndex == 0) {
+                    "$clueNumber"
+                } else {
+                    ""
+                }
                 val backgroundColor =
                         if ((((x - 1) / twistBoxSize) % 2) == (((y - 1) / twistBoxSize) % 2)) {
                             "#FFFFFF"
@@ -53,9 +57,17 @@ data class TwistsAndTurns(
 
                 // Move to the next cell
                 if ((y - 1) % 2 == 0) {
-                    if (x == width) { y++ } else { x++ }
+                    if (x == width) {
+                        y++
+                    } else {
+                        x++
+                    }
                 } else {
-                    if (x == 1) { y++ } else { x-- }
+                    if (x == 1) {
+                        y++
+                    } else {
+                        x--
+                    }
                 }
             }
             turnsCluesList.add(Puzzle.Clue(Puzzle.Word(clueNumber, word), "$clueNumber", turnsClues[answerIndex]))

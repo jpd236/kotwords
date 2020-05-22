@@ -33,11 +33,13 @@ class UclickXml(private val xml: String,
         val allAnswer = document.getElementByTagName("AllAnswer").getAttribute("v")
         val width = document.getElementByTagName("Width").getAttribute("v").toInt()
         val grid = allAnswer.chunked(width).map { row ->
-            row.map { square -> if (square == '-') {
-                BLACK_SQUARE
-            } else {
-                Square(square)
-            } }
+            row.map { square ->
+                if (square == '-') {
+                    BLACK_SQUARE
+                } else {
+                    Square(square)
+                }
+            }
         }
 
         val acrossClues = document.getElementByTagName("across").getChildElementList()
@@ -52,9 +54,9 @@ class UclickXml(private val xml: String,
                 downClues = toClueMap(downClues))
     }
 
-    private fun toClueMap(clues : List<Element>): Map<Int, String> {
-        return clues.map {
-            it -> it.getAttribute("cn").toInt() to URLDecoder.decode(it.getAttribute("c"), "UTF-8")
+    private fun toClueMap(clues: List<Element>): Map<Int, String> {
+        return clues.map { it ->
+            it.getAttribute("cn").toInt() to URLDecoder.decode(it.getAttribute("c"), "UTF-8")
         }.toMap()
     }
 }

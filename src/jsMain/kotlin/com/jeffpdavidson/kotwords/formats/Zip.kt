@@ -7,7 +7,6 @@ import kotlinx.coroutines.await
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Int8Array
 import org.khronos.webgl.Uint8Array
-import kotlin.js.Promise
 import kotlin.js.RegExp
 
 internal actual object Zip {

@@ -2,24 +2,15 @@ package com.jeffpdavidson.kotwords.formats
 
 import kotlinx.io.charsets.Charsets
 import kotlinx.io.core.toByteArray
-import kotlinx.serialization.Decoder
-import kotlinx.serialization.Encoder
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Polymorphic
-import kotlinx.serialization.PrimitiveDescriptor
-import kotlinx.serialization.PrimitiveKind
-import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlChildrenName
 import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlPolyChildren
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 
@@ -34,19 +25,22 @@ typealias Snippet = List<@Polymorphic Any>
 @XmlSerialName("crossword-compiler-applet", CC_NS, "")
 data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: RectangularPuzzle) {
 
-    @Serializable @SerialName("applet-settings")
+    @Serializable
+    @SerialName("applet-settings")
     data class AppletSettings(
             @SerialName("cursor-color") val cursorColor: String = "#00B100",
             @SerialName("selected-cells-color") val selectedCellsColor: String = "#80FF80",
             val completion: Completion,
             val actions: Actions = Actions()) {
 
-        @Serializable @SerialName("completion")
+        @Serializable
+        @SerialName("completion")
         data class Completion(
                 @XmlValue(true) val message: String,
                 @SerialName("only-if-correct") val onlyIfCorrect: Boolean = true)
 
-        @Serializable @SerialName("actions")
+        @Serializable
+        @SerialName("actions")
         data class Actions(
                 @SerialName("buttons-layout") val buttonsLayout: String = "left",
                 @XmlSerialName("reveal-word", CC_NS, "") val revealWord: Action? = Action("Reveal Word"),
@@ -55,17 +49,20 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
                 @XmlSerialName("solution", CC_NS, "") val solution: Action? = Action("Solution"),
                 @XmlSerialName("pencil", CC_NS, "") val pencil: Action? = Action("Pencil")) {
 
-            @Serializable data class Action(@SerialName("label") val label: String)
+            @Serializable
+            data class Action(@SerialName("label") val label: String)
         }
     }
 
-    @Serializable @XmlSerialName("rectangular-puzzle", PUZZLE_NS, "")
+    @Serializable
+    @XmlSerialName("rectangular-puzzle", PUZZLE_NS, "")
     data class RectangularPuzzle(
             val metadata: Metadata = Metadata(),
             @XmlSerialName("crossword", PUZZLE_NS, "") val crossword: Crossword? = null,
             @XmlSerialName("acrostic", PUZZLE_NS, "") val acrostic: Crossword? = null) {
 
-        @Serializable @SerialName("metadata")
+        @Serializable
+        @SerialName("metadata")
         data class Metadata(
                 @SerialName("title") @XmlElement(true) val title: String? = null,
                 @SerialName("creator") @XmlElement(true) val creator: String? = null,
@@ -75,17 +72,20 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
         @Serializable
         data class Crossword(val grid: Grid, val words: List<Word>, val clues: List<Clues>) {
 
-            @Serializable @SerialName("grid")
+            @Serializable
+            @SerialName("grid")
             data class Grid(
                     @SerialName("width") val width: Int,
                     @SerialName("height") val height: Int,
                     val gridLook: GridLook = GridLook(),
                     val cell: List<Cell>) {
 
-                @Serializable @SerialName("grid-look")
+                @Serializable
+                @SerialName("grid-look")
                 data class GridLook(@SerialName("numbering-scheme") val numberingScheme: String = "normal")
 
-                @Serializable @SerialName("cell")
+                @Serializable
+                @SerialName("cell")
                 data class Cell(
                         @SerialName("x") val x: Int,
                         @SerialName("y") val y: Int,
@@ -98,20 +98,25 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
                         @SerialName("background-shape") val backgroundShape: String? = null)
             }
 
-            @Serializable @SerialName("word")
+            @Serializable
+            @SerialName("word")
             data class Word(@SerialName("id") val id: Int, val cells: List<Cells>) {
 
-                @Serializable @SerialName("cells")
+                @Serializable
+                @SerialName("cells")
                 data class Cells(val x: Int, val y: Int)
             }
 
-            @Serializable @SerialName("clues")
+            @Serializable
+            @SerialName("clues")
             data class Clues(val title: Title, val clues: List<Clue>) {
 
-                @Serializable @SerialName("title")
+                @Serializable
+                @SerialName("title")
                 data class Title(@XmlValue(true) val data: Snippet)
 
-                @Serializable @SerialName("clue")
+                @Serializable
+                @SerialName("clue")
                 data class Clue(
                         @SerialName("word") val word: Int,
                         @SerialName("number") val number: String,
@@ -120,8 +125,12 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
         }
     }
 
-    @Serializable @SerialName("b") data class B(@XmlValue(true) val data: Snippet)
-    @Serializable @SerialName("i") data class I(@XmlValue(true) val data: Snippet)
+    @Serializable
+    @SerialName("b")
+    data class B(@XmlValue(true) val data: Snippet)
+    @Serializable
+    @SerialName("i")
+    data class I(@XmlValue(true) val data: Snippet)
 
     companion object {
         private fun module(): SerialModule {
@@ -137,7 +146,10 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
 
         /** Parse the given HTML string as a [Snippet] (i.e. for use in clues). */
         fun htmlToSnippet(html: String): Snippet {
-            @Serializable @SerialName("dummy") data class Dummy(@XmlValue(true) val data: Snippet)
+            @Serializable
+            @SerialName("dummy")
+            data class Dummy(@XmlValue(true) val data: Snippet)
+
             val dummyXml = "<dummy>$html</dummy>"
             return XML(module()) {
                 autoPolymorphic = true
