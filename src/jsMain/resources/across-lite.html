@@ -23,18 +23,18 @@
                 try {
                     var data = new Int8Array(e.target.result);
                     var crossword = new kotwords.com.jeffpdavidson.kotwords.formats.AcrossLite(data).asCrossword();
-                    var crosswordSolverSettings = new kotwords.com.jeffpdavidson.kotwords.model.CrosswordSolverSettings(
+                    var crosswordSolverSettings = new kotwords.com.jeffpdavidson.kotwords.model.Puzzle.CrosswordSolverSettings(
                             crosswordSolverCursorColor,
                             crosswordSolverSelectionColor,
                             crosswordSolverCompletionMessage)
-                    var jpz = kotwords.com.jeffpdavidson.kotwords.model.Jpz.Companion.fromCrossword(
+                    var puzzle = kotwords.com.jeffpdavidson.kotwords.model.Puzzle.Companion.fromCrossword(
                             crossword, crosswordSolverSettings);
-                    jpz.asBase64JpzZip().then(function(result) {
+                    kotwords.com.jeffpdavidson.kotwords.formats.JsJpzFile.asDataUrl(puzzle).then(function(result) {
                         errorMsg.style.display = "none";
                         // TODO: This doesn't work in Edge
                         var link = document.createElement("a");
                         link.download = file.files[0].name.replace(".puz", ".jpz");
-                        link.href = "data:application/zip;base64," + result;
+                        link.href = result;
                         link.click();
                     }).catch(function(err) {
                         errorMsg.style.display = "";

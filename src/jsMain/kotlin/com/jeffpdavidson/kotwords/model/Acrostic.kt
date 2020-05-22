@@ -13,7 +13,7 @@ data class Acrostic(
         val gridKey: List<List<Int>>,
         val clues: List<String>,
         val answers: List<String> = listOf(),
-        val crosswordSolverSettings: CrosswordSolverSettings) {
+        val crosswordSolverSettings: Puzzle.CrosswordSolverSettings) {
     init {
         require(clues.size > 1) { "Must have at least 2 clues." }
         require(clues.size == gridKey.size) {
@@ -45,7 +45,7 @@ data class Acrostic(
         }
     }
 
-    fun asJpz(): Jpz {
+    fun asPuzzle(): Puzzle {
         // Determine the width of the puzzle and both clue columns.
         val answerColumnSize = (gridKey.size + 1) / 2
         val gridKeyColumns = gridKey.chunked(answerColumnSize)
@@ -58,11 +58,11 @@ data class Acrostic(
 
         // Generate the quote portion of the grid.
         val solutionChars = mutableListOf<Char>()
-        val grid = mutableListOf<List<Cell>>()
-        var row = mutableListOf<Cell>()
+        val grid = mutableListOf<List<Puzzle.Cell>>()
+        var row = mutableListOf<Puzzle.Cell>()
         var x = 1
         var y = 1
-        val quoteWord = mutableListOf<Cell>()
+        val quoteWord = mutableListOf<Puzzle.Cell>()
         fun nextRow() {
             grid.add(row)
             row = mutableListOf()
@@ -76,16 +76,16 @@ data class Acrostic(
                     val cellNumber = solutionChars.size
                     val clueLetter =
                             solutionIndexToClueLetterMap[cellNumber] ?: error("Impossible")
-                    val cell = Cell(x, y,
+                    val cell = Puzzle.Cell(x, y,
                             solution = "$ch", number = "$cellNumber", topRightNumber = clueLetter)
                     quoteWord.add(cell)
                     cell
                 }
-                ' ' -> Cell(x, y, cellType = CellType.BLOCK)
+                ' ' -> Puzzle.Cell(x, y, cellType = Puzzle.CellType.BLOCK)
                 else -> {
                     // Replace hyphen with en-dash for aesthetics.
                     val clue = "$ch".replace('-', '–')
-                    Cell(x, y, cellType = CellType.CLUE, solution = clue)
+                    Puzzle.Cell(x, y, cellType = Puzzle.CellType.CLUE, solution = clue)
                 }
             })
 
@@ -107,14 +107,14 @@ data class Acrostic(
         nextRow()
 
         // Generate the clue/answer portion of the grid.
-        val answerWords = mutableMapOf<Int, List<Cell>>()
+        val answerWords = mutableMapOf<Int, List<Puzzle.Cell>>()
         fun addClue(clueIndex: Int, columnEndIndex: Int, answer: List<Int>) {
-            row.add(Cell(x++, y,
-                    cellType = CellType.CLUE, solution = "${'A' + clueIndex}"))
+            row.add(Puzzle.Cell(x++, y,
+                    cellType = Puzzle.CellType.CLUE, solution = "${'A' + clueIndex}"))
             val word = answer.mapIndexed { i, num ->
                 val solutionLetter = "${solutionChars[num - 1]}"
                 val solutionNumber = "${gridKey[clueIndex][i]}"
-                Cell(x++, y, solution = solutionLetter, number = solutionNumber)
+                Puzzle.Cell(x++, y, solution = solutionLetter, number = solutionNumber)
             }
             answerWords[clueIndex] = word
             row.addAll(word)
@@ -136,11 +136,11 @@ data class Acrostic(
 
         val answerClues = clues.mapIndexed { index, clue ->
             val answerWord = answerWords[index] ?: error("Impossible")
-            Clue(Word(index + 1, answerWord), "${'A' + index}", clue)
+            Puzzle.Clue(Puzzle.Word(index + 1, answerWord), "${'A' + index}", clue)
         }
-        val clueList = ClueList("Clues", answerClues + Clue(Word(1000, quoteWord), "", "[QUOTE]"))
+        val clueList = Puzzle.ClueList("Clues", answerClues + Puzzle.Clue(Puzzle.Word(1000, quoteWord), "", "[QUOTE]"))
 
-        return Jpz(
+        return Puzzle(
                 title,
                 creator,
                 copyright,
@@ -148,7 +148,7 @@ data class Acrostic(
                 grid,
                 listOf(clueList),
                 crosswordSolverSettings = crosswordSolverSettings,
-                puzzleType = PuzzleType.ACROSTIC)
+                puzzleType = Puzzle.PuzzleType.ACROSTIC)
     }
 
     companion object {
@@ -162,7 +162,7 @@ data class Acrostic(
                          gridKey: String,
                          clues: String,
                          answers: String,
-                         crosswordSolverSettings: CrosswordSolverSettings): Acrostic {
+                         crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Acrostic {
             val suggestedWidthInt = if (suggestedWidth.isEmpty()) null else suggestedWidth.toInt()
             val gridKeyList = gridKey.trim().split("\n").map { row ->
                 row.trim().split(" +".toRegex()).map { it.trim().toInt() }
@@ -188,7 +188,7 @@ data class Acrostic(
 
         @JsName("fromApz")
         fun fromApz(apzContents: String,
-                    crosswordSolverSettings: CrosswordSolverSettings): Acrostic {
+                    crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Acrostic {
             val apz = DOMParser().parseFromString(apzContents, "application/xml") as XMLDocument
             val completionMessage =
                     if (crosswordSolverSettings.completionMessage.isNotEmpty()) {
@@ -199,7 +199,7 @@ data class Acrostic(
                         listOf(source.trim(), quote.trim())
                                 .filter { it.isNotEmpty() }.joinToString("\n\n")
                     }
-            val settings = CrosswordSolverSettings(
+            val settings = Puzzle.CrosswordSolverSettings(
                     crosswordSolverSettings.cursorColor,
                     crosswordSolverSettings.selectedCellsColor,
                     completionMessage)
@@ -224,9 +224,9 @@ data class Acrostic(
             return leftWidth to (totalWidth - leftWidth - 1)
         }
 
-        private fun generateWhiteCells(xRange: IntRange, y: Int): List<Cell> {
+        private fun generateWhiteCells(xRange: IntRange, y: Int): List<Puzzle.Cell> {
             return xRange.map {
-                Cell(x = it, y = y, cellType = CellType.BLOCK, backgroundColor = "#FFFFFF")
+                Puzzle.Cell(x = it, y = y, cellType = Puzzle.CellType.BLOCK, backgroundColor = "#FFFFFF")
             }
         }
     }

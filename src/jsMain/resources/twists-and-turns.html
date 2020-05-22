@@ -40,16 +40,16 @@
                                 twistsClues,
                                 lightTwistsColor,
                                 darkTwistsColor,
-                                new kotwords.com.jeffpdavidson.kotwords.model.CrosswordSolverSettings(
+                                new kotwords.com.jeffpdavidson.kotwords.model.Puzzle.CrosswordSolverSettings(
                                     crosswordSolverCursorColor,
                                     crosswordSolverSelectionColor,
                                     crosswordSolverCompletionMessage));
-                twistsAndTurns.asJpz().asBase64JpzZip().then(function(result) {
+                kotwords.com.jeffpdavidson.kotwords.formats.JsJpzFile.asDataUrl(twistsAndTurns.asPuzzle()).then(function(result) {
                     errorMsg.style.display = "none";
                     // TODO: This doesn't work in Edge
                     var link = document.createElement("a");
                     link.download = title.replace("[^A-Za-z0-9]", "") + ".jpz";
-                    link.href = "data:application/zip;base64," + result;
+                    link.href = result;
                     link.click();
                 }).catch(function(err) {
                     errorMsg.style.display = "";

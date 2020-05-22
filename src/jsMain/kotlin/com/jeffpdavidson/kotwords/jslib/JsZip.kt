@@ -8,7 +8,7 @@ import kotlin.js.RegExp
 @JsNonModule
 external class JSZip {
     fun file(regex: RegExp): Array<ZipObject>
-    fun file(name: String, data: String): JSZip
+    fun file(name: String, data: Any): JSZip
     fun loadAsync(data: Uint8Array): Promise<JSZip>
     fun generateAsync(options: GenerateAsyncOptions): Promise<Any>
 }
@@ -18,7 +18,8 @@ external class ZipObject {
 }
 
 enum class ZipOutputType(val jsValue: String) {
-    BASE64("base64")
+    BASE64("base64"),
+    ARRAY_BUFFER("arraybuffer")
 }
 
 enum class ZipOutputCompression(val jsValue: String) {

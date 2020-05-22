@@ -18,7 +18,7 @@
                     acrosticPromise = Promise.resolve(createAcrosticFromForm());
                 }
                 acrosticPromise.then(function(acrostic) {
-                    return acrostic.asJpz().asBase64JpzZip();
+                    return kotwords.com.jeffpdavidson.kotwords.formats.JsJpzFile.asDataUrl(acrostic.asPuzzle());
                 }).then(function(result) {
                     errorMsg.style.display = "none";
                     // TODO: This doesn't work in Edge
@@ -31,8 +31,8 @@
                         var title = document.getElementById("title").value;
                         filename = title.replace("[^A-Za-z0-9]", "") + ".jpz";
                     }
-                    link.download = filename
-                    link.href = "data:application/zip;base64," + result;
+                    link.download = filename;
+                    link.href = result;
                     link.click();
                 }).catch(function(err) {
                     errorMsg.style.display = "";
@@ -68,7 +68,7 @@
                     gridKey,
                     clues,
                     answers,
-                    new kotwords.com.jeffpdavidson.kotwords.model.CrosswordSolverSettings(
+                    new kotwords.com.jeffpdavidson.kotwords.model.Puzzle.CrosswordSolverSettings(
                         crosswordSolverCursorColor,
                         crosswordSolverSelectionColor,
                         crosswordSolverCompletionMessage));
@@ -89,7 +89,7 @@
                 reader.onload = function(e) {
                     try {
                         var crosswordSolverSettings =
-                                new kotwords.com.jeffpdavidson.kotwords.model.CrosswordSolverSettings(
+                                new kotwords.com.jeffpdavidson.kotwords.model.Puzzle.CrosswordSolverSettings(
                                         crosswordSolverCursorColor,
                                         crosswordSolverSelectionColor,
                                         crosswordSolverCompletionMessage)

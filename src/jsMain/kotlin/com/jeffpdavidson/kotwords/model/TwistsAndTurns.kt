@@ -13,7 +13,7 @@ data class TwistsAndTurns(
         val twistsClues: List<String>,
         val lightTwistsColor: String,
         val darkTwistsColor: String,
-        val crosswordSolverSettings: CrosswordSolverSettings) {
+        val crosswordSolverSettings: Puzzle.CrosswordSolverSettings) {
     init {
         require(width % twistBoxSize == 0 && height % twistBoxSize == 0) {
             "Width $width and height $height must evenly divide twist box size $twistBoxSize"
@@ -31,13 +31,13 @@ data class TwistsAndTurns(
         }
     }
 
-    fun asJpz(): Jpz {
+    fun asPuzzle(): Puzzle {
         var x = 1
         var y = 1
-        val turnsCluesList = mutableListOf<Clue>()
-        val cellMap = mutableMapOf<Pair<Int, Int>, Cell>()
+        val turnsCluesList = mutableListOf<Puzzle.Clue>()
+        val cellMap = mutableMapOf<Pair<Int, Int>, Puzzle.Cell>()
         turnsAnswers.forEachIndexed { answerIndex, answer ->
-            val word = mutableListOf<Cell>()
+            val word = mutableListOf<Puzzle.Cell>()
             val clueNumber = answerIndex + 1
             answer.forEachIndexed { chIndex, ch ->
                 val number = if (chIndex == 0) { "$clueNumber" } else { "" }
@@ -47,7 +47,7 @@ data class TwistsAndTurns(
                         } else {
                             "#999999"
                         }
-                val cell = Cell(x, y, "$ch", backgroundColor, number)
+                val cell = Puzzle.Cell(x, y, "$ch", backgroundColor, number)
                 cellMap[x to y] = cell
                 word.add(cell)
 
@@ -58,27 +58,27 @@ data class TwistsAndTurns(
                     if (x == 1) { y++ } else { x-- }
                 }
             }
-            turnsCluesList.add(Clue(Word(clueNumber, word), "$clueNumber", turnsClues[answerIndex]))
+            turnsCluesList.add(Puzzle.Clue(Puzzle.Word(clueNumber, word), "$clueNumber", turnsClues[answerIndex]))
         }
 
         val grid = generateGrid(cellMap)
 
-        return Jpz(
+        return Puzzle(
                 title,
                 creator,
                 copyright,
                 description,
                 grid,
                 listOf(
-                        ClueList("Turns", turnsCluesList),
-                        ClueList("Twists", generateTwistsCluesList(grid))),
+                        Puzzle.ClueList("Turns", turnsCluesList),
+                        Puzzle.ClueList("Twists", generateTwistsCluesList(grid))),
                 crosswordSolverSettings = crosswordSolverSettings)
     }
 
-    private fun generateGrid(cellMap: Map<Pair<Int, Int>, Cell>): List<List<Cell>> {
-        val grid = mutableListOf<MutableList<Cell>>()
+    private fun generateGrid(cellMap: Map<Pair<Int, Int>, Puzzle.Cell>): List<List<Puzzle.Cell>> {
+        val grid = mutableListOf<MutableList<Puzzle.Cell>>()
         (0 until height).forEach { y ->
-            val row = mutableListOf<Cell>()
+            val row = mutableListOf<Puzzle.Cell>()
             (0 until width).forEach { x ->
                 row.add(cellMap[x + 1 to y + 1] ?: throw IllegalStateException())
             }
@@ -87,19 +87,19 @@ data class TwistsAndTurns(
         return grid
     }
 
-    private fun generateTwistsCluesList(grid: List<List<Cell>>): List<Clue> {
-        val twistsCluesList = mutableListOf<Clue>()
+    private fun generateTwistsCluesList(grid: List<List<Puzzle.Cell>>): List<Puzzle.Clue> {
+        val twistsCluesList = mutableListOf<Puzzle.Clue>()
         var twistNumber = 0
         for (j in 0 until (height / twistBoxSize)) {
             for (i in 0 until (width / twistBoxSize)) {
-                val cells = mutableListOf<Cell>()
+                val cells = mutableListOf<Puzzle.Cell>()
                 for (y in (j * twistBoxSize + 1)..((j + 1) * twistBoxSize)) {
                     for (x in (i * twistBoxSize + 1)..((i + 1) * twistBoxSize)) {
                         cells.add(grid[y - 1][x - 1])
                     }
                 }
                 val wordId = (1001 + (j * (width / twistBoxSize)) + i)
-                twistsCluesList.add(Clue(Word(wordId, cells), "${twistNumber + 1}", twistsClues[twistNumber]))
+                twistsCluesList.add(Puzzle.Clue(Puzzle.Word(wordId, cells), "${twistNumber + 1}", twistsClues[twistNumber]))
                 twistNumber++
             }
         }
@@ -121,7 +121,7 @@ data class TwistsAndTurns(
                 twistsClues: String,
                 lightTwistsColor: String,
                 darkTwistsColor: String,
-                crosswordSolverSettings: CrosswordSolverSettings): TwistsAndTurns {
+                crosswordSolverSettings: Puzzle.CrosswordSolverSettings): TwistsAndTurns {
             return TwistsAndTurns(
                     title.trim(),
                     creator.trim(),

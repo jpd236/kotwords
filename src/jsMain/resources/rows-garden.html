@@ -25,18 +25,18 @@
                 } else {
                     rowsGardenPromise = Promise.resolve(createRowsGardenFromForm());
                 }
-                var crosswordSolverSettings = new kotwords.com.jeffpdavidson.kotwords.model.CrosswordSolverSettings(
+                var crosswordSolverSettings = new kotwords.com.jeffpdavidson.kotwords.model.Puzzle.CrosswordSolverSettings(
                             crosswordSolverCursorColor,
                             crosswordSolverSelectionColor,
                             crosswordSolverCompletionMessage);
                 rowsGardenPromise.then(function(rowsGarden) {
-                    return rowsGarden.asJpz(
+                    return kotwords.com.jeffpdavidson.kotwords.formats.JsJpzFile.asDataUrl(rowsGarden.asPuzzle(
                             lightBloomColor,
                             mediumBloomColor,
                             darkBloomColor,
                             /* addWordCount= */ addAnnotations,
                             /* addHyphenated= */ addAnnotations,
-                            crosswordSolverSettings).asBase64JpzZip();
+                            crosswordSolverSettings));
                 }).then(function(result) {
                     errorMsg.style.display = "none";
                     // TODO: This doesn't work in Edge
@@ -50,7 +50,7 @@
                         filename = title.replace("[^A-Za-z0-9]", "") + ".jpz";
                     }
                     link.download = filename
-                    link.href = "data:application/zip;base64," + result;
+                    link.href = result;
                     link.click();
                 }).catch(function(err) {
                     errorMsg.style.display = "";
@@ -76,20 +76,19 @@
             var darkClues = document.getElementById("dark-clues").value;
             var darkAnswers = document.getElementById("dark-answers").value;
 
-            return new kotwords.com.jeffpdavidson.kotwords.formats.JsRowsGarden(
-                    kotwords.com.jeffpdavidson.kotwords.formats.RowsGarden.Companion.fromRawInput(
-                            title,
-                            author,
-                            copyright,
-                            notes,
-                            rowClues,
-                            rowAnswers,
-                            lightClues,
-                            lightAnswers,
-                            mediumClues,
-                            mediumAnswers,
-                            darkClues,
-                            darkAnswers));
+            return new kotwords.com.jeffpdavidson.kotwords.formats.RowsGarden.Companion.fromRawInput(
+                    title,
+                    author,
+                    copyright,
+                    notes,
+                    rowClues,
+                    rowAnswers,
+                    lightClues,
+                    lightAnswers,
+                    mediumClues,
+                    mediumAnswers,
+                    darkClues,
+                    darkAnswers);
         }
 
         function createRowsGardenFromFile() {
@@ -110,7 +109,7 @@
                 };
                 reader.readAsArrayBuffer(file.files[0]);
             }).then(function(result) {
-                return kotwords.com.jeffpdavidson.kotwords.formats.JsRowsGarden.Companion.parseRowsGarden(result);
+                return kotwords.com.jeffpdavidson.kotwords.formats.JsRowsGarden.parseRowsGarden(result);
             });
         }
     </script>

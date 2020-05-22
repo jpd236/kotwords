@@ -18,11 +18,11 @@ class AcrosticTest {
                 solution = "ACRO-ST IC",
                 gridKey = listOf(listOf(2, 1, 3), listOf(5, 6, 4, 7, 8)),
                 clues = listOf("Clue 1", "Clue 2"),
-                crosswordSolverSettings = CrosswordSolverSettings(
+                crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
                         "#00b100", "#80ff80", "All done!"))
         assertEquals(
                 readStringResource(AcrosticTest::class, "acrostic.jpz"),
-                acrostic.asJpz().asXmlString())
+                acrostic.asPuzzle().asJpzFile().toXmlString())
     }
 
     @Test
@@ -37,7 +37,7 @@ class AcrosticTest {
                 gridKey = listOf(listOf(2, 1, 3), listOf(5, 6, 4, 7, 8)),
                 clues = listOf("Clue 1", "Clue 2"),
                 answers = listOf("CAR", "STOIC"),
-                crosswordSolverSettings = CrosswordSolverSettings(
+                crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
                         "#00b100", "#80ff80", "All done!"))
     }
 
@@ -54,7 +54,7 @@ class AcrosticTest {
                     gridKey = listOf(listOf(2, 1, 3), listOf(5, 6, 4, 7, 8)),
                     clues = listOf("Clue 1", "Clue 2"),
                     answers = listOf("CRA", "STOIC"),
-                    crosswordSolverSettings = CrosswordSolverSettings(
+                    crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
                             "#00b100", "#80ff80", "All done!"))
             fail("Should have thrown IllegalArgumentException due to bad answers")
         } catch (e: IllegalArgumentException) {

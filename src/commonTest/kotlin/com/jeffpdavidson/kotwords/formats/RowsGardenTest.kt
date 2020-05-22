@@ -1,6 +1,8 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.readBinaryResource
+import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -8,14 +10,29 @@ import kotlin.test.assertEquals
 class RowsGardenTest {
     @Test
     fun parseRg() = runTest {
-        val parsed = RowsGarden.parse(readBinaryResource(RowsGardenTest::class, "test.rg"))
+        val parsed = RowsGarden.parse(readBinaryResource(RowsGardenTest::class, "rows-garden/test.rg"))
         assertEquals(TEST_DATA, parsed)
     }
 
     @Test
     fun parseRgz() = runTest {
-        val parsed = RowsGarden.parse(readBinaryResource(RowsGardenTest::class, "test.rgz"))
+        val parsed = RowsGarden.parse(readBinaryResource(RowsGardenTest::class, "rows-garden/test.rgz"))
         assertEquals(TEST_DATA, parsed)
+    }
+
+    @Test
+    fun convertToJpz() = runTest {
+        val rgz = RowsGarden.parse(readBinaryResource(RowsGardenTest::class, "rows-garden/test.rgz"))
+        val result = rgz.asPuzzle(
+                lightBloomColor = "#FFFFFF",
+                mediumBloomColor = "#C3C8FA",
+                darkBloomColor = "#5765F7",
+                addWordCount = true,
+                addHyphenated = true,
+                crosswordSolverSettings = Puzzle.CrosswordSolverSettings("#00b100", "#80ff80", "All done!"))
+
+        val expected = readStringResource(RowsGardenTest::class, "rows-garden/rows-garden.jpz")
+        assertEquals(expected, result.asJpzFile().toXmlString())
     }
 
     companion object {
