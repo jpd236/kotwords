@@ -128,6 +128,7 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
     @Serializable
     @SerialName("b")
     data class B(@XmlValue(true) val data: Snippet)
+
     @Serializable
     @SerialName("i")
     data class I(@XmlValue(true) val data: Snippet)
