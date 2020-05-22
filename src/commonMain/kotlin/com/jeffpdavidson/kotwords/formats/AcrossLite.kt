@@ -11,8 +11,11 @@ import kotlinx.io.core.String
 import kotlinx.io.core.buildPacket
 import kotlinx.io.core.discardExact
 import kotlinx.io.core.readBytes
+import kotlinx.io.core.readShortLittleEndian
 import kotlinx.io.core.toByteArray
 import kotlinx.io.core.writeFully
+import kotlinx.io.core.writeLongLittleEndian
+import kotlinx.io.core.writeShortLittleEndian
 import kotlin.js.JsName
 
 private const val FILE_MAGIC = "ACROSS&DOWN"
@@ -42,8 +45,6 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
 
     override fun asCrossword(): Crossword {
         with(ByteReadPacket(binaryData)) {
-            byteOrder = ByteOrder.LITTLE_ENDIAN
-
             discardExact(0x2C)
             val width = readByte()
             val height = readByte()
@@ -90,7 +91,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
             while (canRead()) {
                 val sectionTitleBytes = readBytes(4)
                 val sectionTitle = String(sectionTitleBytes, charset = Charsets.ISO_8859_1)
-                val sectionLength = readShort()
+                val sectionLength = readShortLittleEndian()
                 // Skip the checksum
                 discardExact(2)
 
@@ -168,14 +169,14 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
             fun BytePacketBuilder.writeExtraSection(name: String, length: Int,
                                                     writeDataFn: (BytePacketBuilder) -> Unit) {
                 writeStringUtf8(name)
-                writeShort(length.toShort())
+                writeShortLittleEndian(length.toShort())
 
                 // Write the data to a separate packet so we can calculate the checksum.
                 val dataPacket = BytePacketBuilder()
                 writeDataFn(dataPacket)
                 val dataBytes = dataPacket.build().readBytes()
 
-                writeShort(checksumRegion(dataBytes, 0, dataBytes.size, 0).toShort())
+                writeShortLittleEndian(checksumRegion(dataBytes, 0, dataBytes.size, 0).toShort())
                 writeFully(dataBytes)
                 writeByte(0)
             }
@@ -185,10 +186,8 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
 
             // Construct the puzzle data, leaving placeholders for each checksum.
             val output = buildPacket {
-                byteOrder = ByteOrder.LITTLE_ENDIAN
-
                 // 0x00-0x01: file checksum placeholder
-                writeShort(0)
+                writeShortLittleEndian(0)
 
                 // 0x02-0x0D: file magic
                 writeNullTerminatedString(FILE_MAGIC)
@@ -200,10 +199,10 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 writeNullTerminatedString(FORMAT_VERSION)
 
                 // 0x1C-0x1D: unknown
-                writeShort(0)
+                writeShortLittleEndian(0)
 
                 // 0x1E-0x1F: solution checksum for scrambled puzzles
-                writeShort(0)
+                writeShortLittleEndian(0)
 
                 // 0x20-0x2B: unknown
                 fill(12, 0)
@@ -215,13 +214,13 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 writeByte(grid.size.toByte())
 
                 // 0x2E-0x2F: number of clues
-                writeShort(clueCount.toShort())
+                writeShortLittleEndian(clueCount.toShort())
 
                 // 0x30-0x31: puzzle type (normal vs. diagramless)
-                writeShort(1)
+                writeShortLittleEndian(1)
 
                 // 0x32-0x33: scrambled tag (unscrambled vs. scrambled vs. no solution)
-                writeShort(0)
+                writeShortLittleEndian(0)
 
                 // Board solution, reading left to right, top to bottom
                 writeGrid(grid, '.'.toByte()) { it.solution!!.toByte() }
@@ -319,14 +318,13 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
             val puzBytes = output.readBytes()
 
             val checksumPacketBuilder = BytePacketBuilder()
-            checksumPacketBuilder.byteOrder = ByteOrder.LITTLE_ENDIAN
 
             // Calculate puzzle checksums.
-            checksumPacketBuilder.writeShort(
+            checksumPacketBuilder.writeShortLittleEndian(
                     checksumPrimaryBoard(puzBytes, squareCount, clueCount).toShort())
             checksumPacketBuilder.writeFully(puzBytes, 0x2, 0xC)
-            checksumPacketBuilder.writeShort(checksumCib(puzBytes).toShort())
-            checksumPacketBuilder.writeLong(
+            checksumPacketBuilder.writeShortLittleEndian(checksumCib(puzBytes).toShort())
+            checksumPacketBuilder.writeLongLittleEndian(
                     checksumPrimaryBoardMasked(puzBytes, squareCount, clueCount))
             checksumPacketBuilder.writeFully(puzBytes, 0x18)
 
