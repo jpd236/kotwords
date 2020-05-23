@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
     <title>Acrostic</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <script src="kotwords.js" defer onload="document.getElementById('generate-jpz').disabled = false;"></script>
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" rel="stylesheet">
+    <script defer onload="document.getElementById('generate-jpz').disabled = false;" src="kotwords.js"></script>
     <script>
         function createJpz() {
             var errorMsg = document.getElementById("error-msg");
@@ -18,7 +19,7 @@
                     acrosticPromise = Promise.resolve(createAcrosticFromForm());
                 }
                 acrosticPromise.then(function(acrostic) {
-                    return acrostic.asJpz().asBase64JpzZip();
+                    return kotwords.com.jeffpdavidson.kotwords.formats.JsJpzFile.asDataUrl(acrostic.asPuzzle());
                 }).then(function(result) {
                     errorMsg.style.display = "none";
                     // TODO: This doesn't work in Edge
@@ -31,8 +32,8 @@
                         var title = document.getElementById("title").value;
                         filename = title.replace("[^A-Za-z0-9]", "") + ".jpz";
                     }
-                    link.download = filename
-                    link.href = "data:application/zip;base64," + result;
+                    link.download = filename;
+                    link.href = result;
                     link.click();
                 }).catch(function(err) {
                     errorMsg.style.display = "";
@@ -68,7 +69,7 @@
                     gridKey,
                     clues,
                     answers,
-                    new kotwords.com.jeffpdavidson.kotwords.model.CrosswordSolverSettings(
+                    new kotwords.com.jeffpdavidson.kotwords.model.Puzzle.CrosswordSolverSettings(
                         crosswordSolverCursorColor,
                         crosswordSolverSelectionColor,
                         crosswordSolverCompletionMessage));
@@ -89,7 +90,7 @@
                 reader.onload = function(e) {
                     try {
                         var crosswordSolverSettings =
-                                new kotwords.com.jeffpdavidson.kotwords.model.CrosswordSolverSettings(
+                                new kotwords.com.jeffpdavidson.kotwords.model.Puzzle.CrosswordSolverSettings(
                                         crosswordSolverCursorColor,
                                         crosswordSolverSelectionColor,
                                         crosswordSolverCompletionMessage)
@@ -103,65 +104,77 @@
                 reader.readAsText(file.files[0]);
             });
         }
+
+
     </script>
 </head>
 <body>
-    <div class="container-fluid">
-        <h1>Acrostic</h1>
-        <form action="" onsubmit="createJpz(); return false;">
+<div class="container-fluid">
+    <h1>Acrostic</h1>
+    <form action="" onsubmit="createJpz(); return false;">
         <ul class="nav nav-tabs" id="tab" role="tablist" style="margin-bottom: 1rem;">
             <li class="nav-item">
-                <a class="nav-link active" id="form-tab" data-toggle="tab" href="#form" role="tab" aria-controls="form-tab" aria-selected="true">Form</a>
+                <a aria-controls="form-tab" aria-selected="true" class="nav-link active" data-toggle="tab" href="#form"
+                   id="form-tab" role="tab">Form</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="file-tab" data-toggle="tab" href="#file" role="tab" aria-controls="file-tab" aria-selected="false">APZ file</a>
+                <a aria-controls="file-tab" aria-selected="false" class="nav-link" data-toggle="tab" href="#file"
+                   id="file-tab"
+                   role="tab">APZ file</a>
             </li>
         </ul>
         <div class="tab-content" id="tab-content">
-            <div class="tab-pane fade show active" id="form" role="tabpanel" aria-labelledby="form-tab">
-                    <div class="form-group">
-                        <label for="title">Title</label>
-                        <input type="text" id="title" class="form-control" />
-                    </div>
-                    <div class="form-group">
-                        <label for="creator">Creator (optional)</label>
-                        <input type="text" id="creator" class="form-control" />
-                    </div>
-                    <div class="form-group">
-                        <label for="copyright">Copyright (optional)</label>
-                        <input type="text" id="copyright" class="form-control" />
-                    </div>
-                    <div class="form-group">
-                        <label for="description">Description (optional)</label>
-                        <textarea id="description" class="form-control" rows="5"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="suggested-width">Suggested width (optional)</label>
-                        <input type="number" id="suggested-width" class="form-control" />
-                    </div>
-                    <div class="form-group">
-                        <label for="solution">Solution</label>
-                        <textarea id="solution" class="form-control" rows="2" placeholder="The quote of the acrostic. Use spaces for word breaks. Any non-alphabetical characters will be prefilled and uneditable in the quote grid."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="grid-key">Grid key</label>
-                        <textarea id="grid-key" class="form-control" rows="10" placeholder="The numeric positions in the quote of each letter in the clue answers. One clue per row, with numbers separated by spaces. Omit clue letters."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="clues">Clues</label>
-                        <textarea id="clues" class="form-control" rows="10" placeholder="One clue per row. Omit clue letters."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="answers">Answers (optional)</label>
-                        <textarea id="answers" class="form-control" rows="10" placeholder="One answer per row. Only use alphabetical characters. Only used to validate that the quote and grid key are consistent with the intended answers."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="form-crossword-solver-completion-message">Completion message</label>
-                        <textarea id="form-crossword-solver-completion-message" class="form-control" rows="3">Congratulations! The puzzle is solved correctly.</textarea>
-                        <small id="form-crossword-solver-completion-message-help" class="form-text text-muted">
-                            For acrostics, typically the quote and source of the quote.
-                        </small>
-                    </div>
+            <div aria-labelledby="form-tab" class="tab-pane fade show active" id="form" role="tabpanel">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input class="form-control" id="title" type="text"/>
+                </div>
+                <div class="form-group">
+                    <label for="creator">Creator (optional)</label>
+                    <input class="form-control" id="creator" type="text"/>
+                </div>
+                <div class="form-group">
+                    <label for="copyright">Copyright (optional)</label>
+                    <input class="form-control" id="copyright" type="text"/>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description (optional)</label>
+                    <textarea class="form-control" id="description" rows="5"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="suggested-width">Suggested width (optional)</label>
+                    <input class="form-control" id="suggested-width" type="number"/>
+                </div>
+                <div class="form-group">
+                    <label for="solution">Solution</label>
+                    <textarea class="form-control" id="solution"
+                              placeholder="The quote of the acrostic. Use spaces for word breaks. Any non-alphabetical characters will be prefilled and uneditable in the quote grid."
+                              rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="grid-key">Grid key</label>
+                    <textarea class="form-control" id="grid-key"
+                              placeholder="The numeric positions in the quote of each letter in the clue answers. One clue per row, with numbers separated by spaces. Omit clue letters."
+                              rows="10"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="clues">Clues</label>
+                    <textarea class="form-control" id="clues" placeholder="One clue per row. Omit clue letters."
+                              rows="10"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="answers">Answers (optional)</label>
+                    <textarea class="form-control" id="answers"
+                              placeholder="One answer per row. Only use alphabetical characters. Only used to validate that the quote and grid key are consistent with the intended answers."
+                              rows="10"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="form-crossword-solver-completion-message">Completion message</label>
+                    <textarea class="form-control" id="form-crossword-solver-completion-message" rows="3">Congratulations! The puzzle is solved correctly.</textarea>
+                    <small class="form-text text-muted" id="form-crossword-solver-completion-message-help">
+                        For acrostics, typically the quote and source of the quote.
+                    </small>
+                </div>
                 <p>
                     <a class="btn btn-secondary" data-toggle="collapse" href="#advanced-options-form">
                         Advanced options
@@ -172,20 +185,23 @@
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="form-crossword-solver-cursor-color">Crossword Solver cursor color</label>
-                                <input type="color" id="form-crossword-solver-cursor-color" class="form-control" value="#00b100" />
+                                <input class="form-control" id="form-crossword-solver-cursor-color" type="color"
+                                       value="#00b100"/>
                             </div>
                             <div class="form-group col-md-6">
-                                <label for="form-crossword-solver-selection-color">Crossword Solver selected cells color</label>
-                                <input type="color" id="form-crossword-solver-selection-color" class="form-control" value="#80ff80" />
+                                <label for="form-crossword-solver-selection-color">Crossword Solver selected cells
+                                    color</label>
+                                <input class="form-control" id="form-crossword-solver-selection-color" type="color"
+                                       value="#80ff80"/>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="tab-pane fade" id="file" role="tabpanel" aria-labelledby="file-tab">
+            <div aria-labelledby="file-tab" class="tab-pane fade" id="file" role="tabpanel">
                 <div class="form-group">
                     <label for="file">APZ file</label>
-                    <input type="file" id="apz-file" class="form-control-file" />
+                    <input class="form-control-file" id="apz-file" type="file"/>
                 </div>
                 <p>
                     <a class="btn btn-secondary" data-toggle="collapse" href="#advanced-options-file">
@@ -197,17 +213,21 @@
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="file-crossword-solver-cursor-color">Crossword Solver cursor color</label>
-                                <input type="color" id="file-crossword-solver-cursor-color" class="form-control" value="#00b100" />
+                                <input class="form-control" id="file-crossword-solver-cursor-color" type="color"
+                                       value="#00b100"/>
                             </div>
                             <div class="form-group col-md-6">
-                                <label for="file-crossword-solver-selection-color">Crossword Solver selected cells color</label>
-                                <input type="color" id="file-crossword-solver-selection-color" class="form-control" value="#80ff80" />
+                                <label for="file-crossword-solver-selection-color">Crossword Solver selected cells
+                                    color</label>
+                                <input class="form-control" id="file-crossword-solver-selection-color" type="color"
+                                       value="#80ff80"/>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="file-crossword-solver-completion-message">Completion message (optional)</label>
-                            <textarea id="file-crossword-solver-completion-message" class="form-control" rows="3"></textarea>
-                            <small id="file-crossword-solver-completion-message-help" class="form-text text-muted">
+                            <textarea class="form-control" id="file-crossword-solver-completion-message"
+                                      rows="3"></textarea>
+                            <small class="form-text text-muted" id="file-crossword-solver-completion-message-help">
                                 If blank, will be generated from the quote and source.
                             </small>
                         </div>
@@ -215,14 +235,20 @@
                 </div>
             </div>
         </div>
-            <div class="alert alert-primary" role="alert" id="error-msg" style="display: none;"></div>
-            <p>
-                <button type="submit" class="btn btn-primary" id="generate-jpz" disabled="disabled">Generate JPZ</button>
-            </p>
-        </form>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+        <div class="alert alert-primary" id="error-msg" role="alert" style="display: none;"></div>
+        <p>
+            <button class="btn btn-primary" disabled="disabled" id="generate-jpz" type="submit">Generate JPZ</button>
+        </p>
+    </form>
+</div>
+<script crossorigin="anonymous"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 </body>
 </html>
