@@ -1,9 +1,9 @@
-title: Test Title
+﻿title: Test Title
 author: Test Author
 created: 2020-05-19
 url: http://jpd236.github.io/kotwords
 copyright: (c) 2020 Kotwords
-notes: Test Notes
+notes:
 rows:
 - - clue: Row 1
     answer: AAAAAAAAA

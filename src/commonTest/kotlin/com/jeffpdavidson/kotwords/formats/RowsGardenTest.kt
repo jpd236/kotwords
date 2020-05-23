@@ -11,7 +11,7 @@ class RowsGardenTest {
     @Test
     fun parseRg() = runTest {
         val parsed = RowsGarden.parse(readBinaryResource(RowsGardenTest::class, "rows-garden/test.rg"))
-        assertEquals(TEST_DATA, parsed)
+        assertEquals(TEST_DATA.copy(notes = null), parsed)
     }
 
     @Test

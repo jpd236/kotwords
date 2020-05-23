@@ -14,7 +14,7 @@ data class RowsGarden(
         val title: String,
         val author: String,
         val copyright: String,
-        val notes: String = "",
+        val notes: String? = null,
         val rows: List<List<Entry>>,
         val light: List<Entry>,
         val medium: List<Entry>,
@@ -128,7 +128,7 @@ data class RowsGarden(
                 title = title,
                 creator = author,
                 copyright = copyright.replace("(c)", "©"),
-                description = notes,
+                description = notes ?: "",
                 grid = grid,
                 clues = listOf(Puzzle.ClueList("Rows", rowClues), Puzzle.ClueList("Blooms", bloomClues)),
                 crosswordSolverSettings = crosswordSolverSettings)
@@ -222,7 +222,13 @@ data class RowsGarden(
                         // Try as a plain-text file.
                         rgz
                     }
-            return parseRg(String(rg, charset = Charsets.UTF_8))
+            var rgString = String(rg, charset = Charsets.UTF_8)
+            // Strip off BOM from beginning if present.
+            // Workaround for https://github.com/Kotlin/kotlinx-io/issues/112
+            if (rgString.startsWith('\uFEFF')) {
+               rgString = rgString.substring(1)
+            }
+            return parseRg(rgString)
         }
 
         private fun parseRg(rg: String): RowsGarden {
