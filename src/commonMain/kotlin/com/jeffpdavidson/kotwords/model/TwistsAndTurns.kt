@@ -111,43 +111,11 @@ data class TwistsAndTurns(
                     }
                 }
                 val wordId = (1001 + (j * (width / twistBoxSize)) + i)
-                twistsCluesList.add(Puzzle.Clue(Puzzle.Word(wordId, cells), "${twistNumber + 1}", twistsClues[twistNumber]))
+                twistsCluesList.add(
+                        Puzzle.Clue(Puzzle.Word(wordId, cells), "${twistNumber + 1}", twistsClues[twistNumber]))
                 twistNumber++
             }
         }
         return twistsCluesList
-    }
-
-    companion object {
-        @JsName("fromRawInput")
-        fun fromRawInput(
-                title: String,
-                creator: String,
-                copyright: String,
-                description: String,
-                width: String,
-                height: String,
-                twistBoxSize: String,
-                turnsAnswers: String,
-                turnsClues: String,
-                twistsClues: String,
-                lightTwistsColor: String,
-                darkTwistsColor: String,
-                crosswordSolverSettings: Puzzle.CrosswordSolverSettings): TwistsAndTurns {
-            return TwistsAndTurns(
-                    title.trim(),
-                    creator.trim(),
-                    copyright.trim(),
-                    description.trim(),
-                    width.toInt(),
-                    height.toInt(),
-                    twistBoxSize.toInt(),
-                    turnsAnswers.trim().toUpperCase().replace("[^A-Z ]", "").split(" +".toRegex()),
-                    turnsClues.trim().split("\n").map { it.trim() },
-                    twistsClues.trim().split("\n").map { it.trim() },
-                    lightTwistsColor,
-                    darkTwistsColor,
-                    crosswordSolverSettings)
-        }
     }
 }

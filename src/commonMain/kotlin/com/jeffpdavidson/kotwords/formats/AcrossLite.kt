@@ -15,7 +15,6 @@ import kotlinx.io.core.toByteArray
 import kotlinx.io.core.writeFully
 import kotlinx.io.core.writeLongLittleEndian
 import kotlinx.io.core.writeShortLittleEndian
-import kotlin.js.JsName
 
 private const val FILE_MAGIC = "ACROSS&DOWN"
 private const val FORMAT_VERSION = "1.4"
@@ -163,7 +162,6 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
          *
          * @param solved If true, the grid will be filled in with the correct solution.
          */
-        @JsName("toAcrossLiteBinary")
         fun Crossword.toAcrossLiteBinary(solved: Boolean = false): ByteArray {
             fun BytePacketBuilder.writeExtraSection(name: String, length: Int,
                                                     writeDataFn: (BytePacketBuilder) -> Unit) {

@@ -1,7 +1,6 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.JpzFile
-import kotlin.js.JsName
 
 // TODO: Validate data structures.
 // TODO: Generalize for other puzzle types.
@@ -129,7 +128,6 @@ data class Puzzle(
     }
 
     companion object {
-        @JsName("fromCrossword")
         fun fromCrossword(crossword: Crossword,
                           crosswordSolverSettings: CrosswordSolverSettings): Puzzle {
             val gridMap = mutableMapOf<Pair<Int, Int>, Cell>()

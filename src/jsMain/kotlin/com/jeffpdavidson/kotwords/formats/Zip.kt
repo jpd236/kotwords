@@ -1,11 +1,11 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.jslib.JSZip
-import com.jeffpdavidson.kotwords.jslib.ZipOutputType
-import com.jeffpdavidson.kotwords.jslib.newGenerateAsyncOptions
+import com.jeffpdavidson.kotwords.js.Interop.toByteArray
+import com.jeffpdavidson.kotwords.js.JSZip
+import com.jeffpdavidson.kotwords.js.ZipOutputType
+import com.jeffpdavidson.kotwords.js.newGenerateAsyncOptions
 import kotlinx.coroutines.await
 import org.khronos.webgl.ArrayBuffer
-import org.khronos.webgl.Int8Array
 import org.khronos.webgl.Uint8Array
 import kotlin.js.RegExp
 
@@ -15,7 +15,7 @@ internal actual object Zip {
         zip.file(filename, Uint8Array(data.toTypedArray()))
         val options = newGenerateAsyncOptions(ZipOutputType.ARRAY_BUFFER)
         val result = zip.generateAsync(options).await() as ArrayBuffer
-        return result.asByteArray()
+        return result.toByteArray()
     }
 
     actual suspend fun unzip(data: ByteArray): ByteArray {
@@ -24,15 +24,11 @@ internal actual object Zip {
             val files = zip.file(RegExp(""))
             if (files.isNotEmpty()) {
                 val result = files[0].async("arraybuffer").await() as ArrayBuffer
-                return result.asByteArray()
+                return result.toByteArray()
             }
         } catch (e: Throwable) {
             throw InvalidZipException("Error unzipping data", e)
         }
         throw InvalidZipException("No file entry in ZIP file")
-    }
-
-    private fun ArrayBuffer.asByteArray(): ByteArray {
-        return Int8Array(this).asDynamic() as ByteArray
     }
 }

@@ -1,4 +1,4 @@
-package com.jeffpdavidson.kotwords.jslib
+package com.jeffpdavidson.kotwords.js
 
 import org.khronos.webgl.Uint8Array
 import kotlin.js.Promise

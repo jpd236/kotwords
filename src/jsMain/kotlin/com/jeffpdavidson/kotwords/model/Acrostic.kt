@@ -152,7 +152,6 @@ data class Acrostic(
     }
 
     companion object {
-        @JsName("fromRawInput")
         fun fromRawInput(title: String,
                          creator: String,
                          copyright: String,
@@ -186,7 +185,6 @@ data class Acrostic(
                     crosswordSolverSettings)
         }
 
-        @JsName("fromApz")
         fun fromApz(apzContents: String,
                     crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Acrostic {
             val apz = DOMParser().parseFromString(apzContents, "application/xml") as XMLDocument

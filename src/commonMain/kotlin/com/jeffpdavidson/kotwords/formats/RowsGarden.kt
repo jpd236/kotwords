@@ -5,7 +5,6 @@ import kotlinx.io.charsets.Charsets
 import kotlinx.io.core.String
 import kotlinx.serialization.Serializable
 import net.mamoe.yamlkt.Yaml
-import kotlin.js.JsName
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
@@ -22,7 +21,6 @@ data class RowsGarden(
     @Serializable
     data class Entry(val clue: String, val answer: String)
 
-    @JsName("asPuzzle")
     fun asPuzzle(
             lightBloomColor: String,
             mediumBloomColor: String,
@@ -181,39 +179,6 @@ data class RowsGarden(
     }
 
     companion object {
-        @JsName("fromRawInput")
-        fun fromRawInput(
-                title: String,
-                author: String,
-                copyright: String,
-                notes: String,
-                rowClues: String,
-                rowAnswers: String,
-                lightClues: String,
-                lightAnswers: String,
-                mediumClues: String,
-                mediumAnswers: String,
-                darkClues: String,
-                darkAnswers: String): RowsGarden {
-            return RowsGarden(
-                    title = title.trim(),
-                    author = author.trim(),
-                    copyright = copyright.trim(),
-                    notes = notes.trim(),
-                    rows = rowClues.trim().split("\n").zip(rowAnswers.trim().split("\n"))
-                            .map { (clues, answers) ->
-                                clues.trim().split("/")
-                                        .zip(answers.trim().split("/"))
-                                        .map { (clue, answer) -> Entry(clue.trim(), answer.trim()) }
-                            },
-                    light = lightClues.trim().split("\n").zip(lightAnswers.trim().split("\n"))
-                            .map { (clue, answer) -> Entry(clue.trim(), answer.trim()) },
-                    medium = mediumClues.trim().split("\n").zip(mediumAnswers.trim().split("\n"))
-                            .map { (clue, answer) -> Entry(clue.trim(), answer.trim()) },
-                    dark = darkClues.trim().split("\n").zip(darkAnswers.trim().split("\n"))
-                            .map { (clue, answer) -> Entry(clue.trim(), answer.trim()) })
-        }
-
         suspend fun parse(rgz: ByteArray): RowsGarden {
             val rg =
                     try {
@@ -226,7 +191,7 @@ data class RowsGarden(
             // Strip off BOM from beginning if present.
             // Workaround for https://github.com/Kotlin/kotlinx-io/issues/112
             if (rgString.startsWith('\uFEFF')) {
-               rgString = rgString.substring(1)
+                rgString = rgString.substring(1)
             }
             return parseRg(rgString)
         }

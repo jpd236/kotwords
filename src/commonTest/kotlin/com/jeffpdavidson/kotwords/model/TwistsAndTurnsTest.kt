@@ -9,17 +9,17 @@ import kotlin.test.assertEquals
 class TwistsAndTurnsTest {
     @Test
     fun jpzGeneration() = runTest {
-        val puzzle = TwistsAndTurns.fromRawInput(
+        val puzzle = TwistsAndTurns(
                 "Test title",
                 "Test creator",
                 "Test copyright",
                 "Test description",
-                "2",
-                "2",
-                "1",
-                "AB CD",
-                "Turn 1\nTurn 2",
-                "Twist 1\nTwist 2\nTwist 3\nTwist 4",
+                2,
+                2,
+                1,
+                listOf("AB", "CD"),
+                listOf("Turn 1", "Turn 2"),
+                listOf("Twist 1", "Twist 2", "Twist 3", "Twist 4"),
                 "#ffffff",
                 "#888888",
                 Puzzle.CrosswordSolverSettings("#00b100", "#80ff80", "All done!"))
