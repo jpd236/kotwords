@@ -20,8 +20,8 @@ class TwistsAndTurnsTest {
                 listOf("AB", "CD"),
                 listOf("Turn 1", "Turn 2"),
                 listOf("Twist 1", "Twist 2", "Twist 3", "Twist 4"),
-                "#ffffff",
-                "#888888",
+                "#FFFFFF",
+                "#999999",
                 Puzzle.CrosswordSolverSettings("#00b100", "#80ff80", "All done!"))
 
         val expected = readStringResource(TwistsAndTurnsTest::class, "twists-and-turns.jpz")
