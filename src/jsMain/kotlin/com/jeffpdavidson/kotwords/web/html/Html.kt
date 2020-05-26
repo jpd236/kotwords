@@ -5,11 +5,8 @@ import kotlinx.coroutines.promise
 import org.w3c.dom.HTMLAnchorElement
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.HTMLInputElement
 import org.w3c.files.Blob
-import org.w3c.files.File
 import org.w3c.files.FileReader
-import org.w3c.files.get
 import kotlin.browser.document
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -34,13 +31,6 @@ object Html {
         body.renderFn()
         val loadingContainer = document.getElementById("loading-container") as HTMLDivElement
         loadingContainer.addClass("d-none")
-    }
-
-    fun getSelectedFile(fileInput: HTMLInputElement): File {
-        if (fileInput.files?.length == 0 || fileInput.files!![0] == null) {
-            throw IllegalArgumentException("No file selected")
-        }
-        return fileInput.files!![0]!!
     }
 
     fun downloadBlob(fileName: String, blob: Blob) {

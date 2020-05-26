@@ -2,36 +2,26 @@ package com.jeffpdavidson.kotwords.web
 
 import com.jeffpdavidson.kotwords.js.Interop.toArrayBuffer
 import com.jeffpdavidson.kotwords.model.Puzzle
-import com.jeffpdavidson.kotwords.web.html.FormFields.inputField
+import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.promise
 import kotlinx.html.ButtonType
 import kotlinx.html.FlowContent
 import kotlinx.html.InputType
-import kotlinx.html.TagConsumer
 import kotlinx.html.a
 import kotlinx.html.button
 import kotlinx.html.div
+import kotlinx.html.dom.append
 import kotlinx.html.form
 import kotlinx.html.id
 import kotlinx.html.js.onSubmitFunction
 import kotlinx.html.p
 import kotlinx.html.role
-import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.Event
 import org.w3c.files.Blob
-import kotlin.dom.addClass
-import kotlin.dom.removeClass
 import kotlin.js.Promise
-
-private const val ID_ADVANCED_OPTIONS = "advanced-options"
-private const val ID_CURSOR_COLOR = "cursor-color"
-private const val ID_SELECTION_COLOR = "selection-color"
-private const val ID_COMPLETION_MESSAGE = "completion-message"
-private const val ID_ERROR_MESSAGE = "error-message"
-
-private const val DEFAULT_COMPLETION_MESSAGE = "Congratulations! The puzzle is solved correctly."
 
 /**
  * Container for an HTML form for creating a JPZ file for a particular puzzle input.
@@ -51,79 +41,77 @@ private const val DEFAULT_COMPLETION_MESSAGE = "Congratulations! The puzzle is s
 class JpzForm(private val createPuzzleFn: (Puzzle.CrosswordSolverSettings) -> Promise<Puzzle>,
               private val getFileNameFn: (Puzzle) -> String = ::getDefaultFileName,
               private val id: String = "",
-              private val includeCompletionMessage: Boolean = true,
-              private val completionMessageDefaultValue: String = DEFAULT_COMPLETION_MESSAGE,
+              includeCompletionMessage: Boolean = true,
+              private val completionMessageDefaultValue: String = "Congratulations! The puzzle is solved correctly.",
               private val completionMessageHelpText: String = "") {
-    private val cursorColor: HTMLInputElement by Html.getElementById(elementId(ID_CURSOR_COLOR))
-    private val selectionColor: HTMLInputElement by Html.getElementById(elementId(ID_SELECTION_COLOR))
-    private val completionMessage: HTMLInputElement by Html.getElementById(elementId(ID_COMPLETION_MESSAGE))
-    private val errorMessage: HTMLInputElement by Html.getElementById(elementId(ID_ERROR_MESSAGE))
+    private val cursorColor: FormFields.InputField = FormFields.InputField(elementId("cursor-color"))
+    private val selectionColor: FormFields.InputField = FormFields.InputField(elementId("selection-color"))
+    private val completionMessage: FormFields.InputField? =
+            if (includeCompletionMessage) FormFields.InputField(elementId("completion-message")) else null
+    private val errorMessage: FormFields.ErrorMessage = FormFields.ErrorMessage(elementId("error-message"))
 
     /**
      * Render the form.
      *
+     * @param parent parent to render the form into
      * @param bodyBlock block to render the form contents
      * @param advancedOptionsBlock optional block to render advanced options (along with the default advanced options).
      */
-    fun <T> TagConsumer<T>.jpzForm(bodyBlock: FlowContent.() -> Unit,
-                                   advancedOptionsBlock: FlowContent.() -> Unit = {}) {
-        div {
-            jpzForm(bodyBlock, advancedOptionsBlock)
+    fun render(parent: HTMLElement, bodyBlock: FlowContent.() -> Unit,
+               advancedOptionsBlock: FlowContent.() -> Unit = {}) {
+        parent.append.div {
+            render(this, bodyBlock, advancedOptionsBlock)
         }
     }
 
     /**
      * Render the form.
      *
+     * @param parent parent to render the form into
      * @param bodyBlock block to render the form contents
      * @param advancedOptionsBlock optional block to render advanced options (along with the default advanced options).
      */
-    fun FlowContent.jpzForm(bodyBlock: FlowContent.() -> Unit,
-                            advancedOptionsBlock: FlowContent.() -> Unit = {}) {
-        form {
+    fun render(parent: FlowContent, bodyBlock: FlowContent.() -> Unit,
+               advancedOptionsBlock: FlowContent.() -> Unit = {}) {
+        parent.form {
             onSubmitFunction = ::onSubmit
 
             bodyBlock()
 
+            val advancedOptionsId = elementId("advanced-options")
+
             p {
                 a(classes = "btn btn-secondary") {
-                    href = "#${elementId(ID_ADVANCED_OPTIONS)}"
+                    href = "#$advancedOptionsId"
                     role = "button"
                     attributes["data-toggle"] = "collapse"
                     attributes["aria-expanded"] = "false"
-                    attributes["aria-controls"] = elementId(ID_ADVANCED_OPTIONS)
+                    attributes["aria-controls"] = advancedOptionsId
                     +"Advanced options"
                 }
             }
             div(classes = "collapse") {
-                this.id = elementId(ID_ADVANCED_OPTIONS)
+                this.id = advancedOptionsId
                 div(classes = "card card-body form-group") {
                     advancedOptionsBlock()
 
                     div(classes = "form-row") {
-                        inputField(elementId(ID_CURSOR_COLOR), "Crossword Solver cursor color", flexCols = 6) {
+                        cursorColor.render(this, "Crossword Solver cursor color", flexCols = 6) {
                             type = InputType.color
                             value = "#00B100"
                         }
-                        inputField(
-                                elementId(ID_SELECTION_COLOR), "Crossword Solver selection color", flexCols = 6) {
+                        selectionColor.render(this, "Crossword Solver selection color", flexCols = 6) {
                             type = InputType.color
                             value = "#80FF80"
                         }
                     }
-                    if (includeCompletionMessage) {
-                        inputField(elementId(ID_COMPLETION_MESSAGE),
-                                "Completion message", help = completionMessageHelpText) {
-                            value = completionMessageDefaultValue
-                        }
+                    completionMessage?.render(this, "Completion message", help = completionMessageHelpText) {
+                        value = completionMessageDefaultValue
                     }
-
                 }
             }
-            div(classes = "alert alert-primary d-none") {
-                this.id = elementId(ID_ERROR_MESSAGE)
-                role = "alert"
-            }
+
+            errorMessage.render(this)
 
             p {
                 button(classes = "btn btn-primary") {
@@ -142,14 +130,14 @@ class JpzForm(private val createPuzzleFn: (Puzzle.CrosswordSolverSettings) -> Pr
                     val fileName = "${puzzle.title.replace("[^A-Za-z0-9]".toRegex(), "")}.xml"
                     val data = puzzle.asJpzFile().toCompressedFile(fileName)
                     val blob = Blob(arrayOf(data.toArrayBuffer()))
-                    errorMessage.addClass("d-none")
+                    errorMessage.setMessage("")
                     Html.downloadBlob(getFileNameFn(puzzle), blob)
                 }
             }.catch {
-                onError(it)
+                errorMessage.setMessage("Error generating JPZ: ${it.message}")
             }
         } catch (t: Throwable) {
-            onError(t)
+            errorMessage.setMessage("Error generating JPZ: ${t.message}")
         } finally {
             event.preventDefault()
         }
@@ -157,14 +145,9 @@ class JpzForm(private val createPuzzleFn: (Puzzle.CrosswordSolverSettings) -> Pr
 
     private fun createCrosswordSolverSettings(): Puzzle.CrosswordSolverSettings {
         return Puzzle.CrosswordSolverSettings(
-                cursorColor = cursorColor.value.trim(),
-                selectedCellsColor = selectionColor.value.trim(),
-                completionMessage = if (includeCompletionMessage) completionMessage.value.trim() else "")
-    }
-
-    private fun onError(t: Throwable) {
-        errorMessage.removeClass("d-none")
-        errorMessage.innerText = "Error generating JPZ: ${t.message}"
+                cursorColor = cursorColor.getValue(),
+                selectedCellsColor = selectionColor.getValue(),
+                completionMessage = completionMessage?.getValue() ?: "")
     }
 
     private fun elementId(elementId: String) = if (id.isNotEmpty()) "$id-$elementId" else elementId

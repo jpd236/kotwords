@@ -3,10 +3,7 @@ package com.jeffpdavidson.kotwords.web
 import com.jeffpdavidson.kotwords.js.Interop
 import com.jeffpdavidson.kotwords.model.Acrostic
 import com.jeffpdavidson.kotwords.model.Puzzle
-import com.jeffpdavidson.kotwords.web.html.FormFields.fileField
-import com.jeffpdavidson.kotwords.web.html.FormFields.inputField
-import com.jeffpdavidson.kotwords.web.html.FormFields.textBoxField
-import com.jeffpdavidson.kotwords.web.html.Html
+import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 import com.jeffpdavidson.kotwords.web.html.Tabs
 import com.jeffpdavidson.kotwords.web.html.Tabs.tabs
@@ -14,106 +11,84 @@ import kotlinx.html.InputType
 import kotlinx.html.dom.append
 import kotlinx.io.charsets.Charsets
 import kotlinx.io.core.String
-import org.w3c.dom.HTMLInputElement
-import org.w3c.dom.HTMLTextAreaElement
 import kotlin.js.Promise
-
-private const val ID_MANUAL_ENTRY = "manual-entry"
-private const val ID_TITLE = "title"
-private const val ID_CREATOR = "creator"
-private const val ID_COPYRIGHT = "copyright"
-private const val ID_DESCRIPTION = "description"
-private const val ID_SUGGESTED_WIDTH = "suggested-width"
-private const val ID_SOLUTION = "solution"
-private const val ID_GRID_KEY = "grid-key"
-private const val ID_CLUES = "clues"
-private const val ID_ANSWERS = "answers"
-private const val ID_COMPLETION_MESSAGE = "completion-message"
-
-private const val ID_APZ_FILE = "apz-file"
-private const val ID_FILE = "file"
 
 /** Form to convert Acrostic puzzles into JPZ files. */
 class AcrosticForm {
     private val manualEntryForm = JpzForm(
             ::createPuzzleFromManualEntry,
-            id = ID_MANUAL_ENTRY,
+            id = "manual-entry",
             includeCompletionMessage = false)
-    private val title: HTMLInputElement by Html.getElementById(ID_TITLE)
-    private val creator: HTMLInputElement by Html.getElementById(ID_CREATOR)
-    private val copyright: HTMLInputElement by Html.getElementById(ID_COPYRIGHT)
-    private val description: HTMLTextAreaElement by Html.getElementById(ID_DESCRIPTION)
-    private val suggestedWidth: HTMLInputElement by Html.getElementById(ID_SUGGESTED_WIDTH)
-    private val solution: HTMLTextAreaElement by Html.getElementById(ID_SOLUTION)
-    private val gridKey: HTMLTextAreaElement by Html.getElementById(ID_GRID_KEY)
-    private val clues: HTMLTextAreaElement by Html.getElementById(ID_CLUES)
-    private val answers: HTMLTextAreaElement by Html.getElementById(ID_ANSWERS)
-    private val completionMessage: HTMLTextAreaElement by Html.getElementById(ID_COMPLETION_MESSAGE)
+    private val title: FormFields.InputField = FormFields.InputField("title")
+    private val creator: FormFields.InputField = FormFields.InputField("creator")
+    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
+    private val description: FormFields.TextBoxField = FormFields.TextBoxField("description")
+    private val suggestedWidth: FormFields.InputField = FormFields.InputField("suggested-width")
+    private val solution: FormFields.TextBoxField = FormFields.TextBoxField("solution")
+    private val gridKey: FormFields.TextBoxField = FormFields.TextBoxField("grid-key")
+    private val clues: FormFields.TextBoxField = FormFields.TextBoxField("clues")
+    private val answers: FormFields.TextBoxField = FormFields.TextBoxField("answers")
+    private val completionMessage: FormFields.TextBoxField = FormFields.TextBoxField("completion-message")
 
     private val apzFileForm = JpzForm(
             ::createPuzzleFromApzFile,
             { getApzFileName() },
-            id = ID_APZ_FILE,
+            id = "apz-file",
             completionMessageDefaultValue = "",
             completionMessageHelpText = "If blank, will be generated from the quote and source.")
-    private val file: HTMLInputElement by Html.getElementById(ID_FILE)
+    private val file: FormFields.FileField = FormFields.FileField("file")
 
     init {
         renderPage {
-            append.tabs(Tabs.Tab(ID_MANUAL_ENTRY, "Form") {
-                with(manualEntryForm) {
-                    jpzForm(bodyBlock = {
-                        inputField(ID_TITLE, "Title")
-                        inputField(ID_CREATOR, "Creator (optional)")
-                        inputField(ID_COPYRIGHT, "Copyright (optional)")
-                        textBoxField(ID_DESCRIPTION, "Description (optional)") {
-                            rows = "5"
-                        }
-                        inputField(ID_SUGGESTED_WIDTH, "Suggested width (optional)") {
-                            type = InputType.number
-                        }
-                        textBoxField(ID_SOLUTION, "Solution") {
-                            rows = "2"
-                            placeholder =
-                                    "The quote of the acrostic. Use spaces for word breaks. Any non-alphabetical " +
-                                            "characters will be prefilled and uneditable in the quote grid."
-                        }
-                        textBoxField(ID_GRID_KEY, "Grid key") {
-                            rows = "10"
-                            placeholder =
-                                    "The numeric positions in the quote of each letter in the clue answers. One " +
-                                            "clue per row, with numbers separated by spaces. Omit clue letters."
-                        }
-                        textBoxField(ID_CLUES, "Clues") {
-                            rows = "10"
-                            placeholder = "One clue per row. Omit clue letters."
-                        }
-                        textBoxField(ID_ANSWERS, "Answers (optional)") {
-                            rows = "10"
-                            placeholder =
-                                    "One answer per row. Only use alphabetical characters. Only used to validate " +
-                                            "that the quote and grid key are consistent with the intended answers."
-                        }
-                        textBoxField(ID_COMPLETION_MESSAGE, label = "Completion message",
-                                help = "For acrostics, typically the quote and source of the quote.") {
-                            rows = "3"
-                            +"Congratulations! The puzzle is solved correctly."
-                        }
-                    })
-                }
-            }, Tabs.Tab(ID_APZ_FILE, "APZ file") {
-                with(apzFileForm) {
-                    jpzForm(bodyBlock = {
-                        fileField(ID_FILE, "APZ file")
-                    })
-                }
+            append.tabs(Tabs.Tab("manual-entry-tab", "Form") {
+                manualEntryForm.render(this, bodyBlock = {
+                    this@AcrosticForm.title.render(this, "Title")
+                    creator.render(this, "Creator (optional)")
+                    copyright.render(this, "Copyright (optional)")
+                    description.render(this, "Description (optional)") {
+                        rows = "5"
+                    }
+                    suggestedWidth.render(this, "Suggested width (optional)") {
+                        type = InputType.number
+                    }
+                    solution.render(this, "Solution") {
+                        rows = "2"
+                        placeholder =
+                                "The quote of the acrostic. Use spaces for word breaks. Any non-alphabetical " +
+                                        "characters will be prefilled and uneditable in the quote grid."
+                    }
+                    gridKey.render(this, "Grid key") {
+                        rows = "10"
+                        placeholder =
+                                "The numeric positions in the quote of each letter in the clue answers. One " +
+                                        "clue per row, with numbers separated by spaces. Omit clue letters."
+                    }
+                    clues.render(this, "Clues") {
+                        rows = "10"
+                        placeholder = "One clue per row. Omit clue letters."
+                    }
+                    answers.render(this, "Answers (optional)") {
+                        rows = "10"
+                        placeholder =
+                                "One answer per row. Only use alphabetical characters. Only used to validate " +
+                                        "that the quote and grid key are consistent with the intended answers."
+                    }
+                    completionMessage.render(this, label = "Completion message",
+                            help = "For acrostics, typically the quote and source of the quote.") {
+                        rows = "3"
+                        +"Congratulations! The puzzle is solved correctly."
+                    }
+                })
+            }, Tabs.Tab("apz-file-tab", "APZ file") {
+                apzFileForm.render(this, bodyBlock = {
+                    file.render(this, "APZ file")
+                })
             })
         }
     }
 
     private fun createPuzzleFromApzFile(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
-        val apzFile = Html.getSelectedFile(file)
-        return Interop.readFile(apzFile).then {
+        return Interop.readFile(file.getValue()).then {
             Acrostic.fromApz(
                     apzContents = String(it, charset = Charsets.UTF_8),
                     crosswordSolverSettings = crosswordSolverSettings).asPuzzle()
@@ -122,20 +97,21 @@ class AcrosticForm {
 
     private fun createPuzzleFromManualEntry(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
         val acrostic = Acrostic.fromRawInput(
-                title = title.value,
-                creator = creator.value,
-                copyright = copyright.value,
-                description = description.value,
-                suggestedWidth = suggestedWidth.value,
-                solution = solution.value,
-                gridKey = gridKey.value,
-                clues = clues.value,
-                answers = answers.value,
-                crosswordSolverSettings = crosswordSolverSettings.copy(completionMessage = completionMessage.value))
+                title = title.getValue(),
+                creator = creator.getValue(),
+                copyright = copyright.getValue(),
+                description = description.getValue(),
+                suggestedWidth = suggestedWidth.getValue(),
+                solution = solution.getValue(),
+                gridKey = gridKey.getValue(),
+                clues = clues.getValue(),
+                answers = answers.getValue(),
+                crosswordSolverSettings = crosswordSolverSettings.copy(
+                        completionMessage = completionMessage.getValue()))
         return Promise.resolve(acrostic.asPuzzle())
     }
 
     private fun getApzFileName(): String {
-        return Html.getSelectedFile(file).name.replace(".apz", ".jpz")
+        return file.getValue().name.replace(".apz", ".jpz")
     }
 }

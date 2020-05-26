@@ -10,14 +10,14 @@ data class MarchingBands(
         val rowClues: List<List<String>>) {
     init {
         val height = grid.size
-        require (grid.count { it.size == height } == height) {
+        require(grid.count { it.size == height } == height) {
             "Only square grids are supported, but at least one grid row has a width != $height"
         }
         require(rowClues.size == height) {
             "Grid has height $height but has ${rowClues.size} row clue sets"
         }
         val bandCount = height / 2
-        require (bandClues.size == bandCount) {
+        require(bandClues.size == bandCount) {
             "Grid should have $bandCount bands but has ${bandClues.size} band clue sets"
         }
     }

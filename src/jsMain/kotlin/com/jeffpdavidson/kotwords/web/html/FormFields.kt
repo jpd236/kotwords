@@ -10,118 +10,211 @@ import kotlinx.html.div
 import kotlinx.html.id
 import kotlinx.html.input
 import kotlinx.html.label
+import kotlinx.html.role
 import kotlinx.html.small
 import kotlinx.html.textArea
+import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.HTMLTextAreaElement
+import org.w3c.files.File
+import org.w3c.files.get
+import kotlin.dom.addClass
+import kotlin.dom.removeClass
 
-/** Templates for constructing form fields. */
+/** Classes to encapsulate and render form fields. */
 object FormFields {
 
     /**
      * Create an <input> field for standard input types.
      *
-     * @param id the ID to be used for the input field (and as an ID prefix for associated tags)
-     * @param label the label for the input field
-     * @param help optional help text used to describe the field in more detail
-     * @param flexCols optional number of columns this field should take up in the parent container.
-     * @param block optional block run in the scope of the [INPUT] tag for further customization.
+     * @param htmlId the ID to be used for the input field (and as an ID prefix for associated tags)
      */
-    fun FlowContent.inputField(id: String, label: String, help: String = "", flexCols: Int? = null,
-                               block: INPUT.() -> Unit = {}) {
-        formGroup(flexCols) {
-            label {
-                htmlFor = id
-                +label
-            }
-            input(classes = "form-control") {
-                this.id = id
-                this.type = InputType.text
-                if (help.isNotBlank()) {
-                    attributes["aria-describedby"] = "$id-help"
+    class InputField(private val htmlId: String) {
+        private val input: HTMLInputElement by Html.getElementById(htmlId)
+
+        /**
+         * Render the field into the given [FlowContent].
+         *
+         * @param parent the parent [FlowContent] to render into
+         * @param label the label for the input field
+         * @param help optional help text used to describe the field in more detail
+         * @param flexCols optional number of columns this field should take up in the parent container.
+         * @param block optional block run in the scope of the [INPUT] tag for further customization.
+         */
+        fun render(parent: FlowContent, label: String, help: String = "", flexCols: Int? = null,
+                   block: INPUT.() -> Unit = {}) {
+            with(parent) {
+                formGroup(flexCols) {
+                    label {
+                        htmlFor = htmlId
+                        +label
+                    }
+                    input(classes = "form-control") {
+                        this.id = htmlId
+                        this.type = InputType.text
+                        if (help.isNotBlank()) {
+                            attributes["aria-describedby"] = "$htmlId-help"
+                        }
+                        block()
+                    }
+                    if (help.isNotBlank()) {
+                        help(htmlId, help)
+                    }
                 }
-                block()
             }
-            if (help.isNotBlank()) {
-                help(id, help)
-            }
+        }
+
+        fun getValue(): String {
+            return input.value.trim()
         }
     }
 
     /**
-     * Create an <input> field for a checkbox.
+     * Create an <input> field for a check box.
      *
-     * @param id the ID to be used for the input field (and as an ID prefix for associated tags)
-     * @param label the label for the input field
-     * @param block optional block run in the scope of the [INPUT] tag for further customization.
+     * @param htmlId the ID to be used for the input field (and as an ID prefix for associated tags)
      */
-    fun FlowContent.checkField(id: String, label: String, block: INPUT.() -> Unit = {}) {
-        formGroup {
-            div(classes = "form-check") {
-                input(classes = "form-check-input") {
-                    this.id = id
-                    this.type = InputType.checkBox
-                    block()
-                }
-                label(classes = "form-check-label") {
-                    htmlFor = id
-                    +label
+    class CheckBoxField(private val htmlId: String) {
+        private val input: HTMLInputElement by Html.getElementById(htmlId)
+
+        /**
+         * Render the field into the given [FlowContent].
+         *
+         * @param parent the parent [FlowContent] to render into
+         * @param label the label for the input field
+         * @param block optional block run in the scope of the [INPUT] tag for further customization.
+         */
+        fun render(parent: FlowContent, label: String, block: INPUT.() -> Unit = {}) {
+            with(parent) {
+                formGroup {
+                    div(classes = "form-check") {
+                        input(classes = "form-check-input") {
+                            this.id = htmlId
+                            this.type = InputType.checkBox
+                            block()
+                        }
+                        label(classes = "form-check-label") {
+                            htmlFor = htmlId
+                            +label
+                        }
+                    }
                 }
             }
+        }
+
+        fun getValue(): Boolean {
+            return input.checked
         }
     }
 
     /**
      * Create an <input> field for a file selector.
      *
-     * @param id the ID to be used for the input field (and as an ID prefix for associated tags)
-     * @param label the label for the input field
-     * @param help optional help text used to describe the field in more detail
-     * @param block optional block run in the scope of the [INPUT] tag for further customization.
+     * @param htmlId the ID to be used for the input field (and as an ID prefix for associated tags)
      */
-    fun FlowContent.fileField(id: String, label: String, help: String = "", block: INPUT.() -> Unit = {}) {
-        formGroup {
-            label {
-                htmlFor = id
-                +label
-            }
-            input(classes = "form-control-file") {
-                this.id = id
-                this.type = InputType.file
-                if (help.isNotBlank()) {
-                    attributes["aria-describedby"] = "$id-help"
+    class FileField(private val htmlId: String) {
+        private val input: HTMLInputElement by Html.getElementById(htmlId)
+
+        /**
+         * Render the file selector into the given [FlowContent].
+         *
+         * @param parent the parent [FlowContent] to render into
+         * @param label the label for the input field
+         * @param help optional help text used to describe the field in more detail
+         * @param block optional block run in the scope of the [INPUT] tag for further customization.
+         */
+        fun render(parent: FlowContent, label: String, help: String = "", block: INPUT.() -> Unit = {}) {
+            with(parent) {
+                formGroup {
+                    label {
+                        htmlFor = htmlId
+                        +label
+                    }
+                    input(classes = "form-control-file") {
+                        this.id = htmlId
+                        this.type = InputType.file
+                        if (help.isNotBlank()) {
+                            attributes["aria-describedby"] = "$htmlId-help"
+                        }
+                        block()
+                    }
+                    if (help.isNotBlank()) {
+                        help(htmlId, help)
+                    }
                 }
-                block()
             }
-            if (help.isNotBlank()) {
-                help(id, help)
+        }
+
+        fun getValue(): File {
+            if (input.files?.length == 0 || input.files!![0] == null) {
+                throw IllegalArgumentException("No file selected")
             }
+            return input.files!![0]!!
         }
     }
 
     /**
      * Create an <input> field for a multi-line text box.
      *
-     * @param id the ID to be used for the input field (and as an ID prefix for associated tags)
-     * @param label the label for the input field
-     * @param help optional help text used to describe the field in more detail
-     * @param flexCols optional number of columns this field should take up in the parent container.
-     * @param block optional block run in the scope of the [INPUT] tag for further customization.
+     * @param htmlId the ID to be used for the input field (and as an ID prefix for associated tags)
      */
-    fun FlowContent.textBoxField(id: String, label: String, help: String = "", flexCols: Int? = null,
-                                 block: TEXTAREA.() -> Unit = {}) {
-        formGroup(flexCols) {
-            label {
-                htmlFor = id
-                +label
-            }
-            textArea(classes = "form-control") {
-                this.id = id
-                if (help.isNotBlank()) {
-                    attributes["aria-describedby"] = "$id-help"
+    class TextBoxField(private val htmlId: String) {
+        private val input: HTMLTextAreaElement by Html.getElementById(htmlId)
+
+        /**
+         * Render the field into the given [FlowContent].
+         *
+         * @param parent the parent [FlowContent] to render into
+         * @param label the label for the input field
+         * @param help optional help text used to describe the field in more detail
+         * @param flexCols optional number of columns this field should take up in the parent container.
+         * @param block optional block run in the scope of the [TEXTAREA] tag for further customization.
+         */
+        fun render(parent: FlowContent, label: String, help: String = "", flexCols: Int? = null,
+                   block: TEXTAREA.() -> Unit = {}) {
+            with(parent) {
+                formGroup(flexCols) {
+                    label {
+                        htmlFor = htmlId
+                        +label
+                    }
+                    textArea(classes = "form-control") {
+                        this.id = htmlId
+                        if (help.isNotBlank()) {
+                            attributes["aria-describedby"] = "$htmlId-help"
+                        }
+                        block()
+                    }
+                    if (help.isNotBlank()) {
+                        help(htmlId, help)
+                    }
                 }
-                block()
             }
-            if (help.isNotBlank()) {
-                help(id, help)
+        }
+
+        fun getValue(): String {
+            return input.value.trim()
+        }
+    }
+
+    class ErrorMessage(private val htmlId: String) {
+        private val container: HTMLDivElement by Html.getElementById(htmlId)
+
+        fun render(parent: FlowContent) {
+            with(parent) {
+                div(classes = "alert alert-primary d-none") {
+                    this.id = htmlId
+                    role = "alert"
+                }
+            }
+        }
+
+        fun setMessage(message: String) {
+            container.innerText = message
+            if (message.isEmpty()) {
+                container.addClass("d-none")
+            } else {
+                container.removeClass("d-none")
             }
         }
     }
@@ -135,9 +228,9 @@ object FormFields {
         }
     }
 
-    private fun FlowContent.help(id: String, help: String) {
+    private fun FlowContent.help(htmlId: String, help: String) {
         small(classes = "form-text text-muted") {
-            this.id = "$id-help"
+            id = "$htmlId-help"
             +help
         }
     }

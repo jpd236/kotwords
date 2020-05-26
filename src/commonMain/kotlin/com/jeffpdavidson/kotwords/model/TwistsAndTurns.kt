@@ -47,9 +47,9 @@ data class TwistsAndTurns(
                 }
                 val backgroundColor =
                         if ((((x - 1) / twistBoxSize) % 2) == (((y - 1) / twistBoxSize) % 2)) {
-                            "#FFFFFF"
+                            lightTwistsColor
                         } else {
-                            "#999999"
+                            darkTwistsColor
                         }
                 val cell = Puzzle.Cell(x, y, "$ch", backgroundColor, number)
                 cellMap[x to y] = cell
