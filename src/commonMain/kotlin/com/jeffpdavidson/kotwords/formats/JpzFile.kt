@@ -137,6 +137,10 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
     @SerialName("i")
     data class I(@XmlValue(true) val data: Snippet)
 
+    @Serializable
+    @SerialName("span")
+    data class Span(@XmlValue(true) val data: Snippet)
+
     companion object {
         private fun module(): SerialModule {
             return SerializersModule {
@@ -145,6 +149,7 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
                     String::class with String.serializer()
                     B::class with B.serializer()
                     I::class with I.serializer()
+                    Span::class with Span.serializer()
                 }
             }
         }
@@ -156,9 +161,21 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
             data class Dummy(@XmlValue(true) val data: Snippet)
 
             val dummyXml = "<dummy>$html</dummy>"
-            return XML(module()) {
+            val snippet = XML(module()) {
                 autoPolymorphic = true
             }.parse(Dummy.serializer(), dummyXml).data
+            // For better compatibility with Crossword Solver, wrap plain text in spans whenever a snippet has HTML
+            // children.
+            if (snippet.filterNot { it is String }.isEmpty()) {
+                return snippet
+            }
+            return snippet.map {
+                if (it is String) {
+                    Span(listOf(it))
+                } else {
+                    it
+                }
+            }
         }
     }
 
