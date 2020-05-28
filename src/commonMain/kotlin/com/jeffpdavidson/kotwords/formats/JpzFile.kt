@@ -95,7 +95,11 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
                         @SerialName("type") val type: String? = null,
                         @SerialName("solve-state") val solveState: String? = null,
                         @SerialName("top-right-number") val topRightNumber: String? = null,
-                        @SerialName("background-shape") val backgroundShape: String? = null)
+                        @SerialName("background-shape") val backgroundShape: String? = null,
+                        @SerialName("top-bar") val topBar: Boolean? = null,
+                        @SerialName("left-bar") val leftBar: Boolean? = null,
+                        @SerialName("right-bar") val rightBar: Boolean? = null,
+                        @SerialName("bottom-bar") val bottomBar: Boolean? = null)
             }
 
             @Serializable

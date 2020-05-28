@@ -3,7 +3,6 @@ package com.jeffpdavidson.kotwords.model
 import com.jeffpdavidson.kotwords.formats.JpzFile
 
 // TODO: Validate data structures.
-// TODO: Generalize for other puzzle types.
 data class Puzzle(
         val title: String,
         val creator: String,
@@ -23,12 +22,20 @@ data class Puzzle(
     enum class CellType {
         REGULAR,
         BLOCK,
-        CLUE
+        CLUE,
+        VOID
     }
 
     enum class BackgroundShape {
         NONE,
         CIRCLE
+    }
+
+    enum class BorderDirection {
+        TOP,
+        LEFT,
+        RIGHT,
+        BOTTOM
     }
 
     data class Cell(
@@ -39,7 +46,8 @@ data class Puzzle(
             val number: String = "",
             val topRightNumber: String = "",
             val cellType: CellType = CellType.REGULAR,
-            val backgroundShape: BackgroundShape = BackgroundShape.NONE)
+            val backgroundShape: BackgroundShape = BackgroundShape.NONE,
+            val borderDirections: Set<BorderDirection> = setOf())
 
     data class Word(
             val id: Int,
@@ -69,8 +77,10 @@ data class Puzzle(
                         val type = when (cell.cellType) {
                             CellType.BLOCK -> "block"
                             CellType.CLUE -> "clue"
+                            CellType.VOID -> "void"
                             else -> null
                         }
+                        val backgroundShape = if (cell.backgroundShape == BackgroundShape.CIRCLE) "circle" else null
                         JpzFile.RectangularPuzzle.Crossword.Grid.Cell(
                                 x = cell.x,
                                 y = cell.y,
@@ -80,8 +90,11 @@ data class Puzzle(
                                 type = type,
                                 solveState = if (cell.cellType == CellType.CLUE) cell.solution else null,
                                 topRightNumber = if (cell.topRightNumber.isEmpty()) null else cell.topRightNumber,
-                                backgroundShape =
-                                if (cell.backgroundShape == BackgroundShape.CIRCLE) "circle" else null)
+                                backgroundShape = backgroundShape,
+                                topBar = if (cell.borderDirections.contains(BorderDirection.TOP)) true else null,
+                                bottomBar = if (cell.borderDirections.contains(BorderDirection.BOTTOM)) true else null,
+                                leftBar = if (cell.borderDirections.contains(BorderDirection.LEFT)) true else null,
+                                rightBar = if (cell.borderDirections.contains(BorderDirection.RIGHT)) true else null)
                     }
                 }
         )
