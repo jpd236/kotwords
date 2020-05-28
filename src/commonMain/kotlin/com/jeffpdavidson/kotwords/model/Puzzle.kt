@@ -72,8 +72,8 @@ data class Puzzle(
         val jpzGrid = JpzFile.RectangularPuzzle.Crossword.Grid(
                 width = grid[0].size,
                 height = grid.size,
-                cell = grid.flatMap { row ->
-                    row.map { cell ->
+                cell = grid.mapIndexed { y, row ->
+                    row.mapIndexed { x, cell ->
                         val type = when (cell.cellType) {
                             CellType.BLOCK -> "block"
                             CellType.CLUE -> "clue"
@@ -81,6 +81,16 @@ data class Puzzle(
                             else -> null
                         }
                         val backgroundShape = if (cell.backgroundShape == BackgroundShape.CIRCLE) "circle" else null
+                        // Crossword Solver only renders top and left borders, so if we have a right border, apply it
+                        // as a left border on the square to the right (if we're not at the right edge), and if we have
+                        // a bottom border, apply it as a top border on the square to the bottom (if we're not at the
+                        // bottom edge).
+                        val topBorder = cell.borderDirections.contains(BorderDirection.TOP)
+                                || (y > 0 && grid[y - 1][x].borderDirections.contains(BorderDirection.BOTTOM))
+                        val bottomBorder = cell.borderDirections.contains(BorderDirection.BOTTOM) && y == grid.size - 1
+                        val leftBorder = cell.borderDirections.contains(BorderDirection.LEFT)
+                                || (x > 0 && grid[y][x - 1].borderDirections.contains(BorderDirection.RIGHT))
+                        val rightBorder = cell.borderDirections.contains(BorderDirection.RIGHT) && x == grid[y].size - 1
                         JpzFile.RectangularPuzzle.Crossword.Grid.Cell(
                                 x = cell.x,
                                 y = cell.y,
@@ -91,12 +101,12 @@ data class Puzzle(
                                 solveState = if (cell.cellType == CellType.CLUE) cell.solution else null,
                                 topRightNumber = if (cell.topRightNumber.isEmpty()) null else cell.topRightNumber,
                                 backgroundShape = backgroundShape,
-                                topBar = if (cell.borderDirections.contains(BorderDirection.TOP)) true else null,
-                                bottomBar = if (cell.borderDirections.contains(BorderDirection.BOTTOM)) true else null,
-                                leftBar = if (cell.borderDirections.contains(BorderDirection.LEFT)) true else null,
-                                rightBar = if (cell.borderDirections.contains(BorderDirection.RIGHT)) true else null)
+                                topBar = if (topBorder) true else null,
+                                bottomBar = if (bottomBorder) true else null,
+                                leftBar = if (leftBorder) true else null,
+                                rightBar = if (rightBorder) true else null)
                     }
-                }
+                }.flatten()
         )
 
         val words = clues.flatMap { clueList ->
