@@ -192,8 +192,9 @@ object FormFields {
             }
         }
 
-        fun getValue(): String {
-            return input.value.trim()
+        fun getValue(trim: Boolean = true): String {
+            val value = input.value
+            return if (trim) value.trim() else value
         }
     }
 
