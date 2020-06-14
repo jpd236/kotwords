@@ -1,8 +1,5 @@
 package com.jeffpdavidson.kotwords.model
 
-import org.w3c.dom.XMLDocument
-import org.w3c.dom.parsing.DOMParser
-
 data class Acrostic(
         val title: String,
         val creator: String,
@@ -49,7 +46,8 @@ data class Acrostic(
         // Determine the width of the puzzle and both clue columns.
         val answerColumnSize = (gridKey.size + 1) / 2
         val gridKeyColumns = gridKey.chunked(answerColumnSize)
-        val answerColumnWidths = getAnswerColumnWidths(gridKeyColumns, suggestedWidth ?: 0)
+        val answerColumnWidths = getAnswerColumnWidths(gridKeyColumns, suggestedWidth
+                ?: 0)
         val width = answerColumnWidths.first + answerColumnWidths.second + 1
 
         // Map from number in the grid key to the letter of the clue whose answer has that number.
@@ -183,35 +181,6 @@ data class Acrostic(
                     clues.trim().split("\n").map { it.trim() },
                     answersList,
                     crosswordSolverSettings)
-        }
-
-        fun fromApz(apzContents: String,
-                    crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Acrostic {
-            val apz = DOMParser().parseFromString(apzContents, "application/xml") as XMLDocument
-            val completionMessage =
-                    if (crosswordSolverSettings.completionMessage.isNotEmpty()) {
-                        crosswordSolverSettings.completionMessage
-                    } else {
-                        val source = apz.getElementsByTagName("source").item(0)?.innerHTML ?: ""
-                        val quote = apz.getElementsByTagName("quote").item(0)?.innerHTML ?: ""
-                        listOf(source.trim(), quote.trim())
-                                .filter { it.isNotEmpty() }.joinToString("\n\n")
-                    }
-            val settings = Puzzle.CrosswordSolverSettings(
-                    crosswordSolverSettings.cursorColor,
-                    crosswordSolverSettings.selectedCellsColor,
-                    completionMessage)
-            return fromRawInput(
-                    apz.getElementsByTagName("title").item(0)?.innerHTML ?: "",
-                    apz.getElementsByTagName("creator").item(0)?.innerHTML ?: "",
-                    apz.getElementsByTagName("copyright").item(0)?.innerHTML ?: "",
-                    apz.getElementsByTagName("description").item(0)?.innerHTML ?: "",
-                    apz.getElementsByTagName("suggestedwidth").item(0)?.innerHTML ?: "",
-                    apz.getElementsByTagName("solution").item(0)?.innerHTML ?: "",
-                    apz.getElementsByTagName("gridkey").item(0)?.innerHTML ?: "",
-                    apz.getElementsByTagName("clues").item(0)?.innerHTML ?: "",
-                    apz.getElementsByTagName("answers").item(0)?.innerHTML ?: "",
-                    settings)
         }
 
         internal fun getAnswerColumnWidths(
