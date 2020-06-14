@@ -21,7 +21,7 @@ class AcrosticTest {
                 crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
                         "#00b100", "#80ff80", "All done!"))
         assertEquals(
-                readStringResource(AcrosticTest::class, "acrostic.jpz"),
+                readStringResource(AcrosticTest::class, "acrostic/acrostic.jpz"),
                 acrostic.asPuzzle().asJpzFile().toXmlString())
     }
 

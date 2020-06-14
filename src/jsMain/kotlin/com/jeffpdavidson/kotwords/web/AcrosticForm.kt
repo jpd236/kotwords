@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.web
 
+import com.jeffpdavidson.kotwords.formats.ApzFile
 import com.jeffpdavidson.kotwords.js.Interop
 import com.jeffpdavidson.kotwords.model.Acrostic
 import com.jeffpdavidson.kotwords.model.Puzzle
@@ -89,9 +90,7 @@ class AcrosticForm {
 
     private fun createPuzzleFromApzFile(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
         return Interop.readFile(file.getValue()).then {
-            Acrostic.fromApz(
-                    apzContents = String(it, charset = Charsets.UTF_8),
-                    crosswordSolverSettings = crosswordSolverSettings).asPuzzle()
+            ApzFile.parse(String(it, charset = Charsets.UTF_8)).toAcrostic(crosswordSolverSettings).asPuzzle()
         }
     }
 
