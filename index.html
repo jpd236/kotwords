@@ -2,18 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Kotwords</title>
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <title>Crossword Tools</title>
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" rel="stylesheet">
+    <style>
+        .icon {
+            width: 95px;
+        }
+    </style>
 </head>
 <body>
-<a href="across-lite.html">Across Lite</a><br/>
-<a href="acrostic.html">Acrostic</a><br/>
-<a href="eight-tracks.html">Eight Tracks</a><br/>
-<a href="labyrinth.html">Labyrinth</a><br/>
-<a href="marching-bands.html">Marching Bands</a><br/>
-<a href="rows-garden.html">Rows Garden</a><br/>
-<a href="snake-charmer.html">Snake Charmer</a><br/>
-<a href="spell-weaving.html">Spell Weaving</a><br/>
-<a href="spiral.html">Spiral</a><br/>
-<a href="twists-and-turns.html">Twists and Turns</a><br/>
-<a href="two-tone.html">Two Tone</a>
+<div id="body" class="container-fluid">
+    <h1>JPZ Generators</h1>
+    <hr />
+    <div id="loading-container">
+        <div id="loading-spinner" class="spinner-border align-middle" role="status"></div>
+        <strong class="ml-1">Loading&hellip;</strong>
+    </div>
+</div>
+<script crossorigin="anonymous"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<script src="kotwords.js"
+        onload="kotwords.com.jeffpdavidson.kotwords.web.Index.render()"></script>
 </body>
+</html>
