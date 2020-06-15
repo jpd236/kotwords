@@ -23,7 +23,8 @@ data class Crossword(
         val notes: String = "",
         val grid: List<List<Square>>,
         val acrossClues: Map<Int, String>,
-        val downClues: Map<Int, String>) {
+        val downClues: Map<Int, String>
+) {
     init {
         // Validate that grid is a rectangle.
         val width = grid[0].size
@@ -37,19 +38,25 @@ data class Crossword(
 
     companion object {
         /** Execute the given function for each square in the grid. */
-        fun forEachSquare(grid: List<List<Square>>,
-                          fn: (x: Int,
-                               y: Int,
-                               clueNumber: Int?,
-                               isAcross: Boolean,
-                               isDown: Boolean,
-                               square: Square) -> Unit) {
+        fun forEachSquare(
+                grid: List<List<Square>>,
+                fn: (
+                        x: Int,
+                        y: Int,
+                        clueNumber: Int?,
+                        isAcross: Boolean,
+                        isDown: Boolean,
+                        square: Square
+                ) -> Unit
+        ) {
             var currentClueNumber = 1
             for (y in 0 until grid.size) {
                 for (x in 0 until grid[y].size) {
                     if (grid[y][x].isBlack) {
-                        fn(x, y, /* clueNumber= */ null, /* isAcross= */ false, /* isDown= */ false,
-                                grid[y][x])
+                        fn(
+                                x, y, /* clueNumber= */ null, /* isAcross= */ false, /* isDown= */ false,
+                                grid[y][x]
+                        )
                     } else {
                         val isAcross = needsAcrossNumber(grid, x, y)
                         val isDown = needsDownNumber(grid, x, y)
@@ -66,12 +73,16 @@ data class Crossword(
         }
 
         /** Execute the given function for each numbered square in the given grid. */
-        fun forEachNumberedSquare(grid: List<List<Square>>,
-                                  fn: (x: Int,
-                                       y: Int,
-                                       clueNumber: Int,
-                                       isAcross: Boolean,
-                                       isDown: Boolean) -> Unit) {
+        fun forEachNumberedSquare(
+                grid: List<List<Square>>,
+                fn: (
+                        x: Int,
+                        y: Int,
+                        clueNumber: Int,
+                        isAcross: Boolean,
+                        isDown: Boolean
+                ) -> Unit
+        ) {
             forEachSquare(grid) { x, y, clueNumber, isAcross, isDown, _ ->
                 if (isAcross || isDown) {
                     fn(x, y, clueNumber!!, isAcross, isDown)

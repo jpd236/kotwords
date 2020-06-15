@@ -7,7 +7,8 @@ data class SnakeCharmer(
         val description: String,
         val answers: List<String>,
         val clues: List<String>,
-        val gridCoordinates: List<Pair<Int, Int>>) {
+        val gridCoordinates: List<Pair<Int, Int>>
+) {
 
     init {
         require(gridCoordinates.isNotEmpty()) {
@@ -50,7 +51,8 @@ data class SnakeCharmer(
                             y = y + 1,
                             solution = "${solutionMap[x to y]!!}",
                             number = if (cellNumbers.isEmpty()) "" else "${cellNumbers[0]}",
-                            topRightNumber = if (cellNumbers.size <= 1) "" else "${cellNumbers[1]}")
+                            topRightNumber = if (cellNumbers.size <= 1) "" else "${cellNumbers[1]}"
+                    )
                 }
             }
         }
@@ -64,6 +66,7 @@ data class SnakeCharmer(
                 description = description,
                 grid = grid,
                 clues = listOf(Puzzle.ClueList("Clues", jpzClues)),
-                crosswordSolverSettings = crosswordSolverSettings)
+                crosswordSolverSettings = crosswordSolverSettings
+        )
     }
 }

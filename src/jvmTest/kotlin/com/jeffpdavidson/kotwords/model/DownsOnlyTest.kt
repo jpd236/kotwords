@@ -11,7 +11,8 @@ class DownsOnlyTest {
     @Test
     fun getDirectionToClearForDownsOnly() = runTest {
         val crossword = AcrossLite(
-                readBinaryResource(DownsOnlyTest::class, "puz/test.puz")).asCrossword()
+                readBinaryResource(DownsOnlyTest::class, "puz/test.puz")
+        ).asCrossword()
         assertEquals(DownsOnly.ClueDirection.DOWN, crossword.getDirectionToClearForDownsOnly())
     }
 }

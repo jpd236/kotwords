@@ -18,7 +18,8 @@ internal object PuzzleMeJson {
             val isCircled: Boolean,
             val isVoid: Boolean,
             @JsonDefaultValueString(value = "") val fgColor: String,
-            @JsonDefaultValueString(value = "") val bgColor: String)
+            @JsonDefaultValueString(value = "") val bgColor: String
+    )
 
     @JsonSerializable
     internal data class Data(
@@ -36,5 +37,6 @@ internal object PuzzleMeJson {
             // Squares which should have their solution revealed at the start
             @JsonDefaultValue val preRevealIdxs: List<List<Boolean>>,
             // Clue numbers for each square. Normally inferrable but may be needed for non-traditional grids.
-            @JsonDefaultValue val clueNums: List<List<Int>>)
+            @JsonDefaultValue val clueNums: List<List<Int>>
+    )
 }

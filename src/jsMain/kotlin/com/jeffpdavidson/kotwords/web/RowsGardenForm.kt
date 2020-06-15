@@ -163,15 +163,18 @@ class RowsGardenForm {
         return Promise.resolve(asPuzzle(rowsGarden, manualEntryAdvancedOptions, crosswordSolverSettings))
     }
 
-    private fun asPuzzle(rowsGarden: RowsGarden, advancedOptions: AdvancedOptions,
-                         crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Puzzle {
+    private fun asPuzzle(
+            rowsGarden: RowsGarden, advancedOptions: AdvancedOptions,
+            crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+    ): Puzzle {
         return rowsGarden.asPuzzle(
                 lightBloomColor = advancedOptions.lightBloomColor.getValue(),
                 mediumBloomColor = advancedOptions.mediumBloomColor.getValue(),
                 darkBloomColor = advancedOptions.darkBloomColor.getValue(),
                 addHyphenated = advancedOptions.addAnnotations.getValue(),
                 addWordCount = advancedOptions.addAnnotations.getValue(),
-                crosswordSolverSettings = crosswordSolverSettings)
+                crosswordSolverSettings = crosswordSolverSettings
+        )
     }
 
     private fun getRgzFileName(): String {

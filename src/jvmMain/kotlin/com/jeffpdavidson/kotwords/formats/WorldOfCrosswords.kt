@@ -10,10 +10,12 @@ import javax.json.Json
 import javax.json.JsonArray
 
 /** Container for a puzzle in the World of Crosswords format. */
-class WorldOfCrosswords(private val json: String,
-                        private val date: LocalDate,
-                        private val author: String,
-                        private val copyright: String) : Crosswordable {
+class WorldOfCrosswords(
+        private val json: String,
+        private val date: LocalDate,
+        private val author: String,
+        private val copyright: String
+) : Crosswordable {
     override fun asCrossword(): Crossword {
         // This format is so unstructured that there's no reason to use a data-class parser.
         val data = Json.createReader(StringReader(json)).readObject()
@@ -53,7 +55,8 @@ class WorldOfCrosswords(private val json: String,
                 copyright = "\u00a9 ${date.year} $copyright",
                 grid = grid,
                 acrossClues = buildClueMap(clueData.first),
-                downClues = buildClueMap(clueData.second))
+                downClues = buildClueMap(clueData.second)
+        )
     }
 
     private fun buildClueMap(clueData: List<JsonArray>): Map<Int, String> {

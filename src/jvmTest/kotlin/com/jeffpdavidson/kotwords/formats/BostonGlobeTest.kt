@@ -17,6 +17,7 @@ class BostonGlobeTest {
         assertArrayEquals(
                 AcrossLite(readBinaryResource(BostonGlobeTest::class, "puz/test-simple.puz"))
                         .asCrossword().toAcrossLiteBinary(),
-                crossword.copy(title = "Example Puzzle for Kotwords").toAcrossLiteBinary())
+                crossword.copy(title = "Example Puzzle for Kotwords").toAcrossLiteBinary()
+        )
     }
 }

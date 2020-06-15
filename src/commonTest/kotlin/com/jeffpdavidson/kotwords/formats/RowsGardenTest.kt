@@ -29,7 +29,8 @@ class RowsGardenTest {
                 darkBloomColor = "#5765F7",
                 addWordCount = true,
                 addHyphenated = true,
-                crosswordSolverSettings = Puzzle.CrosswordSolverSettings("#00b100", "#80ff80", "All done!"))
+                crosswordSolverSettings = Puzzle.CrosswordSolverSettings("#00b100", "#80ff80", "All done!")
+        )
 
         val expected = readStringResource(RowsGardenTest::class, "rows-garden/rows-garden.jpz")
         assertEquals(expected, result.asJpzFile().toXmlString())
@@ -43,30 +44,55 @@ class RowsGardenTest {
                 notes = "Test Notes",
                 rows = listOf(
                         listOf(RowsGarden.Entry("Row 1", "AAAAAAAAA")),
-                        listOf(RowsGarden.Entry("Row 2 Clue 1 (space)", "AAAAA AAAAA"),
-                                RowsGarden.Entry("Row 2 Clue 2", "AAAAAAAAAAA")),
-                        listOf(RowsGarden.Entry("Row 3 Clue 1", "AAAAAAAAAA"),
-                                RowsGarden.Entry("Row 3 Clue 2 (hyphen)", "AAA-AAAAAAAA")),
-                        listOf(RowsGarden.Entry(
-                                "Row 4 Clue 1 (spaces and hyphen)", "AAA AA AA-AAA"),
-                                RowsGarden.Entry("Row 4 Clue 2", "AAAAAAAAAAA")),
-                        listOf(RowsGarden.Entry("Row 5 *Clue 1* (italics)", "AAAAAAAAAA"),
-                                RowsGarden.Entry("\"Row 5\" Clue 2 (quotes)", "AAAAAAAAAAA")),
-                        listOf(RowsGarden.Entry("Row 6 Clue 1", "AAAAAAAAAA"),
-                                RowsGarden.Entry("Row 6 Clue 2 " +
-                                        ":{}[],&*#?|-<>=!%@ (special characters)", "AAAAAAAAAAA")),
-                        listOf(RowsGarden.Entry("Row 7 Clue 1", "AAAAAAAAAA"),
-                                RowsGarden.Entry("Row 7 Clue 2", "AAAAAAAAAAA")),
-                        listOf(RowsGarden.Entry("Row 8 Clue 1", "AAAAAAAAAA"),
-                                RowsGarden.Entry("Row 8 Clue 2", "AAAAAAAAAAA")),
-                        listOf(RowsGarden.Entry("Row 9 Clue 1", "AAAAAAAAAA"),
-                                RowsGarden.Entry("Row 9 Clue 2", "AAAAAAAAAAA")),
-                        listOf(RowsGarden.Entry("Row 10 Clue 1", "AAAAAAAAAA"),
-                                RowsGarden.Entry("Row 10 Clue 2", "AAAAAAAAAAA")),
-                        listOf(RowsGarden.Entry("Row 11 Clue 1", "AAAAAAAAAA"),
-                                RowsGarden.Entry("Row 11 Clue 2", "AAAAAAAAAAA")),
-                        listOf(RowsGarden.Entry("Row 12", "AAAAAAAAA"))),
-                light = listOf(RowsGarden.Entry("Light 1", "AAAAAA"),
+                        listOf(
+                                RowsGarden.Entry("Row 2 Clue 1 (space)", "AAAAA AAAAA"),
+                                RowsGarden.Entry("Row 2 Clue 2", "AAAAAAAAAAA")
+                        ),
+                        listOf(
+                                RowsGarden.Entry("Row 3 Clue 1", "AAAAAAAAAA"),
+                                RowsGarden.Entry("Row 3 Clue 2 (hyphen)", "AAA-AAAAAAAA")
+                        ),
+                        listOf(
+                                RowsGarden.Entry(
+                                        "Row 4 Clue 1 (spaces and hyphen)", "AAA AA AA-AAA"
+                                ),
+                                RowsGarden.Entry("Row 4 Clue 2", "AAAAAAAAAAA")
+                        ),
+                        listOf(
+                                RowsGarden.Entry("Row 5 *Clue 1* (italics)", "AAAAAAAAAA"),
+                                RowsGarden.Entry("\"Row 5\" Clue 2 (quotes)", "AAAAAAAAAAA")
+                        ),
+                        listOf(
+                                RowsGarden.Entry("Row 6 Clue 1", "AAAAAAAAAA"),
+                                RowsGarden.Entry(
+                                        "Row 6 Clue 2 " +
+                                                ":{}[],&*#?|-<>=!%@ (special characters)", "AAAAAAAAAAA"
+                                )
+                        ),
+                        listOf(
+                                RowsGarden.Entry("Row 7 Clue 1", "AAAAAAAAAA"),
+                                RowsGarden.Entry("Row 7 Clue 2", "AAAAAAAAAAA")
+                        ),
+                        listOf(
+                                RowsGarden.Entry("Row 8 Clue 1", "AAAAAAAAAA"),
+                                RowsGarden.Entry("Row 8 Clue 2", "AAAAAAAAAAA")
+                        ),
+                        listOf(
+                                RowsGarden.Entry("Row 9 Clue 1", "AAAAAAAAAA"),
+                                RowsGarden.Entry("Row 9 Clue 2", "AAAAAAAAAAA")
+                        ),
+                        listOf(
+                                RowsGarden.Entry("Row 10 Clue 1", "AAAAAAAAAA"),
+                                RowsGarden.Entry("Row 10 Clue 2", "AAAAAAAAAAA")
+                        ),
+                        listOf(
+                                RowsGarden.Entry("Row 11 Clue 1", "AAAAAAAAAA"),
+                                RowsGarden.Entry("Row 11 Clue 2", "AAAAAAAAAAA")
+                        ),
+                        listOf(RowsGarden.Entry("Row 12", "AAAAAAAAA"))
+                ),
+                light = listOf(
+                        RowsGarden.Entry("Light 1", "AAAAAA"),
                         RowsGarden.Entry("Light 2 (space)", "AAA AAA"),
                         RowsGarden.Entry("Light 3 (hyphen)", "AAA-AAA"),
                         RowsGarden.Entry("Light 4", "AAAAAA"),
@@ -79,8 +105,10 @@ class RowsGardenTest {
                         RowsGarden.Entry("Light 11", "AAAAAA"),
                         RowsGarden.Entry("Light 12", "AAAAAA"),
                         RowsGarden.Entry("Light 13", "AAAAAA"),
-                        RowsGarden.Entry("Light 14", "AAAAAA")),
-                medium = listOf(RowsGarden.Entry("Medium 1", "AAAAAA"),
+                        RowsGarden.Entry("Light 14", "AAAAAA")
+                ),
+                medium = listOf(
+                        RowsGarden.Entry("Medium 1", "AAAAAA"),
                         RowsGarden.Entry("Medium 2", "AAAAAA"),
                         RowsGarden.Entry("Medium 3", "AAAAAA"),
                         RowsGarden.Entry("Medium 4", "AAAAAA"),
@@ -93,8 +121,10 @@ class RowsGardenTest {
                         RowsGarden.Entry("Medium 11", "AAAAAA"),
                         RowsGarden.Entry("Medium 12", "AAAAAA"),
                         RowsGarden.Entry("Medium 13", "AAAAAA"),
-                        RowsGarden.Entry("Medium 14", "AAAAAA")),
-                dark = listOf(RowsGarden.Entry("Dark 1", "AAAAAA"),
+                        RowsGarden.Entry("Medium 14", "AAAAAA")
+                ),
+                dark = listOf(
+                        RowsGarden.Entry("Dark 1", "AAAAAA"),
                         RowsGarden.Entry("Dark 2", "AAAAAA"),
                         RowsGarden.Entry("Dark 3", "AAAAAA"),
                         RowsGarden.Entry("Dark 4", "AAAAAA"),
@@ -103,6 +133,8 @@ class RowsGardenTest {
                         RowsGarden.Entry("Dark 7", "AAAAAA"),
                         RowsGarden.Entry("Dark 8", "AAAAAA"),
                         RowsGarden.Entry("Dark 9", "AAAAAA"),
-                        RowsGarden.Entry("Dark 10", "AAAAAA")))
+                        RowsGarden.Entry("Dark 10", "AAAAAA")
+                )
+        )
     }
 }

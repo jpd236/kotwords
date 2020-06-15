@@ -53,11 +53,13 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 val row = mutableListOf<Square>()
                 for (x in 0 until width) {
                     val solution = readByte().toChar()
-                    row.add(if (solution == '.') {
-                        BLACK_SQUARE
-                    } else {
-                        Square(solution)
-                    })
+                    row.add(
+                            if (solution == '.') {
+                                BLACK_SQUARE
+                            } else {
+                                Square(solution)
+                            }
+                    )
                 }
                 grid.add(row)
             }
@@ -148,7 +150,8 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                                 Square(
                                         solution = square.solution,
                                         solutionRebus = solutionRebus,
-                                        isCircled = circles.contains(x to y))
+                                        isCircled = circles.contains(x to y)
+                                )
                             }
                         }
                     }
@@ -163,8 +166,10 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
          * @param solved If true, the grid will be filled in with the correct solution.
          */
         fun Crossword.toAcrossLiteBinary(solved: Boolean = false): ByteArray {
-            fun BytePacketBuilder.writeExtraSection(name: String, length: Int,
-                                                    writeDataFn: (BytePacketBuilder) -> Unit) {
+            fun BytePacketBuilder.writeExtraSection(
+                    name: String, length: Int,
+                    writeDataFn: (BytePacketBuilder) -> Unit
+            ) {
                 writeStringUtf8(name)
                 writeShortLittleEndian(length.toShort())
 
@@ -318,11 +323,13 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
 
             // Calculate puzzle checksums.
             checksumPacketBuilder.writeShortLittleEndian(
-                    checksumPrimaryBoard(puzBytes, squareCount, clueCount).toShort())
+                    checksumPrimaryBoard(puzBytes, squareCount, clueCount).toShort()
+            )
             checksumPacketBuilder.writeFully(puzBytes, 0x2, 0xC)
             checksumPacketBuilder.writeShortLittleEndian(checksumCib(puzBytes).toShort())
             checksumPacketBuilder.writeLongLittleEndian(
-                    checksumPrimaryBoardMasked(puzBytes, squareCount, clueCount))
+                    checksumPrimaryBoardMasked(puzBytes, squareCount, clueCount)
+            )
             checksumPacketBuilder.writeFully(puzBytes, 0x18)
 
             return checksumPacketBuilder.build().readBytes()
@@ -331,7 +338,8 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
 }
 
 private inline fun BytePacketBuilder.writeGrid(
-        grid: List<List<Square>>, blackSquareValue: Byte, whiteSquareFn: (Square) -> Byte) {
+        grid: List<List<Square>>, blackSquareValue: Byte, whiteSquareFn: (Square) -> Byte
+) {
     grid.forEach { row ->
         row.forEach { square ->
             writeByte(if (square.isBlack) blackSquareValue else whiteSquareFn(square))
@@ -387,7 +395,8 @@ private fun checksumPrimaryBoard(puzBytes: ByteArray, squareCount: Int, clueCoun
 }
 
 private fun checksumPrimaryBoardMasked(
-        puzBytes: ByteArray, squareCount: Int, clueCount: Int): Long {
+        puzBytes: ByteArray, squareCount: Int, clueCount: Int
+): Long {
     val cibChecksum = checksumCib(puzBytes)
     val solutionChecksum = checksumSolution(puzBytes, squareCount, 0)
     val gridChecksum = checksumGrid(puzBytes, squareCount, 0)
@@ -413,8 +422,10 @@ private fun checksumGrid(puzBytes: ByteArray, squareCount: Int, currentChecksum:
     return checksumRegion(puzBytes, 0x34 + squareCount, squareCount, currentChecksum)
 }
 
-private fun checksumPartialBoard(puzBytes: ByteArray, squareCount: Int, clueCount: Int,
-                                 currentChecksum: Int): Int {
+private fun checksumPartialBoard(
+        puzBytes: ByteArray, squareCount: Int, clueCount: Int,
+        currentChecksum: Int
+): Int {
     var checksum = currentChecksum
     var offset = 0x34 + 2 * squareCount
     for (i in 0 until 4 + clueCount) {

@@ -19,9 +19,11 @@ class PdfTest {
 
     @Test
     fun asPdf() = runTest {
-        assertPdfEquals(readBinaryResource(PdfTest::class, "pdf/test.pdf"),
+        assertPdfEquals(
+                readBinaryResource(PdfTest::class, "pdf/test.pdf"),
                 AcrossLite(readBinaryResource(PdfTest::class, "puz/test.puz"))
-                        .asCrossword().asPdf())
+                        .asCrossword().asPdf()
+        )
     }
 
     // Note for splitTextToLines tests: a 100 pt line fits 16 10pt Courier characters.
@@ -34,12 +36,14 @@ class PdfTest {
                         "i jj kk ll mm nn",
                         "oo ppp qqq rrr",
                         "sss tttt uuuu",
-                        "vvvv"),
+                        "vvvv"
+                ),
                 splitTextToLines(
                         "a b c d e f g h i jj kk ll mm nn oo ppp qqq rrr sss tttt uuuu vvvv",
                         PDType1Font.COURIER,
                         10f,
-                        100f)
+                        100f
+                )
         )
     }
 
@@ -50,12 +54,14 @@ class PdfTest {
                         "1234567890123456",
                         "7890 12345678901",
                         "234567890 123456",
-                        "78901234567890"),
+                        "78901234567890"
+                ),
                 splitTextToLines(
                         "12345678901234567890 12345678901234567890 12345678901234567890",
                         PDType1Font.COURIER,
                         10f,
-                        100f)
+                        100f
+                )
         )
     }
 

@@ -12,12 +12,14 @@ data class Puzzle(
         val clues: List<ClueList>,
         val hasHtmlClues: Boolean = false,
         val crosswordSolverSettings: CrosswordSolverSettings,
-        val puzzleType: PuzzleType = PuzzleType.CROSSWORD) {
+        val puzzleType: PuzzleType = PuzzleType.CROSSWORD
+) {
 
     data class CrosswordSolverSettings(
             val cursorColor: String,
             val selectedCellsColor: String,
-            val completionMessage: String)
+            val completionMessage: String
+    )
 
     enum class CellType {
         REGULAR,
@@ -47,20 +49,24 @@ data class Puzzle(
             val topRightNumber: String = "",
             val cellType: CellType = CellType.REGULAR,
             val backgroundShape: BackgroundShape = BackgroundShape.NONE,
-            val borderDirections: Set<BorderDirection> = setOf())
+            val borderDirections: Set<BorderDirection> = setOf()
+    )
 
     data class Word(
             val id: Int,
-            val cells: List<Cell>)
+            val cells: List<Cell>
+    )
 
     data class Clue(
             val word: Word,
             val number: String,
-            val text: String)
+            val text: String
+    )
 
     data class ClueList(
             val title: String,
-            val clues: List<Clue>)
+            val clues: List<Clue>
+    )
 
     enum class PuzzleType {
         CROSSWORD,
@@ -104,7 +110,8 @@ data class Puzzle(
                                 topBar = if (topBorder) true else null,
                                 bottomBar = if (bottomBorder) true else null,
                                 leftBar = if (leftBorder) true else null,
-                                rightBar = if (rightBorder) true else null)
+                                rightBar = if (rightBorder) true else null
+                        )
                     }
                 }.flatten()
         )
@@ -128,7 +135,8 @@ data class Puzzle(
                         JpzFile.RectangularPuzzle.Crossword.Clues.Clue(
                                 word = clue.word.id,
                                 number = clue.number,
-                                text = JpzFile.htmlToSnippet(htmlClues))
+                                text = JpzFile.htmlToSnippet(htmlClues)
+                        )
                     })
         }
 
@@ -139,20 +147,27 @@ data class Puzzle(
                         cursorColor = crosswordSolverSettings.cursorColor,
                         selectedCellsColor = crosswordSolverSettings.selectedCellsColor,
                         completion = JpzFile.AppletSettings.Completion(
-                                message = crosswordSolverSettings.completionMessage)),
+                                message = crosswordSolverSettings.completionMessage
+                        )
+                ),
                 rectangularPuzzle = JpzFile.RectangularPuzzle(
                         metadata = JpzFile.RectangularPuzzle.Metadata(
                                 title = if (title.isBlank()) null else title,
                                 creator = if (creator.isBlank()) null else creator,
                                 copyright = if (copyright.isBlank()) null else copyright,
-                                description = if (description.isBlank()) null else description),
+                                description = if (description.isBlank()) null else description
+                        ),
                         crossword = if (puzzleType == PuzzleType.CROSSWORD) crossword else null,
-                        acrostic = if (puzzleType == PuzzleType.ACROSTIC) crossword else null))
+                        acrostic = if (puzzleType == PuzzleType.ACROSTIC) crossword else null
+                )
+        )
     }
 
     companion object {
-        fun fromCrossword(crossword: Crossword,
-                          crosswordSolverSettings: CrosswordSolverSettings): Puzzle {
+        fun fromCrossword(
+                crossword: Crossword,
+                crosswordSolverSettings: CrosswordSolverSettings
+        ): Puzzle {
             val gridMap = mutableMapOf<Pair<Int, Int>, Cell>()
             Crossword.forEachSquare(crossword.grid) { x, y, clueNumber, _, _, square ->
                 if (square == BLACK_SQUARE) {
@@ -172,10 +187,12 @@ data class Puzzle(
                                 BackgroundShape.NONE
                             }
                     gridMap[x to y] =
-                            Cell(x + 1, y + 1,
+                            Cell(
+                                    x + 1, y + 1,
                                     solution = solution,
                                     number = number,
-                                    backgroundShape = backgroundShape)
+                                    backgroundShape = backgroundShape
+                            )
                 }
             }
             val grid = mutableListOf<List<Cell>>()
@@ -197,8 +214,12 @@ data class Puzzle(
                         word.add(grid[y][i])
                         i++
                     }
-                    acrossClues.add(Clue(Word(number, word), "$number",
-                            crossword.acrossClues[number] ?: error("No across clue for number $number")))
+                    acrossClues.add(
+                            Clue(
+                                    Word(number, word), "$number",
+                                    crossword.acrossClues[number] ?: error("No across clue for number $number")
+                            )
+                    )
                 }
                 if (isDown) {
                     val word = mutableListOf<Cell>()
@@ -207,8 +228,12 @@ data class Puzzle(
                         word.add(grid[j][x])
                         j++
                     }
-                    downClues.add(Clue(Word(1000 + number, word), "$number",
-                            crossword.downClues[number] ?: error("No down clue for number $number")))
+                    downClues.add(
+                            Clue(
+                                    Word(1000 + number, word), "$number",
+                                    crossword.downClues[number] ?: error("No down clue for number $number")
+                            )
+                    )
                 }
             }
 
@@ -219,7 +244,8 @@ data class Puzzle(
                     crossword.notes,
                     grid,
                     listOf(ClueList("Across", acrossClues), ClueList("Down", downClues)),
-                    crosswordSolverSettings = crosswordSolverSettings)
+                    crosswordSolverSettings = crosswordSolverSettings
+            )
         }
 
         /**

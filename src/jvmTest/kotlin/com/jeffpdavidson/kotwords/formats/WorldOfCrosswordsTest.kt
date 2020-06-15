@@ -14,11 +14,14 @@ class WorldOfCrosswordsTest {
         assertArrayEquals(
                 readBinaryResource(WorldOfCrosswordsTest::class, "puz/test-simple.puz"),
                 WorldOfCrosswords(
-                        readStringResource(WorldOfCrosswordsTest::class,
-                                "worldofcrosswords/test-simple.json"),
+                        readStringResource(
+                                WorldOfCrosswordsTest::class,
+                                "worldofcrosswords/test-simple.json"
+                        ),
                         date = LocalDate.of(2018, 4, 1),
                         author = "Jeff Davidson",
                         copyright = "Jeff Davidson"
-                ).asCrossword().toAcrossLiteBinary())
+                ).asCrossword().toAcrossLiteBinary()
+        )
     }
 }

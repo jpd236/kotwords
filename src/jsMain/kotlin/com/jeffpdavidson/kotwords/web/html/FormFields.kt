@@ -41,8 +41,10 @@ object FormFields {
          * @param flexCols optional number of columns this field should take up in the parent container.
          * @param block optional block run in the scope of the [INPUT] tag for further customization.
          */
-        fun render(parent: FlowContent, label: String, help: String = "", flexCols: Int? = null,
-                   block: INPUT.() -> Unit = {}) {
+        fun render(
+                parent: FlowContent, label: String, help: String = "", flexCols: Int? = null,
+                block: INPUT.() -> Unit = {}
+        ) {
             with(parent) {
                 formGroup(flexCols) {
                     label {
@@ -170,8 +172,10 @@ object FormFields {
          * @param flexCols optional number of columns this field should take up in the parent container.
          * @param block optional block run in the scope of the [TEXTAREA] tag for further customization.
          */
-        fun render(parent: FlowContent, label: String, help: String = "", flexCols: Int? = null,
-                   block: TEXTAREA.() -> Unit = {}) {
+        fun render(
+                parent: FlowContent, label: String, help: String = "", flexCols: Int? = null,
+                block: TEXTAREA.() -> Unit = {}
+        ) {
             with(parent) {
                 formGroup(flexCols) {
                     label {

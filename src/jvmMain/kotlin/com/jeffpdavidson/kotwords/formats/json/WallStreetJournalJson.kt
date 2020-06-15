@@ -27,7 +27,8 @@ internal object WallStreetJournalJson {
             @Json(name = "date-publish") @HtmlString val datePublish: String,
             @HtmlString val publisher: String,
             val gridsize: Gridsize,
-            val clues: List<ClueSet>)
+            val clues: List<ClueSet>
+    )
 
     @JsonSerializable
     internal data class Style(val shapebg: String, val highlight: Boolean)
@@ -38,7 +39,8 @@ internal object WallStreetJournalJson {
     @JsonSerializable
     internal data class Square(
             @Json(name = "Letter") val letter: String,
-            @JsonDefaultValue val style: Style)
+            @JsonDefaultValue val style: Style
+    )
 
     @JsonSerializable
     internal data class Data(val copy: Copy, val grid: List<List<Square>>)

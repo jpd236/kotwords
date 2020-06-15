@@ -54,7 +54,8 @@ class BostonGlobe(private val html: String) : Crosswordable {
                 copyright = copyright,
                 grid = grid,
                 acrossClues = acrossClues,
-                downClues = downClues)
+                downClues = downClues
+        )
     }
 
     private fun toClueMap(clueElements: Elements): Map<Int, String> {

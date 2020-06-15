@@ -10,7 +10,8 @@ data class Labyrinth(
         val grid: List<List<Char>>,
         val gridKey: List<List<Int>>,
         val rowClues: List<List<String>>,
-        val windingClues: List<String>) {
+        val windingClues: List<String>
+) {
 
     init {
         val allNumbers = gridKey.flatten().sorted()
@@ -24,7 +25,8 @@ data class Labyrinth(
 
     fun asPuzzle(
             alphabetizeWindingClues: Boolean,
-            crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Puzzle {
+            crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+    ): Puzzle {
         val puzzleGrid = grid.mapIndexed { y, row ->
             row.mapIndexed { x, ch ->
                 // Calculate the borders. We remove borders from the outer edges of the grid as well as between any two
@@ -33,7 +35,8 @@ data class Labyrinth(
                         Puzzle.BorderDirection.TOP,
                         Puzzle.BorderDirection.BOTTOM,
                         Puzzle.BorderDirection.LEFT,
-                        Puzzle.BorderDirection.RIGHT)
+                        Puzzle.BorderDirection.RIGHT
+                )
                 if (y == 0 || (y > 0 && abs(gridKey[y - 1][x] - gridKey[y][x]) == 1)) {
                     borderDirections -= Puzzle.BorderDirection.TOP
                 }
@@ -51,7 +54,8 @@ data class Labyrinth(
                         y = y + 1,
                         solution = "$ch",
                         borderDirections = borderDirections,
-                        number = if (x == 0) "${y + 1}" else "")
+                        number = if (x == 0) "${y + 1}" else ""
+                )
             }
         }
 
@@ -75,7 +79,9 @@ data class Labyrinth(
                 grid = puzzleGrid,
                 clues = listOf(
                         Puzzle.ClueList("Rows", rowPuzzleClues),
-                        Puzzle.ClueList("Winding", listOf(windingClue))),
-                crosswordSolverSettings = crosswordSolverSettings)
+                        Puzzle.ClueList("Winding", listOf(windingClue))
+                ),
+                crosswordSolverSettings = crosswordSolverSettings
+        )
     }
 }

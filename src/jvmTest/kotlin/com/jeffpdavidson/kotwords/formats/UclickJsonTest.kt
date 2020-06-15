@@ -13,9 +13,12 @@ class UclickJsonTest {
     fun crossword() = runTest {
         assertArrayEquals(
                 readBinaryResource(UclickJsonTest::class, "puz/test-simple.puz"),
-                UclickJson(readStringResource(UclickJsonTest::class, "uclick/test-simple.json"),
+                UclickJson(
+                        readStringResource(UclickJsonTest::class, "uclick/test-simple.json"),
                         copyright = "Jeff Davidson",
-                        addDateToTitle = false).asCrossword().toAcrossLiteBinary())
+                        addDateToTitle = false
+                ).asCrossword().toAcrossLiteBinary()
+        )
     }
 
     @Test

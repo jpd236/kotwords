@@ -22,7 +22,8 @@ class TwistsAndTurnsTest {
                 listOf("Twist 1", "Twist 2", "Twist 3", "Twist 4"),
                 "#FFFFFF",
                 "#999999",
-                Puzzle.CrosswordSolverSettings("#00b100", "#80ff80", "All done!"))
+                Puzzle.CrosswordSolverSettings("#00b100", "#80ff80", "All done!")
+        )
 
         val expected = readStringResource(TwistsAndTurnsTest::class, "twists-and-turns.jpz")
         assertEquals(expected, puzzle.asPuzzle().asJpzFile().toXmlString())

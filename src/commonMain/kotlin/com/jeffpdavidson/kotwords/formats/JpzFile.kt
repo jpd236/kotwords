@@ -31,13 +31,15 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
             @SerialName("cursor-color") val cursorColor: String = "#00B100",
             @SerialName("selected-cells-color") val selectedCellsColor: String = "#80FF80",
             val completion: Completion,
-            val actions: Actions = Actions()) {
+            val actions: Actions = Actions()
+    ) {
 
         @Serializable
         @SerialName("completion")
         data class Completion(
                 @XmlValue(true) val message: String,
-                @SerialName("only-if-correct") val onlyIfCorrect: Boolean = true)
+                @SerialName("only-if-correct") val onlyIfCorrect: Boolean = true
+        )
 
         @Serializable
         @SerialName("actions")
@@ -47,7 +49,8 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
                 @XmlSerialName("reveal-letter", CC_NS, "") val revealLetter: Action? = Action("Reveal Letter"),
                 @XmlSerialName("check", CC_NS, "") val check: Action? = Action("Check"),
                 @XmlSerialName("solution", CC_NS, "") val solution: Action? = Action("Solution"),
-                @XmlSerialName("pencil", CC_NS, "") val pencil: Action? = Action("Pencil")) {
+                @XmlSerialName("pencil", CC_NS, "") val pencil: Action? = Action("Pencil")
+        ) {
 
             @Serializable
             data class Action(@SerialName("label") val label: String)
@@ -59,7 +62,8 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
     data class RectangularPuzzle(
             val metadata: Metadata = Metadata(),
             @XmlSerialName("crossword", PUZZLE_NS, "") val crossword: Crossword? = null,
-            @XmlSerialName("acrostic", PUZZLE_NS, "") val acrostic: Crossword? = null) {
+            @XmlSerialName("acrostic", PUZZLE_NS, "") val acrostic: Crossword? = null
+    ) {
 
         @Serializable
         @SerialName("metadata")
@@ -67,7 +71,8 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
                 @SerialName("title") @XmlElement(true) val title: String? = null,
                 @SerialName("creator") @XmlElement(true) val creator: String? = null,
                 @SerialName("copyright") @XmlElement(true) val copyright: String? = null,
-                @SerialName("description") @XmlElement(true) val description: String? = null)
+                @SerialName("description") @XmlElement(true) val description: String? = null
+        )
 
         @Serializable
         data class Crossword(val grid: Grid, val words: List<Word>, val clues: List<Clues>) {
@@ -78,7 +83,8 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
                     @SerialName("width") val width: Int,
                     @SerialName("height") val height: Int,
                     val gridLook: GridLook = GridLook(),
-                    val cell: List<Cell>) {
+                    val cell: List<Cell>
+            ) {
 
                 @Serializable
                 @SerialName("grid-look")
@@ -99,7 +105,8 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
                         @SerialName("top-bar") val topBar: Boolean? = null,
                         @SerialName("left-bar") val leftBar: Boolean? = null,
                         @SerialName("right-bar") val rightBar: Boolean? = null,
-                        @SerialName("bottom-bar") val bottomBar: Boolean? = null)
+                        @SerialName("bottom-bar") val bottomBar: Boolean? = null
+                )
             }
 
             @Serializable
@@ -124,7 +131,8 @@ data class JpzFile(val appletSettings: AppletSettings, val rectangularPuzzle: Re
                 data class Clue(
                         @SerialName("word") val word: Int,
                         @SerialName("number") val number: String,
-                        @XmlValue(true) val text: Snippet)
+                        @XmlValue(true) val text: Snippet
+                )
             }
         }
     }

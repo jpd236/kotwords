@@ -8,11 +8,13 @@ import kotlin.test.assertEquals
 class ClueSanitizerTest {
     @Test
     fun mapGivenToSanitizedClueNumbers() {
-        val rawGrid = listOf("XXX....",
+        val rawGrid = listOf(
+                "XXX....",
                 "XXX.XXX",
                 "XXX.XXX",
                 "XXX.XXX",
-                "....XXX")
+                "....XXX"
+        )
         val grid = rawGrid.map { row ->
             row.map { ch ->
                 when (ch) {
@@ -32,7 +34,8 @@ class ClueSanitizerTest {
                 Pair(6, 2) to 7,
                 Pair(0, 3) to 8,
                 Pair(4, 3) to 9,
-                Pair(4, 4) to 10)
+                Pair(4, 4) to 10
+        )
 
         val expectedSanitizedMap = mapOf(
                 1 to 1,
@@ -43,9 +46,12 @@ class ClueSanitizerTest {
                 6 to 9,
                 8 to 10,
                 9 to 11,
-                10 to 12)
-        assertEquals(expectedSanitizedMap,
-                ClueSanitizer.mapGivenToSanitizedClueNumbers(grid, givenSquareNumbers))
+                10 to 12
+        )
+        assertEquals(
+                expectedSanitizedMap,
+                ClueSanitizer.mapGivenToSanitizedClueNumbers(grid, givenSquareNumbers)
+        )
     }
 
     @Test
@@ -68,7 +74,8 @@ class ClueSanitizerTest {
         val givenToSanitizedClueNumMap = mapOf(14 to 14, 17 to 17, 25 to 26, 28 to 29, 47 to 49)
         assertEquals(
                 "Where the end of 17-, 26- and 49-Across and 14- and 29-Down may be found",
-                ClueSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap))
+                ClueSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap)
+        )
     }
 
     @Test

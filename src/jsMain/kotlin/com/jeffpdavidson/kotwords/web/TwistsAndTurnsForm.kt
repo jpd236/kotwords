@@ -86,7 +86,8 @@ class TwistsAndTurnsForm {
                 twistsClues = twistsClues.getValue().split("\n").map { it.trim() },
                 lightTwistsColor = lightTwistsColor.getValue(),
                 darkTwistsColor = darkTwistsColor.getValue(),
-                crosswordSolverSettings = crosswordSolverSettings)
+                crosswordSolverSettings = crosswordSolverSettings
+        )
         return Promise.resolve(twistsAndTurns.asPuzzle())
     }
 }

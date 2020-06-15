@@ -86,9 +86,12 @@ class TwoToneForm {
                 oddSquaresClues = oddSquaresClues.getValue().split("\n").map { it.trim() },
                 evenSquaresAnswers = evenSquaresAnswers.getValue().split(" +".toRegex()),
                 evenSquaresClues = evenSquaresClues.getValue().split("\n").map { it.trim() })
-        return Promise.resolve(twoTone.asPuzzle(
-                oddSquareBackgroundColor = oddSquaresColor.getValue(),
-                evenSquareBackgroundColor = evenSquaresColor.getValue(),
-                crosswordSolverSettings = crosswordSolverSettings))
+        return Promise.resolve(
+                twoTone.asPuzzle(
+                        oddSquareBackgroundColor = oddSquaresColor.getValue(),
+                        evenSquareBackgroundColor = evenSquaresColor.getValue(),
+                        crosswordSolverSettings = crosswordSolverSettings
+                )
+        )
     }
 }

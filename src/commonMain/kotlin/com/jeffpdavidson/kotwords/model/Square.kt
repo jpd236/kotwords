@@ -28,7 +28,8 @@ data class Square(
         val solutionRebus: String = "",
         val isCircled: Boolean = false,
         val entry: Char? = null,
-        val isGiven: Boolean = false) {
+        val isGiven: Boolean = false
+) {
     private val validSymbolRegex = "[@#$%&+?A-Z0-9]".toRegex()
 
     init {

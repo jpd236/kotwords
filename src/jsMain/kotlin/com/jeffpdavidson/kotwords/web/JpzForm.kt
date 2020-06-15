@@ -38,12 +38,14 @@ import kotlin.js.Promise
  * @param completionMessageDefaultValue optional default value to use for the completion message.
  * @param completionMessageHelpText optional help text to use for the completion message.
  */
-class JpzForm(private val createPuzzleFn: (Puzzle.CrosswordSolverSettings) -> Promise<Puzzle>,
-              private val getFileNameFn: (Puzzle) -> String = ::getDefaultFileName,
-              private val id: String = "",
-              includeCompletionMessage: Boolean = true,
-              private val completionMessageDefaultValue: String = "Congratulations! The puzzle is solved correctly.",
-              private val completionMessageHelpText: String = "") {
+class JpzForm(
+        private val createPuzzleFn: (Puzzle.CrosswordSolverSettings) -> Promise<Puzzle>,
+        private val getFileNameFn: (Puzzle) -> String = ::getDefaultFileName,
+        private val id: String = "",
+        includeCompletionMessage: Boolean = true,
+        private val completionMessageDefaultValue: String = "Congratulations! The puzzle is solved correctly.",
+        private val completionMessageHelpText: String = ""
+) {
     private val cursorColor: FormFields.InputField = FormFields.InputField(elementId("cursor-color"))
     private val selectionColor: FormFields.InputField = FormFields.InputField(elementId("selection-color"))
     private val completionMessage: FormFields.InputField? =
@@ -57,8 +59,10 @@ class JpzForm(private val createPuzzleFn: (Puzzle.CrosswordSolverSettings) -> Pr
      * @param bodyBlock block to render the form contents
      * @param advancedOptionsBlock optional block to render advanced options (along with the default advanced options).
      */
-    fun render(parent: HTMLElement, bodyBlock: FlowContent.() -> Unit,
-               advancedOptionsBlock: FlowContent.() -> Unit = {}) {
+    fun render(
+            parent: HTMLElement, bodyBlock: FlowContent.() -> Unit,
+            advancedOptionsBlock: FlowContent.() -> Unit = {}
+    ) {
         parent.append.div {
             render(this, bodyBlock, advancedOptionsBlock)
         }
@@ -71,8 +75,10 @@ class JpzForm(private val createPuzzleFn: (Puzzle.CrosswordSolverSettings) -> Pr
      * @param bodyBlock block to render the form contents
      * @param advancedOptionsBlock optional block to render advanced options (along with the default advanced options).
      */
-    fun render(parent: FlowContent, bodyBlock: FlowContent.() -> Unit,
-               advancedOptionsBlock: FlowContent.() -> Unit = {}) {
+    fun render(
+            parent: FlowContent, bodyBlock: FlowContent.() -> Unit,
+            advancedOptionsBlock: FlowContent.() -> Unit = {}
+    ) {
         parent.form {
             onSubmitFunction = ::onSubmit
 
@@ -147,7 +153,8 @@ class JpzForm(private val createPuzzleFn: (Puzzle.CrosswordSolverSettings) -> Pr
         return Puzzle.CrosswordSolverSettings(
                 cursorColor = cursorColor.getValue(),
                 selectedCellsColor = selectionColor.getValue(),
-                completionMessage = completionMessage?.getValue() ?: "")
+                completionMessage = completionMessage?.getValue() ?: ""
+        )
     }
 
     private fun elementId(elementId: String) = if (id.isNotEmpty()) "$id-$elementId" else elementId

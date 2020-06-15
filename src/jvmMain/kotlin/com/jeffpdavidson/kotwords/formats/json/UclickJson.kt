@@ -15,5 +15,6 @@ internal object UclickJson {
             @Json(name = "Date") val date: String,
             @Json(name = "AcrossClue") val acrossClue: String,
             @Json(name = "DownClue") val downClue: String,
-            @Json(name = "Copyright") @JsonDefaultValueString(value = "") val copyright: String)
+            @Json(name = "Copyright") @JsonDefaultValueString(value = "") val copyright: String
+    )
 }

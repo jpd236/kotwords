@@ -13,7 +13,8 @@ class JpzTest {
         assertArrayEquals(
                 readBinaryResource(JpzTest::class, "puz/test.puz"),
                 Jpz(readStringResource(JpzTest::class, "jpz/test.jpz"))
-                        .asCrossword().toAcrossLiteBinary())
+                        .asCrossword().toAcrossLiteBinary()
+        )
     }
 
     @Test
@@ -21,6 +22,7 @@ class JpzTest {
         assertArrayEquals(
                 readBinaryResource(JpzTest::class, "puz/gaps.puz"),
                 Jpz(readStringResource(JpzTest::class, "jpz/gaps.jpz"))
-                        .asCrossword().toAcrossLiteBinary())
+                        .asCrossword().toAcrossLiteBinary()
+        )
     }
 }

@@ -41,7 +41,8 @@ class Jpz(private val xml: String) : Crosswordable {
                 gridMap[position] = Square(
                         solution = solution[0],
                         solutionRebus = solutionRebus,
-                        isCircled = isCircled)
+                        isCircled = isCircled
+                )
                 if (it.hasAttribute("number")) {
                     givenSquareNumbers[position] = it.getAttribute("number").toInt()
                 }
@@ -66,13 +67,16 @@ class Jpz(private val xml: String) : Crosswordable {
                 notes = description,
                 grid = grid,
                 acrossClues = acrossClues,
-                downClues = downClues)
+                downClues = downClues
+        )
     }
 
     companion object {
         /** Convert the given list of <clues> elements into across and down clues lists. */
-        private fun buildClueMaps(grid: List<List<Square>>, clues: List<Element>,
-                                  givenSquareNumbers: Map<Pair<Int, Int>, Int>):
+        private fun buildClueMaps(
+                grid: List<List<Square>>, clues: List<Element>,
+                givenSquareNumbers: Map<Pair<Int, Int>, Int>
+        ):
                 Pair<Map<Int, String>, Map<Int, String>> {
             // Create a map from clue list title to the list of <clue> elements under that title.
             val clueGroups = clues.filter { it.getElementListByTagName("title").isNotEmpty() }

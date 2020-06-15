@@ -25,6 +25,8 @@ class AcrossLiteTest {
         val data = readBinaryResource(AcrossLiteTest::class, "puz/test.puz")
         assertTrue(
                 readBinaryResource(AcrossLiteTest::class, "puz/test-solved.puz").contentEquals(
-                        AcrossLite(data).asCrossword().toAcrossLiteBinary(solved = true)))
+                        AcrossLite(data).asCrossword().toAcrossLiteBinary(solved = true)
+                )
+        )
     }
 }

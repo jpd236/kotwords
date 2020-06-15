@@ -18,14 +18,17 @@ class TwoToneTest {
                 oddSquaresAnswers = listOf("ACE", "GI"),
                 oddSquaresClues = listOf("Odd clue 1", "Odd clue 2"),
                 evenSquaresAnswers = listOf("BD", "FH"),
-                evenSquaresClues = listOf("Even clue 1", "Even clue 2"))
+                evenSquaresClues = listOf("Even clue 1", "Even clue 2")
+        )
         val puzzle = twoTone.asPuzzle(
                 oddSquareBackgroundColor = "#C0C0C0",
                 evenSquareBackgroundColor = "#FFFFFF",
                 crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
                         cursorColor = "#00b100",
                         selectedCellsColor = "#80ff80",
-                        completionMessage = "All done!"))
+                        completionMessage = "All done!"
+                )
+        )
 
         val expected = readStringResource(TwoToneTest::class, "two-tone.jpz")
         assertEquals(expected, puzzle.asJpzFile().toXmlString())

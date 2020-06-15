@@ -27,7 +27,8 @@ class PuzzleMe(private val html: String) : Crosswordable {
                 if (matchResult != null) {
                     return String(
                             Base64.getDecoder().decode(matchResult.groupValues[1]),
-                            StandardCharsets.UTF_8)
+                            StandardCharsets.UTF_8
+                    )
                 }
             }
             throw InvalidFormatException("Could not find puzzle data in PuzzleMe HTML")
@@ -64,18 +65,22 @@ class PuzzleMe(private val html: String) : Crosswordable {
                     if (data.box[x][y] == "\u0000" ||
                             voidCells.contains(x to y) ||
                             (data.boxToPlacedWordsIdxs.isNotEmpty() && data.boxToPlacedWordsIdxs[x][y] == null &&
-                                    (data.preRevealIdxs.isEmpty() || !data.preRevealIdxs[x][y]))) {
+                                    (data.preRevealIdxs.isEmpty() || !data.preRevealIdxs[x][y]))
+                    ) {
                         row.add(BLACK_SQUARE)
                     } else {
                         val solutionRebus = if (data.box[x][y].length > 1) data.box[x][y] else ""
                         val isCircled = circledCells.contains(x to y)
                         val isPrefilled = data.preRevealIdxs.isNotEmpty() && data.preRevealIdxs[x][y]
-                        row.add(Square(
-                                solution = data.box[x][y][0],
-                                solutionRebus = solutionRebus,
-                                isCircled = isCircled,
-                                entry = if (isPrefilled) data.box[x][y][0] else null,
-                                isGiven = isPrefilled))
+                        row.add(
+                                Square(
+                                        solution = data.box[x][y][0],
+                                        solutionRebus = solutionRebus,
+                                        isCircled = isCircled,
+                                        entry = if (isPrefilled) data.box[x][y][0] else null,
+                                        isGiven = isPrefilled
+                                )
+                        )
                     }
                 }
                 if (grid.size > 0 && grid[0].size != row.size) {
@@ -110,7 +115,8 @@ class PuzzleMe(private val html: String) : Crosswordable {
                             }
                         }.flatten().toMap(),
                         sanitizedClues.first,
-                        sanitizedClues.second)
+                        sanitizedClues.second
+                )
             }
 
             return Crossword(
@@ -154,7 +160,8 @@ class PuzzleMe(private val html: String) : Crosswordable {
                 "[Φφ]" to "[Phi]",
                 "[Χχ]" to "[Chi]",
                 "[Ψψ]" to "[Psi]",
-                "[Ωω]" to "[Omega]")
+                "[Ωω]" to "[Omega]"
+        )
                 .map { (key, value) -> key.toRegex() to value }.toMap()
 
         private fun buildClueMap(clueList: List<PuzzleMeJson.PlacedWord>): Map<Int, String> {

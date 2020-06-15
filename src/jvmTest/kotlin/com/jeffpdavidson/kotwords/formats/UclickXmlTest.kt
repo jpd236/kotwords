@@ -13,9 +13,12 @@ class UclickXmlTest {
     fun crossword() = runTest {
         assertArrayEquals(
                 readBinaryResource(UclickXmlTest::class, "puz/test-simple.puz"),
-                UclickXml(readStringResource(UclickXmlTest::class, "uclick/test-simple.xml"),
+                UclickXml(
+                        readStringResource(UclickXmlTest::class, "uclick/test-simple.xml"),
                         date = LocalDate.of(2018, 1, 1),
-                        addDateToTitle = false)
-                        .asCrossword().toAcrossLiteBinary())
+                        addDateToTitle = false
+                )
+                        .asCrossword().toAcrossLiteBinary()
+        )
     }
 }

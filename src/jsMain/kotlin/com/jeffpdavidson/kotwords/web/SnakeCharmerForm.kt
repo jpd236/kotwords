@@ -92,7 +92,8 @@ class SnakeCharmerForm {
                 description = description.getValue(),
                 answers = answers.getValue().split(" +".toRegex()),
                 clues = clues.getValue().split("\n").map { it.trim() },
-                gridCoordinates = gridCoordinates.toList())
+                gridCoordinates = gridCoordinates.toList()
+        )
         return Promise.resolve(snakeCharmer.asPuzzle(crosswordSolverSettings = crosswordSolverSettings))
     }
 }

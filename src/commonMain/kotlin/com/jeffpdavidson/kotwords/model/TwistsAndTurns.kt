@@ -13,7 +13,8 @@ data class TwistsAndTurns(
         val twistsClues: List<String>,
         val lightTwistsColor: String,
         val darkTwistsColor: String,
-        val crosswordSolverSettings: Puzzle.CrosswordSolverSettings) {
+        val crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+) {
     init {
         require(width % twistBoxSize == 0 && height % twistBoxSize == 0) {
             "Width $width and height $height must evenly divide twist box size $twistBoxSize"
@@ -83,8 +84,10 @@ data class TwistsAndTurns(
                 grid,
                 listOf(
                         Puzzle.ClueList("Turns", turnsCluesList),
-                        Puzzle.ClueList("Twists", generateTwistsCluesList(grid))),
-                crosswordSolverSettings = crosswordSolverSettings)
+                        Puzzle.ClueList("Twists", generateTwistsCluesList(grid))
+                ),
+                crosswordSolverSettings = crosswordSolverSettings
+        )
     }
 
     private fun generateGrid(cellMap: Map<Pair<Int, Int>, Puzzle.Cell>): List<List<Puzzle.Cell>> {
@@ -112,7 +115,8 @@ data class TwistsAndTurns(
                 }
                 val wordId = (1001 + (j * (width / twistBoxSize)) + i)
                 twistsCluesList.add(
-                        Puzzle.Clue(Puzzle.Word(wordId, cells), "${twistNumber + 1}", twistsClues[twistNumber]))
+                        Puzzle.Clue(Puzzle.Word(wordId, cells), "${twistNumber + 1}", twistsClues[twistNumber])
+                )
                 twistNumber++
             }
         }

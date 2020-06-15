@@ -14,12 +14,15 @@ class SpellWeavingTest {
                 copyright = "Test copyright",
                 description = "Test description",
                 answers = listOf("ABCD", "EFG", "BHICFJ"),
-                clues = listOf("Clue 1", "Clue 2", "Clue 3"))
+                clues = listOf("Clue 1", "Clue 2", "Clue 3")
+        )
         val puzzle = spellWeaving.asPuzzle(
                 crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
                         cursorColor = "#00b100",
                         selectedCellsColor = "#80ff80",
-                        completionMessage = "All done!"))
+                        completionMessage = "All done!"
+                )
+        )
 
         val expected = readStringResource(SpellWeavingTest::class, "spell-weaving.jpz")
         assertEquals(expected, puzzle.asJpzFile().toXmlString())

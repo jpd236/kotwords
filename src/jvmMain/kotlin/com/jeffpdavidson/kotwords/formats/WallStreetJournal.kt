@@ -11,8 +11,10 @@ import java.time.format.DateTimeFormatter
 private val PUBLISH_DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy")
 
 /** Container for a puzzle in the Wall Street Journal JSON format. */
-class WallStreetJournal(private val json: String,
-                        private val includeDateInTitle: Boolean = true) : Crosswordable {
+class WallStreetJournal(
+        private val json: String,
+        private val includeDateInTitle: Boolean = true
+) : Crosswordable {
 
     override fun asCrossword(): Crossword {
         val response = JsonSerializer.fromJson(WallStreetJournalJson.Response::class.java, json)
@@ -26,7 +28,8 @@ class WallStreetJournal(private val json: String,
                     Square(
                             solution = square.letter[0],
                             solutionRebus = if (square.letter.length > 1) square.letter else "",
-                            isCircled = square.style.highlight || !square.style.shapebg.isEmpty())
+                            isCircled = square.style.highlight || !square.style.shapebg.isEmpty()
+                    )
                 }
             }
         }.toList()
@@ -43,7 +46,8 @@ class WallStreetJournal(private val json: String,
                 notes = response.data.copy.description,
                 grid = grid,
                 acrossClues = getClueMap(response, "Across"),
-                downClues = getClueMap(response, "Down"))
+                downClues = getClueMap(response, "Down")
+        )
     }
 
     private fun getClueMap(response: WallStreetJournalJson.Response, direction: String):

@@ -78,10 +78,13 @@ class MarchingBandsForm {
                 rowClues = rowClues.getValue().split("\n").map { clues ->
                     clues.trim().split("/").map { it.trim() }
                 })
-        return Promise.resolve(marchingBands.asPuzzle(
-                includeRowNumbers = includeRowNumbers.getValue(),
-                lightBandColor = lightBandColor.getValue(),
-                darkBandColor = darkBandColor.getValue(),
-                crosswordSolverSettings = crosswordSolverSettings))
+        return Promise.resolve(
+                marchingBands.asPuzzle(
+                        includeRowNumbers = includeRowNumbers.getValue(),
+                        lightBandColor = lightBandColor.getValue(),
+                        darkBandColor = darkBandColor.getValue(),
+                        crosswordSolverSettings = crosswordSolverSettings
+                )
+        )
     }
 }

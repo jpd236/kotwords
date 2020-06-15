@@ -139,7 +139,8 @@ object Pdf {
                 // this is the first clue in a section, as we do not want to split a clue apart or
                 // show a section header at the end of a column.
                 val lines = splitTextToLines(
-                        clue, PDType1Font.TIMES_ROMAN, clueSize, columnWidth - prefixWidth)
+                        clue, PDType1Font.TIMES_ROMAN, clueSize, columnWidth - prefixWidth
+                )
                 val clueHeight = lines.size * clueSize +
                         if (index == 0) {
                             CLUE_HEADER_SIZE
@@ -199,7 +200,8 @@ object Pdf {
                     beginText()
                     newLineAtOffset(
                             gridX + x * gridSquareSize + GRID_NUMBER_X_OFFSET,
-                            gridY + gridHeight - y * gridSquareSize - gridNumberSize)
+                            gridY + gridHeight - y * gridSquareSize - gridNumberSize
+                    )
                     setFont(PDType1Font.TIMES_ROMAN, gridNumberSize)
                     showText(clueNumber.toString())
                     endText()
@@ -221,7 +223,8 @@ object Pdf {
 
     /** Split [text] into lines (using spaces as word separators) to fit the given [lineWidth]. */
     internal fun splitTextToLines(
-            text: String, font: PDFont, fontSize: Float, lineWidth: Float): List<String> {
+            text: String, font: PDFont, fontSize: Float, lineWidth: Float
+    ): List<String> {
         val lines = mutableListOf<StringBuilder>()
         var currentLine = StringBuilder()
         lines += currentLine

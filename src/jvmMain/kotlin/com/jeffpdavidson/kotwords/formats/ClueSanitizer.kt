@@ -21,10 +21,12 @@ object ClueSanitizer {
      * Characters that aren't encodable in Windows-1252 must also be replaced with equivalents
      * which are.
      */
-    internal fun sanitizeClues(grid: List<List<Square>>,
-                               givenSquareNumbers: Map<Pair<Int, Int>, Int>,
-                               acrossClues: Map<Int, String>,
-                               downClues: Map<Int, String>):
+    internal fun sanitizeClues(
+            grid: List<List<Square>>,
+            givenSquareNumbers: Map<Pair<Int, Int>, Int>,
+            acrossClues: Map<Int, String>,
+            downClues: Map<Int, String>
+    ):
             Pair<Map<Int, String>, Map<Int, String>> {
         val givenToSanitizedClueNumberMap =
                 mapGivenToSanitizedClueNumbers(grid, givenSquareNumbers)
@@ -34,11 +36,13 @@ object ClueSanitizer {
             val givenSquareNumber = givenSquareNumbers[x to y] ?: -1
             if (isAcross) {
                 sanitizedAcrossClues[clueNumber] = sanitizeClue(
-                        acrossClues[givenSquareNumber], givenToSanitizedClueNumberMap)
+                        acrossClues[givenSquareNumber], givenToSanitizedClueNumberMap
+                )
             }
             if (isDown) {
                 sanitizedDownClues[clueNumber] = sanitizeClue(
-                        downClues[givenSquareNumber], givenToSanitizedClueNumberMap)
+                        downClues[givenSquareNumber], givenToSanitizedClueNumberMap
+                )
             }
         }
         return Pair(sanitizedAcrossClues, sanitizedDownClues)
@@ -76,7 +80,8 @@ object ClueSanitizer {
             if (matchResult != null) {
                 sanitizedClue.append(givenClue.substring(startIndex, matchResult.range.start))
                 sanitizedClue.append(
-                        givenToSanitizedClueNumberMap[matchResult.groupValues[1].toInt()])
+                        givenToSanitizedClueNumberMap[matchResult.groupValues[1].toInt()]
+                )
                 startIndex = matchResult.groups[1]!!.range.endInclusive + 1
             }
         } while (matchResult != null)

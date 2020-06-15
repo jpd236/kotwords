@@ -8,7 +8,8 @@ data class SpellWeaving(
         val copyright: String,
         val description: String,
         val answers: List<String>,
-        val clues: List<String>) {
+        val clues: List<String>
+) {
 
     fun asPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Puzzle {
         val filteredAnswers = answers.map { answer -> answer.toUpperCase().filter { it in 'A'..'Z' } }
@@ -44,7 +45,8 @@ data class SpellWeaving(
                                 Direction.DOWN -> Puzzle.BorderDirection.BOTTOM
                                 Direction.RIGHT -> Puzzle.BorderDirection.RIGHT
                                 Direction.LEFT -> Puzzle.BorderDirection.LEFT
-                            })
+                            }
+                    )
                 }
             }
             words.add(word)
@@ -58,11 +60,13 @@ data class SpellWeaving(
                     require(cell.numbers.size <= 2) {
                         "More than 2 entries start at position ($x, $y) which is not supported by JPZ files."
                     }
-                    Puzzle.Cell(x = x + 1, y = y + 1,
+                    Puzzle.Cell(
+                            x = x + 1, y = y + 1,
                             solution = cell.solution,
                             number = if (cell.numbers.isNotEmpty()) cell.numbers[0] else "",
                             topRightNumber = if (cell.numbers.size > 1) cell.numbers[1] else "",
-                            borderDirections = cell.borderDirections)
+                            borderDirections = cell.borderDirections
+                    )
                 }
             }
         }
@@ -78,7 +82,8 @@ data class SpellWeaving(
                 description = description,
                 grid = grid,
                 clues = listOf(Puzzle.ClueList("Clues", jpzClues)),
-                crosswordSolverSettings = crosswordSolverSettings)
+                crosswordSolverSettings = crosswordSolverSettings
+        )
     }
 
     private enum class Direction {
@@ -93,7 +98,8 @@ data class SpellWeaving(
     private data class CellState(
             var solution: String,
             var numbers: MutableList<String> = mutableListOf(),
-            val borderDirections: MutableSet<Puzzle.BorderDirection> = mutableSetOf())
+            val borderDirections: MutableSet<Puzzle.BorderDirection> = mutableSetOf()
+    )
 
     companion object {
         private fun getNextPosition(position: Position, middleRowLength: Int): Position {

@@ -7,7 +7,8 @@ data class MarchingBands(
         val description: String,
         val grid: List<List<Char?>>,
         val bandClues: List<List<String>>,
-        val rowClues: List<List<String>>) {
+        val rowClues: List<List<String>>
+) {
     init {
         val height = grid.size
         require(grid.count { it.size == height } == height) {
@@ -26,7 +27,8 @@ data class MarchingBands(
             includeRowNumbers: Boolean,
             lightBandColor: String,
             darkBandColor: String,
-            crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Puzzle {
+            crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+    ): Puzzle {
         val puzzleGrid = grid.mapIndexed { y, row ->
             row.mapIndexed { x, ch ->
                 if (ch == null) {
@@ -40,11 +42,13 @@ data class MarchingBands(
                             } else {
                                 darkBandColor
                             }
-                    Puzzle.Cell(x = x + 1, y = y + 1,
+                    Puzzle.Cell(
+                            x = x + 1, y = y + 1,
                             solution = "$ch",
                             number = if (includeRowNumbers) rowNumber else bandLetter,
                             topRightNumber = if (includeRowNumbers) bandLetter else "",
-                            backgroundColor = backgroundColor)
+                            backgroundColor = backgroundColor
+                    )
                 }
             }
         }
@@ -71,6 +75,7 @@ data class MarchingBands(
                 description = description,
                 grid = puzzleGrid,
                 clues = listOf(Puzzle.ClueList("Bands", bandClueList), Puzzle.ClueList("Rows", rowClueList)),
-                crosswordSolverSettings = crosswordSolverSettings)
+                crosswordSolverSettings = crosswordSolverSettings
+        )
     }
 }

@@ -8,7 +8,8 @@ data class Spiral(
         val inwardAnswers: List<String>,
         val inwardClues: List<String>,
         val outwardAnswers: List<String>,
-        val outwardClues: List<String>) {
+        val outwardClues: List<String>
+) {
 
     init {
         require(inwardAnswers.joinToString("") == outwardAnswers.joinToString("").reversed()) {
@@ -26,7 +27,8 @@ data class Spiral(
                     y = y + 1,
                     number = "${i + 1}",
                     solution = "${inwardLetters[i]}",
-                    borderDirections = listOfNotNull(squareList[i].borderDirection).toSet())
+                    borderDirections = listOfNotNull(squareList[i].borderDirection).toSet()
+            )
         }.toMap()
         val grid = (0 until sideLength).map { y ->
             (0 until sideLength).map { x ->
@@ -41,7 +43,8 @@ data class Spiral(
                             wordNumber + 1,
                             squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }),
                     "${i + 1}-${i + answer.length}",
-                    inwardClues[wordNumber])
+                    inwardClues[wordNumber]
+            )
             i + answer.length
         }
 
@@ -52,7 +55,8 @@ data class Spiral(
                             wordNumber + 101,
                             squareList.slice(i - answer.length until i).reversed().map { (x, y) -> grid[y][x] }),
                     "$i-${i - answer.length + 1}",
-                    outwardClues[wordNumber])
+                    outwardClues[wordNumber]
+            )
             i - answer.length
         }
 
@@ -63,6 +67,7 @@ data class Spiral(
                 description = description,
                 grid = grid,
                 clues = listOf(Puzzle.ClueList("Inward", inwardJpzClues), Puzzle.ClueList("Outward", outwardJpzClues)),
-                crosswordSolverSettings = crosswordSolverSettings)
+                crosswordSolverSettings = crosswordSolverSettings
+        )
     }
 }

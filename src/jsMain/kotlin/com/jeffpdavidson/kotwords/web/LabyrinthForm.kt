@@ -68,8 +68,11 @@ class LabyrinthForm {
                     clues.trim().split("/").map { it.trim() }
                 },
                 windingClues = windingClues.getValue().split("/").map { it.trim() })
-        return Promise.resolve(labyrinth.asPuzzle(
-                alphabetizeWindingClues = alphabetizeWindingClues.getValue(),
-                crosswordSolverSettings = crosswordSolverSettings))
+        return Promise.resolve(
+                labyrinth.asPuzzle(
+                        alphabetizeWindingClues = alphabetizeWindingClues.getValue(),
+                        crosswordSolverSettings = crosswordSolverSettings
+                )
+        )
     }
 }

@@ -16,12 +16,15 @@ class SpiralTest {
                 inwardAnswers = listOf("ABCDE", "FGHI"),
                 inwardClues = listOf("Clue 1", "Clue 2"),
                 outwardAnswers = listOf("IHG", "FED", "CBA"),
-                outwardClues = listOf("Clue 1", "Clue 2", "Clue 3"))
+                outwardClues = listOf("Clue 1", "Clue 2", "Clue 3")
+        )
         val puzzle = spiral.asPuzzle(
                 crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
                         cursorColor = "#00b100",
                         selectedCellsColor = "#80ff80",
-                        completionMessage = "All done!"))
+                        completionMessage = "All done!"
+                )
+        )
 
         val expected = readStringResource(SpiralTest::class, "spiral.jpz")
         assertEquals(expected, puzzle.asJpzFile().toXmlString())

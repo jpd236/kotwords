@@ -29,7 +29,8 @@ object DownsOnly {
                     clearClues(downClues)
                 } else {
                     downClues
-                })
+                }
+        )
     }
 
     internal enum class ClueDirection { ACROSS, DOWN }
@@ -37,7 +38,8 @@ object DownsOnly {
     internal fun Crossword.getDirectionToClearForDownsOnly(): ClueDirection {
         data class WordStats(
                 var maxWordLength: Int = 0,
-                var wordsAtMaxLength: Int = 0)
+                var wordsAtMaxLength: Int = 0
+        )
 
         val acrossWordStats = WordStats()
         val downWordStats = WordStats()
@@ -87,7 +89,8 @@ object DownsOnly {
             return ClueDirection.ACROSS
         }
         if (acrossWordStats.maxWordLength < downWordStats.maxWordLength
-                || acrossWordStats.wordsAtMaxLength < downWordStats.wordsAtMaxLength) {
+                || acrossWordStats.wordsAtMaxLength < downWordStats.wordsAtMaxLength
+        ) {
             return ClueDirection.DOWN
         }
         return ClueDirection.ACROSS

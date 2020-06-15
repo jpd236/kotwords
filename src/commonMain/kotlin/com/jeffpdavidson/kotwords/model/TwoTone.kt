@@ -10,7 +10,8 @@ data class TwoTone(
         val oddSquaresAnswers: List<String>,
         val oddSquaresClues: List<String>,
         val evenSquaresAnswers: List<String>,
-        val evenSquaresClues: List<String>) {
+        val evenSquaresClues: List<String>
+) {
 
     init {
         val splitAnswers =
@@ -30,7 +31,8 @@ data class TwoTone(
     fun asPuzzle(
             oddSquareBackgroundColor: String,
             evenSquareBackgroundColor: String,
-            crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Puzzle {
+            crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+    ): Puzzle {
         val numberedSquares = mutableSetOf<Int>()
         fun addNumberedSquares(answers: List<String>, startIndex: Int, isEveryOther: Boolean) {
             answers.fold(startIndex) { i, answer ->
@@ -53,7 +55,8 @@ data class TwoTone(
                     number = if (numberedSquares.contains(i)) "${currentNumber++}" else "",
                     solution = "${letters[i]}",
                     backgroundColor = if (i % 2 == 0) oddSquareBackgroundColor else evenSquareBackgroundColor,
-                    borderDirections = listOfNotNull(squareList[i].borderDirection).toSet())
+                    borderDirections = listOfNotNull(squareList[i].borderDirection).toSet()
+            )
         }.toMap()
         val grid = (0 until sideLength).map { y ->
             (0 until sideLength).map { x ->
@@ -61,10 +64,12 @@ data class TwoTone(
             }
         }
 
-        fun createClues(answers: List<String>,
-                        clues: List<String>,
-                        squareList: List<SpiralGrid.Square>,
-                        firstWordId: Int): List<Puzzle.Clue> {
+        fun createClues(
+                answers: List<String>,
+                clues: List<String>,
+                squareList: List<SpiralGrid.Square>,
+                firstWordId: Int
+        ): List<Puzzle.Clue> {
             val jpzClues = mutableListOf<Puzzle.Clue>()
             answers.foldIndexed(0) { wordNumber, i, answer ->
                 val firstCell = squareList[i]
@@ -73,7 +78,8 @@ data class TwoTone(
                                 firstWordId + wordNumber,
                                 squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }),
                         grid[firstCell.y][firstCell.x].number,
-                        clues[wordNumber])
+                        clues[wordNumber]
+                )
                 i + answer.length
             }
             return jpzClues
@@ -97,7 +103,9 @@ data class TwoTone(
                 grid = grid,
                 clues = listOf(
                         Puzzle.ClueList("All Squares", allSquaresJpzClues),
-                        Puzzle.ClueList("Every Other", everyOtherJpzClues)),
-                crosswordSolverSettings = crosswordSolverSettings)
+                        Puzzle.ClueList("Every Other", everyOtherJpzClues)
+                ),
+                crosswordSolverSettings = crosswordSolverSettings
+        )
     }
 }

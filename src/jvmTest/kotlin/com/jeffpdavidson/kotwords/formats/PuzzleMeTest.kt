@@ -16,7 +16,9 @@ class PuzzleMeTest {
                 readStringResource(PuzzleMeTest::class, "puzzleme/test.json")
                         .replace("\r\n", "\n"),
                 PuzzleMe.extractPuzzleJson(
-                        readStringResource(PuzzleMeTest::class, "puzzleme/test.html")))
+                        readStringResource(PuzzleMeTest::class, "puzzleme/test.html")
+                )
+        )
     }
 
     @Test
@@ -34,8 +36,10 @@ class PuzzleMeTest {
         assertArrayEquals(
                 readBinaryResource(PuzzleMeTest::class, "puz/test.puz"),
                 PuzzleMe.toCrossword(
-                        readStringResource(PuzzleMeTest::class, "puzzleme/test.json"))
-                        .toAcrossLiteBinary())
+                        readStringResource(PuzzleMeTest::class, "puzzleme/test.json")
+                )
+                        .toAcrossLiteBinary()
+        )
     }
 
     @Test
@@ -43,8 +47,10 @@ class PuzzleMeTest {
         assertArrayEquals(
                 readBinaryResource(PuzzleMeTest::class, "puz/test.puz"),
                 PuzzleMe.toCrossword(
-                        readStringResource(PuzzleMeTest::class, "puzzleme/test-isCircled.json"))
-                        .toAcrossLiteBinary())
+                        readStringResource(PuzzleMeTest::class, "puzzleme/test-isCircled.json")
+                )
+                        .toAcrossLiteBinary()
+        )
     }
 
     @Test
@@ -52,8 +58,10 @@ class PuzzleMeTest {
         assertArrayEquals(
                 readBinaryResource(PuzzleMeTest::class, "puz/test.puz"),
                 PuzzleMe.toCrossword(
-                        readStringResource(PuzzleMeTest::class, "puzzleme/test-shadedCells.json"))
-                        .toAcrossLiteBinary())
+                        readStringResource(PuzzleMeTest::class, "puzzleme/test-shadedCells.json")
+                )
+                        .toAcrossLiteBinary()
+        )
     }
 
     @Test
@@ -61,8 +69,10 @@ class PuzzleMeTest {
         assertArrayEquals(
                 readBinaryResource(PuzzleMeTest::class, "puz/test.puz"),
                 PuzzleMe.toCrossword(
-                        readStringResource(PuzzleMeTest::class, "puzzleme/test-void.json"))
-                        .toAcrossLiteBinary())
+                        readStringResource(PuzzleMeTest::class, "puzzleme/test-void.json")
+                )
+                        .toAcrossLiteBinary()
+        )
     }
 
     @Test
@@ -70,9 +80,13 @@ class PuzzleMeTest {
         assertArrayEquals(
                 readBinaryResource(PuzzleMeTest::class, "puz/test.puz"),
                 PuzzleMe.toCrossword(
-                        readStringResource(PuzzleMeTest::class,
-                                "puzzleme/test-hiddenSquares.json"))
-                        .toAcrossLiteBinary())
+                        readStringResource(
+                                PuzzleMeTest::class,
+                                "puzzleme/test-hiddenSquares.json"
+                        )
+                )
+                        .toAcrossLiteBinary()
+        )
     }
 
     @Test
@@ -80,7 +94,9 @@ class PuzzleMeTest {
         assertArrayEquals(
                 readBinaryResource(PuzzleMeTest::class, "puzzleme/test-italics.puz"),
                 PuzzleMe.toCrossword(
-                        readStringResource(PuzzleMeTest::class, "puzzleme/test-italics.json"))
-                        .toAcrossLiteBinary())
+                        readStringResource(PuzzleMeTest::class, "puzzleme/test-italics.json")
+                )
+                        .toAcrossLiteBinary()
+        )
     }
 }
