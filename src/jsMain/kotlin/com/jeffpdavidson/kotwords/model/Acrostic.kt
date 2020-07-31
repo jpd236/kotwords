@@ -217,7 +217,7 @@ data class Acrostic(
         internal fun getAnswerColumnWidths(
                 splitAnswers: List<List<List<Any>>>, suggestedWidth: Int = 0): Pair<Int, Int> {
             val widths: List<Int> = splitAnswers.map { it.map(List<Any>::size).max()!! + 1 }
-            val totalWidth = maxOf(widths[0] + widths[1] + 1, 27, suggestedWidth)
+            val totalWidth = maxOf(widths[0] + widths[1] + 1, 15, suggestedWidth)
             val leftWidth = widths[0] + (totalWidth - widths[0] - widths[1] - 1) / 2
             return leftWidth to (totalWidth - leftWidth - 1)
         }
