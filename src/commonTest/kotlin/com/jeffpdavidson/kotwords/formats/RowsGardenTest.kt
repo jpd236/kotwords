@@ -36,6 +36,22 @@ class RowsGardenTest {
         assertEquals(expected, result.asJpzFile().toXmlString())
     }
 
+    @Test
+    fun convertToJpz_mini() = runTest {
+        val rg = RowsGarden.parse(readBinaryResource(RowsGardenTest::class, "rows-garden/test-mini.rg"))
+        val result = rg.asPuzzle(
+                lightBloomColor = "#FFFFFF",
+                mediumBloomColor = "#C3C8FA",
+                darkBloomColor = "#5765F7",
+                addWordCount = true,
+                addHyphenated = true,
+                crosswordSolverSettings = Puzzle.CrosswordSolverSettings("#00b100", "#80ff80", "All done!")
+        )
+
+        val expected = readStringResource(RowsGardenTest::class, "rows-garden/rows-garden-mini.jpz")
+        assertEquals(expected, result.asJpzFile().toXmlString())
+    }
+
     companion object {
         private val TEST_DATA = RowsGarden(
                 title = "Test Title",

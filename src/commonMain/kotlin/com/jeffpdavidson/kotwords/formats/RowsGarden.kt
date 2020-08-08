@@ -30,21 +30,39 @@ data class RowsGarden(
             addHyphenated: Boolean,
             crosswordSolverSettings: Puzzle.CrosswordSolverSettings
     ): Puzzle {
-        require(rows.size == 12) {
-            "Only 21x12 grids are supported"
+        require(rows.size > 2) {
+            "Must have at least 3 rows"
+        }
+        val rowLetters = rows.map { words ->
+            words.joinToString("") { word -> word.answer.filter(::isAlphanumeric) }
+        }
+        require(rowLetters.subList(1, rowLetters.size - 1).all { it.length == rowLetters[1].length }) {
+            "All rows except the first and last must have the same width"
+        }
+        require(rowLetters[1].length % 3 == 0 && rowLetters[1].length % 2 == 1) {
+            "Grid width must be an odd multiple of 3"
         }
         // solutionGrid[y][x] = the solution letter at (x, y)
-        val solutionGrid = rows.mapIndexed { y, words ->
-            val letters = words.joinToString("") { word -> word.answer.filter(::isAlphanumeric) }
-            if (y == 0 || y == 11) {
-                require(letters.length == 9) {
-                    "Row $y has ${letters.length} letters; should have 9"
+        var hasShortFirstRow = false
+        val solutionGrid = rowLetters.mapIndexed { y, letters ->
+            if (y == 0 || y == rowLetters.size - 1) {
+                val validWidthShort = rowLetters[1].length / 3 / 2 * 3
+                val validWidthLong = (rowLetters[1].length / 3 / 2 + 1) * 3
+                when (letters.length) {
+                    validWidthShort -> {
+                        if (y == 0) {
+                            hasShortFirstRow = true
+                        }
+                        letters.chunked(3).joinToString(separator = "...", prefix = "...", postfix = "...")
+                    }
+                    validWidthLong -> {
+                        letters.chunked(3).joinToString(separator = "...")
+                    }
+                    else -> {
+                        throw IllegalArgumentException("Outer row length must be $validWidthShort or $validWidthLong")
+                    }
                 }
-                "...${letters.slice(0..2)}...${letters.slice(3..5)}...${letters.slice(6..8)}..."
             } else {
-                require(letters.length == 21) {
-                    "Row $y has ${letters.length} letters; should have 21"
-                }
                 letters
             }
         }
@@ -66,18 +84,20 @@ data class RowsGarden(
             if (cellMap.containsKey(x to y)) {
                 return cellMap.getValue(x to y)
             }
-            val bloomType = BloomType.forCoordinate(x, y)
+            val bloomType = BloomType.forCoordinate(x, y, hasShortFirstRow)
+
             cellMap[x to y] =
-                    if (bloomType == BloomType.NONE) {
+                    if (solutionGrid[y][x] == '.') {
                         Puzzle.Cell(x + 1, y + 1, cellType = Puzzle.CellType.BLOCK)
                     } else {
                         var bloomIndex = 0
+                        val yOffset = if (hasShortFirstRow) 0 else 1
                         val number = when {
-                            ((y == 0 || y == 11) && x == 3) || ((y != 0 && y != 11) && x == 0) -> {
+                            (x == solutionGrid[y].indexOfFirst { it != '.' }) -> {
                                 // Start of a row
                                 "${'A' + y}"
                             }
-                            (y % 2 == 0 && x % 6 == 5) || (y % 2 == 1 && x % 6 == 2) -> {
+                            ((y + yOffset) % 2 == 0 && x % 6 == 5) || ((y + yOffset) % 2 == 1 && x % 6 == 2) -> {
                                 // Start of a bloom
                                 bloomIndex = blooms.getValue(bloomType).puzzleClues.size + 1
                                 "${bloomType.name[0]}${bloomIndex}"
@@ -94,7 +114,7 @@ data class RowsGarden(
                             blooms[bloomType]?.puzzleClues!!.add(
                                     Puzzle.Clue(
                                             Puzzle.Word(
-                                                    1000 * bloomType.ordinal + bloomIndex, listOf(
+                                                    1000 * (bloomType.ordinal + 1) + bloomIndex, listOf(
                                                     getOrCreateCell(x - 2, y),
                                                     getOrCreateCell(x - 1, y),
                                                     cell,
@@ -116,8 +136,8 @@ data class RowsGarden(
             return cellMap.getValue(x to y)
         }
 
-        val grid = (0 until 12).map { y ->
-            (0 until 21).map { x ->
+        val grid = solutionGrid.indices.map { y ->
+            solutionGrid[y].indices.map { x ->
                 getOrCreateCell(x, y)
             }
         }
@@ -171,21 +191,14 @@ data class RowsGarden(
     }
 
     private enum class BloomType {
-        NONE,
         LIGHT,
         MEDIUM,
         DARK;
 
         companion object {
-            fun forCoordinate(x: Int, y: Int): BloomType {
-                var yOffset = 0
-                if (x % 6 < 3) {
-                    if (y == 0 || y == 11) {
-                        return NONE
-                    } else {
-                        yOffset = 3
-                    }
-                }
+            fun forCoordinate(x: Int, y: Int, hasShortFirstRow: Boolean): BloomType {
+                val baseOffset = if (x % 6 < 3) 3 else 0
+                val yOffset = if (hasShortFirstRow) baseOffset else baseOffset + 1
                 return when (floor((y + yOffset) / 2.0).roundToInt() % 3) {
                     0 -> MEDIUM
                     1 -> DARK

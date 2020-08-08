@@ -14,6 +14,7 @@ import kotlinx.html.FlowContent
 import kotlinx.html.InputType
 import kotlinx.html.div
 import kotlinx.html.dom.append
+import kotlinx.html.p
 import kotlin.js.Promise
 
 /** Form to convert Rows Garden puzzles into JPZ files. */
@@ -39,6 +40,10 @@ class RowsGardenForm {
 
     init {
         renderPage {
+            append.p {
+                +"Note: bloom colors are determined by making the top-left bloom light, cycling between light, medium, "
+                +"and dark in the first column, and then ensuring that no two adjacent blooms have the same color."
+            }
             append.tabs(Tabs.Tab("manual-entry-tab", "Form") {
                 manualEntryForm.render(this, bodyBlock = {
                     this@RowsGardenForm.title.render(this, "Title")
