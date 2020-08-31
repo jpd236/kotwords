@@ -25,7 +25,7 @@ private const val PUZZLE_NS = "http://crossword.info/xml/rectangular-puzzle"
 // See https://github.com/pdvrieze/xmlutil/issues/30
 private typealias Snippet = List<@Polymorphic Any>
 
-private val Xml = XML(Jpz.module()) {
+private val XmlSerializer = XML(Jpz.module()) {
     xmlDeclMode = XmlDeclMode.Charset
     autoPolymorphic = true
     // Ignore unknown elements
@@ -239,9 +239,9 @@ interface Jpz : Crosswordable {
         fun fromXmlString(xml: String): Jpz {
             // Try to parse as a <crossword-compiler-applet>; if it fails, fall back to <crossword-compiler>.
             return try {
-                Xml.parse(CrosswordCompilerApplet.serializer(), xml)
+                XmlSerializer.parse(CrosswordCompilerApplet.serializer(), xml)
             } catch (e: XmlException) {
-                Xml.parse(CrosswordCompiler.serializer(), xml)
+                XmlSerializer.parse(CrosswordCompiler.serializer(), xml)
             }
         }
 
@@ -277,7 +277,7 @@ data class CrosswordCompiler(
         override val rectangularPuzzle: Jpz.RectangularPuzzle) : Jpz {
 
     override fun toXmlString(): String {
-        return Xml.stringify(serializer(), this)
+        return XmlSerializer.stringify(serializer(), this)
     }
 }
 
@@ -320,6 +320,6 @@ data class CrosswordCompilerApplet(
     }
 
     override fun toXmlString(): String {
-        return Xml.stringify(serializer(), this)
+        return XmlSerializer.stringify(serializer(), this)
     }
 }
