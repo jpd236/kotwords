@@ -78,11 +78,9 @@ object ClueSanitizer {
         do {
             matchResult = CROSS_REFERENCE_PATTERN.find(givenClue, startIndex)
             if (matchResult != null) {
-                sanitizedClue.append(givenClue.substring(startIndex, matchResult.range.start))
-                sanitizedClue.append(
-                        givenToSanitizedClueNumberMap[matchResult.groupValues[1].toInt()]
-                )
-                startIndex = matchResult.groups[1]!!.range.endInclusive + 1
+                sanitizedClue.append(givenClue.substring(startIndex, matchResult.range.first))
+                sanitizedClue.append(givenToSanitizedClueNumberMap[matchResult.groupValues[1].toInt()])
+                startIndex = matchResult.range.first + matchResult.groupValues[1].length
             }
         } while (matchResult != null)
         sanitizedClue.append(givenClue.substring(startIndex))

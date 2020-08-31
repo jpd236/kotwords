@@ -2,7 +2,7 @@ package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Square
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ClueSanitizerTest {

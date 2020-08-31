@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<crossword-compiler>
-  <rectangular-puzzle>
+<crossword-compiler xmlns="http://crossword.info/xml/crossword-compiler">
+  <rectangular-puzzle xmlns="http://crossword.info/xml/rectangular-puzzle">
     <metadata>
       <title>Test</title>
       <creator>Test</creator>

@@ -1,6 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
-import com.jeffpdavidson.kotwords.formats.JpzFile
+import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
+import com.jeffpdavidson.kotwords.formats.Jpz
 
 // TODO: Validate data structures.
 data class Puzzle(
@@ -74,8 +75,8 @@ data class Puzzle(
     }
 
     /** Returns this puzzle as a JPZ file. */
-    fun asJpzFile(): JpzFile {
-        val jpzGrid = JpzFile.RectangularPuzzle.Crossword.Grid(
+    fun asJpzFile(): Jpz {
+        val jpzGrid = Jpz.RectangularPuzzle.Crossword.Grid(
                 width = grid[0].size,
                 height = grid.size,
                 cell = grid.mapIndexed { y, row ->
@@ -97,7 +98,7 @@ data class Puzzle(
                         val leftBorder = cell.borderDirections.contains(BorderDirection.LEFT)
                                 || (x > 0 && grid[y][x - 1].borderDirections.contains(BorderDirection.RIGHT))
                         val rightBorder = cell.borderDirections.contains(BorderDirection.RIGHT) && x == grid[y].size - 1
-                        JpzFile.RectangularPuzzle.Crossword.Grid.Cell(
+                        Jpz.RectangularPuzzle.Crossword.Grid.Cell(
                                 x = cell.x,
                                 y = cell.y,
                                 solution = if (cell.solution.isEmpty()) null else cell.solution,
@@ -118,40 +119,40 @@ data class Puzzle(
 
         val words = clues.flatMap { clueList ->
             clueList.clues.map { clue ->
-                JpzFile.RectangularPuzzle.Crossword.Word(
+                Jpz.RectangularPuzzle.Crossword.Word(
                         id = clue.word.id,
                         cells = clue.word.cells.map { cell ->
-                            JpzFile.RectangularPuzzle.Crossword.Word.Cells(cell.x, cell.y)
+                            Jpz.RectangularPuzzle.Crossword.Word.Cells(cell.x, cell.y)
                         }
                 )
             }
         }
 
         val jpzClues = clues.map { clueList ->
-            JpzFile.RectangularPuzzle.Crossword.Clues(
-                    title = JpzFile.RectangularPuzzle.Crossword.Clues.Title(listOf(JpzFile.B(listOf(clueList.title)))),
+            Jpz.RectangularPuzzle.Crossword.Clues(
+                    title = Jpz.RectangularPuzzle.Crossword.Clues.Title(listOf(Jpz.B(listOf(clueList.title)))),
                     clues = clueList.clues.map { clue ->
                         val htmlClues = if (hasHtmlClues) clue.text else formatClue(clue.text)
-                        JpzFile.RectangularPuzzle.Crossword.Clues.Clue(
+                        Jpz.RectangularPuzzle.Crossword.Clues.Clue(
                                 word = clue.word.id,
                                 number = clue.number,
-                                text = JpzFile.htmlToSnippet(htmlClues)
+                                text = Jpz.htmlToSnippet(htmlClues)
                         )
                     })
         }
 
-        val crossword = JpzFile.RectangularPuzzle.Crossword(jpzGrid, words, jpzClues)
+        val crossword = Jpz.RectangularPuzzle.Crossword(jpzGrid, words, jpzClues)
 
-        return JpzFile(
-                appletSettings = JpzFile.AppletSettings(
+        return CrosswordCompilerApplet(
+                appletSettings = CrosswordCompilerApplet.AppletSettings(
                         cursorColor = crosswordSolverSettings.cursorColor,
                         selectedCellsColor = crosswordSolverSettings.selectedCellsColor,
-                        completion = JpzFile.AppletSettings.Completion(
+                        completion = CrosswordCompilerApplet.AppletSettings.Completion(
                                 message = crosswordSolverSettings.completionMessage
                         )
                 ),
-                rectangularPuzzle = JpzFile.RectangularPuzzle(
-                        metadata = JpzFile.RectangularPuzzle.Metadata(
+                rectangularPuzzle = Jpz.RectangularPuzzle(
+                        metadata = Jpz.RectangularPuzzle.Metadata(
                                 title = if (title.isBlank()) null else title,
                                 creator = if (creator.isBlank()) null else creator,
                                 copyright = if (copyright.isBlank()) null else copyright,
