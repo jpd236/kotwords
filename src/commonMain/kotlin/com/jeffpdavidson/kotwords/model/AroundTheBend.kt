@@ -19,14 +19,14 @@ data class AroundTheBend(
                         x = padding + i + 1,
                         y = y + 1,
                         solution = "$ch",
-                        number = if ( i == 0 ) "${y + 1}" else "")
+                        number = if (i == 0) "${y + 1}" else "")
             }
         }
         val puzzleClues = clues.mapIndexed { y, clue ->
             Puzzle.Clue(
                     Puzzle.Word(y,
                             grid[y].filterNot { it.cellType == Puzzle.CellType.BLOCK } +
-                            grid[(y + 1) % grid.size].filterNot { it.cellType == Puzzle.CellType.BLOCK }.reversed()),
+                                    grid[(y + 1) % grid.size].filterNot { it.cellType == Puzzle.CellType.BLOCK }.reversed()),
                     "${y + 1}",
                     clue)
         }

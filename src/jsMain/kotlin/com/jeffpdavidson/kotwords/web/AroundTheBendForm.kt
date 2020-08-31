@@ -38,12 +38,12 @@ class AroundTheBendForm {
 
     private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
         val aroundTheBend = AroundTheBend(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            rows = rows.getValue().split("\n").map { it.trim() },
-            clues = clues.getValue().split("\n").map { it.trim() })
+                title = title.getValue(),
+                creator = creator.getValue(),
+                copyright = copyright.getValue(),
+                description = description.getValue(),
+                rows = rows.getValue().split("\n").map { it.trim() },
+                clues = clues.getValue().split("\n").map { it.trim() })
         return Promise.resolve(aroundTheBend.asPuzzle(crosswordSolverSettings = crosswordSolverSettings))
     }
 }
