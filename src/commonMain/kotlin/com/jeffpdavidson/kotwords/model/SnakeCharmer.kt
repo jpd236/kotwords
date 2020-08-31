@@ -38,8 +38,8 @@ data class SnakeCharmer(
             words.add(word)
             i + answer.length to clueNumber + 1
         }
-        val width = gridCoordinates.maxBy { it.first }!!.first + 1
-        val height = gridCoordinates.maxBy { it.second }!!.second + 1
+        val width = gridCoordinates.maxByOrNull { it.first }!!.first + 1
+        val height = gridCoordinates.maxByOrNull { it.second }!!.second + 1
         val grid = (0 until height).map { y ->
             (0 until width).map { x ->
                 if (!solutionMap.containsKey(x to y)) {

@@ -45,7 +45,7 @@ class PuzzleMe(private val html: String) : Crosswordable {
             val circledCells =
                     if (data.cellInfos.find { it.isCircled } != null) {
                         data.cellInfos.filter { it.isCircled }.map { it.x to it.y }
-                    } else if (!data.backgroundShapeBoxes.isEmpty()) {
+                    } else if (data.backgroundShapeBoxes.isNotEmpty()) {
                         data.backgroundShapeBoxes.filter { it.size == 2 }.map { it[0] to it[1] }
                     } else {
                         // Note that if there are multiple distinct colors, all of them will be
@@ -94,9 +94,9 @@ class PuzzleMe(private val html: String) : Crosswordable {
             val topRowsToDelete = grid.indexOfFirst(anyNonBlackSquare)
             val bottomRowsToDelete = grid.size - grid.indexOfLast(anyNonBlackSquare) - 1
             val leftRowsToDelete =
-                    grid.filter(anyNonBlackSquare).map { row -> row.indexOfFirst { it != BLACK_SQUARE } }.min()!!
+                    grid.filter(anyNonBlackSquare).map { row -> row.indexOfFirst { it != BLACK_SQUARE } }.minOrNull()!!
             val rightRowsToDelete = grid[0].size -
-                    grid.filter(anyNonBlackSquare).map { row -> row.indexOfLast { it != BLACK_SQUARE } }.max()!! - 1
+                    grid.filter(anyNonBlackSquare).map { row -> row.indexOfLast { it != BLACK_SQUARE } }.maxOrNull()!! - 1
             val filteredGrid = grid.drop(topRowsToDelete).dropLast(bottomRowsToDelete)
                     .map { row -> row.drop(leftRowsToDelete).dropLast(rightRowsToDelete) }
 

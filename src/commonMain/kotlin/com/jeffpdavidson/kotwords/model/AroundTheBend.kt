@@ -9,7 +9,7 @@ data class AroundTheBend(
         val clues: List<String>
 ) {
     fun asPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Puzzle {
-        val maxWidth = rows.maxBy { it.length }!!.length
+        val maxWidth = rows.maxByOrNull { it.length }!!.length
         val grid = rows.mapIndexed { y, row ->
             val padding = maxWidth - row.length
             (0 until padding).map { x ->
