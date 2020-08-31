@@ -27,12 +27,12 @@ class BostonGlobe(private val html: String) : Crosswordable {
             val solution = it.selectFirst("input[name]").attr("name")
             (coordinates[0] to coordinates[1]) to solution
         }.toMap()
-        val width = squareMap.keys.maxBy { (x, _) -> x }!!.first
-        val height = squareMap.keys.maxBy { (_, y) -> y }!!.second
+        val width = squareMap.keys.maxByOrNull { (x, _) -> x }!!.first
+        val height = squareMap.keys.maxByOrNull { (_, y) -> y }!!.second
         val grid = (1..height).map { y ->
             (1..width).map { x ->
-                if (squareMap.containsKey(x to y)) {
-                    val solution = squareMap[x to y]!!
+                val solution = squareMap[x to y]
+                if (solution != null) {
                     val solutionRebus = if (solution.length > 1) {
                         solution
                     } else {

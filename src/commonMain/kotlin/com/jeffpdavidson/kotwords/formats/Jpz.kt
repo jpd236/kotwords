@@ -9,7 +9,6 @@ import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlException
@@ -224,24 +223,22 @@ interface Jpz : Crosswordable {
     }
 
     companion object {
-        internal fun module(): SerialModule {
+        internal fun module(): SerializersModule {
             return SerializersModule {
                 // Snippet tags
-                polymorphic(Any::class) {
-                    String::class with String.serializer()
-                    B::class with B.serializer()
-                    I::class with I.serializer()
-                    Span::class with Span.serializer()
-                }
+                polymorphic(Any::class, String::class, String.serializer())
+                polymorphic(Any::class, B::class, B.serializer())
+                polymorphic(Any::class, I::class, I.serializer())
+                polymorphic(Any::class, Span::class, Span.serializer())
             }
         }
 
         fun fromXmlString(xml: String): Jpz {
             // Try to parse as a <crossword-compiler-applet>; if it fails, fall back to <crossword-compiler>.
             return try {
-                XmlSerializer.parse(CrosswordCompilerApplet.serializer(), xml)
+                XmlSerializer.decodeFromString(CrosswordCompilerApplet.serializer(), xml)
             } catch (e: XmlException) {
-                XmlSerializer.parse(CrosswordCompiler.serializer(), xml)
+                XmlSerializer.decodeFromString(CrosswordCompiler.serializer(), xml)
             }
         }
 
@@ -254,7 +251,7 @@ interface Jpz : Crosswordable {
             val dummyXml = "<dummy>$html</dummy>"
             val snippet = XML(module()) {
                 autoPolymorphic = true
-            }.parse(Dummy.serializer(), dummyXml).data
+            }.decodeFromString(Dummy.serializer(), dummyXml).data
             // For better compatibility with Crossword Solver, wrap plain text in spans whenever a snippet has HTML
             // children.
             if (snippet.filterNot { it is String }.isEmpty()) {
@@ -277,7 +274,7 @@ data class CrosswordCompiler(
         override val rectangularPuzzle: Jpz.RectangularPuzzle) : Jpz {
 
     override fun toXmlString(): String {
-        return XmlSerializer.stringify(serializer(), this)
+        return XmlSerializer.encodeToString(serializer(), this)
     }
 }
 
@@ -320,6 +317,6 @@ data class CrosswordCompilerApplet(
     }
 
     override fun toXmlString(): String {
-        return XmlSerializer.stringify(serializer(), this)
+        return XmlSerializer.encodeToString(serializer(), this)
     }
 }

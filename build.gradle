@@ -1,14 +1,15 @@
 buildscript {
     ext.junit_version = '5.1.0'
+    ext.kotlin_version = '1.4.0'
 }
 
 plugins {
     id 'maven-publish'
     id 'com.jfrog.artifactory' version '4.15.2'
     id 'org.jetbrains.dokka' version '0.10.1'
-    id 'org.jetbrains.kotlin.multiplatform' version '1.3.72'
-    id 'org.jetbrains.kotlin.kapt' version '1.3.72'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.3.72'
+    id 'org.jetbrains.kotlin.multiplatform' version "$kotlin_version"
+    id 'org.jetbrains.kotlin.kapt' version "$kotlin_version"
+    id 'org.jetbrains.kotlin.plugin.serialization' version "$kotlin_version"
 }
 
 group = 'com.jeffpdavidson.kotwords'
@@ -45,8 +46,10 @@ kotlin {
 }
 
 // HACK: To make JS test resources accessible to tests, we copy them to the Karma server's base
-// directory where they can be served (see karma.config.d/resources.js).
-jsTestProcessResources.doLast {
+// directory where they can be served (see karma.config.d/resources.js). We do this right before
+// running the tests rather than after processing resources as subsequent compilation steps
+// might clear the base directory.
+jsBrowserTest.doFirst {
     delete {
         delete("$buildDir/js/packages/kotwords-test/node_modules/resources/test")
     }
@@ -57,24 +60,19 @@ jsTestProcessResources.doLast {
 }
 
 dependencies {
-    commonMainImplementation "org.jetbrains.kotlin:kotlin-stdlib"
     commonMainImplementation "org.jetbrains.kotlinx:kotlinx-io:0.1.16"
-    commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:0.20.0"
-    commonMainImplementation "net.mamoe.yamlkt:yamlkt-common:0.3.2"
-    commonMainImplementation "net.devrieze:xmlutil-serialization:0.20.0.10"
+    commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC"
+    commonMainImplementation "net.mamoe.yamlkt:yamlkt:0.5.0"
+    commonMainImplementation "net.devrieze:xmlutil-serialization:0.80.0-RC"
 
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common"
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-common"
 
-    jvmMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0"
     jvmMainImplementation "org.jetbrains.kotlinx:kotlinx-io-jvm:0.1.16"
     jvmMainImplementation "com.squareup.moshi:moshi:1.5.0"
     jvmMainImplementation "org.apache.pdfbox:pdfbox:2.0.9"
     jvmMainImplementation "org.glassfish:javax.json:1.1.2"
-    jvmMainImplementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     jvmMainImplementation "org.jsoup:jsoup:1.11.2"
-    jvmMainImplementation "net.mamoe.yamlkt:yamlkt:0.3.2"
-    jvmMainImplementation "net.devrieze:xmlutil-serialization-jvm:0.20.0.10"
 
     jvmMainImplementation "se.ansman.kotshi:api:1.0.4"
     kapt "se.ansman.kotshi:compiler:1.0.4"
@@ -82,13 +80,10 @@ dependencies {
     jvmTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.6"
     jvmTestImplementation "org.jetbrains.kotlin:kotlin-test-junit"
 
-    jsMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:0.20.0"
     jsMainImplementation "org.jetbrains.kotlinx:kotlinx-io-js:0.1.16"
     jsMainImplementation(npm("jszip", "3.4.0"))
     jsMainImplementation(npm("text-encoding", "0.7.0"))
-    jsMainImplementation "net.mamoe.yamlkt:yamlkt-js:0.3.2"
     jsMainImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.6"
-    jsMainImplementation "net.devrieze:xmlutil-serialization-js:0.20.0.10"
     jsMainImplementation "org.jetbrains.kotlinx:kotlinx-html-js:0.6.12"
 
     jsTestImplementation "org.jetbrains.kotlin:kotlin-test-js"

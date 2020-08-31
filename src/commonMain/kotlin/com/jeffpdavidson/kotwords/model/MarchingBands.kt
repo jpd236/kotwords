@@ -37,7 +37,7 @@ data class MarchingBands(
                     val rowNumber = if (x == 0) "${y + 1}" else ""
                     val bandLetter = if (x == y && x < grid.size / 2) "${'A' + x}" else ""
                     val backgroundColor =
-                            if (listOf(x, y, grid.size - y - 1, grid[y].size - x - 1).min()!! % 2 == 0) {
+                            if (listOf(x, y, grid.size - y - 1, grid[y].size - x - 1).minOrNull()!! % 2 == 0) {
                                 lightBandColor
                             } else {
                                 darkBandColor

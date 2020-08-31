@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.web.html
 
+import kotlinx.dom.addClass
+import kotlinx.dom.removeClass
 import kotlinx.html.DIV
 import kotlinx.html.FlowContent
 import kotlinx.html.INPUT
@@ -18,8 +20,6 @@ import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.files.File
 import org.w3c.files.get
-import kotlin.dom.addClass
-import kotlin.dom.removeClass
 
 /** Classes to encapsulate and render form fields. */
 object FormFields {

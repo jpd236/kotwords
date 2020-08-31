@@ -60,7 +60,7 @@ data class ApzFile(
             return XML {
                 // Ignore unknown elements
                 unknownChildHandler = { _, _, _, _ -> }
-            }.parse(serializer(), apzContents)
+            }.decodeFromString(serializer(), apzContents)
         }
     }
 }
