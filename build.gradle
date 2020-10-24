@@ -61,9 +61,9 @@ jsBrowserTest.doFirst {
 
 dependencies {
     commonMainImplementation "org.jetbrains.kotlinx:kotlinx-io:0.1.16"
-    commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0"
+    commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC"
     commonMainImplementation "net.mamoe.yamlkt:yamlkt:0.5.0"
-    commonMainImplementation "net.devrieze:xmlutil-serialization:0.80.0"
+    commonMainImplementation "net.devrieze:xmlutil-serialization:0.80.0-RC"
 
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common"
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-common"
