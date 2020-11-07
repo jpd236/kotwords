@@ -9,6 +9,8 @@ BRANCH="master"
 
 set -eu
 
+GITHUB_BRANCH=${GITHUB_REF#refs/heads/}
+
 if [ "$GITHUB_REPOSITORY" != "$REPOSITORY" ]; then
   echo "Not publishing snapshot; wrong repository. Expected '$REPOSITORY' but was '$GITHUB_REPOSITORY'."
 elif [ "$GITHUB_EVENT_NAME" != "push" ]; then
