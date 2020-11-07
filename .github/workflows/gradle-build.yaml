@@ -23,7 +23,6 @@ jobs:
       - name: Publish snapshot
         env:
           GITHUB_BRANCH: ${{ github.head_ref }}
-          GITHUB_PULL_REQUEST: ${{ github.event.pull_request.number }}
           CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
           CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
         run: ./publish-snapshot.sh
