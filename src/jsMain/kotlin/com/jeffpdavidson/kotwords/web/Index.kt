@@ -14,6 +14,7 @@ object Index {
             "Across Lite",
             "Acrostic",
             "Around the Bend",
+            "Cinnamon Roll",
             "Eight Tracks",
             "Labyrinth",
             "Marching Bands",
