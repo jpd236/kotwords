@@ -22,13 +22,22 @@ data class Spiral(
         val squareList = SpiralGrid.createSquareList(sideLength)
         val inwardLetters = inwardAnswers.joinToString("")
         val gridMap = squareList.mapIndexed { i, (x, y) ->
-            (x to y) to Puzzle.Cell(
-                    x = x + 1,
-                    y = y + 1,
-                    number = "${i + 1}",
-                    solution = "${inwardLetters[i]}",
-                    borderDirections = listOfNotNull(squareList[i].borderDirection).toSet()
-            )
+            (x to y) to
+                    if (i < inwardLetters.length) {
+                        Puzzle.Cell(
+                            x = x + 1,
+                            y = y + 1,
+                            number = "${i + 1}",
+                            solution = "${inwardLetters[i]}",
+                            borderDirections = listOfNotNull(squareList[i].borderDirection).toSet()
+                        )
+                    } else {
+                        Puzzle.Cell(
+                            x = x + 1,
+                            y = y + 1,
+                            cellType = Puzzle.CellType.BLOCK
+                        )
+                    }
         }.toMap()
         val grid = (0 until sideLength).map { y ->
             (0 until sideLength).map { x ->
@@ -49,7 +58,7 @@ data class Spiral(
         }
 
         val outwardJpzClues = mutableListOf<Puzzle.Clue>()
-        outwardAnswers.foldIndexed(squareList.size) { wordNumber, i, answer ->
+        outwardAnswers.foldIndexed(inwardLetters.length) { wordNumber, i, answer ->
             outwardJpzClues += Puzzle.Clue(
                     Puzzle.Word(
                             wordNumber + 101,

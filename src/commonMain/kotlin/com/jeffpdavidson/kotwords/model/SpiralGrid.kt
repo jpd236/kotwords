@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import kotlin.math.ceil
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 internal object SpiralGrid {
@@ -7,11 +9,7 @@ internal object SpiralGrid {
 
     fun getSideLength(letterCount: Int): Int {
         val sideLengthDouble = sqrt(letterCount.toDouble())
-        val sideLength = sideLengthDouble.toInt()
-        require(sideLengthDouble - sideLength == 0.0) {
-            "Total answer length must be a perfect square"
-        }
-        return sideLength
+        return ceil(sideLengthDouble).roundToInt()
     }
 
     fun createSquareList(sideLength: Int): List<Square> {

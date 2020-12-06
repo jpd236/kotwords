@@ -49,14 +49,23 @@ data class TwoTone(
         val letters = allSquaresAnswers.joinToString("")
         var currentNumber = 1
         val gridMap = squareList.mapIndexed { i, (x, y) ->
-            (x to y) to Puzzle.Cell(
-                    x = x + 1,
-                    y = y + 1,
-                    number = if (numberedSquares.contains(i)) "${currentNumber++}" else "",
-                    solution = "${letters[i]}",
-                    backgroundColor = if (i % 2 == 0) oddSquareBackgroundColor else evenSquareBackgroundColor,
-                    borderDirections = listOfNotNull(squareList[i].borderDirection).toSet()
-            )
+            (x to y) to
+                    if (i < letters.length) {
+                        Puzzle.Cell(
+                            x = x + 1,
+                            y = y + 1,
+                            number = if (numberedSquares.contains(i)) "${currentNumber++}" else "",
+                            solution = "${letters[i]}",
+                            backgroundColor = if (i % 2 == 0) oddSquareBackgroundColor else evenSquareBackgroundColor,
+                            borderDirections = listOfNotNull(squareList[i].borderDirection).toSet()
+                        )
+                    } else {
+                        Puzzle.Cell(
+                            x = x + 1,
+                            y = y + 1,
+                            cellType = Puzzle.CellType.BLOCK
+                        )
+                    }
         }.toMap()
         val grid = (0 until sideLength).map { y ->
             (0 until sideLength).map { x ->

@@ -26,7 +26,31 @@ class SpiralTest {
                 )
         )
 
-        val expected = readStringResource(SpiralTest::class, "spiral.jpz")
+        val expected = readStringResource(SpiralTest::class, "spiral/spiral.jpz")
+        assertEquals(expected, puzzle.asJpzFile().toXmlString())
+    }
+
+    @Test
+    fun jpzGeneration_nonSquare() = runTest {
+        val spiral = Spiral(
+            title = "Test title",
+            creator = "Test creator",
+            copyright = "Test copyright",
+            description = "Test description",
+            inwardAnswers = listOf("ABCDE", "FGH"),
+            inwardClues = listOf("Clue 1", "Clue 2"),
+            outwardAnswers = listOf("HG", "FED", "CBA"),
+            outwardClues = listOf("Clue 1", "Clue 2", "Clue 3")
+        )
+        val puzzle = spiral.asPuzzle(
+            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
+                cursorColor = "#00b100",
+                selectedCellsColor = "#80ff80",
+                completionMessage = "All done!"
+            )
+        )
+
+        val expected = readStringResource(SpiralTest::class, "spiral/spiral-nonsquare.jpz")
         assertEquals(expected, puzzle.asJpzFile().toXmlString())
     }
 }
