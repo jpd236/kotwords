@@ -1,13 +1,13 @@
 package com.jeffpdavidson.kotwords.model
 
 // TODO: Can more logic be shared with TwoTone?
-data class CinnamonRoll(
+data class JellyRoll(
         val title: String,
         val creator: String,
         val copyright: String,
         val description: String,
-        val cinnamonRollAnswers: List<String>,
-        val cinnamonRollClues: List<String>,
+        val jellyRollAnswers: List<String>,
+        val jellyRollClues: List<String>,
         val lightSquaresAnswers: List<String>,
         val lightSquaresClues: List<String>,
         val darkSquaresAnswers: List<String>,
@@ -16,16 +16,16 @@ data class CinnamonRoll(
 
     init {
         val splitAnswers =
-                cinnamonRollAnswers.joinToString("")
+                jellyRollAnswers.joinToString("")
                         .mapIndexed { i, ch -> i to ch }
                         .partition { LIGHT_SQUARE_MODULOS.contains(it.first % 4) }
                         .toList()
                         .map { it.map { (_, ch) -> ch }.joinToString("") }
         require(lightSquaresAnswers.joinToString("") == splitAnswers[0]) {
-            "Light square answers do not match the cinnamon roll answers"
+            "Light square answers do not match the jelly roll answers"
         }
         require(darkSquaresAnswers.joinToString("") == splitAnswers[1]) {
-            "Dark square answers do not match the cinnamon roll answers"
+            "Dark square answers do not match the jelly roll answers"
         }
     }
 
@@ -49,13 +49,13 @@ data class CinnamonRoll(
                 position
             }
         }
-        addNumberedSquares(cinnamonRollAnswers, 0, listOf(0, 1, 2, 3))
+        addNumberedSquares(jellyRollAnswers, 0, listOf(0, 1, 2, 3))
         addNumberedSquares(lightSquaresAnswers, 0, LIGHT_SQUARE_MODULOS)
         addNumberedSquares(darkSquaresAnswers, 1, DARK_SQUARE_MODULOS)
 
-        val sideLength = SpiralGrid.getSideLength(cinnamonRollAnswers.sumBy { it.length })
+        val sideLength = SpiralGrid.getSideLength(jellyRollAnswers.sumBy { it.length })
         val squareList = SpiralGrid.createSquareList(sideLength)
-        val letters = cinnamonRollAnswers.joinToString("")
+        val letters = jellyRollAnswers.joinToString("")
         var currentNumber = 1
         val gridMap = squareList.mapIndexed { i, (x, y) ->
             (x to y) to
@@ -108,7 +108,7 @@ data class CinnamonRoll(
             return jpzClues
         }
 
-        val allSquaresJpzClues = createClues(cinnamonRollAnswers, cinnamonRollClues, squareList, 1)
+        val allSquaresJpzClues = createClues(jellyRollAnswers, jellyRollClues, squareList, 1)
         val partitionedSquares = squareList
                 .mapIndexed { i, square -> i to square }
                 .partition { LIGHT_SQUARE_MODULOS.contains(it.first % 4) }
@@ -125,7 +125,7 @@ data class CinnamonRoll(
                 description = description,
                 grid = grid,
                 clues = listOf(
-                        Puzzle.ClueList("Cinnamon Rolls", allSquaresJpzClues),
+                        Puzzle.ClueList("Jelly Rolls", allSquaresJpzClues),
                         Puzzle.ClueList("Colored Paths", everyOtherJpzClues)
                 ),
                 crosswordSolverSettings = crosswordSolverSettings

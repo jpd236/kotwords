@@ -5,22 +5,22 @@ import com.jeffpdavidson.kotwords.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class CinnamonRollTest {
+class JellyRollTest {
     @Test
     fun jpzGeneration() = runTest {
-        val cinnamonRoll = CinnamonRoll(
+        val jellyRoll = JellyRoll(
                 title = "Test title",
                 creator = "Test creator",
                 copyright = "Test copyright",
                 description = "Test description",
-                cinnamonRollAnswers = listOf("ABCDE", "FGHI"),
-                cinnamonRollClues = listOf("Clue 1", "Clue 2"),
+                jellyRollAnswers = listOf("ABCDE", "FGHI"),
+                jellyRollClues = listOf("Clue 1", "Clue 2"),
                 lightSquaresAnswers = listOf("ADE", "HI"),
                 lightSquaresClues = listOf("Light clue 1", "Light clue 2"),
                 darkSquaresAnswers = listOf("BC", "FG"),
                 darkSquaresClues = listOf("Dark clue 1", "Dark clue 2")
         )
-        val puzzle = cinnamonRoll.asPuzzle(
+        val puzzle = jellyRoll.asPuzzle(
                 darkSquareBackgroundColor = "#C0C0C0",
                 lightSquareBackgroundColor = "#FFFFFF",
                 crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
@@ -30,25 +30,25 @@ class CinnamonRollTest {
                 )
         )
 
-        val expected = readStringResource(CinnamonRollTest::class, "cinnamon-roll/cinnamon-roll.jpz")
+        val expected = readStringResource(JellyRollTest::class, "jelly-roll/jelly-roll.jpz")
         assertEquals(expected, puzzle.asJpzFile().toXmlString())
     }
 
     @Test
     fun jpzGeneration_nonSquare() = runTest {
-        val cinnamonRoll = CinnamonRoll(
+        val jellyRoll = JellyRoll(
                 title = "Test title",
                 creator = "Test creator",
                 copyright = "Test copyright",
                 description = "Test description",
-                cinnamonRollAnswers = listOf("ABCDE", "FGH"),
-                cinnamonRollClues = listOf("Clue 1", "Clue 2"),
+                jellyRollAnswers = listOf("ABCDE", "FGH"),
+                jellyRollClues = listOf("Clue 1", "Clue 2"),
                 lightSquaresAnswers = listOf("ADE", "H"),
                 lightSquaresClues = listOf("Light clue 1", "Light clue 2"),
                 darkSquaresAnswers = listOf("BC", "FG"),
                 darkSquaresClues = listOf("Dark clue 1", "Dark clue 2")
         )
-        val puzzle = cinnamonRoll.asPuzzle(
+        val puzzle = jellyRoll.asPuzzle(
                 darkSquareBackgroundColor = "#C0C0C0",
                 lightSquareBackgroundColor = "#FFFFFF",
                 crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
@@ -58,7 +58,7 @@ class CinnamonRollTest {
                 )
         )
 
-        val expected = readStringResource(CinnamonRollTest::class, "cinnamon-roll/cinnamon-roll-nonsquare.jpz")
+        val expected = readStringResource(JellyRollTest::class, "jelly-roll/jelly-roll-nonsquare.jpz")
         assertEquals(expected, puzzle.asJpzFile().toXmlString())
     }
 }
