@@ -22,6 +22,7 @@ class JellyRollForm {
     private val darkSquaresAnswers: FormFields.TextBoxField = FormFields.TextBoxField("dark-squares-answers")
     private val darkSquaresClues: FormFields.TextBoxField = FormFields.TextBoxField("dark-squares-clues")
     private val darkSquaresColor: FormFields.InputField = FormFields.InputField("dark-squares-color")
+    private val combineJellyRollClues: FormFields.CheckBoxField = FormFields.CheckBoxField("combine-jelly-roll-clues")
 
     init {
         Html.renderPage {
@@ -60,6 +61,7 @@ class JellyRollForm {
                     rows = "10"
                 }
             }, advancedOptionsBlock = {
+                combineJellyRollClues.render(this, "Combine Jelly Roll clues into one large clue")
                 div(classes = "form-row") {
                     lightSquaresColor.render(this, "Light squares color", flexCols = 6) {
                         type = InputType.color
@@ -90,6 +92,7 @@ class JellyRollForm {
                 jellyRoll.asPuzzle(
                         lightSquareBackgroundColor = lightSquaresColor.getValue(),
                         darkSquareBackgroundColor = darkSquaresColor.getValue(),
+                        combineJellyRollClues = combineJellyRollClues.getValue(),
                         crosswordSolverSettings = crosswordSolverSettings
                 )
         )

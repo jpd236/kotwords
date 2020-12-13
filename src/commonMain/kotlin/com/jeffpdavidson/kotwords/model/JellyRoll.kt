@@ -32,6 +32,7 @@ data class JellyRoll(
     fun asPuzzle(
             lightSquareBackgroundColor: String,
             darkSquareBackgroundColor: String,
+            combineJellyRollClues: Boolean,
             crosswordSolverSettings: Puzzle.CrosswordSolverSettings
     ): Puzzle {
         val numberedSquares = mutableSetOf<Int>()
@@ -49,7 +50,9 @@ data class JellyRoll(
                 position
             }
         }
-        addNumberedSquares(jellyRollAnswers, 0, listOf(0, 1, 2, 3))
+        if (!combineJellyRollClues) {
+            addNumberedSquares(jellyRollAnswers, 0, listOf(0, 1, 2, 3))
+        }
         addNumberedSquares(lightSquaresAnswers, 0, LIGHT_SQUARE_MODULOS)
         addNumberedSquares(darkSquaresAnswers, 1, DARK_SQUARE_MODULOS)
 
@@ -108,7 +111,16 @@ data class JellyRoll(
             return jpzClues
         }
 
-        val allSquaresJpzClues = createClues(jellyRollAnswers, jellyRollClues, squareList, 1)
+        val allSquaresJpzClues =
+            if (combineJellyRollClues) {
+                createClues(
+                    listOf(jellyRollAnswers.joinToString("")),
+                    listOf(jellyRollClues.joinToString(" / ")),
+                    squareList,
+                    1)
+            } else {
+                createClues(jellyRollAnswers, jellyRollClues, squareList, 1)
+            }
         val partitionedSquares = squareList
                 .mapIndexed { i, square -> i to square }
                 .partition { LIGHT_SQUARE_MODULOS.contains(it.first % 4) }
