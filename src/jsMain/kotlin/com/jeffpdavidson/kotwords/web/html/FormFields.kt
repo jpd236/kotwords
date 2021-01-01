@@ -1,7 +1,5 @@
 package com.jeffpdavidson.kotwords.web.html
 
-import kotlinx.dom.addClass
-import kotlinx.dom.removeClass
 import kotlinx.html.DIV
 import kotlinx.html.FlowContent
 import kotlinx.html.INPUT
@@ -20,6 +18,8 @@ import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.files.File
 import org.w3c.files.get
+import kotlin.dom.addClass
+import kotlin.dom.removeClass
 
 /** Classes to encapsulate and render form fields. */
 object FormFields {
@@ -42,8 +42,8 @@ object FormFields {
          * @param block optional block run in the scope of the [INPUT] tag for further customization.
          */
         fun render(
-                parent: FlowContent, label: String, help: String = "", flexCols: Int? = null,
-                block: INPUT.() -> Unit = {}
+            parent: FlowContent, label: String, help: String = "", flexCols: Int? = null,
+            block: INPUT.() -> Unit = {}
         ) {
             with(parent) {
                 formGroup(flexCols) {
@@ -173,8 +173,8 @@ object FormFields {
          * @param block optional block run in the scope of the [TEXTAREA] tag for further customization.
          */
         fun render(
-                parent: FlowContent, label: String, help: String = "", flexCols: Int? = null,
-                block: TEXTAREA.() -> Unit = {}
+            parent: FlowContent, label: String, help: String = "", flexCols: Int? = null,
+            block: TEXTAREA.() -> Unit = {}
         ) {
             with(parent) {
                 formGroup(flexCols) {

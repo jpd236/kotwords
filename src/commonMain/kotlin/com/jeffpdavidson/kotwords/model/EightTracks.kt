@@ -1,14 +1,15 @@
 package com.jeffpdavidson.kotwords.model
 
 data class EightTracks(
-        val title: String,
-        val creator: String,
-        val copyright: String,
-        val description: String,
-        val trackDirections: List<Direction>,
-        val trackStartingOffsets: List<Int>,
-        val trackAnswers: List<List<String>>,
-        val trackClues: List<List<String>>) {
+    val title: String,
+    val creator: String,
+    val copyright: String,
+    val description: String,
+    val trackDirections: List<Direction>,
+    val trackStartingOffsets: List<Int>,
+    val trackAnswers: List<List<String>>,
+    val trackClues: List<List<String>>
+) {
 
     enum class Direction {
         CLOCKWISE,
@@ -16,10 +17,11 @@ data class EightTracks(
     }
 
     fun asPuzzle(
-            includeEnumerationsAndDirections: Boolean,
-            lightTrackColor: String,
-            darkTrackColor: String,
-            crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Puzzle {
+        includeEnumerationsAndDirections: Boolean,
+        lightTrackColor: String,
+        darkTrackColor: String,
+        crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+    ): Puzzle {
         val gridMap = mutableMapOf<Pair<Int, Int>, Puzzle.Cell>()
         val gridWidth = trackAnswers.size * 2 + 1
         val clueLists = mutableListOf<Puzzle.ClueList>()
@@ -27,10 +29,10 @@ data class EightTracks(
         trackAnswers.forEachIndexed { trackIndex, answers ->
             val trackWidth = gridWidth - 2 * trackIndex
             val trackCoordinates =
-                    (trackIndex until trackIndex + trackWidth).map { it to trackIndex } +
-                            (trackIndex + 1 until trackIndex + trackWidth).map { trackIndex + trackWidth - 1 to it } +
-                            (trackIndex + trackWidth - 2 downTo trackIndex).map { it to trackIndex + trackWidth - 1 } +
-                            (trackIndex + trackWidth - 2 downTo trackIndex + 1).map { trackIndex to it }
+                (trackIndex until trackIndex + trackWidth).map { it to trackIndex } +
+                        (trackIndex + 1 until trackIndex + trackWidth).map { trackIndex + trackWidth - 1 to it } +
+                        (trackIndex + trackWidth - 2 downTo trackIndex).map { it to trackIndex + trackWidth - 1 } +
+                        (trackIndex + trackWidth - 2 downTo trackIndex + 1).map { trackIndex to it }
             val startingOffset = trackStartingOffsets[trackIndex]
             val direction = trackDirections[trackIndex]
             val words = mutableListOf<List<Puzzle.Cell>>()
@@ -41,12 +43,12 @@ data class EightTracks(
                     val coordinateIndex = (mult * (answerIndex + i) + startingOffset - 1) mod trackCoordinates.size
                     val coordinates = trackCoordinates[coordinateIndex]
                     val cell = Puzzle.Cell(
-                            x = coordinates.first + 1,
-                            y = coordinates.second + 1,
-                            solution = "$ch",
-                            number = if (trackIndex == 0 && i == 0) "${answerId + 1}" else "",
-                            backgroundColor = if (trackIndex % 2 == 0) darkTrackColor else lightTrackColor,
-                            borderDirections = getBorderDirections(coordinateIndex, trackCoordinates.size)
+                        x = coordinates.first + 1,
+                        y = coordinates.second + 1,
+                        solution = "$ch",
+                        number = if (trackIndex == 0 && i == 0) "${answerId + 1}" else "",
+                        backgroundColor = if (trackIndex % 2 == 0) darkTrackColor else lightTrackColor,
+                        borderDirections = getBorderDirections(coordinateIndex, trackCoordinates.size)
                     )
                     gridMap[coordinates] = cell
                     word += cell
@@ -55,19 +57,21 @@ data class EightTracks(
                 answerIndex + answer.length
             }
             if (trackIndex == 0) {
-                clueLists.add(Puzzle.ClueList("Track 1",
+                clueLists.add(
+                    Puzzle.ClueList("Track 1",
                         words.mapIndexed { i, word ->
                             val clue = enumerateClue(trackClues[0][i], word.size, includeEnumerationsAndDirections)
                             Puzzle.Clue(Puzzle.Word(101 + i, word), "${i + 1}", clue)
-                        }))
+                        })
+                )
             } else {
                 var word = words.flatten()
                 if (direction == Direction.COUNTERCLOCKWISE) {
                     word = reverseDirection(word)
                 }
                 var offsetWord =
-                        word.slice((word.size - startingOffset + 1) until word.size) +
-                                word.slice(0 until word.size - startingOffset + 1)
+                    word.slice((word.size - startingOffset + 1) until word.size) +
+                            word.slice(0 until word.size - startingOffset + 1)
                 var number = "${trackIndex + 1}"
                 if (includeEnumerationsAndDirections) {
                     if (direction == Direction.COUNTERCLOCKWISE) {
@@ -89,13 +93,14 @@ data class EightTracks(
         clueLists.add(Puzzle.ClueList("Other tracks", otherTracks))
 
         return Puzzle(
-                title = title,
-                creator = creator,
-                copyright = copyright,
-                description = description,
-                grid = grid,
-                clues = clueLists,
-                crosswordSolverSettings = crosswordSolverSettings)
+            title = title,
+            creator = creator,
+            copyright = copyright,
+            description = description,
+            grid = grid,
+            clues = clueLists,
+            crosswordSolverSettings = crosswordSolverSettings
+        )
     }
 
     private fun getBorderDirections(coordinateIndex: Int, coordinateCount: Int): Set<Puzzle.BorderDirection> {

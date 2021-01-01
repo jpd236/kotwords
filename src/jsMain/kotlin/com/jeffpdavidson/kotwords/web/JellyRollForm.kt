@@ -78,23 +78,23 @@ class JellyRollForm {
 
     private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
         val jellyRoll = JellyRoll(
-                title = title.getValue(),
-                creator = creator.getValue(),
-                copyright = copyright.getValue(),
-                description = description.getValue(),
-                jellyRollAnswers = jellyRollAnswers.getValue().split(" +".toRegex()),
-                jellyRollClues = jellyRollClues.getValue().split("\n").map { it.trim() },
-                lightSquaresAnswers = lightSquaresAnswers.getValue().split(" +".toRegex()),
-                lightSquaresClues = lightSquaresClues.getValue().split("\n").map { it.trim() },
-                darkSquaresAnswers = darkSquaresAnswers.getValue().split(" +".toRegex()),
-                darkSquaresClues = darkSquaresClues.getValue().split("\n").map { it.trim() })
+            title = title.getValue(),
+            creator = creator.getValue(),
+            copyright = copyright.getValue(),
+            description = description.getValue(),
+            jellyRollAnswers = jellyRollAnswers.getValue().split(" +".toRegex()),
+            jellyRollClues = jellyRollClues.getValue().split("\n").map { it.trim() },
+            lightSquaresAnswers = lightSquaresAnswers.getValue().split(" +".toRegex()),
+            lightSquaresClues = lightSquaresClues.getValue().split("\n").map { it.trim() },
+            darkSquaresAnswers = darkSquaresAnswers.getValue().split(" +".toRegex()),
+            darkSquaresClues = darkSquaresClues.getValue().split("\n").map { it.trim() })
         return Promise.resolve(
-                jellyRoll.asPuzzle(
-                        lightSquareBackgroundColor = lightSquaresColor.getValue(),
-                        darkSquareBackgroundColor = darkSquaresColor.getValue(),
-                        combineJellyRollClues = combineJellyRollClues.getValue(),
-                        crosswordSolverSettings = crosswordSolverSettings
-                )
+            jellyRoll.asPuzzle(
+                lightSquareBackgroundColor = lightSquaresColor.getValue(),
+                darkSquareBackgroundColor = darkSquaresColor.getValue(),
+                combineJellyRollClues = combineJellyRollClues.getValue(),
+                crosswordSolverSettings = crosswordSolverSettings
+            )
         )
     }
 }

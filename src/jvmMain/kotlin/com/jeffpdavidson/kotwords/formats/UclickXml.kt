@@ -14,9 +14,9 @@ private val TITLE_DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy"
 
 /** Container for a puzzle in the Universal Uclick XML format. */
 class UclickXml(
-        private val xml: String,
-        private val date: LocalDate,
-        private val addDateToTitle: Boolean = true
+    private val xml: String,
+    private val date: LocalDate,
+    private val addDateToTitle: Boolean = true
 ) : Crosswordable {
 
     override fun asCrossword(): Crossword {
@@ -48,12 +48,12 @@ class UclickXml(
         val downClues = document.getElementByTagName("down").getChildElementList()
 
         return Crossword(
-                title = title,
-                author = author,
-                copyright = "\u00a9 ${date.year} $copyright",
-                grid = grid,
-                acrossClues = toClueMap(acrossClues),
-                downClues = toClueMap(downClues)
+            title = title,
+            author = author,
+            copyright = "\u00a9 ${date.year} $copyright",
+            grid = grid,
+            acrossClues = toClueMap(acrossClues),
+            downClues = toClueMap(downClues)
         )
     }
 

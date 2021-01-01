@@ -14,9 +14,9 @@ private val TITLE_DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy"
 
 /** Container for a puzzle in the Universal Uclick JSON format. */
 class UclickJson(
-        private val json: String,
-        private val copyright: String = "",
-        private val addDateToTitle: Boolean = true
+    private val json: String,
+    private val copyright: String = "",
+    private val addDateToTitle: Boolean = true
 ) : Crosswordable {
 
     override fun asCrossword(): Crossword {
@@ -33,12 +33,12 @@ class UclickJson(
             rawTitle
         }
         return Crossword(
-                title = title,
-                author = decode(response.author),
-                copyright = "\u00a9 ${date.year} $copyright",
-                grid = grid,
-                acrossClues = toClueMap(response.acrossClue),
-                downClues = toClueMap(response.downClue)
+            title = title,
+            author = decode(response.author),
+            copyright = "\u00a9 ${date.year} $copyright",
+            grid = grid,
+            acrossClues = toClueMap(response.acrossClue),
+            downClues = toClueMap(response.downClue)
         )
     }
 

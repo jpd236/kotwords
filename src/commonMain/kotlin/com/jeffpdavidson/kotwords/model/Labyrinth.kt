@@ -3,14 +3,14 @@ package com.jeffpdavidson.kotwords.model
 import kotlin.math.abs
 
 data class Labyrinth(
-        val title: String,
-        val creator: String,
-        val copyright: String,
-        val description: String,
-        val grid: List<List<Char>>,
-        val gridKey: List<List<Int>>,
-        val rowClues: List<List<String>>,
-        val windingClues: List<String>
+    val title: String,
+    val creator: String,
+    val copyright: String,
+    val description: String,
+    val grid: List<List<Char>>,
+    val gridKey: List<List<Int>>,
+    val rowClues: List<List<String>>,
+    val windingClues: List<String>
 ) {
 
     init {
@@ -24,18 +24,18 @@ data class Labyrinth(
     }
 
     fun asPuzzle(
-            alphabetizeWindingClues: Boolean,
-            crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+        alphabetizeWindingClues: Boolean,
+        crosswordSolverSettings: Puzzle.CrosswordSolverSettings
     ): Puzzle {
         val puzzleGrid = grid.mapIndexed { y, row ->
             row.mapIndexed { x, ch ->
                 // Calculate the borders. We remove borders from the outer edges of the grid as well as between any two
                 // neighboring cells in the winding path.
                 val borderDirections = mutableSetOf(
-                        Puzzle.BorderDirection.TOP,
-                        Puzzle.BorderDirection.BOTTOM,
-                        Puzzle.BorderDirection.LEFT,
-                        Puzzle.BorderDirection.RIGHT
+                    Puzzle.BorderDirection.TOP,
+                    Puzzle.BorderDirection.BOTTOM,
+                    Puzzle.BorderDirection.LEFT,
+                    Puzzle.BorderDirection.RIGHT
                 )
                 if (y == 0 || (y > 0 && abs(gridKey[y - 1][x] - gridKey[y][x]) == 1)) {
                     borderDirections -= Puzzle.BorderDirection.TOP
@@ -50,11 +50,11 @@ data class Labyrinth(
                     borderDirections -= Puzzle.BorderDirection.RIGHT
                 }
                 Puzzle.Cell(
-                        x = x + 1,
-                        y = y + 1,
-                        solution = "$ch",
-                        borderDirections = borderDirections,
-                        number = if (x == 0) "${y + 1}" else ""
+                    x = x + 1,
+                    y = y + 1,
+                    solution = "$ch",
+                    borderDirections = borderDirections,
+                    number = if (x == 0) "${y + 1}" else ""
                 )
             }
         }
@@ -72,16 +72,16 @@ data class Labyrinth(
         }
 
         return Puzzle(
-                title = title,
-                creator = creator,
-                copyright = copyright,
-                description = description,
-                grid = puzzleGrid,
-                clues = listOf(
-                        Puzzle.ClueList("Rows", rowPuzzleClues),
-                        Puzzle.ClueList("Winding", listOf(windingClue))
-                ),
-                crosswordSolverSettings = crosswordSolverSettings
+            title = title,
+            creator = creator,
+            copyright = copyright,
+            description = description,
+            grid = puzzleGrid,
+            clues = listOf(
+                Puzzle.ClueList("Rows", rowPuzzleClues),
+                Puzzle.ClueList("Winding", listOf(windingClue))
+            ),
+            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 }

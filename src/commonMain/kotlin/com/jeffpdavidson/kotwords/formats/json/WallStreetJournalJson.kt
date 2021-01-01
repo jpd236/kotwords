@@ -29,8 +29,8 @@ internal object WallStreetJournalJson {
 
     @Serializable
     internal data class Square(
-            @SerialName("Letter") val letter: String,
-            val style: Style = Style(shapebg = "", highlight = false)
+        @SerialName("Letter") val letter: String,
+        val style: Style = Style(shapebg = "", highlight = false)
     )
 
     @Serializable

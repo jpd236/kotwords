@@ -76,22 +76,22 @@ class TwoToneForm {
 
     private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
         val twoTone = TwoTone(
-                title = title.getValue(),
-                creator = creator.getValue(),
-                copyright = copyright.getValue(),
-                description = description.getValue(),
-                allSquaresAnswers = allSquaresAnswers.getValue().split(" +".toRegex()),
-                allSquaresClues = allSquaresClues.getValue().split("\n").map { it.trim() },
-                oddSquaresAnswers = oddSquaresAnswers.getValue().split(" +".toRegex()),
-                oddSquaresClues = oddSquaresClues.getValue().split("\n").map { it.trim() },
-                evenSquaresAnswers = evenSquaresAnswers.getValue().split(" +".toRegex()),
-                evenSquaresClues = evenSquaresClues.getValue().split("\n").map { it.trim() })
+            title = title.getValue(),
+            creator = creator.getValue(),
+            copyright = copyright.getValue(),
+            description = description.getValue(),
+            allSquaresAnswers = allSquaresAnswers.getValue().split(" +".toRegex()),
+            allSquaresClues = allSquaresClues.getValue().split("\n").map { it.trim() },
+            oddSquaresAnswers = oddSquaresAnswers.getValue().split(" +".toRegex()),
+            oddSquaresClues = oddSquaresClues.getValue().split("\n").map { it.trim() },
+            evenSquaresAnswers = evenSquaresAnswers.getValue().split(" +".toRegex()),
+            evenSquaresClues = evenSquaresClues.getValue().split("\n").map { it.trim() })
         return Promise.resolve(
-                twoTone.asPuzzle(
-                        oddSquareBackgroundColor = oddSquaresColor.getValue(),
-                        evenSquareBackgroundColor = evenSquaresColor.getValue(),
-                        crosswordSolverSettings = crosswordSolverSettings
-                )
+            twoTone.asPuzzle(
+                oddSquareBackgroundColor = oddSquaresColor.getValue(),
+                evenSquareBackgroundColor = evenSquaresColor.getValue(),
+                crosswordSolverSettings = crosswordSolverSettings
+            )
         )
     }
 }

@@ -3,12 +3,12 @@ package com.jeffpdavidson.kotwords.model
 import kotlin.math.sqrt
 
 data class SpellWeaving(
-        val title: String,
-        val creator: String,
-        val copyright: String,
-        val description: String,
-        val answers: List<String>,
-        val clues: List<String>
+    val title: String,
+    val creator: String,
+    val copyright: String,
+    val description: String,
+    val answers: List<String>,
+    val clues: List<String>
 ) {
 
     fun asPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Puzzle {
@@ -40,12 +40,12 @@ data class SpellWeaving(
                 // Add borders after last letter of each answer (except the final answer).
                 if (answerIndex < answers.size - 1 && i == answer.length - 1) {
                     cellState.borderDirections.add(
-                            when (position.direction) {
-                                Direction.UP -> Puzzle.BorderDirection.TOP
-                                Direction.DOWN -> Puzzle.BorderDirection.BOTTOM
-                                Direction.RIGHT -> Puzzle.BorderDirection.RIGHT
-                                Direction.LEFT -> Puzzle.BorderDirection.LEFT
-                            }
+                        when (position.direction) {
+                            Direction.UP -> Puzzle.BorderDirection.TOP
+                            Direction.DOWN -> Puzzle.BorderDirection.BOTTOM
+                            Direction.RIGHT -> Puzzle.BorderDirection.RIGHT
+                            Direction.LEFT -> Puzzle.BorderDirection.LEFT
+                        }
                     )
                 }
             }
@@ -61,11 +61,11 @@ data class SpellWeaving(
                         "More than 2 entries start at position ($x, $y) which is not supported by JPZ files."
                     }
                     Puzzle.Cell(
-                            x = x + 1, y = y + 1,
-                            solution = cell.solution,
-                            number = if (cell.numbers.isNotEmpty()) cell.numbers[0] else "",
-                            topRightNumber = if (cell.numbers.size > 1) cell.numbers[1] else "",
-                            borderDirections = cell.borderDirections
+                        x = x + 1, y = y + 1,
+                        solution = cell.solution,
+                        number = if (cell.numbers.isNotEmpty()) cell.numbers[0] else "",
+                        topRightNumber = if (cell.numbers.size > 1) cell.numbers[1] else "",
+                        borderDirections = cell.borderDirections
                     )
                 }
             }
@@ -76,13 +76,13 @@ data class SpellWeaving(
         }
 
         return Puzzle(
-                title = title,
-                creator = creator,
-                copyright = copyright,
-                description = description,
-                grid = grid,
-                clues = listOf(Puzzle.ClueList("Clues", jpzClues)),
-                crosswordSolverSettings = crosswordSolverSettings
+            title = title,
+            creator = creator,
+            copyright = copyright,
+            description = description,
+            grid = grid,
+            clues = listOf(Puzzle.ClueList("Clues", jpzClues)),
+            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 
@@ -96,9 +96,9 @@ data class SpellWeaving(
     private data class Position(val x: Int, val y: Int, val direction: Direction)
 
     private data class CellState(
-            var solution: String,
-            var numbers: MutableList<String> = mutableListOf(),
-            val borderDirections: MutableSet<Puzzle.BorderDirection> = mutableSetOf()
+        var solution: String,
+        var numbers: MutableList<String> = mutableListOf(),
+        val borderDirections: MutableSet<Puzzle.BorderDirection> = mutableSetOf()
     )
 
     companion object {

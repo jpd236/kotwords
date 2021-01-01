@@ -39,17 +39,17 @@ import kotlin.js.Promise
  * @param completionMessageHelpText optional help text to use for the completion message.
  */
 class JpzForm(
-        private val createPuzzleFn: (Puzzle.CrosswordSolverSettings) -> Promise<Puzzle>,
-        private val getFileNameFn: (Puzzle) -> String = ::getDefaultFileName,
-        private val id: String = "",
-        includeCompletionMessage: Boolean = true,
-        private val completionMessageDefaultValue: String = "Congratulations! The puzzle is solved correctly.",
-        private val completionMessageHelpText: String = ""
+    private val createPuzzleFn: (Puzzle.CrosswordSolverSettings) -> Promise<Puzzle>,
+    private val getFileNameFn: (Puzzle) -> String = ::getDefaultFileName,
+    private val id: String = "",
+    includeCompletionMessage: Boolean = true,
+    private val completionMessageDefaultValue: String = "Congratulations! The puzzle is solved correctly.",
+    private val completionMessageHelpText: String = ""
 ) {
     private val cursorColor: FormFields.InputField = FormFields.InputField(elementId("cursor-color"))
     private val selectionColor: FormFields.InputField = FormFields.InputField(elementId("selection-color"))
     private val completionMessage: FormFields.InputField? =
-            if (includeCompletionMessage) FormFields.InputField(elementId("completion-message")) else null
+        if (includeCompletionMessage) FormFields.InputField(elementId("completion-message")) else null
     private val errorMessage: FormFields.ErrorMessage = FormFields.ErrorMessage(elementId("error-message"))
 
     /**
@@ -60,8 +60,8 @@ class JpzForm(
      * @param advancedOptionsBlock optional block to render advanced options (along with the default advanced options).
      */
     fun render(
-            parent: HTMLElement, bodyBlock: FlowContent.() -> Unit,
-            advancedOptionsBlock: FlowContent.() -> Unit = {}
+        parent: HTMLElement, bodyBlock: FlowContent.() -> Unit,
+        advancedOptionsBlock: FlowContent.() -> Unit = {}
     ) {
         parent.append.div {
             render(this, bodyBlock, advancedOptionsBlock)
@@ -76,8 +76,8 @@ class JpzForm(
      * @param advancedOptionsBlock optional block to render advanced options (along with the default advanced options).
      */
     fun render(
-            parent: FlowContent, bodyBlock: FlowContent.() -> Unit,
-            advancedOptionsBlock: FlowContent.() -> Unit = {}
+        parent: FlowContent, bodyBlock: FlowContent.() -> Unit,
+        advancedOptionsBlock: FlowContent.() -> Unit = {}
     ) {
         parent.form {
             onSubmitFunction = ::onSubmit
@@ -151,9 +151,9 @@ class JpzForm(
 
     private fun createCrosswordSolverSettings(): Puzzle.CrosswordSolverSettings {
         return Puzzle.CrosswordSolverSettings(
-                cursorColor = cursorColor.getValue(),
-                selectedCellsColor = selectionColor.getValue(),
-                completionMessage = completionMessage?.getValue() ?: ""
+            cursorColor = cursorColor.getValue(),
+            selectedCellsColor = selectionColor.getValue(),
+            completionMessage = completionMessage?.getValue() ?: ""
         )
     }
 

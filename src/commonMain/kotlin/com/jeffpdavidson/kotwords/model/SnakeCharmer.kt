@@ -1,13 +1,13 @@
 package com.jeffpdavidson.kotwords.model
 
 data class SnakeCharmer(
-        val title: String,
-        val creator: String,
-        val copyright: String,
-        val description: String,
-        val answers: List<String>,
-        val clues: List<String>,
-        val gridCoordinates: List<Pair<Int, Int>>
+    val title: String,
+    val creator: String,
+    val copyright: String,
+    val description: String,
+    val answers: List<String>,
+    val clues: List<String>,
+    val gridCoordinates: List<Pair<Int, Int>>
 ) {
 
     init {
@@ -47,11 +47,11 @@ data class SnakeCharmer(
                 } else {
                     val cellNumbers: List<Int> = cellNumbersMap[x to y] ?: listOf()
                     Puzzle.Cell(
-                            x = x + 1,
-                            y = y + 1,
-                            solution = "${solutionMap[x to y]!!}",
-                            number = if (cellNumbers.isEmpty()) "" else "${cellNumbers[0]}",
-                            topRightNumber = if (cellNumbers.size <= 1) "" else "${cellNumbers[1]}"
+                        x = x + 1,
+                        y = y + 1,
+                        solution = "${solutionMap[x to y]!!}",
+                        number = if (cellNumbers.isEmpty()) "" else "${cellNumbers[0]}",
+                        topRightNumber = if (cellNumbers.size <= 1) "" else "${cellNumbers[1]}"
                     )
                 }
             }
@@ -60,13 +60,13 @@ data class SnakeCharmer(
             Puzzle.Clue(Puzzle.Word(i + 1, words[i].map { (x, y) -> grid[y][x] }), "${i + 1}", clue)
         }
         return Puzzle(
-                title = title,
-                creator = creator,
-                copyright = copyright,
-                description = description,
-                grid = grid,
-                clues = listOf(Puzzle.ClueList("Clues", jpzClues)),
-                crosswordSolverSettings = crosswordSolverSettings
+            title = title,
+            creator = creator,
+            copyright = copyright,
+            description = description,
+            grid = grid,
+            clues = listOf(Puzzle.ClueList("Clues", jpzClues)),
+            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 }

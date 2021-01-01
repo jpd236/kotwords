@@ -56,50 +56,50 @@ class RowsGardenForm {
                         rowClues.render(this, "Row clues", flexCols = 6) {
                             rows = "12"
                             placeholder =
-                                    "The clues for each row; one line per row. Separate multiple clues for a row " +
-                                            "with a /."
+                                "The clues for each row; one line per row. Separate multiple clues for a row " +
+                                        "with a /."
                         }
                         rowAnswers.render(this, "Row answers", flexCols = 6) {
                             rows = "12"
                             placeholder =
-                                    "The answers for each row; one line per row. Separate multiple answers for a " +
-                                            "row with a /."
+                                "The answers for each row; one line per row. Separate multiple answers for a " +
+                                        "row with a /."
                         }
                     }
                     div(classes = "form-row") {
                         lightClues.render(this, "Light clues", flexCols = 6) {
                             rows = "14"
                             placeholder =
-                                    "The light bloom clues; one answer per line."
+                                "The light bloom clues; one answer per line."
                         }
                         lightAnswers.render(this, "Light answers", flexCols = 6) {
                             rows = "14"
                             placeholder =
-                                    "The light bloom answers; one answer per line."
+                                "The light bloom answers; one answer per line."
                         }
                     }
                     div(classes = "form-row") {
                         mediumClues.render(this, "Medium clues", flexCols = 6) {
                             rows = "14"
                             placeholder =
-                                    "The medium bloom clues; one answer per line."
+                                "The medium bloom clues; one answer per line."
                         }
                         mediumAnswers.render(this, "Medium answers", flexCols = 6) {
                             rows = "14"
                             placeholder =
-                                    "The medium bloom answers; one answer per line."
+                                "The medium bloom answers; one answer per line."
                         }
                     }
                     div(classes = "form-row") {
                         darkClues.render(this, "Dark clues", flexCols = 6) {
                             rows = "10"
                             placeholder =
-                                    "The dark bloom clues; one answer per line."
+                                "The dark bloom clues; one answer per line."
                         }
                         darkAnswers.render(this, "Dark answers", flexCols = 6) {
                             rows = "10"
                             placeholder =
-                                    "The dark bloom answers; one answer per line."
+                                "The dark bloom answers; one answer per line."
                         }
                     }
                 }, advancedOptionsBlock = manualEntryAdvancedOptions.block)
@@ -149,36 +149,36 @@ class RowsGardenForm {
 
     private fun createPuzzleFromManualEntry(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
         val rowsGarden = RowsGarden(
-                title = title.getValue(),
-                author = author.getValue(),
-                copyright = copyright.getValue(),
-                notes = notes.getValue(),
-                rows = rowClues.getValue().split("\n").zip(rowAnswers.getValue().split("\n"))
-                        .map { (clues, answers) ->
-                            clues.trim().split("/")
-                                    .zip(answers.trim().split("/"))
-                                    .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) }
-                        },
-                light = lightClues.getValue().split("\n").zip(lightAnswers.getValue().split("\n"))
-                        .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) },
-                medium = mediumClues.getValue().split("\n").zip(mediumAnswers.getValue().split("\n"))
-                        .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) },
-                dark = darkClues.getValue().split("\n").zip(darkAnswers.getValue().split("\n"))
-                        .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) })
+            title = title.getValue(),
+            author = author.getValue(),
+            copyright = copyright.getValue(),
+            notes = notes.getValue(),
+            rows = rowClues.getValue().split("\n").zip(rowAnswers.getValue().split("\n"))
+                .map { (clues, answers) ->
+                    clues.trim().split("/")
+                        .zip(answers.trim().split("/"))
+                        .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) }
+                },
+            light = lightClues.getValue().split("\n").zip(lightAnswers.getValue().split("\n"))
+                .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) },
+            medium = mediumClues.getValue().split("\n").zip(mediumAnswers.getValue().split("\n"))
+                .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) },
+            dark = darkClues.getValue().split("\n").zip(darkAnswers.getValue().split("\n"))
+                .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) })
         return Promise.resolve(asPuzzle(rowsGarden, manualEntryAdvancedOptions, crosswordSolverSettings))
     }
 
     private fun asPuzzle(
-            rowsGarden: RowsGarden, advancedOptions: AdvancedOptions,
-            crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+        rowsGarden: RowsGarden, advancedOptions: AdvancedOptions,
+        crosswordSolverSettings: Puzzle.CrosswordSolverSettings
     ): Puzzle {
         return rowsGarden.asPuzzle(
-                lightBloomColor = advancedOptions.lightBloomColor.getValue(),
-                mediumBloomColor = advancedOptions.mediumBloomColor.getValue(),
-                darkBloomColor = advancedOptions.darkBloomColor.getValue(),
-                addHyphenated = advancedOptions.addAnnotations.getValue(),
-                addWordCount = advancedOptions.addAnnotations.getValue(),
-                crosswordSolverSettings = crosswordSolverSettings
+            lightBloomColor = advancedOptions.lightBloomColor.getValue(),
+            mediumBloomColor = advancedOptions.mediumBloomColor.getValue(),
+            darkBloomColor = advancedOptions.darkBloomColor.getValue(),
+            addHyphenated = advancedOptions.addAnnotations.getValue(),
+            addWordCount = advancedOptions.addAnnotations.getValue(),
+            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 

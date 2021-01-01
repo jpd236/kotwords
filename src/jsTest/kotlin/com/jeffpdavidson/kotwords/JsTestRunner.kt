@@ -26,9 +26,9 @@ actual suspend fun <T : Any> readStringResource(clazz: KClass<T>, resourceName: 
 }
 
 private suspend fun <T : Any> readResource(
-        resourceName: String,
-        responseType: XMLHttpRequestResponseType,
-        responseHandler: (XMLHttpRequest) -> T
+    resourceName: String,
+    responseType: XMLHttpRequestResponseType,
+    responseHandler: (XMLHttpRequest) -> T
 ): T {
     return suspendCoroutine { continuation ->
         val xhr = XMLHttpRequest()
@@ -37,7 +37,7 @@ private suspend fun <T : Any> readResource(
         xhr.onload = {
             if (xhr.status != 200.toShort()) {
                 continuation.resumeWithException(
-                        IllegalArgumentException("Error loading resource $resourceName")
+                    IllegalArgumentException("Error loading resource $resourceName")
                 )
             } else {
                 continuation.resume(responseHandler(xhr))

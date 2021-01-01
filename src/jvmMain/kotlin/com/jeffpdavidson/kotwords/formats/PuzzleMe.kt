@@ -1,7 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
-import com.jeffpdavidson.kotwords.formats.json.JsonSerializer.fromJson
 import com.jeffpdavidson.kotwords.formats.json.PuzzleMeJson
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword

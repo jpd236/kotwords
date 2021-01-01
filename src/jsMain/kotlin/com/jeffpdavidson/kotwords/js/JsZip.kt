@@ -32,8 +32,8 @@ external interface GenerateAsyncOptions {
 }
 
 fun newGenerateAsyncOptions(
-        type: ZipOutputType = ZipOutputType.BASE64,
-        compression: ZipOutputCompression = ZipOutputCompression.DEFLATE
+    type: ZipOutputType = ZipOutputType.BASE64,
+    compression: ZipOutputCompression = ZipOutputCompression.DEFLATE
 ): GenerateAsyncOptions {
     val options = js("{}").unsafeCast<GenerateAsyncOptions>()
     options.type = type.jsValue

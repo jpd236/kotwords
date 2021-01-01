@@ -22,26 +22,26 @@ object ClueSanitizer {
      * which are.
      */
     internal fun sanitizeClues(
-            grid: List<List<Square>>,
-            givenSquareNumbers: Map<Pair<Int, Int>, Int>,
-            acrossClues: Map<Int, String>,
-            downClues: Map<Int, String>
+        grid: List<List<Square>>,
+        givenSquareNumbers: Map<Pair<Int, Int>, Int>,
+        acrossClues: Map<Int, String>,
+        downClues: Map<Int, String>
     ):
             Pair<Map<Int, String>, Map<Int, String>> {
         val givenToSanitizedClueNumberMap =
-                mapGivenToSanitizedClueNumbers(grid, givenSquareNumbers)
+            mapGivenToSanitizedClueNumbers(grid, givenSquareNumbers)
         val sanitizedAcrossClues: MutableMap<Int, String> = mutableMapOf()
         val sanitizedDownClues: MutableMap<Int, String> = mutableMapOf()
         Crossword.forEachNumberedSquare(grid) { x, y, clueNumber, isAcross, isDown ->
             val givenSquareNumber = givenSquareNumbers[x to y] ?: -1
             if (isAcross) {
                 sanitizedAcrossClues[clueNumber] = sanitizeClue(
-                        acrossClues[givenSquareNumber], givenToSanitizedClueNumberMap
+                    acrossClues[givenSquareNumber], givenToSanitizedClueNumberMap
                 )
             }
             if (isDown) {
                 sanitizedDownClues[clueNumber] = sanitizeClue(
-                        downClues[givenSquareNumber], givenToSanitizedClueNumberMap
+                    downClues[givenSquareNumber], givenToSanitizedClueNumberMap
                 )
             }
         }

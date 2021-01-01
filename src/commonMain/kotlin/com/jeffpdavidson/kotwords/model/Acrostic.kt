@@ -1,16 +1,17 @@
 package com.jeffpdavidson.kotwords.model
 
 data class Acrostic(
-        val title: String,
-        val creator: String,
-        val copyright: String,
-        val description: String,
-        val suggestedWidth: Int?,
-        val solution: String,
-        val gridKey: List<List<Int>>,
-        val clues: List<String>,
-        val answers: List<String> = listOf(),
-        val crosswordSolverSettings: Puzzle.CrosswordSolverSettings) {
+    val title: String,
+    val creator: String,
+    val copyright: String,
+    val description: String,
+    val suggestedWidth: Int?,
+    val solution: String,
+    val gridKey: List<List<Int>>,
+    val clues: List<String>,
+    val answers: List<String> = listOf(),
+    val crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+) {
     init {
         require(clues.size > 1) { "Must have at least 2 clues." }
         require(clues.size == gridKey.size) {
@@ -46,13 +47,15 @@ data class Acrostic(
         // Determine the width of the puzzle and both clue columns.
         val answerColumnSize = (gridKey.size + 1) / 2
         val gridKeyColumns = gridKey.chunked(answerColumnSize)
-        val answerColumnWidths = getAnswerColumnWidths(gridKeyColumns, suggestedWidth
-                ?: 0)
+        val answerColumnWidths = getAnswerColumnWidths(
+            gridKeyColumns, suggestedWidth
+                ?: 0
+        )
         val width = answerColumnWidths.first + answerColumnWidths.second + 1
 
         // Map from number in the grid key to the letter of the clue whose answer has that number.
         val solutionIndexToClueLetterMap =
-                gridKey.mapIndexed { i, nums -> nums.map { it to "${'A' + i}" } }.flatten().toMap()
+            gridKey.mapIndexed { i, nums -> nums.map { it to "${'A' + i}" } }.flatten().toMap()
 
         // Generate the quote portion of the grid.
         val solutionChars = mutableListOf<Char>()
@@ -68,24 +71,28 @@ data class Acrostic(
             y++
         }
         solution.forEach { ch ->
-            row.add(when (ch) {
-                in 'A'..'Z' -> {
-                    solutionChars.add(ch)
-                    val cellNumber = solutionChars.size
-                    val clueLetter =
+            row.add(
+                when (ch) {
+                    in 'A'..'Z' -> {
+                        solutionChars.add(ch)
+                        val cellNumber = solutionChars.size
+                        val clueLetter =
                             solutionIndexToClueLetterMap[cellNumber] ?: error("Impossible")
-                    val cell = Puzzle.Cell(x, y,
-                            solution = "$ch", number = "$cellNumber", topRightNumber = clueLetter)
-                    quoteWord.add(cell)
-                    cell
+                        val cell = Puzzle.Cell(
+                            x, y,
+                            solution = "$ch", number = "$cellNumber", topRightNumber = clueLetter
+                        )
+                        quoteWord.add(cell)
+                        cell
+                    }
+                    ' ' -> Puzzle.Cell(x, y, cellType = Puzzle.CellType.BLOCK)
+                    else -> {
+                        // Replace hyphen with en-dash for aesthetics.
+                        val clue = "$ch".replace('-', '–')
+                        Puzzle.Cell(x, y, cellType = Puzzle.CellType.CLUE, solution = clue)
+                    }
                 }
-                ' ' -> Puzzle.Cell(x, y, cellType = Puzzle.CellType.BLOCK)
-                else -> {
-                    // Replace hyphen with en-dash for aesthetics.
-                    val clue = "$ch".replace('-', '–')
-                    Puzzle.Cell(x, y, cellType = Puzzle.CellType.CLUE, solution = clue)
-                }
-            })
+            )
 
             // Go to the next square, moving down a row if needed.
             x++
@@ -107,8 +114,12 @@ data class Acrostic(
         // Generate the clue/answer portion of the grid.
         val answerWords = mutableMapOf<Int, List<Puzzle.Cell>>()
         fun addClue(clueIndex: Int, columnEndIndex: Int, answer: List<Int>) {
-            row.add(Puzzle.Cell(x++, y,
-                    cellType = Puzzle.CellType.CLUE, solution = "${'A' + clueIndex}"))
+            row.add(
+                Puzzle.Cell(
+                    x++, y,
+                    cellType = Puzzle.CellType.CLUE, solution = "${'A' + clueIndex}"
+                )
+            )
             val word = answer.mapIndexed { i, num ->
                 val solutionLetter = "${solutionChars[num - 1]}"
                 val solutionNumber = "${gridKey[clueIndex][i]}"
@@ -139,52 +150,57 @@ data class Acrostic(
         val clueList = Puzzle.ClueList("Clues", answerClues + Puzzle.Clue(Puzzle.Word(1000, quoteWord), "", "[QUOTE]"))
 
         return Puzzle(
-                title,
-                creator,
-                copyright,
-                description,
-                grid,
-                listOf(clueList),
-                crosswordSolverSettings = crosswordSolverSettings,
-                puzzleType = Puzzle.PuzzleType.ACROSTIC)
+            title,
+            creator,
+            copyright,
+            description,
+            grid,
+            listOf(clueList),
+            crosswordSolverSettings = crosswordSolverSettings,
+            puzzleType = Puzzle.PuzzleType.ACROSTIC
+        )
     }
 
     companion object {
-        fun fromRawInput(title: String,
-                         creator: String,
-                         copyright: String,
-                         description: String,
-                         suggestedWidth: String,
-                         solution: String,
-                         gridKey: String,
-                         clues: String,
-                         answers: String,
-                         crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Acrostic {
+        fun fromRawInput(
+            title: String,
+            creator: String,
+            copyright: String,
+            description: String,
+            suggestedWidth: String,
+            solution: String,
+            gridKey: String,
+            clues: String,
+            answers: String,
+            crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+        ): Acrostic {
             val suggestedWidthInt = if (suggestedWidth.isEmpty()) null else suggestedWidth.toInt()
             val gridKeyList = gridKey.trim().split("\n").map { row ->
                 row.trim().split(" +".toRegex()).map { it.trim().toInt() }
             }
             val answersList =
-                    if (answers.trim().isEmpty()) {
-                        listOf()
-                    } else {
-                        answers.trim().split("\n").map { it.trim() }
-                    }
+                if (answers.trim().isEmpty()) {
+                    listOf()
+                } else {
+                    answers.trim().split("\n").map { it.trim() }
+                }
             return Acrostic(
-                    title.trim(),
-                    creator.trim(),
-                    copyright.trim(),
-                    description.trim(),
-                    suggestedWidthInt,
-                    solution.trim().toUpperCase(),
-                    gridKeyList,
-                    clues.trim().split("\n").map { it.trim() },
-                    answersList,
-                    crosswordSolverSettings)
+                title.trim(),
+                creator.trim(),
+                copyright.trim(),
+                description.trim(),
+                suggestedWidthInt,
+                solution.trim().toUpperCase(),
+                gridKeyList,
+                clues.trim().split("\n").map { it.trim() },
+                answersList,
+                crosswordSolverSettings
+            )
         }
 
         internal fun getAnswerColumnWidths(
-                splitAnswers: List<List<List<Any>>>, suggestedWidth: Int = 0): Pair<Int, Int> {
+            splitAnswers: List<List<List<Any>>>, suggestedWidth: Int = 0
+        ): Pair<Int, Int> {
             val widths: List<Int> = splitAnswers.map { it.map(List<Any>::size).maxOrNull()!! + 1 }
             val totalWidth = maxOf(widths[0] + widths[1] + 1, 27, suggestedWidth)
             val leftWidth = widths[0] + (totalWidth - widths[0] - widths[1] - 1) / 2

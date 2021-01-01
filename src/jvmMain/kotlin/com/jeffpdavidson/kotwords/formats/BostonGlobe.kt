@@ -16,7 +16,7 @@ class BostonGlobe(private val html: String) : Crosswordable {
 
         val subHeader = document.selectFirst("p.subhed").text()
         val subHeaderMatch = SUB_HEADER_REGEX.matchEntire(subHeader)
-                ?: throw InvalidFormatException("Invalid sub header: $subHeader")
+            ?: throw InvalidFormatException("Invalid sub header: $subHeader")
         val title = subHeaderMatch.groupValues[1]
         val author = subHeaderMatch.groupValues[2]
         val copyright = "\u00a9 ${subHeaderMatch.groupValues[3]}"
@@ -49,12 +49,12 @@ class BostonGlobe(private val html: String) : Crosswordable {
         val downClues = toClueMap(document.select("div.clues-down label"))
 
         return Crossword(
-                title = title,
-                author = author,
-                copyright = copyright,
-                grid = grid,
-                acrossClues = acrossClues,
-                downClues = downClues
+            title = title,
+            author = author,
+            copyright = copyright,
+            grid = grid,
+            acrossClues = acrossClues,
+            downClues = downClues
         )
     }
 

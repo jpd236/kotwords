@@ -86,13 +86,13 @@ class SnakeCharmerForm {
             y = nextPoint.second
         } while (true)
         val snakeCharmer = SnakeCharmer(
-                title = title.getValue(),
-                creator = creator.getValue(),
-                copyright = copyright.getValue(),
-                description = description.getValue(),
-                answers = answers.getValue().split(" +".toRegex()),
-                clues = clues.getValue().split("\n").map { it.trim() },
-                gridCoordinates = gridCoordinates.toList()
+            title = title.getValue(),
+            creator = creator.getValue(),
+            copyright = copyright.getValue(),
+            description = description.getValue(),
+            answers = answers.getValue().split(" +".toRegex()),
+            clues = clues.getValue().split("\n").map { it.trim() },
+            gridCoordinates = gridCoordinates.toList()
         )
         return Promise.resolve(snakeCharmer.asPuzzle(crosswordSolverSettings = crosswordSolverSettings))
     }

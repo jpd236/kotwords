@@ -23,12 +23,12 @@ package com.jeffpdavidson.kotwords.model
  */
 // TODO: Support entry rebuses.
 data class Square(
-        val solution: Char?,
-        val isBlack: Boolean = false,
-        val solutionRebus: String = "",
-        val isCircled: Boolean = false,
-        val entry: Char? = null,
-        val isGiven: Boolean = false
+    val solution: Char?,
+    val isBlack: Boolean = false,
+    val solutionRebus: String = "",
+    val isCircled: Boolean = false,
+    val entry: Char? = null,
+    val isGiven: Boolean = false
 ) {
     private val validSymbolRegex = "[@#$%&+?A-Z0-9]".toRegex()
 

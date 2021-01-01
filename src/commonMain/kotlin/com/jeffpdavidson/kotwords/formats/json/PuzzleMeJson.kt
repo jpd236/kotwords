@@ -11,12 +11,12 @@ internal object PuzzleMeJson {
 
     @Serializable
     internal data class CellInfo(
-            val x: Int,
-            val y: Int,
-            val isCircled: Boolean,
-            val isVoid: Boolean,
-            val fgColor: String = "",
-            val bgColor: String = "",
+        val x: Int,
+        val y: Int,
+        val isCircled: Boolean,
+        val isVoid: Boolean,
+        val fgColor: String = "",
+        val bgColor: String = "",
     )
 
     @Serializable

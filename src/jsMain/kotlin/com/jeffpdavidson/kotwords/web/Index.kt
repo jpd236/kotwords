@@ -11,19 +11,20 @@ import kotlinx.html.p
 
 object Index {
     private val GENERATORS = listOf(
-            "Across Lite",
-            "Acrostic",
-            "Around the Bend",
-            "Eight Tracks",
-            "Jelly Roll",
-            "Labyrinth",
-            "Marching Bands",
-            "Rows Garden",
-            "Snake Charmer",
-            "Spell Weaving",
-            "Spiral",
-            "Twists and Turns",
-            "Two-Tone")
+        "Across Lite",
+        "Acrostic",
+        "Around the Bend",
+        "Eight Tracks",
+        "Jelly Roll",
+        "Labyrinth",
+        "Marching Bands",
+        "Rows Garden",
+        "Snake Charmer",
+        "Spell Weaving",
+        "Spiral",
+        "Twists and Turns",
+        "Two-Tone"
+    )
 
     fun render() {
         Html.renderPage {

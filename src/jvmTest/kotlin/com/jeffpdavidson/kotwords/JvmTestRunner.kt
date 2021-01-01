@@ -13,11 +13,11 @@ actual suspend fun <T : Any> readBinaryResource(clazz: KClass<T>, resourceName: 
 
 actual suspend fun <T : Any> readStringResource(clazz: KClass<T>, resourceName: String): String {
     return getResourceAsStream(clazz, resourceName)
-            .bufferedReader(StandardCharsets.UTF_8)
-            .use { it.readText() }
+        .bufferedReader(StandardCharsets.UTF_8)
+        .use { it.readText() }
 }
 
 private fun <T : Any> getResourceAsStream(clazz: KClass<T>, resourceName: String): InputStream {
     return clazz.java.classLoader.getResourceAsStream(resourceName)
-            ?: throw IllegalArgumentException("Error loading resource $resourceName")
+        ?: throw IllegalArgumentException("Error loading resource $resourceName")
 }

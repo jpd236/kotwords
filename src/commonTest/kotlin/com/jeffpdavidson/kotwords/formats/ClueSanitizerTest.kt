@@ -9,11 +9,11 @@ class ClueSanitizerTest {
     @Test
     fun mapGivenToSanitizedClueNumbers() {
         val rawGrid = listOf(
-                "XXX....",
-                "XXX.XXX",
-                "XXX.XXX",
-                "XXX.XXX",
-                "....XXX"
+            "XXX....",
+            "XXX.XXX",
+            "XXX.XXX",
+            "XXX.XXX",
+            "....XXX"
         )
         val grid = rawGrid.map { row ->
             row.map { ch ->
@@ -25,32 +25,32 @@ class ClueSanitizerTest {
         }
         // Skip 2-Down, 4-Across, and 5-Across/Down; add a fake 7-Down
         val givenSquareNumbers = mapOf(
-                Pair(0, 0) to 1,
-                Pair(2, 0) to 2,
-                Pair(5, 1) to 3,
-                Pair(6, 1) to 4,
-                Pair(0, 2) to 5,
-                Pair(4, 2) to 6,
-                Pair(6, 2) to 7,
-                Pair(0, 3) to 8,
-                Pair(4, 3) to 9,
-                Pair(4, 4) to 10
+            Pair(0, 0) to 1,
+            Pair(2, 0) to 2,
+            Pair(5, 1) to 3,
+            Pair(6, 1) to 4,
+            Pair(0, 2) to 5,
+            Pair(4, 2) to 6,
+            Pair(6, 2) to 7,
+            Pair(0, 3) to 8,
+            Pair(4, 3) to 9,
+            Pair(4, 4) to 10
         )
 
         val expectedSanitizedMap = mapOf(
-                1 to 1,
-                2 to 3,
-                3 to 6,
-                4 to 7,
-                5 to 8,
-                6 to 9,
-                8 to 10,
-                9 to 11,
-                10 to 12
+            1 to 1,
+            2 to 3,
+            3 to 6,
+            4 to 7,
+            5 to 8,
+            6 to 9,
+            8 to 10,
+            9 to 11,
+            10 to 12
         )
         assertEquals(
-                expectedSanitizedMap,
-                ClueSanitizer.mapGivenToSanitizedClueNumbers(grid, givenSquareNumbers)
+            expectedSanitizedMap,
+            ClueSanitizer.mapGivenToSanitizedClueNumbers(grid, givenSquareNumbers)
         )
     }
 
@@ -73,8 +73,8 @@ class ClueSanitizerTest {
         val givenClue = "Where the end of 17-, 25- and 47-Across and 14- and 28-Down may be found"
         val givenToSanitizedClueNumMap = mapOf(14 to 14, 17 to 17, 25 to 26, 28 to 29, 47 to 49)
         assertEquals(
-                "Where the end of 17-, 26- and 49-Across and 14- and 29-Down may be found",
-                ClueSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap)
+            "Where the end of 17-, 26- and 49-Across and 14- and 29-Down may be found",
+            ClueSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap)
         )
     }
 

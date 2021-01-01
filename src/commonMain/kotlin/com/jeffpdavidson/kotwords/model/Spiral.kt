@@ -1,14 +1,14 @@
 package com.jeffpdavidson.kotwords.model
 
 data class Spiral(
-        val title: String,
-        val creator: String,
-        val copyright: String,
-        val description: String,
-        val inwardAnswers: List<String>,
-        val inwardClues: List<String>,
-        val outwardAnswers: List<String>,
-        val outwardClues: List<String>
+    val title: String,
+    val creator: String,
+    val copyright: String,
+    val description: String,
+    val inwardAnswers: List<String>,
+    val inwardClues: List<String>,
+    val outwardAnswers: List<String>,
+    val outwardClues: List<String>
 ) {
 
     init {
@@ -48,11 +48,11 @@ data class Spiral(
         val inwardJpzClues = mutableListOf<Puzzle.Clue>()
         inwardAnswers.foldIndexed(0) { wordNumber, i, answer ->
             inwardJpzClues += Puzzle.Clue(
-                    Puzzle.Word(
-                            wordNumber + 1,
-                            squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }),
-                    "${i + 1}-${i + answer.length}",
-                    inwardClues[wordNumber]
+                Puzzle.Word(
+                    wordNumber + 1,
+                    squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }),
+                "${i + 1}-${i + answer.length}",
+                inwardClues[wordNumber]
             )
             i + answer.length
         }
@@ -60,23 +60,23 @@ data class Spiral(
         val outwardJpzClues = mutableListOf<Puzzle.Clue>()
         outwardAnswers.foldIndexed(inwardLetters.length) { wordNumber, i, answer ->
             outwardJpzClues += Puzzle.Clue(
-                    Puzzle.Word(
-                            wordNumber + 101,
-                            squareList.slice(i - answer.length until i).reversed().map { (x, y) -> grid[y][x] }),
-                    "$i-${i - answer.length + 1}",
-                    outwardClues[wordNumber]
+                Puzzle.Word(
+                    wordNumber + 101,
+                    squareList.slice(i - answer.length until i).reversed().map { (x, y) -> grid[y][x] }),
+                "$i-${i - answer.length + 1}",
+                outwardClues[wordNumber]
             )
             i - answer.length
         }
 
         return Puzzle(
-                title = title,
-                creator = creator,
-                copyright = copyright,
-                description = description,
-                grid = grid,
-                clues = listOf(Puzzle.ClueList("Inward", inwardJpzClues), Puzzle.ClueList("Outward", outwardJpzClues)),
-                crosswordSolverSettings = crosswordSolverSettings
+            title = title,
+            creator = creator,
+            copyright = copyright,
+            description = description,
+            grid = grid,
+            clues = listOf(Puzzle.ClueList("Inward", inwardJpzClues), Puzzle.ClueList("Outward", outwardJpzClues)),
+            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 }

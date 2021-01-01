@@ -17,7 +17,7 @@ class LabyrinthForm {
     private val rowClues: FormFields.TextBoxField = FormFields.TextBoxField("row-clues")
     private val windingClues: FormFields.TextBoxField = FormFields.TextBoxField("winding-clues")
     private val alphabetizeWindingClues: FormFields.CheckBoxField =
-            FormFields.CheckBoxField("alphabetize-winding-clues")
+        FormFields.CheckBoxField("alphabetize-winding-clues")
 
     init {
         Html.renderPage {
@@ -39,7 +39,7 @@ class LabyrinthForm {
                 }
                 rowClues.render(this, "Row clues") {
                     placeholder =
-                            "The clues for each row; one line per row. Separate multiple clues for a row with a /."
+                        "The clues for each row; one line per row. Separate multiple clues for a row with a /."
                     rows = "14"
                 }
                 windingClues.render(this, "Winding clues") {
@@ -54,25 +54,25 @@ class LabyrinthForm {
 
     private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
         val labyrinth = Labyrinth(
-                title = title.getValue(),
-                creator = creator.getValue(),
-                copyright = copyright.getValue(),
-                description = description.getValue(),
-                grid = grid.getValue().split("\n").map { row ->
-                    row.toUpperCase().replace("[^A-Z.]".toRegex(), "").toList()
-                },
-                gridKey = gridKey.getValue().split("\n").map { row ->
-                    row.trim().split(" ").map { it.toInt() }
-                },
-                rowClues = rowClues.getValue().split("\n").map { clues ->
-                    clues.trim().split("/").map { it.trim() }
-                },
-                windingClues = windingClues.getValue().split("/").map { it.trim() })
+            title = title.getValue(),
+            creator = creator.getValue(),
+            copyright = copyright.getValue(),
+            description = description.getValue(),
+            grid = grid.getValue().split("\n").map { row ->
+                row.toUpperCase().replace("[^A-Z.]".toRegex(), "").toList()
+            },
+            gridKey = gridKey.getValue().split("\n").map { row ->
+                row.trim().split(" ").map { it.toInt() }
+            },
+            rowClues = rowClues.getValue().split("\n").map { clues ->
+                clues.trim().split("/").map { it.trim() }
+            },
+            windingClues = windingClues.getValue().split("/").map { it.trim() })
         return Promise.resolve(
-                labyrinth.asPuzzle(
-                        alphabetizeWindingClues = alphabetizeWindingClues.getValue(),
-                        crosswordSolverSettings = crosswordSolverSettings
-                )
+            labyrinth.asPuzzle(
+                alphabetizeWindingClues = alphabetizeWindingClues.getValue(),
+                crosswordSolverSettings = crosswordSolverSettings
+            )
         )
     }
 }

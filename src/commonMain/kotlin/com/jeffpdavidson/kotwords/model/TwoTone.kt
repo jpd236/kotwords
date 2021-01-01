@@ -1,25 +1,25 @@
 package com.jeffpdavidson.kotwords.model
 
 data class TwoTone(
-        val title: String,
-        val creator: String,
-        val copyright: String,
-        val description: String,
-        val allSquaresAnswers: List<String>,
-        val allSquaresClues: List<String>,
-        val oddSquaresAnswers: List<String>,
-        val oddSquaresClues: List<String>,
-        val evenSquaresAnswers: List<String>,
-        val evenSquaresClues: List<String>
+    val title: String,
+    val creator: String,
+    val copyright: String,
+    val description: String,
+    val allSquaresAnswers: List<String>,
+    val allSquaresClues: List<String>,
+    val oddSquaresAnswers: List<String>,
+    val oddSquaresClues: List<String>,
+    val evenSquaresAnswers: List<String>,
+    val evenSquaresClues: List<String>
 ) {
 
     init {
         val splitAnswers =
-                allSquaresAnswers.joinToString("")
-                        .mapIndexed { i, ch -> i to ch }
-                        .partition { it.first % 2 == 0 }
-                        .toList()
-                        .map { it.map { (_, ch) -> ch }.joinToString("") }
+            allSquaresAnswers.joinToString("")
+                .mapIndexed { i, ch -> i to ch }
+                .partition { it.first % 2 == 0 }
+                .toList()
+                .map { it.map { (_, ch) -> ch }.joinToString("") }
         require(oddSquaresAnswers.joinToString("") == splitAnswers[0]) {
             "Odd square answers do not match the odd squares of the all squares answers"
         }
@@ -29,9 +29,9 @@ data class TwoTone(
     }
 
     fun asPuzzle(
-            oddSquareBackgroundColor: String,
-            evenSquareBackgroundColor: String,
-            crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+        oddSquareBackgroundColor: String,
+        evenSquareBackgroundColor: String,
+        crosswordSolverSettings: Puzzle.CrosswordSolverSettings
     ): Puzzle {
         val numberedSquares = mutableSetOf<Int>()
         fun addNumberedSquares(answers: List<String>, startIndex: Int, isEveryOther: Boolean) {
@@ -74,20 +74,20 @@ data class TwoTone(
         }
 
         fun createClues(
-                answers: List<String>,
-                clues: List<String>,
-                squareList: List<SpiralGrid.Square>,
-                firstWordId: Int
+            answers: List<String>,
+            clues: List<String>,
+            squareList: List<SpiralGrid.Square>,
+            firstWordId: Int
         ): List<Puzzle.Clue> {
             val jpzClues = mutableListOf<Puzzle.Clue>()
             answers.foldIndexed(0) { wordNumber, i, answer ->
                 val firstCell = squareList[i]
                 jpzClues += Puzzle.Clue(
-                        Puzzle.Word(
-                                firstWordId + wordNumber,
-                                squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }),
-                        grid[firstCell.y][firstCell.x].number,
-                        clues[wordNumber]
+                    Puzzle.Word(
+                        firstWordId + wordNumber,
+                        squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }),
+                    grid[firstCell.y][firstCell.x].number,
+                    clues[wordNumber]
                 )
                 i + answer.length
             }
@@ -96,25 +96,25 @@ data class TwoTone(
 
         val allSquaresJpzClues = createClues(allSquaresAnswers, allSquaresClues, squareList, 1)
         val partitionedSquares = squareList
-                .mapIndexed { i, square -> i to square }
-                .partition { it.first % 2 == 0 }
-                .toList()
-                .map { it.map { (_, square) -> square } }
+            .mapIndexed { i, square -> i to square }
+            .partition { it.first % 2 == 0 }
+            .toList()
+            .map { it.map { (_, square) -> square } }
         val everyOtherJpzClues =
-                createClues(oddSquaresAnswers, oddSquaresClues, partitionedSquares[0], 101) +
-                        createClues(evenSquaresAnswers, evenSquaresClues, partitionedSquares[1], 201)
+            createClues(oddSquaresAnswers, oddSquaresClues, partitionedSquares[0], 101) +
+                    createClues(evenSquaresAnswers, evenSquaresClues, partitionedSquares[1], 201)
 
         return Puzzle(
-                title = title,
-                creator = creator,
-                copyright = copyright,
-                description = description,
-                grid = grid,
-                clues = listOf(
-                        Puzzle.ClueList("All Squares", allSquaresJpzClues),
-                        Puzzle.ClueList("Every Other", everyOtherJpzClues)
-                ),
-                crosswordSolverSettings = crosswordSolverSettings
+            title = title,
+            creator = creator,
+            copyright = copyright,
+            description = description,
+            grid = grid,
+            clues = listOf(
+                Puzzle.ClueList("All Squares", allSquaresJpzClues),
+                Puzzle.ClueList("Every Other", everyOtherJpzClues)
+            ),
+            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 }

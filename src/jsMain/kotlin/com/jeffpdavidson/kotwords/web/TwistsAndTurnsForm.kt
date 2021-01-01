@@ -46,7 +46,7 @@ class TwistsAndTurnsForm {
                 }
                 turnsAnswers.render(this, "Turns answers") {
                     placeholder =
-                            "In sequential order, separated by whitespace. Non-alphabetical characters are ignored."
+                        "In sequential order, separated by whitespace. Non-alphabetical characters are ignored."
                     rows = "2"
                 }
                 turnsClues.render(this, "Turns clues") {
@@ -74,19 +74,19 @@ class TwistsAndTurnsForm {
 
     private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
         val twistsAndTurns = TwistsAndTurns(
-                title = title.getValue(),
-                creator = creator.getValue(),
-                copyright = copyright.getValue(),
-                description = description.getValue(),
-                width = width.getValue().toInt(),
-                height = height.getValue().toInt(),
-                twistBoxSize = twistBoxSize.getValue().toInt(),
-                turnsAnswers = turnsAnswers.getValue().toUpperCase().replace("[^A-Z ]", "").split(" +".toRegex()),
-                turnsClues = turnsClues.getValue().split("\n").map { it.trim() },
-                twistsClues = twistsClues.getValue().split("\n").map { it.trim() },
-                lightTwistsColor = lightTwistsColor.getValue(),
-                darkTwistsColor = darkTwistsColor.getValue(),
-                crosswordSolverSettings = crosswordSolverSettings
+            title = title.getValue(),
+            creator = creator.getValue(),
+            copyright = copyright.getValue(),
+            description = description.getValue(),
+            width = width.getValue().toInt(),
+            height = height.getValue().toInt(),
+            twistBoxSize = twistBoxSize.getValue().toInt(),
+            turnsAnswers = turnsAnswers.getValue().toUpperCase().replace("[^A-Z ]", "").split(" +".toRegex()),
+            turnsClues = turnsClues.getValue().split("\n").map { it.trim() },
+            twistsClues = twistsClues.getValue().split("\n").map { it.trim() },
+            lightTwistsColor = lightTwistsColor.getValue(),
+            darkTwistsColor = darkTwistsColor.getValue(),
+            crosswordSolverSettings = crosswordSolverSettings
         )
         return Promise.resolve(twistsAndTurns.asPuzzle())
     }

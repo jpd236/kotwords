@@ -20,8 +20,8 @@ internal object Xml {
 
     fun Element.getChildElementList(): List<Element> {
         return NodeStandardList(childNodes)
-                .filter { it.nodeType == Node.ELEMENT_NODE }
-                .map { it as Element }
+            .filter { it.nodeType == Node.ELEMENT_NODE }
+            .map { it as Element }
     }
 
     fun Element.getElementByTagName(tagName: String): Element {

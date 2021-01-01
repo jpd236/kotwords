@@ -1,19 +1,19 @@
 package com.jeffpdavidson.kotwords.model
 
 data class TwistsAndTurns(
-        val title: String,
-        val creator: String,
-        val copyright: String,
-        val description: String,
-        val width: Int,
-        val height: Int,
-        val twistBoxSize: Int,
-        val turnsAnswers: List<String>,
-        val turnsClues: List<String>,
-        val twistsClues: List<String>,
-        val lightTwistsColor: String,
-        val darkTwistsColor: String,
-        val crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+    val title: String,
+    val creator: String,
+    val copyright: String,
+    val description: String,
+    val width: Int,
+    val height: Int,
+    val twistBoxSize: Int,
+    val turnsAnswers: List<String>,
+    val turnsClues: List<String>,
+    val twistsClues: List<String>,
+    val lightTwistsColor: String,
+    val darkTwistsColor: String,
+    val crosswordSolverSettings: Puzzle.CrosswordSolverSettings
 ) {
     init {
         require(width % twistBoxSize == 0 && height % twistBoxSize == 0) {
@@ -47,11 +47,11 @@ data class TwistsAndTurns(
                     ""
                 }
                 val backgroundColor =
-                        if ((((x - 1) / twistBoxSize) % 2) == (((y - 1) / twistBoxSize) % 2)) {
-                            lightTwistsColor
-                        } else {
-                            darkTwistsColor
-                        }
+                    if ((((x - 1) / twistBoxSize) % 2) == (((y - 1) / twistBoxSize) % 2)) {
+                        lightTwistsColor
+                    } else {
+                        darkTwistsColor
+                    }
                 val cell = Puzzle.Cell(x, y, "$ch", backgroundColor, number)
                 cellMap[x to y] = cell
                 word.add(cell)
@@ -77,16 +77,16 @@ data class TwistsAndTurns(
         val grid = generateGrid(cellMap)
 
         return Puzzle(
-                title,
-                creator,
-                copyright,
-                description,
-                grid,
-                listOf(
-                        Puzzle.ClueList("Turns", turnsCluesList),
-                        Puzzle.ClueList("Twists", generateTwistsCluesList(grid))
-                ),
-                crosswordSolverSettings = crosswordSolverSettings
+            title,
+            creator,
+            copyright,
+            description,
+            grid,
+            listOf(
+                Puzzle.ClueList("Turns", turnsCluesList),
+                Puzzle.ClueList("Twists", generateTwistsCluesList(grid))
+            ),
+            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 
@@ -115,7 +115,7 @@ data class TwistsAndTurns(
                 }
                 val wordId = (1001 + (j * (width / twistBoxSize)) + i)
                 twistsCluesList.add(
-                        Puzzle.Clue(Puzzle.Word(wordId, cells), "${twistNumber + 1}", twistsClues[twistNumber])
+                    Puzzle.Clue(Puzzle.Word(wordId, cells), "${twistNumber + 1}", twistsClues[twistNumber])
                 )
                 twistNumber++
             }

@@ -19,7 +19,7 @@ class EightTracksForm {
     private val trackAnswers: FormFields.TextBoxField = FormFields.TextBoxField("track-answers")
     private val trackClues: FormFields.TextBoxField = FormFields.TextBoxField("track-clues")
     private val includeEnumerationsAndDirection: FormFields.CheckBoxField =
-            FormFields.CheckBoxField("include-enumerations-and-direction")
+        FormFields.CheckBoxField("include-enumerations-and-direction")
     private val lightTrackColor: FormFields.InputField = FormFields.InputField("light-track-color")
     private val darkTrackColor: FormFields.InputField = FormFields.InputField("dark-track-color")
 
@@ -70,24 +70,27 @@ class EightTracksForm {
 
     private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
         val eightTracks = EightTracks(
-                title = title.getValue(),
-                creator = creator.getValue(),
-                copyright = copyright.getValue(),
-                description = description.getValue(),
-                trackDirections = trackDirections.getValue().split(" +".toRegex()).map {
-                    if (it == "+") EightTracks.Direction.CLOCKWISE else EightTracks.Direction.COUNTERCLOCKWISE
-                },
-                trackStartingOffsets = trackStartingOffsets.getValue().split(" +".toRegex()).map { it.toInt() },
-                trackAnswers = trackAnswers.getValue().split("\n").map { clues ->
-                    clues.trim().split("/").map { it.trim() }
-                },
-                trackClues = trackClues.getValue().split("\n").map { clues ->
-                    clues.trim().split("/").map { it.trim() }
-                })
-        return Promise.resolve(eightTracks.asPuzzle(
+            title = title.getValue(),
+            creator = creator.getValue(),
+            copyright = copyright.getValue(),
+            description = description.getValue(),
+            trackDirections = trackDirections.getValue().split(" +".toRegex()).map {
+                if (it == "+") EightTracks.Direction.CLOCKWISE else EightTracks.Direction.COUNTERCLOCKWISE
+            },
+            trackStartingOffsets = trackStartingOffsets.getValue().split(" +".toRegex()).map { it.toInt() },
+            trackAnswers = trackAnswers.getValue().split("\n").map { clues ->
+                clues.trim().split("/").map { it.trim() }
+            },
+            trackClues = trackClues.getValue().split("\n").map { clues ->
+                clues.trim().split("/").map { it.trim() }
+            })
+        return Promise.resolve(
+            eightTracks.asPuzzle(
                 includeEnumerationsAndDirections = includeEnumerationsAndDirection.getValue(),
                 lightTrackColor = lightTrackColor.getValue(),
                 darkTrackColor = darkTrackColor.getValue(),
-                crosswordSolverSettings = crosswordSolverSettings))
+                crosswordSolverSettings = crosswordSolverSettings
+            )
+        )
     }
 }

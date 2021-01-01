@@ -20,9 +20,9 @@ class PdfTest {
     @Test
     fun asPdf() = runTest {
         assertPdfEquals(
-                readBinaryResource(PdfTest::class, "pdf/test.pdf"),
-                AcrossLite(readBinaryResource(PdfTest::class, "puz/test.puz"))
-                        .asCrossword().asPdf()
+            readBinaryResource(PdfTest::class, "pdf/test.pdf"),
+            AcrossLite(readBinaryResource(PdfTest::class, "puz/test.puz"))
+                .asCrossword().asPdf()
         )
     }
 
@@ -31,37 +31,37 @@ class PdfTest {
     @Test
     fun splitTextToLines_standardText() {
         assertEquals(
-                listOf(
-                        "a b c d e f g h",
-                        "i jj kk ll mm nn",
-                        "oo ppp qqq rrr",
-                        "sss tttt uuuu",
-                        "vvvv"
-                ),
-                splitTextToLines(
-                        "a b c d e f g h i jj kk ll mm nn oo ppp qqq rrr sss tttt uuuu vvvv",
-                        PDType1Font.COURIER,
-                        10f,
-                        100f
-                )
+            listOf(
+                "a b c d e f g h",
+                "i jj kk ll mm nn",
+                "oo ppp qqq rrr",
+                "sss tttt uuuu",
+                "vvvv"
+            ),
+            splitTextToLines(
+                "a b c d e f g h i jj kk ll mm nn oo ppp qqq rrr sss tttt uuuu vvvv",
+                PDType1Font.COURIER,
+                10f,
+                100f
+            )
         )
     }
 
     @Test
     fun splitTextToLines_longWords() {
         assertEquals(
-                listOf(
-                        "1234567890123456",
-                        "7890 12345678901",
-                        "234567890 123456",
-                        "78901234567890"
-                ),
-                splitTextToLines(
-                        "12345678901234567890 12345678901234567890 12345678901234567890",
-                        PDType1Font.COURIER,
-                        10f,
-                        100f
-                )
+            listOf(
+                "1234567890123456",
+                "7890 12345678901",
+                "234567890 123456",
+                "78901234567890"
+            ),
+            splitTextToLines(
+                "12345678901234567890 12345678901234567890 12345678901234567890",
+                PDType1Font.COURIER,
+                10f,
+                100f
+            )
         )
     }
 

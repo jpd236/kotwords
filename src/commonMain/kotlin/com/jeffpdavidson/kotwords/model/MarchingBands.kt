@@ -1,13 +1,13 @@
 package com.jeffpdavidson.kotwords.model
 
 data class MarchingBands(
-        val title: String,
-        val creator: String,
-        val copyright: String,
-        val description: String,
-        val grid: List<List<Char?>>,
-        val bandClues: List<List<String>>,
-        val rowClues: List<List<String>>
+    val title: String,
+    val creator: String,
+    val copyright: String,
+    val description: String,
+    val grid: List<List<Char?>>,
+    val bandClues: List<List<String>>,
+    val rowClues: List<List<String>>
 ) {
     init {
         val height = grid.size
@@ -24,10 +24,10 @@ data class MarchingBands(
     }
 
     fun asPuzzle(
-            includeRowNumbers: Boolean,
-            lightBandColor: String,
-            darkBandColor: String,
-            crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+        includeRowNumbers: Boolean,
+        lightBandColor: String,
+        darkBandColor: String,
+        crosswordSolverSettings: Puzzle.CrosswordSolverSettings
     ): Puzzle {
         val puzzleGrid = grid.mapIndexed { y, row ->
             row.mapIndexed { x, ch ->
@@ -37,17 +37,17 @@ data class MarchingBands(
                     val rowNumber = if (x == 0) "${y + 1}" else ""
                     val bandLetter = if (x == y && x < grid.size / 2) "${'A' + x}" else ""
                     val backgroundColor =
-                            if (listOf(x, y, grid.size - y - 1, grid[y].size - x - 1).minOrNull()!! % 2 == 0) {
-                                lightBandColor
-                            } else {
-                                darkBandColor
-                            }
+                        if (listOf(x, y, grid.size - y - 1, grid[y].size - x - 1).minOrNull()!! % 2 == 0) {
+                            lightBandColor
+                        } else {
+                            darkBandColor
+                        }
                     Puzzle.Cell(
-                            x = x + 1, y = y + 1,
-                            solution = "$ch",
-                            number = if (includeRowNumbers) rowNumber else bandLetter,
-                            topRightNumber = if (includeRowNumbers) bandLetter else "",
-                            backgroundColor = backgroundColor
+                        x = x + 1, y = y + 1,
+                        solution = "$ch",
+                        number = if (includeRowNumbers) rowNumber else bandLetter,
+                        topRightNumber = if (includeRowNumbers) bandLetter else "",
+                        backgroundColor = backgroundColor
                     )
                 }
             }
@@ -69,13 +69,13 @@ data class MarchingBands(
             Puzzle.Clue(Puzzle.Word(1000 + i + 1, cells), "${'A' + i}", clues.joinToString(" / "))
         }
         return Puzzle(
-                title = title,
-                creator = creator,
-                copyright = copyright,
-                description = description,
-                grid = puzzleGrid,
-                clues = listOf(Puzzle.ClueList("Bands", bandClueList), Puzzle.ClueList("Rows", rowClueList)),
-                crosswordSolverSettings = crosswordSolverSettings
+            title = title,
+            creator = creator,
+            copyright = copyright,
+            description = description,
+            grid = puzzleGrid,
+            clues = listOf(Puzzle.ClueList("Bands", bandClueList), Puzzle.ClueList("Rows", rowClueList)),
+            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 }

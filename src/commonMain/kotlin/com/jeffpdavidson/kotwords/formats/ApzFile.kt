@@ -10,49 +10,53 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 @Serializable
 @SerialName("puzzle")
 data class ApzFile(
-        val metadata: Metadata,
-        @XmlElement(true) val solution: String? = null,
-        @XmlElement(true) val source: String? = null,
-        @XmlElement(true) val quote: String? = null,
-        @XmlElement(true) val gridkey: String? = null,
-        @XmlElement(true) val answers: String? = null,
-        @XmlElement(true) val clues: String? = null) {
+    val metadata: Metadata,
+    @XmlElement(true) val solution: String? = null,
+    @XmlElement(true) val source: String? = null,
+    @XmlElement(true) val quote: String? = null,
+    @XmlElement(true) val gridkey: String? = null,
+    @XmlElement(true) val answers: String? = null,
+    @XmlElement(true) val clues: String? = null
+) {
 
     @Serializable
     @SerialName("metadata")
     data class Metadata(
-            @XmlElement(true) val title: String? = null,
-            @XmlElement(true) val creator: String? = null,
-            @XmlElement(true) val copyright: String? = null,
-            @XmlElement(true) val suggestedwidth: String? = null,
-            @XmlElement(true) val description: String? = null)
+        @XmlElement(true) val title: String? = null,
+        @XmlElement(true) val creator: String? = null,
+        @XmlElement(true) val copyright: String? = null,
+        @XmlElement(true) val suggestedwidth: String? = null,
+        @XmlElement(true) val description: String? = null
+    )
 
 
     fun toAcrostic(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Acrostic {
         val completionMessage =
-                if (crosswordSolverSettings.completionMessage.isNotEmpty()) {
-                    crosswordSolverSettings.completionMessage
-                } else {
-                    val source = source ?: ""
-                    val quote = quote ?: ""
-                    listOf(source.trim(), quote.trim())
-                            .filter { it.isNotEmpty() }.joinToString("\n\n")
-                }
+            if (crosswordSolverSettings.completionMessage.isNotEmpty()) {
+                crosswordSolverSettings.completionMessage
+            } else {
+                val source = source ?: ""
+                val quote = quote ?: ""
+                listOf(source.trim(), quote.trim())
+                    .filter { it.isNotEmpty() }.joinToString("\n\n")
+            }
         val settings = Puzzle.CrosswordSolverSettings(
-                crosswordSolverSettings.cursorColor,
-                crosswordSolverSettings.selectedCellsColor,
-                completionMessage)
+            crosswordSolverSettings.cursorColor,
+            crosswordSolverSettings.selectedCellsColor,
+            completionMessage
+        )
         return Acrostic.fromRawInput(
-                title = metadata.title ?: "",
-                creator = metadata.creator ?: "",
-                copyright = metadata.copyright ?: "",
-                description = metadata.description ?: "",
-                suggestedWidth = metadata.suggestedwidth ?: "",
-                solution = solution ?: "",
-                gridKey = gridkey ?: "",
-                clues = clues ?: "",
-                answers = answers ?: "",
-                crosswordSolverSettings = settings)
+            title = metadata.title ?: "",
+            creator = metadata.creator ?: "",
+            copyright = metadata.copyright ?: "",
+            description = metadata.description ?: "",
+            suggestedWidth = metadata.suggestedwidth ?: "",
+            solution = solution ?: "",
+            gridKey = gridkey ?: "",
+            clues = clues ?: "",
+            answers = answers ?: "",
+            crosswordSolverSettings = settings
+        )
     }
 
     companion object {

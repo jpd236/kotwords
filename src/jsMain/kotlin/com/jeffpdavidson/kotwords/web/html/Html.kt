@@ -1,16 +1,16 @@
 package com.jeffpdavidson.kotwords.web.html
 
-import kotlinx.browser.document
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.promise
-import kotlinx.dom.addClass
 import org.w3c.dom.HTMLAnchorElement
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
 import org.w3c.files.Blob
 import org.w3c.files.FileReader
+import kotlin.browser.document
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.dom.addClass
 
 private external class navigator {
     companion object {

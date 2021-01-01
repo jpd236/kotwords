@@ -20,16 +20,16 @@ object DownsOnly {
     fun Crossword.withDownsOnly(): Crossword {
         val directionToClear = getDirectionToClearForDownsOnly()
         return copy(
-                acrossClues = if (directionToClear == ClueDirection.ACROSS) {
-                    clearClues(acrossClues)
-                } else {
-                    acrossClues
-                },
-                downClues = if (directionToClear == ClueDirection.DOWN) {
-                    clearClues(downClues)
-                } else {
-                    downClues
-                }
+            acrossClues = if (directionToClear == ClueDirection.ACROSS) {
+                clearClues(acrossClues)
+            } else {
+                acrossClues
+            },
+            downClues = if (directionToClear == ClueDirection.DOWN) {
+                clearClues(downClues)
+            } else {
+                downClues
+            }
         )
     }
 
@@ -37,8 +37,8 @@ object DownsOnly {
 
     internal fun Crossword.getDirectionToClearForDownsOnly(): ClueDirection {
         data class WordStats(
-                var maxWordLength: Int = 0,
-                var wordsAtMaxLength: Int = 0
+            var maxWordLength: Int = 0,
+            var wordsAtMaxLength: Int = 0
         )
 
         val acrossWordStats = WordStats()
@@ -89,7 +89,7 @@ object DownsOnly {
             return ClueDirection.ACROSS
         }
         if (acrossWordStats.maxWordLength < downWordStats.maxWordLength
-                || acrossWordStats.wordsAtMaxLength < downWordStats.wordsAtMaxLength
+            || acrossWordStats.wordsAtMaxLength < downWordStats.wordsAtMaxLength
         ) {
             return ClueDirection.DOWN
         }

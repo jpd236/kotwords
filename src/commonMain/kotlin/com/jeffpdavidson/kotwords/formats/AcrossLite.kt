@@ -54,11 +54,11 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 for (x in 0 until width) {
                     val solution = readByte().toChar()
                     row.add(
-                            if (solution == '.') {
-                                BLACK_SQUARE
-                            } else {
-                                Square(solution)
-                            }
+                        if (solution == '.') {
+                            BLACK_SQUARE
+                        } else {
+                            Square(solution)
+                        }
                     )
                 }
                 grid.add(row)
@@ -135,26 +135,26 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
             }
 
             return Crossword(
-                    title = title,
-                    author = author,
-                    copyright = copyright,
-                    notes = notes,
-                    acrossClues = acrossClues,
-                    downClues = downClues,
-                    grid = grid.mapIndexed { y, row ->
-                        row.mapIndexed { x, square ->
-                            if (square == BLACK_SQUARE) {
-                                square
-                            } else {
-                                val solutionRebus = rebusMap[x to y]?.let { rebusTable[it] } ?: ""
-                                Square(
-                                        solution = square.solution,
-                                        solutionRebus = solutionRebus,
-                                        isCircled = circles.contains(x to y)
-                                )
-                            }
+                title = title,
+                author = author,
+                copyright = copyright,
+                notes = notes,
+                acrossClues = acrossClues,
+                downClues = downClues,
+                grid = grid.mapIndexed { y, row ->
+                    row.mapIndexed { x, square ->
+                        if (square == BLACK_SQUARE) {
+                            square
+                        } else {
+                            val solutionRebus = rebusMap[x to y]?.let { rebusTable[it] } ?: ""
+                            Square(
+                                solution = square.solution,
+                                solutionRebus = solutionRebus,
+                                isCircled = circles.contains(x to y)
+                            )
                         }
                     }
+                }
             )
         }
     }
@@ -167,8 +167,8 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
          */
         fun Crossword.toAcrossLiteBinary(solved: Boolean = false): ByteArray {
             fun BytePacketBuilder.writeExtraSection(
-                    name: String, length: Int,
-                    writeDataFn: (BytePacketBuilder) -> Unit
+                name: String, length: Int,
+                writeDataFn: (BytePacketBuilder) -> Unit
             ) {
                 writeStringUtf8(name)
                 writeShortLittleEndian(length.toShort())
@@ -323,12 +323,12 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
 
             // Calculate puzzle checksums.
             checksumPacketBuilder.writeShortLittleEndian(
-                    checksumPrimaryBoard(puzBytes, squareCount, clueCount).toShort()
+                checksumPrimaryBoard(puzBytes, squareCount, clueCount).toShort()
             )
             checksumPacketBuilder.writeFully(puzBytes, 0x2, 0xC)
             checksumPacketBuilder.writeShortLittleEndian(checksumCib(puzBytes).toShort())
             checksumPacketBuilder.writeLongLittleEndian(
-                    checksumPrimaryBoardMasked(puzBytes, squareCount, clueCount)
+                checksumPrimaryBoardMasked(puzBytes, squareCount, clueCount)
             )
             checksumPacketBuilder.writeFully(puzBytes, 0x18)
 
@@ -338,7 +338,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
 }
 
 private inline fun BytePacketBuilder.writeGrid(
-        grid: List<List<Square>>, blackSquareValue: Byte, whiteSquareFn: (Square) -> Byte
+    grid: List<List<Square>>, blackSquareValue: Byte, whiteSquareFn: (Square) -> Byte
 ) {
     grid.forEach { row ->
         row.forEach { square ->
@@ -365,9 +365,9 @@ private fun BytePacketBuilder.writeNullTerminatedString(string: String) {
     // Ref: http://www.i18nqa.com/debug/table-iso8859-1-vs-windows-1252.html
     // TODO: More explicit handling of unsupported characters.
     val stringBytes = string.replace('‘', '\'')
-            .replace('’', '\'')
-            .replace('“', '"')
-            .replace('”', '"').toByteArray(Charsets.ISO_8859_1)
+        .replace('’', '\'')
+        .replace('“', '"')
+        .replace('”', '"').toByteArray(Charsets.ISO_8859_1)
     writeFully(stringBytes)
     writeByte(0)
 }
@@ -395,7 +395,7 @@ private fun checksumPrimaryBoard(puzBytes: ByteArray, squareCount: Int, clueCoun
 }
 
 private fun checksumPrimaryBoardMasked(
-        puzBytes: ByteArray, squareCount: Int, clueCount: Int
+    puzBytes: ByteArray, squareCount: Int, clueCount: Int
 ): Long {
     val cibChecksum = checksumCib(puzBytes)
     val solutionChecksum = checksumSolution(puzBytes, squareCount, 0)
@@ -423,8 +423,8 @@ private fun checksumGrid(puzBytes: ByteArray, squareCount: Int, currentChecksum:
 }
 
 private fun checksumPartialBoard(
-        puzBytes: ByteArray, squareCount: Int, clueCount: Int,
-        currentChecksum: Int
+    puzBytes: ByteArray, squareCount: Int, clueCount: Int,
+    currentChecksum: Int
 ): Int {
     var checksum = currentChecksum
     var offset = 0x34 + 2 * squareCount

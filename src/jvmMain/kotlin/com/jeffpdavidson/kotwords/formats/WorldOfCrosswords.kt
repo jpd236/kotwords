@@ -11,10 +11,10 @@ import javax.json.JsonArray
 
 /** Container for a puzzle in the World of Crosswords format. */
 class WorldOfCrosswords(
-        private val json: String,
-        private val date: LocalDate,
-        private val author: String,
-        private val copyright: String
+    private val json: String,
+    private val date: LocalDate,
+    private val author: String,
+    private val copyright: String
 ) : Crosswordable {
     override fun asCrossword(): Crossword {
         // This format is so unstructured that there's no reason to use a data-class parser.
@@ -26,7 +26,7 @@ class WorldOfCrosswords(
         val msg = data.getJsonArray("msg")
         val title = msg.getString(0)
         val clueData = msg.getJsonArray(4)
-                .map { it.asJsonArray() }.partition { it.getString(5).toInt() == 1 }
+            .map { it.asJsonArray() }.partition { it.getString(5).toInt() == 1 }
         val gridData = msg.getJsonArray(3)
         val size = gridData.getString(0).toInt() + 1
         val whiteSquareCoordinates = gridData.getJsonArray(1).map {
@@ -35,7 +35,7 @@ class WorldOfCrosswords(
         }.toSet()
         val grid = mutableListOf<List<Square>>()
         val answerLetters =
-                clueData.first.joinToString("") { it.getString(1) }.toUpperCase(Locale.ROOT)
+            clueData.first.joinToString("") { it.getString(1) }.toUpperCase(Locale.ROOT)
         var answerLetterIndex = 0
         for (y in 0 until size) {
             val row = mutableListOf<Square>()
@@ -50,12 +50,12 @@ class WorldOfCrosswords(
         }
 
         return Crossword(
-                title = title,
-                author = author,
-                copyright = "\u00a9 ${date.year} $copyright",
-                grid = grid,
-                acrossClues = buildClueMap(clueData.first),
-                downClues = buildClueMap(clueData.second)
+            title = title,
+            author = author,
+            copyright = "\u00a9 ${date.year} $copyright",
+            grid = grid,
+            acrossClues = buildClueMap(clueData.first),
+            downClues = buildClueMap(clueData.second)
         )
     }
 

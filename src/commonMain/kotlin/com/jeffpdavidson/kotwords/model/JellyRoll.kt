@@ -2,25 +2,25 @@ package com.jeffpdavidson.kotwords.model
 
 // TODO: Can more logic be shared with TwoTone?
 data class JellyRoll(
-        val title: String,
-        val creator: String,
-        val copyright: String,
-        val description: String,
-        val jellyRollAnswers: List<String>,
-        val jellyRollClues: List<String>,
-        val lightSquaresAnswers: List<String>,
-        val lightSquaresClues: List<String>,
-        val darkSquaresAnswers: List<String>,
-        val darkSquaresClues: List<String>
+    val title: String,
+    val creator: String,
+    val copyright: String,
+    val description: String,
+    val jellyRollAnswers: List<String>,
+    val jellyRollClues: List<String>,
+    val lightSquaresAnswers: List<String>,
+    val lightSquaresClues: List<String>,
+    val darkSquaresAnswers: List<String>,
+    val darkSquaresClues: List<String>
 ) {
 
     init {
         val splitAnswers =
-                jellyRollAnswers.joinToString("")
-                        .mapIndexed { i, ch -> i to ch }
-                        .partition { LIGHT_SQUARE_MODULOS.contains(it.first % 4) }
-                        .toList()
-                        .map { it.map { (_, ch) -> ch }.joinToString("") }
+            jellyRollAnswers.joinToString("")
+                .mapIndexed { i, ch -> i to ch }
+                .partition { LIGHT_SQUARE_MODULOS.contains(it.first % 4) }
+                .toList()
+                .map { it.map { (_, ch) -> ch }.joinToString("") }
         require(lightSquaresAnswers.joinToString("") == splitAnswers[0]) {
             "Light square answers do not match the jelly roll answers"
         }
@@ -30,10 +30,10 @@ data class JellyRoll(
     }
 
     fun asPuzzle(
-            lightSquareBackgroundColor: String,
-            darkSquareBackgroundColor: String,
-            combineJellyRollClues: Boolean,
-            crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+        lightSquareBackgroundColor: String,
+        darkSquareBackgroundColor: String,
+        combineJellyRollClues: Boolean,
+        crosswordSolverSettings: Puzzle.CrosswordSolverSettings
     ): Puzzle {
         val numberedSquares = mutableSetOf<Int>()
         fun addNumberedSquares(answers: List<String>, startIndex: Int, includedModulos: List<Int>) {
@@ -64,23 +64,23 @@ data class JellyRoll(
             (x to y) to
                     if (i < letters.length) {
                         Puzzle.Cell(
-                                x = x + 1,
-                                y = y + 1,
-                                number = if (numberedSquares.contains(i)) "${currentNumber++}" else "",
-                                solution = "${letters[i]}",
-                                backgroundColor =
-                                if (LIGHT_SQUARE_MODULOS.contains(i % 4)) {
-                                    lightSquareBackgroundColor
-                                } else {
-                                    darkSquareBackgroundColor
-                                },
-                                borderDirections = listOfNotNull(squareList[i].borderDirection).toSet()
+                            x = x + 1,
+                            y = y + 1,
+                            number = if (numberedSquares.contains(i)) "${currentNumber++}" else "",
+                            solution = "${letters[i]}",
+                            backgroundColor =
+                            if (LIGHT_SQUARE_MODULOS.contains(i % 4)) {
+                                lightSquareBackgroundColor
+                            } else {
+                                darkSquareBackgroundColor
+                            },
+                            borderDirections = listOfNotNull(squareList[i].borderDirection).toSet()
                         )
                     } else {
                         Puzzle.Cell(
-                                x = x + 1,
-                                y = y + 1,
-                                cellType = Puzzle.CellType.BLOCK
+                            x = x + 1,
+                            y = y + 1,
+                            cellType = Puzzle.CellType.BLOCK
                         )
                     }
         }.toMap()
@@ -91,20 +91,20 @@ data class JellyRoll(
         }
 
         fun createClues(
-                answers: List<String>,
-                clues: List<String>,
-                squareList: List<SpiralGrid.Square>,
-                firstWordId: Int
+            answers: List<String>,
+            clues: List<String>,
+            squareList: List<SpiralGrid.Square>,
+            firstWordId: Int
         ): List<Puzzle.Clue> {
             val jpzClues = mutableListOf<Puzzle.Clue>()
             answers.foldIndexed(0) { wordNumber, i, answer ->
                 val firstCell = squareList[i]
                 jpzClues += Puzzle.Clue(
-                        Puzzle.Word(
-                                firstWordId + wordNumber,
-                                squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }),
-                        grid[firstCell.y][firstCell.x].number,
-                        clues[wordNumber]
+                    Puzzle.Word(
+                        firstWordId + wordNumber,
+                        squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }),
+                    grid[firstCell.y][firstCell.x].number,
+                    clues[wordNumber]
                 )
                 i + answer.length
             }
@@ -117,30 +117,31 @@ data class JellyRoll(
                     listOf(jellyRollAnswers.joinToString("")),
                     listOf(jellyRollClues.joinToString(" / ")),
                     squareList,
-                    1)
+                    1
+                )
             } else {
                 createClues(jellyRollAnswers, jellyRollClues, squareList, 1)
             }
         val partitionedSquares = squareList
-                .mapIndexed { i, square -> i to square }
-                .partition { LIGHT_SQUARE_MODULOS.contains(it.first % 4) }
-                .toList()
-                .map { it.map { (_, square) -> square } }
+            .mapIndexed { i, square -> i to square }
+            .partition { LIGHT_SQUARE_MODULOS.contains(it.first % 4) }
+            .toList()
+            .map { it.map { (_, square) -> square } }
         val everyOtherJpzClues =
-                createClues(lightSquaresAnswers, lightSquaresClues, partitionedSquares[0], 101) +
-                        createClues(darkSquaresAnswers, darkSquaresClues, partitionedSquares[1], 201)
+            createClues(lightSquaresAnswers, lightSquaresClues, partitionedSquares[0], 101) +
+                    createClues(darkSquaresAnswers, darkSquaresClues, partitionedSquares[1], 201)
 
         return Puzzle(
-                title = title,
-                creator = creator,
-                copyright = copyright,
-                description = description,
-                grid = grid,
-                clues = listOf(
-                        Puzzle.ClueList("Jelly Rolls", allSquaresJpzClues),
-                        Puzzle.ClueList("Colored Paths", everyOtherJpzClues)
-                ),
-                crosswordSolverSettings = crosswordSolverSettings
+            title = title,
+            creator = creator,
+            copyright = copyright,
+            description = description,
+            grid = grid,
+            clues = listOf(
+                Puzzle.ClueList("Jelly Rolls", allSquaresJpzClues),
+                Puzzle.ClueList("Colored Paths", everyOtherJpzClues)
+            ),
+            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 

@@ -9,20 +9,20 @@ class SnakeCharmerTest {
     @Test
     fun jpzGeneration() = runTest {
         val snakeCharmer = SnakeCharmer(
-                title = "Test title",
-                creator = "Test creator",
-                copyright = "Test copyright",
-                description = "Test description",
-                answers = listOf("ABCD", "EFG", "HABCD", "EFGH"),
-                clues = listOf("Clue 1", "Clue 2", "Clue 3", "Clue 4"),
-                gridCoordinates = listOf(0 to 0, 1 to 0, 2 to 0, 2 to 1, 2 to 2, 1 to 2, 0 to 2, 0 to 1)
+            title = "Test title",
+            creator = "Test creator",
+            copyright = "Test copyright",
+            description = "Test description",
+            answers = listOf("ABCD", "EFG", "HABCD", "EFGH"),
+            clues = listOf("Clue 1", "Clue 2", "Clue 3", "Clue 4"),
+            gridCoordinates = listOf(0 to 0, 1 to 0, 2 to 0, 2 to 1, 2 to 2, 1 to 2, 0 to 2, 0 to 1)
         )
         val puzzle = snakeCharmer.asPuzzle(
-                crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
-                        cursorColor = "#00b100",
-                        selectedCellsColor = "#80ff80",
-                        completionMessage = "All done!"
-                )
+            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
+                cursorColor = "#00b100",
+                selectedCellsColor = "#80ff80",
+                completionMessage = "All done!"
+            )
         )
 
         val expected = readStringResource(SnakeCharmerTest::class, "snake-charmer.jpz")

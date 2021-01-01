@@ -40,18 +40,18 @@ interface Jpz : Crosswordable {
     @Serializable
     @XmlSerialName("rectangular-puzzle", PUZZLE_NS, "")
     data class RectangularPuzzle(
-            val metadata: Metadata = Metadata(),
-            @XmlSerialName("crossword", PUZZLE_NS, "") val crossword: Crossword? = null,
-            @XmlSerialName("acrostic", PUZZLE_NS, "") val acrostic: Crossword? = null
+        val metadata: Metadata = Metadata(),
+        @XmlSerialName("crossword", PUZZLE_NS, "") val crossword: Crossword? = null,
+        @XmlSerialName("acrostic", PUZZLE_NS, "") val acrostic: Crossword? = null
     ) {
 
         @Serializable
         @SerialName("metadata")
         data class Metadata(
-                @SerialName("title") @XmlElement(true) val title: String? = null,
-                @SerialName("creator") @XmlElement(true) val creator: String? = null,
-                @SerialName("copyright") @XmlElement(true) val copyright: String? = null,
-                @SerialName("description") @XmlElement(true) val description: String? = null
+            @SerialName("title") @XmlElement(true) val title: String? = null,
+            @SerialName("creator") @XmlElement(true) val creator: String? = null,
+            @SerialName("copyright") @XmlElement(true) val copyright: String? = null,
+            @SerialName("description") @XmlElement(true) val description: String? = null
         )
 
         @Serializable
@@ -60,10 +60,10 @@ interface Jpz : Crosswordable {
             @Serializable
             @SerialName("grid")
             data class Grid(
-                    @SerialName("width") val width: Int,
-                    @SerialName("height") val height: Int,
-                    val gridLook: GridLook = GridLook(),
-                    val cell: List<Cell>
+                @SerialName("width") val width: Int,
+                @SerialName("height") val height: Int,
+                val gridLook: GridLook = GridLook(),
+                val cell: List<Cell>
             ) {
 
                 @Serializable
@@ -73,19 +73,19 @@ interface Jpz : Crosswordable {
                 @Serializable
                 @SerialName("cell")
                 data class Cell(
-                        @SerialName("x") val x: Int,
-                        @SerialName("y") val y: Int,
-                        @SerialName("solution") val solution: String? = null,
-                        @SerialName("background-color") val backgroundColor: String? = null,
-                        @SerialName("number") val number: String? = null,
-                        @SerialName("type") val type: String? = null,
-                        @SerialName("solve-state") val solveState: String? = null,
-                        @SerialName("top-right-number") val topRightNumber: String? = null,
-                        @SerialName("background-shape") val backgroundShape: String? = null,
-                        @SerialName("top-bar") val topBar: Boolean? = null,
-                        @SerialName("left-bar") val leftBar: Boolean? = null,
-                        @SerialName("right-bar") val rightBar: Boolean? = null,
-                        @SerialName("bottom-bar") val bottomBar: Boolean? = null
+                    @SerialName("x") val x: Int,
+                    @SerialName("y") val y: Int,
+                    @SerialName("solution") val solution: String? = null,
+                    @SerialName("background-color") val backgroundColor: String? = null,
+                    @SerialName("number") val number: String? = null,
+                    @SerialName("type") val type: String? = null,
+                    @SerialName("solve-state") val solveState: String? = null,
+                    @SerialName("top-right-number") val topRightNumber: String? = null,
+                    @SerialName("background-shape") val backgroundShape: String? = null,
+                    @SerialName("top-bar") val topBar: Boolean? = null,
+                    @SerialName("left-bar") val leftBar: Boolean? = null,
+                    @SerialName("right-bar") val rightBar: Boolean? = null,
+                    @SerialName("bottom-bar") val bottomBar: Boolean? = null
                 )
             }
 
@@ -109,9 +109,9 @@ interface Jpz : Crosswordable {
                 @Serializable
                 @SerialName("clue")
                 data class Clue(
-                        @SerialName("word") val word: Int,
-                        @SerialName("number") val number: String,
-                        @XmlValue(true) val text: Snippet
+                    @SerialName("word") val word: Int,
+                    @SerialName("number") val number: String,
+                    @XmlValue(true) val text: Snippet
                 )
             }
         }
@@ -152,11 +152,11 @@ interface Jpz : Crosswordable {
                 val solution = it.solution ?: ""
                 val solutionRebus = if (solution.length > 1) solution else ""
                 val isCircled =
-                        "circle".equals(it.backgroundShape, ignoreCase = true)
+                    "circle".equals(it.backgroundShape, ignoreCase = true)
                 gridMap[position] = Square(
-                        solution = solution[0],
-                        solutionRebus = solutionRebus,
-                        isCircled = isCircled
+                    solution = solution[0],
+                    solutionRebus = solutionRebus,
+                    isCircled = isCircled
                 )
                 if (it.number?.isNotEmpty() == true) {
                     givenSquareNumbers[position] = it.number.toInt()
@@ -173,38 +173,38 @@ interface Jpz : Crosswordable {
         }
 
         val (acrossClues, downClues) =
-                buildClueMaps(grid, rectangularPuzzle.crossword!!.clues, givenSquareNumbers)
+            buildClueMaps(grid, rectangularPuzzle.crossword!!.clues, givenSquareNumbers)
 
         return Crossword(
-                title = rectangularPuzzle.metadata.title ?: "",
-                author = rectangularPuzzle.metadata.creator ?: "",
-                copyright = rectangularPuzzle.metadata.copyright ?: "",
-                notes = rectangularPuzzle.metadata.description ?: "",
-                grid = grid,
-                acrossClues = acrossClues,
-                downClues = downClues
+            title = rectangularPuzzle.metadata.title ?: "",
+            author = rectangularPuzzle.metadata.creator ?: "",
+            copyright = rectangularPuzzle.metadata.copyright ?: "",
+            notes = rectangularPuzzle.metadata.description ?: "",
+            grid = grid,
+            acrossClues = acrossClues,
+            downClues = downClues
         )
     }
 
     /** Convert the given list of <clues> elements into across and down clues lists. */
     private fun buildClueMaps(
-            grid: List<List<Square>>, clues: List<RectangularPuzzle.Crossword.Clues>,
-            givenSquareNumbers: Map<Pair<Int, Int>, Int>
+        grid: List<List<Square>>, clues: List<RectangularPuzzle.Crossword.Clues>,
+        givenSquareNumbers: Map<Pair<Int, Int>, Int>
     ):
             Pair<Map<Int, String>, Map<Int, String>> {
         // Create a map from clue list title to the list of <clue> elements under that title.
         val clueGroups = clues.filter { it.title.data.isNotEmpty() }
-                .map {
-                    val clueListTitle = it.title.data.textContent().toLowerCase()
-                    val clueList = it.clues
-                    clueListTitle to clueList
-                }.toMap()
+            .map {
+                val clueListTitle = it.title.data.textContent().toLowerCase()
+                val clueList = it.clues
+                clueListTitle to clueList
+            }.toMap()
 
         // Convert the <clue> element lists for across/down clues into the expected map format.
         val acrossClues = (clueGroups["across"] ?: error("No Across clues"))
-                .map { it.number.toInt() to it.text.textContent() }.toMap()
+            .map { it.number.toInt() to it.text.textContent() }.toMap()
         val downClues = (clueGroups["down"] ?: error("No Down clues"))
-                .map { it.number.toInt() to it.text.textContent() }.toMap()
+            .map { it.number.toInt() to it.text.textContent() }.toMap()
 
         // Sanitize the clue numbers/clues to be Across Lite compatible.
         return ClueSanitizer.sanitizeClues(grid, givenSquareNumbers, acrossClues, downClues)
@@ -271,7 +271,8 @@ interface Jpz : Crosswordable {
 @Serializable
 @XmlSerialName("crossword-compiler", "http://crossword.info/xml/crossword-compiler", "")
 data class CrosswordCompiler(
-        override val rectangularPuzzle: Jpz.RectangularPuzzle) : Jpz {
+    override val rectangularPuzzle: Jpz.RectangularPuzzle
+) : Jpz {
 
     override fun toXmlString(): String {
         return XmlSerializer.encodeToString(serializer(), this)
@@ -281,34 +282,35 @@ data class CrosswordCompiler(
 @Serializable
 @XmlSerialName("crossword-compiler-applet", CCA_NS, "")
 data class CrosswordCompilerApplet(
-        val appletSettings: AppletSettings? = null,
-        override val rectangularPuzzle: Jpz.RectangularPuzzle) : Jpz {
+    val appletSettings: AppletSettings? = null,
+    override val rectangularPuzzle: Jpz.RectangularPuzzle
+) : Jpz {
 
     @Serializable
     @SerialName("applet-settings")
     data class AppletSettings(
-            @SerialName("cursor-color") val cursorColor: String = "#00B100",
-            @SerialName("selected-cells-color") val selectedCellsColor: String = "#80FF80",
-            val completion: Completion,
-            val actions: Actions = Actions()
+        @SerialName("cursor-color") val cursorColor: String = "#00B100",
+        @SerialName("selected-cells-color") val selectedCellsColor: String = "#80FF80",
+        val completion: Completion,
+        val actions: Actions = Actions()
     ) {
 
         @Serializable
         @SerialName("completion")
         data class Completion(
-                @XmlValue(true) val message: String,
-                @SerialName("only-if-correct") val onlyIfCorrect: Boolean = true
+            @XmlValue(true) val message: String,
+            @SerialName("only-if-correct") val onlyIfCorrect: Boolean = true
         )
 
         @Serializable
         @SerialName("actions")
         data class Actions(
-                @SerialName("buttons-layout") val buttonsLayout: String = "left",
-                @XmlSerialName("reveal-word", CCA_NS, "") val revealWord: Action? = Action("Reveal Word"),
-                @XmlSerialName("reveal-letter", CCA_NS, "") val revealLetter: Action? = Action("Reveal Letter"),
-                @XmlSerialName("check", CCA_NS, "") val check: Action? = Action("Check"),
-                @XmlSerialName("solution", CCA_NS, "") val solution: Action? = Action("Solution"),
-                @XmlSerialName("pencil", CCA_NS, "") val pencil: Action? = Action("Pencil")
+            @SerialName("buttons-layout") val buttonsLayout: String = "left",
+            @XmlSerialName("reveal-word", CCA_NS, "") val revealWord: Action? = Action("Reveal Word"),
+            @XmlSerialName("reveal-letter", CCA_NS, "") val revealLetter: Action? = Action("Reveal Letter"),
+            @XmlSerialName("check", CCA_NS, "") val check: Action? = Action("Check"),
+            @XmlSerialName("solution", CCA_NS, "") val solution: Action? = Action("Solution"),
+            @XmlSerialName("pencil", CCA_NS, "") val pencil: Action? = Action("Pencil")
         ) {
 
             @Serializable

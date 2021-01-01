@@ -36,13 +36,13 @@ class MarchingBandsForm {
                 }
                 bandClues.render(this, "Band clues") {
                     placeholder =
-                            "The clues for each band; one band per row. Ordered from the outside in. Separate " +
-                                    "multiple clues for a band with a /."
+                        "The clues for each band; one band per row. Ordered from the outside in. Separate " +
+                                "multiple clues for a band with a /."
                     rows = "6"
                 }
                 rowClues.render(this, "Row clues") {
                     placeholder =
-                            "The clues for each row; one line per row. Separate multiple clues for a row with a /."
+                        "The clues for each row; one line per row. Separate multiple clues for a row with a /."
                     rows = "13"
                 }
             }, advancedOptionsBlock = {
@@ -65,26 +65,26 @@ class MarchingBandsForm {
 
     private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
         val marchingBands = MarchingBands(
-                title = title.getValue(),
-                creator = creator.getValue(),
-                copyright = copyright.getValue(),
-                description = description.getValue(),
-                grid = grid.getValue().split("\n").map { row ->
-                    row.toUpperCase().replace("[^A-Z.]".toRegex(), "").map { ch -> if (ch == '.') null else ch }
-                },
-                bandClues = bandClues.getValue().split("\n").map { clues ->
-                    clues.trim().split("/").map { it.trim() }
-                },
-                rowClues = rowClues.getValue().split("\n").map { clues ->
-                    clues.trim().split("/").map { it.trim() }
-                })
+            title = title.getValue(),
+            creator = creator.getValue(),
+            copyright = copyright.getValue(),
+            description = description.getValue(),
+            grid = grid.getValue().split("\n").map { row ->
+                row.toUpperCase().replace("[^A-Z.]".toRegex(), "").map { ch -> if (ch == '.') null else ch }
+            },
+            bandClues = bandClues.getValue().split("\n").map { clues ->
+                clues.trim().split("/").map { it.trim() }
+            },
+            rowClues = rowClues.getValue().split("\n").map { clues ->
+                clues.trim().split("/").map { it.trim() }
+            })
         return Promise.resolve(
-                marchingBands.asPuzzle(
-                        includeRowNumbers = includeRowNumbers.getValue(),
-                        lightBandColor = lightBandColor.getValue(),
-                        darkBandColor = darkBandColor.getValue(),
-                        crosswordSolverSettings = crosswordSolverSettings
-                )
+            marchingBands.asPuzzle(
+                includeRowNumbers = includeRowNumbers.getValue(),
+                lightBandColor = lightBandColor.getValue(),
+                darkBandColor = darkBandColor.getValue(),
+                crosswordSolverSettings = crosswordSolverSettings
+            )
         )
     }
 }

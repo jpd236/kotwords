@@ -59,11 +59,11 @@ object Pdf {
 
     /** Returns the percentage of the content width to use for the grid. */
     private fun getGridWidthPercentage(gridRows: Int): Float =
-            if (gridRows >= 15) {
-                0.7f
-            } else {
-                0.6f
-            }
+        if (gridRows >= 15) {
+            0.7f
+        } else {
+            0.6f
+        }
 
     /**
      * Render this crossword as a PDF document.
@@ -139,7 +139,7 @@ object Pdf {
                 // this is the first clue in a section, as we do not want to split a clue apart or
                 // show a section header at the end of a column.
                 val lines = splitTextToLines(
-                        clue, PDType1Font.TIMES_ROMAN, clueSize, columnWidth - prefixWidth
+                    clue, PDType1Font.TIMES_ROMAN, clueSize, columnWidth - prefixWidth
                 )
                 val clueHeight = lines.size * clueSize +
                         if (index == 0) {
@@ -199,8 +199,8 @@ object Pdf {
                     setNonStrokingColor(0f)
                     beginText()
                     newLineAtOffset(
-                            gridX + x * gridSquareSize + GRID_NUMBER_X_OFFSET,
-                            gridY + gridHeight - y * gridSquareSize - gridNumberSize
+                        gridX + x * gridSquareSize + GRID_NUMBER_X_OFFSET,
+                        gridY + gridHeight - y * gridSquareSize - gridNumberSize
                     )
                     setFont(PDType1Font.TIMES_ROMAN, gridNumberSize)
                     showText(clueNumber.toString())
@@ -223,7 +223,7 @@ object Pdf {
 
     /** Split [text] into lines (using spaces as word separators) to fit the given [lineWidth]. */
     internal fun splitTextToLines(
-            text: String, font: PDFont, fontSize: Float, lineWidth: Float
+        text: String, font: PDFont, fontSize: Float, lineWidth: Float
     ): List<String> {
         val lines = mutableListOf<StringBuilder>()
         var currentLine = StringBuilder()
@@ -280,5 +280,5 @@ object Pdf {
     }
 
     private fun String.getWidth(font: PDFont, size: Float): Float =
-            font.getStringWidth(this) * size / 1000
+        font.getStringWidth(this) * size / 1000
 }

@@ -50,14 +50,14 @@ class SpiralForm {
 
     private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
         val spiral = Spiral(
-                title = title.getValue(),
-                creator = creator.getValue(),
-                copyright = copyright.getValue(),
-                description = description.getValue(),
-                inwardAnswers = inwardAnswers.getValue().split(" +".toRegex()),
-                inwardClues = inwardClues.getValue().split("\n").map { it.trim() },
-                outwardAnswers = outwardAnswers.getValue().split(" +".toRegex()),
-                outwardClues = outwardClues.getValue().split("\n").map { it.trim() })
+            title = title.getValue(),
+            creator = creator.getValue(),
+            copyright = copyright.getValue(),
+            description = description.getValue(),
+            inwardAnswers = inwardAnswers.getValue().split(" +".toRegex()),
+            inwardClues = inwardClues.getValue().split("\n").map { it.trim() },
+            outwardAnswers = outwardAnswers.getValue().split(" +".toRegex()),
+            outwardClues = outwardClues.getValue().split("\n").map { it.trim() })
         return Promise.resolve(spiral.asPuzzle(crosswordSolverSettings = crosswordSolverSettings))
     }
 }

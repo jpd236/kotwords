@@ -39,12 +39,12 @@ class SpellWeavingForm {
 
     private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
         val spellWeaving = SpellWeaving(
-                title = title.getValue(),
-                creator = creator.getValue(),
-                copyright = copyright.getValue(),
-                description = description.getValue(),
-                answers = answers.getValue().split(" +".toRegex()),
-                clues = clues.getValue().split("\n").map { it.trim() })
+            title = title.getValue(),
+            creator = creator.getValue(),
+            copyright = copyright.getValue(),
+            description = description.getValue(),
+            answers = answers.getValue().split(" +".toRegex()),
+            clues = clues.getValue().split("\n").map { it.trim() })
         return Promise.resolve(spellWeaving.asPuzzle(crosswordSolverSettings = crosswordSolverSettings))
     }
 }

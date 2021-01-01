@@ -11,12 +11,12 @@ class WallStreetJournalTest {
     @Test
     fun basicPuzzle() = runTest {
         assertArrayEquals(
-                readBinaryResource(WallStreetJournalTest::class, "puz/test.puz"),
-                WallStreetJournal(
-                        readStringResource(WallStreetJournalTest::class, "wsj/test.json"),
-                        includeDateInTitle = false
-                )
-                        .asCrossword().toAcrossLiteBinary()
+            readBinaryResource(WallStreetJournalTest::class, "puz/test.puz"),
+            WallStreetJournal(
+                readStringResource(WallStreetJournalTest::class, "wsj/test.json"),
+                includeDateInTitle = false
+            )
+                .asCrossword().toAcrossLiteBinary()
         )
     }
 }
