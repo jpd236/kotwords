@@ -1,6 +1,7 @@
 package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
+import com.jeffpdavidson.kotwords.formats.json.JsonSerializer.fromJson
 import com.jeffpdavidson.kotwords.formats.json.PuzzleMeJson
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
@@ -26,8 +27,8 @@ class PuzzleMe(private val html: String) : Crosswordable {
                 val matchResult = PUZZLE_DATA_REGEX.find(it.data())
                 if (matchResult != null) {
                     return String(
-                            Base64.getDecoder().decode(matchResult.groupValues[1]),
-                            StandardCharsets.UTF_8
+                        Base64.getDecoder().decode(matchResult.groupValues[1]),
+                        StandardCharsets.UTF_8
                     )
                 }
             }
@@ -35,7 +36,7 @@ class PuzzleMe(private val html: String) : Crosswordable {
         }
 
         internal fun toCrossword(json: String): Crossword {
-            val data = JsonSerializer.fromJson(PuzzleMeJson.Data::class.java, json)
+            val data = JsonSerializer.fromJson<PuzzleMeJson.Data>(json)
             val grid: MutableList<MutableList<Square>> = mutableListOf()
 
             // PuzzleMe supports circled cells, cells with special background shapes, and different
@@ -43,43 +44,45 @@ class PuzzleMe(private val html: String) : Crosswordable {
             // mechanism to map to circles (preferring "isCircled" which is a direct match) and
             // ignore any others.
             val circledCells =
-                    if (data.cellInfos.find { it.isCircled } != null) {
-                        data.cellInfos.filter { it.isCircled }.map { it.x to it.y }
-                    } else if (data.backgroundShapeBoxes.isNotEmpty()) {
-                        data.backgroundShapeBoxes.filter { it.size == 2 }.map { it[0] to it[1] }
-                    } else {
-                        // Note that if there are multiple distinct colors, all of them will be
-                        // mapped to circles.
-                        data.cellInfos.filter { it.bgColor != "" }.map { it.x to it.y }
-                    }
+                if (data.cellInfos.find { it.isCircled } != null) {
+                    data.cellInfos.filter { it.isCircled }.map { it.x to it.y }
+                } else if (data.backgroundShapeBoxes.isNotEmpty()) {
+                    data.backgroundShapeBoxes.filter { it.size == 2 }.map { it[0] to it[1] }
+                } else {
+                    // Note that if there are multiple distinct colors, all of them will be
+                    // mapped to circles.
+                    data.cellInfos.filter { it.bgColor != "" }.map { it.x to it.y }
+                }
 
             // If bgColor == fgColor, assume the square is meant to be hidden/black and revealed after solving.
             val voidCells = data.cellInfos
-                    .filter { it.isVoid || (it.bgColor.isNotEmpty() && it.bgColor == it.fgColor) }.map { it.x to it.y }
+                .filter { it.isVoid || (it.bgColor.isNotEmpty() && it.bgColor == it.fgColor) }.map { it.x to it.y }
 
             for (y in 0 until data.box[0].size) {
                 val row: MutableList<Square> = mutableListOf()
                 for (x in 0 until data.box.size) {
                     // Treat black squares, void squares, and squares with no intersecting words that aren't pre-filled
                     // (which likely means they're meant to be revealed after solving) as black squares.
-                    if (data.box[x][y] == "\u0000" ||
-                            voidCells.contains(x to y) ||
-                            (data.boxToPlacedWordsIdxs.isNotEmpty() && data.boxToPlacedWordsIdxs[x][y] == null &&
-                                    (data.preRevealIdxs.isEmpty() || !data.preRevealIdxs[x][y]))
+                    val box = data.box[x][y]
+                    if (box == null ||
+                        box == "\u0000" ||
+                        voidCells.contains(x to y) ||
+                        (data.boxToPlacedWordsIdxs.isNotEmpty() && data.boxToPlacedWordsIdxs[x][y] == null &&
+                                (data.preRevealIdxs.isEmpty() || !data.preRevealIdxs[x][y]))
                     ) {
                         row.add(BLACK_SQUARE)
                     } else {
-                        val solutionRebus = if (data.box[x][y].length > 1) data.box[x][y] else ""
+                        val solutionRebus = if (box.length > 1) box else ""
                         val isCircled = circledCells.contains(x to y)
                         val isPrefilled = data.preRevealIdxs.isNotEmpty() && data.preRevealIdxs[x][y]
                         row.add(
-                                Square(
-                                        solution = data.box[x][y][0],
-                                        solutionRebus = solutionRebus,
-                                        isCircled = isCircled,
-                                        entry = if (isPrefilled) data.box[x][y][0] else null,
-                                        isGiven = isPrefilled
-                                )
+                            Square(
+                                solution = box[0],
+                                solutionRebus = solutionRebus,
+                                isCircled = isCircled,
+                                entry = if (isPrefilled) box[0] else null,
+                                isGiven = isPrefilled
+                            )
                         )
                     }
                 }
@@ -94,86 +97,87 @@ class PuzzleMe(private val html: String) : Crosswordable {
             val topRowsToDelete = grid.indexOfFirst(anyNonBlackSquare)
             val bottomRowsToDelete = grid.size - grid.indexOfLast(anyNonBlackSquare) - 1
             val leftRowsToDelete =
-                    grid.filter(anyNonBlackSquare).map { row -> row.indexOfFirst { it != BLACK_SQUARE } }.minOrNull()!!
+                grid.filter(anyNonBlackSquare).map { row -> row.indexOfFirst { it != BLACK_SQUARE } }.minOrNull()!!
             val rightRowsToDelete = grid[0].size -
-                    grid.filter(anyNonBlackSquare).map { row -> row.indexOfLast { it != BLACK_SQUARE } }.maxOrNull()!! - 1
+                    grid.filter(anyNonBlackSquare).map { row -> row.indexOfLast { it != BLACK_SQUARE } }
+                        .maxOrNull()!! - 1
             val filteredGrid = grid.drop(topRowsToDelete).dropLast(bottomRowsToDelete)
-                    .map { row -> row.drop(leftRowsToDelete).dropLast(rightRowsToDelete) }
+                .map { row -> row.drop(leftRowsToDelete).dropLast(rightRowsToDelete) }
 
             // Sanitize clues since PuzzleMe grids can have non-standard numbering.
             var sanitizedClues =
-                    buildClueMap(data.placedWords.filter { it.acrossNotDown }) to
-                            buildClueMap(data.placedWords.filter { !it.acrossNotDown })
+                buildClueMap(data.placedWords.filter { it.acrossNotDown }) to
+                        buildClueMap(data.placedWords.filter { !it.acrossNotDown })
             if (data.clueNums.isNotEmpty()) {
                 val filteredClueNums = data.clueNums.drop(leftRowsToDelete).dropLast(rightRowsToDelete)
-                        .map { col -> col.drop(topRowsToDelete).dropLast(bottomRowsToDelete) }
+                    .map { col -> col.drop(topRowsToDelete).dropLast(bottomRowsToDelete) }
                 sanitizedClues = ClueSanitizer.sanitizeClues(
-                        filteredGrid,
-                        filteredClueNums.mapIndexed { x, col ->
-                            col.mapIndexed { y, clueNum ->
-                                (x to y) to clueNum
-                            }
-                        }.flatten().toMap(),
-                        sanitizedClues.first,
-                        sanitizedClues.second
+                    filteredGrid,
+                    filteredClueNums.mapIndexed { x, col ->
+                        col.mapIndexed { y, clueNum ->
+                            (x to y) to clueNum
+                        }
+                    }.flatten().toMap(),
+                    sanitizedClues.first,
+                    sanitizedClues.second
                 )
             }
 
             return Crossword(
-                    title = data.title,
-                    author = data.author,
-                    copyright = data.copyright,
-                    notes = data.description,
-                    grid = filteredGrid,
-                    acrossClues = sanitizedClues.first,
-                    downClues = sanitizedClues.second
+                title = data.title,
+                author = data.author,
+                copyright = data.copyright,
+                notes = data.description,
+                grid = filteredGrid,
+                acrossClues = sanitizedClues.first,
+                downClues = sanitizedClues.second
             )
         }
 
         private val clueReplacements = mapOf(
-                "</?i>" to "\"",
-                "</?span>" to "",
-                "ł" to "l",
-                "[ăā]" to "a",
-                "Ō" to "O",
-                "ę" to "e",
-                "[Αα]" to "[Alpha]",
-                "[Ββ]" to "[Beta]",
-                "[Γγ]" to "[Gamma]",
-                "[Δδ]" to "[Delta]",
-                "[Εε]" to "[Epsilon]",
-                "[Ζζ]" to "[Zeta]",
-                "[Ηη]" to "[Eta]",
-                "[Θθ]" to "[Theta]",
-                "[Ιι]" to "[Iota]",
-                "[Κκ]" to "[Kappa]",
-                "[Λλ]" to "[Lambda]",
-                "[Μμ]" to "[Mu]",
-                "[Νν]" to "[Nu]",
-                "[Ξξ]" to "[Xi]",
-                "[Οο]" to "[Omicron]",
-                "[Ππ]" to "[Pi]",
-                "[Ρρ]" to "[Rho]",
-                "[Σσς]" to "[Sigma]",
-                "[Ττ]" to "[Tau]",
-                "[Υυ]" to "[Upsilon]",
-                "[Φφ]" to "[Phi]",
-                "[Χχ]" to "[Chi]",
-                "[Ψψ]" to "[Psi]",
-                "[Ωω]" to "[Omega]"
+            "</?i>" to "\"",
+            "</?span>" to "",
+            "ł" to "l",
+            "[ăā]" to "a",
+            "Ō" to "O",
+            "ę" to "e",
+            "[Αα]" to "[Alpha]",
+            "[Ββ]" to "[Beta]",
+            "[Γγ]" to "[Gamma]",
+            "[Δδ]" to "[Delta]",
+            "[Εε]" to "[Epsilon]",
+            "[Ζζ]" to "[Zeta]",
+            "[Ηη]" to "[Eta]",
+            "[Θθ]" to "[Theta]",
+            "[Ιι]" to "[Iota]",
+            "[Κκ]" to "[Kappa]",
+            "[Λλ]" to "[Lambda]",
+            "[Μμ]" to "[Mu]",
+            "[Νν]" to "[Nu]",
+            "[Ξξ]" to "[Xi]",
+            "[Οο]" to "[Omicron]",
+            "[Ππ]" to "[Pi]",
+            "[Ρρ]" to "[Rho]",
+            "[Σσς]" to "[Sigma]",
+            "[Ττ]" to "[Tau]",
+            "[Υυ]" to "[Upsilon]",
+            "[Φφ]" to "[Phi]",
+            "[Χχ]" to "[Chi]",
+            "[Ψψ]" to "[Psi]",
+            "[Ωω]" to "[Omega]"
         )
-                .map { (key, value) -> key.toRegex() to value }.toMap()
+            .map { (key, value) -> key.toRegex() to value }.toMap()
 
         private fun buildClueMap(clueList: List<PuzzleMeJson.PlacedWord>): Map<Int, String> {
             return clueList
-                    .map {
-                        // TODO(#2): Generalize and centralize accented character replacement.
-                        it.clueNum to
-                                clueReplacements.entries.fold(it.clue.clue) { clue, (from, to) ->
-                                    clue.replace(from, to)
-                                }
-                    }
-                    .toMap()
+                .map {
+                    // TODO(#2): Generalize and centralize accented character replacement.
+                    it.clueNum to
+                            clueReplacements.entries.fold(it.clue.clue) { clue, (from, to) ->
+                                clue.replace(from, to)
+                            }
+                }
+                .toMap()
         }
     }
 }

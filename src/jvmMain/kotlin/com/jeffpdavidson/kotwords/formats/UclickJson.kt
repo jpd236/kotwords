@@ -20,7 +20,7 @@ class UclickJson(
 ) : Crosswordable {
 
     override fun asCrossword(): Crossword {
-        val response = JsonSerializer.fromJson(UclickJson.Response::class.java, json)
+        val response = JsonSerializer.fromJson<UclickJson.Response>(json)
         val date = LocalDate.parse(response.date, JSON_DATE_FORMAT)
         val copyright = if (!response.copyright.isEmpty()) decode(response.copyright) else copyright
         val grid = response.allAnswer.chunked(response.width).map { row ->
