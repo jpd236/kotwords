@@ -66,6 +66,9 @@ dependencies {
     commonMainImplementation "net.mamoe.yamlkt:yamlkt:0.7.5"
     commonMainImplementation "net.devrieze:xmlutil-serialization:0.80.1"
 
+    // TODO: Migrate to kotlinx-datetime if parsing/formatting support is added.
+    commonMainImplementation "com.soywiz.korlibs.klock:klock:2.0.3"
+
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common"
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-common"
 

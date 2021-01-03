@@ -5,11 +5,10 @@ import com.jeffpdavidson.kotwords.formats.json.WallStreetJournalJson
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
-import org.jsoup.parser.Parser
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import com.soywiz.klock.DateFormat
+import com.soywiz.klock.parse
 
-private val PUBLISH_DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy")
+private val PUBLISH_DATE_FORMAT = DateFormat("EEEE, dd MMMM yyyy")
 
 /** Container for a puzzle in the Wall Street Journal JSON format. */
 class WallStreetJournal(
@@ -40,11 +39,11 @@ class WallStreetJournal(
         } else {
             response.data.copy.title.unescapeEntities()
         }
-        val date = LocalDate.parse(publishDate, PUBLISH_DATE_FORMAT)
+        val date = PUBLISH_DATE_FORMAT.parse(publishDate)
         return Crossword(
             title = title,
             author = response.data.copy.byline.unescapeEntities(),
-            copyright = "\u00a9 ${date.year} ${response.data.copy.publisher.unescapeEntities()}",
+            copyright = "\u00a9 ${date.yearInt} ${response.data.copy.publisher.unescapeEntities()}",
             notes = response.data.copy.description.unescapeEntities(),
             grid = grid,
             acrossClues = getClueMap(response, "Across"),
@@ -61,7 +60,7 @@ class WallStreetJournal(
 
     companion object {
         private fun String.unescapeEntities(): String {
-            return Parser.unescapeEntities(this, /* inAttribute= */ false)
+            return Encodings.decodeHtmlEntities(this)
         }
     }
 }

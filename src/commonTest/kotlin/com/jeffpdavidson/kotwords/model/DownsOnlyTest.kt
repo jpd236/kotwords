@@ -4,7 +4,7 @@ import com.jeffpdavidson.kotwords.formats.AcrossLite
 import com.jeffpdavidson.kotwords.model.DownsOnly.getDirectionToClearForDownsOnly
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.runTest
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DownsOnlyTest {

@@ -4,20 +4,21 @@ import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.toAcrossLiteBinar
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.runTest
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class UclickJsonTest {
     @Test
     fun crossword() = runTest {
-        assertArrayEquals(
-            readBinaryResource(UclickJsonTest::class, "puz/test-simple.puz"),
-            UclickJson(
-                readStringResource(UclickJsonTest::class, "uclick/test-simple.json"),
-                copyright = "Jeff Davidson",
-                addDateToTitle = false
-            ).asCrossword().toAcrossLiteBinary()
+        assertTrue(
+            readBinaryResource(UclickJsonTest::class, "puz/test-simple.puz").contentEquals(
+                UclickJson(
+                    readStringResource(UclickJsonTest::class, "uclick/test-simple.json"),
+                    copyright = "Jeff Davidson",
+                    addDateToTitle = false
+                ).asCrossword().toAcrossLiteBinary()
+            )
         )
     }
 

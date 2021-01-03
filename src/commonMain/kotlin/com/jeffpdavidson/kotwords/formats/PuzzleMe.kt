@@ -5,9 +5,7 @@ import com.jeffpdavidson.kotwords.formats.json.PuzzleMeJson
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
-import org.jsoup.Jsoup
-import java.nio.charset.StandardCharsets
-import java.util.Base64
+import kotlinx.io.core.String
 
 private val PUZZLE_DATA_REGEX = """\bwindow\.rawc\s*=\s*'([^']+)'""".toRegex()
 
@@ -22,13 +20,10 @@ class PuzzleMe(private val html: String) : Crosswordable {
         internal fun extractPuzzleJson(html: String): String {
             // Look for "window.rawc = '[data]'" inside <script> tags; this is JSON puzzle data
             // encoded as Base64.
-            Jsoup.parse(html).getElementsByTag("script").forEach {
-                val matchResult = PUZZLE_DATA_REGEX.find(it.data())
+            Html.parse(html).select("script").forEach {
+                val matchResult = PUZZLE_DATA_REGEX.find(it.data)
                 if (matchResult != null) {
-                    return String(
-                        Base64.getDecoder().decode(matchResult.groupValues[1]),
-                        StandardCharsets.UTF_8
-                    )
+                    return String(Encodings.decodeBase64(matchResult.groupValues[1]))
                 }
             }
             throw InvalidFormatException("Could not find puzzle data in PuzzleMe HTML")

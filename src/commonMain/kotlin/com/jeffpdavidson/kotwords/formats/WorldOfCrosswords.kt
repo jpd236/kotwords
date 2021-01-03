@@ -1,41 +1,40 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
+import com.jeffpdavidson.kotwords.formats.json.WorldOfCrosswordsJson
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
-import java.io.StringReader
-import java.time.LocalDate
-import java.util.Locale
-import javax.json.Json
-import javax.json.JsonArray
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonPrimitive
 
 /** Container for a puzzle in the World of Crosswords format. */
 class WorldOfCrosswords(
     private val json: String,
-    private val date: LocalDate,
+    private val year: Int,
     private val author: String,
     private val copyright: String
 ) : Crosswordable {
     override fun asCrossword(): Crossword {
-        // This format is so unstructured that there's no reason to use a data-class parser.
-        val data = Json.createReader(StringReader(json)).readObject()
-        if (!data.getBoolean("success", false)) {
+        val data = JsonSerializer.fromJson<WorldOfCrosswordsJson>(json)
+        if (!data.success) {
             throw InvalidFormatException("API failure")
         }
 
-        val msg = data.getJsonArray("msg")
-        val title = msg.getString(0)
-        val clueData = msg.getJsonArray(4)
-            .map { it.asJsonArray() }.partition { it.getString(5).toInt() == 1 }
-        val gridData = msg.getJsonArray(3)
-        val size = gridData.getString(0).toInt() + 1
-        val whiteSquareCoordinates = gridData.getJsonArray(1).map {
-            val square = it.asJsonArray()
-            square.getString(0).toInt() to (size - 1 - square.getString(1).toInt())
+        val title = data.msg[0].jsonPrimitive.content
+        val clueData = data.msg[4].jsonArray
+            .map { it.jsonArray }.partition { it[5].jsonPrimitive.int == 1 }
+        val gridData = data.msg[3].jsonArray
+        val size = gridData[0].jsonPrimitive.int + 1
+        val whiteSquareCoordinates = gridData[1].jsonArray.map {
+            val square = it.jsonArray
+            square[0].jsonPrimitive.int to (size - 1 - square[1].jsonPrimitive.int)
         }.toSet()
         val grid = mutableListOf<List<Square>>()
         val answerLetters =
-            clueData.first.joinToString("") { it.getString(1) }.toUpperCase(Locale.ROOT)
+            clueData.first.joinToString("") { it[1].jsonPrimitive.content }.toUpperCase()
         var answerLetterIndex = 0
         for (y in 0 until size) {
             val row = mutableListOf<Square>()
@@ -52,7 +51,7 @@ class WorldOfCrosswords(
         return Crossword(
             title = title,
             author = author,
-            copyright = "\u00a9 ${date.year} $copyright",
+            copyright = "\u00a9 $year $copyright",
             grid = grid,
             acrossClues = buildClueMap(clueData.first),
             downClues = buildClueMap(clueData.second)
@@ -62,7 +61,7 @@ class WorldOfCrosswords(
     private fun buildClueMap(clueData: List<JsonArray>): Map<Int, String> {
         // Replace italics in HTML (for titles) with quotes.
         return clueData.map {
-            it.getString(4).toInt() to it.getString(6).replace("</?i>".toRegex(), "\"")
+            it[4].jsonPrimitive.int to it[6].jsonPrimitive.content.replace("</?i>".toRegex(), "\"")
         }.toMap()
     }
 }

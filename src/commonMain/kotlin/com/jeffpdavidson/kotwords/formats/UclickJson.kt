@@ -5,12 +5,12 @@ import com.jeffpdavidson.kotwords.formats.json.UclickJson
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
-import java.net.URLDecoder
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import com.soywiz.klock.DateFormat
+import com.soywiz.klock.format
+import com.soywiz.klock.parseDate
 
-private val JSON_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd")
-private val TITLE_DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")
+private val JSON_DATE_FORMAT = DateFormat("yyyyMMdd")
+private val TITLE_DATE_FORMAT = DateFormat("EEEE, MMMM d, yyyy")
 
 /** Container for a puzzle in the Universal Uclick JSON format. */
 class UclickJson(
@@ -21,7 +21,7 @@ class UclickJson(
 
     override fun asCrossword(): Crossword {
         val response = JsonSerializer.fromJson<UclickJson.Response>(json)
-        val date = LocalDate.parse(response.date, JSON_DATE_FORMAT)
+        val date = JSON_DATE_FORMAT.parseDate(response.date)
         val copyright = if (!response.copyright.isEmpty()) decode(response.copyright) else copyright
         val grid = response.allAnswer.chunked(response.width).map { row ->
             row.map { square -> if (square == '-') BLACK_SQUARE else Square(square) }
@@ -49,5 +49,5 @@ class UclickJson(
         }.toMap()
     }
 
-    private fun decode(input: String): String = URLDecoder.decode(input, "UTF-8")
+    private fun decode(input: String): String = Encodings.decodeUrl(input)
 }

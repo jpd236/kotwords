@@ -3,8 +3,6 @@ package com.jeffpdavidson.kotwords.formats
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
-import org.jsoup.Jsoup
-import org.jsoup.select.Elements
 
 // Matches "TITLE Author, Copyright"
 private val SUB_HEADER_REGEX = "([^a-z]+(?![a-z])) ([^,]+), (.+)".toRegex()
@@ -12,9 +10,10 @@ private val SUB_HEADER_REGEX = "([^a-z]+(?![a-z])) ([^,]+), (.+)".toRegex()
 /** Container for a puzzle in the Boston Globe HTML format. */
 class BostonGlobe(private val html: String) : Crosswordable {
     override fun asCrossword(): Crossword {
-        val document = Jsoup.parse(html)
+        val document = Html.parse(html)
 
-        val subHeader = document.selectFirst("p.subhed").text()
+        val subHeader = document.selectFirst("p.subhed")?.text
+            ?: throw InvalidFormatException("No sub header")
         val subHeaderMatch = SUB_HEADER_REGEX.matchEntire(subHeader)
             ?: throw InvalidFormatException("Invalid sub header: $subHeader")
         val title = subHeaderMatch.groupValues[1]
@@ -22,9 +21,11 @@ class BostonGlobe(private val html: String) : Crosswordable {
         val copyright = "\u00a9 ${subHeaderMatch.groupValues[3]}"
 
         val gridElement = document.selectFirst("table#puzzle")
+            ?: throw InvalidFormatException("No puzzle table")
         val squareMap = gridElement.select("td[data-coords]").map {
             val coordinates = it.attr("data-coords").split(",").map(String::toInt)
-            val solution = it.selectFirst("input[name]").attr("name")
+            val solution = it.selectFirst("input[name]")?.attr("name")
+                ?: throw InvalidFormatException("No input with name attribute")
             (coordinates[0] to coordinates[1]) to solution
         }.toMap()
         val width = squareMap.keys.maxByOrNull { (x, _) -> x }!!.first
@@ -58,9 +59,9 @@ class BostonGlobe(private val html: String) : Crosswordable {
         )
     }
 
-    private fun toClueMap(clueElements: Elements): Map<Int, String> {
+    private fun toClueMap(clueElements: Iterable<Element>): Map<Int, String> {
         return clueElements.map {
-            val clue = it.text()
+            val clue = it.text!!
             clue.substringBefore(". ", clue).toInt() to clue.substringAfter(". ", clue)
         }.toMap()
     }

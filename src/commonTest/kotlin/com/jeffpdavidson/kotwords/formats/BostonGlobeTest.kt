@@ -4,9 +4,9 @@ import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.toAcrossLiteBinar
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.runTest
-import org.junit.Assert.assertArrayEquals
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class BostonGlobeTest {
     @Test
@@ -14,10 +14,11 @@ class BostonGlobeTest {
         val crossword = BostonGlobe(readStringResource(BostonGlobeTest::class, "bg/test-simple.html"))
             .asCrossword()
         assertEquals("EXAMPLE PUZZLE FOR KOTWORDS", crossword.title)
-        assertArrayEquals(
+        assertTrue(
             AcrossLite(readBinaryResource(BostonGlobeTest::class, "puz/test-simple.puz"))
-                .asCrossword().toAcrossLiteBinary(),
-            crossword.copy(title = "Example Puzzle for Kotwords").toAcrossLiteBinary()
+                .asCrossword().toAcrossLiteBinary().contentEquals(
+                    crossword.copy(title = "Example Puzzle for Kotwords").toAcrossLiteBinary()
+                )
         )
     }
 }
