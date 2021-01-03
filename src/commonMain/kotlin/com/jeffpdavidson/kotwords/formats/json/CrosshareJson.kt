@@ -30,5 +30,8 @@ internal object CrosshareJson {
     internal data class PageProps(val puzzle: Puzzle)
 
     @Serializable
-    internal data class Data(val pageProps: PageProps)
+    internal data class Props(val pageProps: PageProps)
+
+    @Serializable
+    internal data class Data(val props: Props)
 }

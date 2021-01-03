@@ -8,7 +8,7 @@ import com.jeffpdavidson.kotwords.model.Square
 
 class Crosshare(private val json: String) : Crosswordable {
     override fun asCrossword(): Crossword {
-        val data = JsonSerializer.fromJson<CrosshareJson.Data>(json).pageProps.puzzle
+        val data = JsonSerializer.fromJson<CrosshareJson.Data>(json).props.pageProps.puzzle
         return Crossword(
             title = data.title,
             author = data.authorName,
