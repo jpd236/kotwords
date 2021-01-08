@@ -35,9 +35,9 @@ class PuzzleMeTest {
     fun toCrossword() = runTest {
         assertTrue(
             readBinaryResource(PuzzleMeTest::class, "puz/test.puz").contentEquals(
-                PuzzleMe.toCrossword(
+                PuzzleMe(
                     readStringResource(PuzzleMeTest::class, "puzzleme/test.json")
-                )
+                ).asCrossword()
                     .toAcrossLiteBinary()
             )
         )
@@ -47,9 +47,9 @@ class PuzzleMeTest {
     fun toCrossword_isCircled() = runTest {
         assertTrue(
             readBinaryResource(PuzzleMeTest::class, "puz/test.puz").contentEquals(
-                PuzzleMe.toCrossword(
+                PuzzleMe(
                     readStringResource(PuzzleMeTest::class, "puzzleme/test-isCircled.json")
-                )
+                ).asCrossword()
                     .toAcrossLiteBinary()
             )
         )
@@ -59,9 +59,9 @@ class PuzzleMeTest {
     fun toCrossword_shadedCells() = runTest {
         assertTrue(
             readBinaryResource(PuzzleMeTest::class, "puz/test.puz").contentEquals(
-                PuzzleMe.toCrossword(
+                PuzzleMe(
                     readStringResource(PuzzleMeTest::class, "puzzleme/test-shadedCells.json")
-                )
+                ).asCrossword()
                     .toAcrossLiteBinary()
             )
         )
@@ -71,9 +71,9 @@ class PuzzleMeTest {
     fun toCrossword_voids() = runTest {
         assertTrue(
             readBinaryResource(PuzzleMeTest::class, "puz/test.puz").contentEquals(
-                PuzzleMe.toCrossword(
+                PuzzleMe(
                     readStringResource(PuzzleMeTest::class, "puzzleme/test-void.json")
-                )
+                ).asCrossword()
                     .toAcrossLiteBinary()
             )
         )
@@ -83,12 +83,12 @@ class PuzzleMeTest {
     fun toCrossword_hiddenSquares() = runTest {
         assertTrue(
             readBinaryResource(PuzzleMeTest::class, "puz/test.puz").contentEquals(
-                PuzzleMe.toCrossword(
+                PuzzleMe(
                     readStringResource(
                         PuzzleMeTest::class,
                         "puzzleme/test-hiddenSquares.json"
                     )
-                )
+                ).asCrossword()
                     .toAcrossLiteBinary()
             )
         )
@@ -98,9 +98,9 @@ class PuzzleMeTest {
     fun toCrossword_italics() = runTest {
         assertTrue(
             readBinaryResource(PuzzleMeTest::class, "puzzleme/test-italics.puz").contentEquals(
-                PuzzleMe.toCrossword(
+                PuzzleMe(
                     readStringResource(PuzzleMeTest::class, "puzzleme/test-italics.json")
-                )
+                ).asCrossword()
                     .toAcrossLiteBinary()
             )
         )
