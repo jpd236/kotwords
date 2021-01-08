@@ -3,9 +3,6 @@ package com.jeffpdavidson.kotwords.model
 /**
  * A representation of a crossword puzzle.
  *
- * While this is a generic container, it currently only includes features that are supported by
- * Across Lite.
- *
  * @constructor Construct a new puzzle.
  * @param title The title of the puzzle.
  * @param author The author of the puzzle.

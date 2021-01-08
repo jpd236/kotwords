@@ -18,6 +18,7 @@ import kotlinx.io.core.writeShortLittleEndian
 
 private const val FILE_MAGIC = "ACROSS&DOWN"
 private const val FORMAT_VERSION = "1.4"
+private val validSymbolRegex = "[@#$%&+?A-Z0-9]".toRegex()
 
 /**
  * Container for a puzzle in the Across Lite (1.4) binary file format.
@@ -166,6 +167,27 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
          * @param solved If true, the grid will be filled in with the correct solution.
          */
         fun Crossword.toAcrossLiteBinary(solved: Boolean = false): ByteArray {
+            // Validate that the solution and entry grids only contains supported characters.
+            grid.flatten().forEach { square ->
+                square.run {
+                    if (isBlack) {
+                        require(solution == null && solutionRebus == "" && !isCircled && entry == null && !isGiven) {
+                            "Black squares must not set other properties"
+                        }
+                    } else {
+                        require(isValidGridCharacter(solution!!)) {
+                            "Unsupported solution character: $solution"
+                        }
+                        require(entry == null || isValidGridCharacter(entry)) {
+                            "Unsupported entry character: $entry"
+                        }
+                    }
+                    require(solutionRebus.length <= 8 && !solutionRebus.any { !isValidGridCharacter(it) }) {
+                        "Invalid rebus: $solutionRebus"
+                    }
+                }
+            }
+
             fun BytePacketBuilder.writeExtraSection(
                 name: String, length: Int,
                 writeDataFn: (BytePacketBuilder) -> Unit
@@ -225,7 +247,9 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 writeShortLittleEndian(0)
 
                 // Board solution, reading left to right, top to bottom
-                writeGrid(grid, '.'.toByte()) { it.solution!!.toByte() }
+                writeGrid(grid, '.'.toByte()) {
+                    it.solution!!.toByte()
+                }
 
                 // Player state, reading left to right, top to bottom
                 writeGrid(grid, '.'.toByte()) {
@@ -367,7 +391,11 @@ private fun BytePacketBuilder.writeNullTerminatedString(string: String) {
     val stringBytes = string.replace('‘', '\'')
         .replace('’', '\'')
         .replace('“', '"')
-        .replace('”', '"').toByteArray(Charsets.ISO_8859_1)
+        .replace('”', '"')
+        // en/em dashes are unsupported in ISO-8859-1
+        .replace("—", "-")
+        .replace("–", "-")
+        .toByteArray(Charsets.ISO_8859_1)
     writeFully(stringBytes)
     writeByte(0)
 }
@@ -442,4 +470,15 @@ private fun checksumPartialBoard(
         offset++
     }
     return checksum
+}
+
+/**
+ * Validate a grid character.
+ *
+ * The only permitted characters are upper-case letters, numbers, and the characters '@', '#', '$', '%', '&', '+', and
+ * '?', as these are the only characters that can be inserted by the user in Across Lite (see [the text format
+ * specification](http://www.litsoft.com/across/docs/AcrossTextFormat.pdf)).
+ */
+private fun isValidGridCharacter(character: Char): Boolean {
+    return character.toString().matches(validSymbolRegex)
 }
