@@ -16,6 +16,7 @@ internal object CrosshareJson {
     @Serializable
     internal data class Puzzle(
         val authorName: String,
+        val guestConstructor: String = "",
         val title: String,
         // Note: this is speculative. Copyright seems to be stripped when uploading .puz files.
         val copyright: String = "",
