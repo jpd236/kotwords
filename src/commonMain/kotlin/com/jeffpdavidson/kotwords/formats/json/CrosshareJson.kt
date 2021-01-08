@@ -16,15 +16,15 @@ internal object CrosshareJson {
     @Serializable
     internal data class Puzzle(
         val authorName: String,
-        val guestConstructor: String = "",
         val title: String,
-        // Note: this is speculative. Copyright seems to be stripped when uploading .puz files.
-        val copyright: String = "",
         val size: Size,
         val clues: List<Clue>,
         val grid: List<String>,
         val highlighted: List<Int>,
-        val constructorNotes: String?,
+        val guestConstructor: String? = null,
+        val constructorNotes: String? = null,
+        // Note: this is speculative. Copyright seems to be stripped when uploading .puz files.
+        val copyright: String? = null,
     )
 
     @Serializable

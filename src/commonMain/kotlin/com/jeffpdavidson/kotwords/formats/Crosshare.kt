@@ -10,7 +10,7 @@ class Crosshare(private val json: String) : Crosswordable {
     override fun asCrossword(): Crossword {
         val data = JsonSerializer.fromJson<CrosshareJson.Data>(json).props.pageProps.puzzle
         val author =
-            if (data.guestConstructor.isNotEmpty()) {
+            if (data.guestConstructor?.isNotEmpty() == true) {
                 "${data.guestConstructor} / Published by ${data.authorName}"
             } else {
                 data.authorName
@@ -18,7 +18,7 @@ class Crosshare(private val json: String) : Crosswordable {
         return Crossword(
             title = data.title,
             author = author,
-            copyright = data.copyright,
+            copyright = data.copyright ?: "",
             notes = data.constructorNotes ?: "",
             grid = data.grid.withIndex().chunked(data.size.cols).map { row ->
                 row.map { (i, ch) ->
