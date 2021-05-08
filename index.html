@@ -10,14 +10,16 @@
         .icon {
             width: 95px;
         }
+
+
     </style>
 </head>
 <body>
-<div id="body" class="container-fluid">
+<div class="container-fluid" id="body">
     <h1>JPZ Generators</h1>
-    <hr />
+    <hr/>
     <div id="loading-container">
-        <div id="loading-spinner" class="spinner-border align-middle" role="status"></div>
+        <div class="spinner-border align-middle" id="loading-spinner" role="status"></div>
         <strong class="ml-1">Loading&hellip;</strong>
     </div>
 </div>
@@ -30,7 +32,7 @@
 <script crossorigin="anonymous"
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
         src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-<script src="kotwords.js"
-        onload="kotwords.com.jeffpdavidson.kotwords.web.Index.render()"></script>
+<script onload="kotwords.com.jeffpdavidson.kotwords.web.Index.render()"
+        src="kotwords.js"></script>
 </body>
 </html>
