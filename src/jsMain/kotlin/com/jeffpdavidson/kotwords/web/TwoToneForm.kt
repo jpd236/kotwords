@@ -80,11 +80,11 @@ class TwoToneForm {
             creator = creator.getValue(),
             copyright = copyright.getValue(),
             description = description.getValue(),
-            allSquaresAnswers = allSquaresAnswers.getValue().split(" +".toRegex()),
+            allSquaresAnswers = allSquaresAnswers.getValue().split("\\s+".toRegex()),
             allSquaresClues = allSquaresClues.getValue().split("\n").map { it.trim() },
-            oddSquaresAnswers = oddSquaresAnswers.getValue().split(" +".toRegex()),
+            oddSquaresAnswers = oddSquaresAnswers.getValue().split("\\s+".toRegex()),
             oddSquaresClues = oddSquaresClues.getValue().split("\n").map { it.trim() },
-            evenSquaresAnswers = evenSquaresAnswers.getValue().split(" +".toRegex()),
+            evenSquaresAnswers = evenSquaresAnswers.getValue().split("\\s+".toRegex()),
             evenSquaresClues = evenSquaresClues.getValue().split("\n").map { it.trim() })
         return Promise.resolve(
             twoTone.asPuzzle(

@@ -74,10 +74,10 @@ class EightTracksForm {
             creator = creator.getValue(),
             copyright = copyright.getValue(),
             description = description.getValue(),
-            trackDirections = trackDirections.getValue().split(" +".toRegex()).map {
+            trackDirections = trackDirections.getValue().split("\\s+".toRegex()).map {
                 if (it == "+") EightTracks.Direction.CLOCKWISE else EightTracks.Direction.COUNTERCLOCKWISE
             },
-            trackStartingOffsets = trackStartingOffsets.getValue().split(" +".toRegex()).map { it.toInt() },
+            trackStartingOffsets = trackStartingOffsets.getValue().split("\\s+".toRegex()).map { it.toInt() },
             trackAnswers = trackAnswers.getValue().split("\n").map { clues ->
                 clues.trim().split("/").map { it.trim() }
             },

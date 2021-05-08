@@ -82,11 +82,11 @@ class JellyRollForm {
             creator = creator.getValue(),
             copyright = copyright.getValue(),
             description = description.getValue(),
-            jellyRollAnswers = jellyRollAnswers.getValue().split(" +".toRegex()),
+            jellyRollAnswers = jellyRollAnswers.getValue().split("\\s+".toRegex()),
             jellyRollClues = jellyRollClues.getValue().split("\n").map { it.trim() },
-            lightSquaresAnswers = lightSquaresAnswers.getValue().split(" +".toRegex()),
+            lightSquaresAnswers = lightSquaresAnswers.getValue().split("\\s+".toRegex()),
             lightSquaresClues = lightSquaresClues.getValue().split("\n").map { it.trim() },
-            darkSquaresAnswers = darkSquaresAnswers.getValue().split(" +".toRegex()),
+            darkSquaresAnswers = darkSquaresAnswers.getValue().split("\\s+".toRegex()),
             darkSquaresClues = darkSquaresClues.getValue().split("\n").map { it.trim() })
         return Promise.resolve(
             jellyRoll.asPuzzle(

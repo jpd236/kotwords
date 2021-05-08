@@ -54,9 +54,9 @@ class SpiralForm {
             creator = creator.getValue(),
             copyright = copyright.getValue(),
             description = description.getValue(),
-            inwardAnswers = inwardAnswers.getValue().split(" +".toRegex()),
+            inwardAnswers = inwardAnswers.getValue().split("\\s+".toRegex()),
             inwardClues = inwardClues.getValue().split("\n").map { it.trim() },
-            outwardAnswers = outwardAnswers.getValue().split(" +".toRegex()),
+            outwardAnswers = outwardAnswers.getValue().split("\\s+".toRegex()),
             outwardClues = outwardClues.getValue().split("\n").map { it.trim() })
         return Promise.resolve(spiral.asPuzzle(crosswordSolverSettings = crosswordSolverSettings))
     }

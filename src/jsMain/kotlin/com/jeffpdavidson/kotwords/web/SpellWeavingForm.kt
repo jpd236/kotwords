@@ -43,7 +43,7 @@ class SpellWeavingForm {
             creator = creator.getValue(),
             copyright = copyright.getValue(),
             description = description.getValue(),
-            answers = answers.getValue().split(" +".toRegex()),
+            answers = answers.getValue().split("\\s+".toRegex()),
             clues = clues.getValue().split("\n").map { it.trim() })
         return Promise.resolve(spellWeaving.asPuzzle(crosswordSolverSettings = crosswordSolverSettings))
     }
