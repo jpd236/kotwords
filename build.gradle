@@ -1,6 +1,6 @@
 buildscript {
     ext.junit_version = '5.1.0'
-    ext.kotlin_version = '1.4.10'
+    ext.kotlin_version = '1.4.31'
 }
 
 plugins {
@@ -16,11 +16,7 @@ group = 'com.jeffpdavidson.kotwords'
 version = '1.0.0-SNAPSHOT'
 
 repositories {
-    jcenter()
-    // TODO: Remove once https://github.com/pdvrieze/xmlutil/issues/26 is resolved.
-    maven {
-        url "https://dl.bintray.com/pdvrieze/maven"
-    }
+    mavenCentral()
 }
 
 kotlin {
@@ -61,13 +57,13 @@ jsBrowserTest.doFirst {
 
 dependencies {
     commonMainImplementation "org.jetbrains.kotlinx:kotlinx-io:0.1.16"
-    commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.1"
-    commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
-    commonMainImplementation "net.mamoe.yamlkt:yamlkt:0.7.5"
-    commonMainImplementation "net.devrieze:xmlutil-serialization:0.80.1"
+    commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-core:1.1.0"
+    commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0"
+    commonMainImplementation "net.mamoe.yamlkt:yamlkt:0.9.0"
+    commonMainImplementation "io.github.pdvrieze.xmlutil:serialization:0.81.2"
 
     // TODO: Migrate to kotlinx-datetime if parsing/formatting support is added.
-    commonMainImplementation "com.soywiz.korlibs.klock:klock:2.0.3"
+    commonMainImplementation "com.soywiz.korlibs.klock:klock:2.0.7"
 
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common"
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-common"
@@ -84,7 +80,7 @@ dependencies {
     jsMainImplementation(npm("jszip", "3.4.0"))
     jsMainImplementation(npm("text-encoding", "0.7.0"))
     jsMainImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.4.2"
-    jsMainImplementation "org.jetbrains.kotlinx:kotlinx-html-js:0.6.12"
+    jsMainImplementation "org.jetbrains.kotlinx:kotlinx-html-js:0.7.3"
 
     jsTestImplementation "org.jetbrains.kotlin:kotlin-test-js"
 }

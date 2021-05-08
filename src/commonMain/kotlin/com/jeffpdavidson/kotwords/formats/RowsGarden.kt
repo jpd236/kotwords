@@ -227,7 +227,7 @@ data class RowsGarden(
         }
 
         private fun parseRg(rg: String): RowsGarden {
-            return Yaml.default.decodeFromString(serializer(), fixInvalidYamlValues(rg))
+            return Yaml.Default.decodeFromString(serializer(), fixInvalidYamlValues(rg))
         }
 
         /**

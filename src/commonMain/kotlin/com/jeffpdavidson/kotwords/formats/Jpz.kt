@@ -242,12 +242,12 @@ interface Jpz : Crosswordable {
             }
         }
 
+        @Serializable
+        @SerialName("dummy")
+        private data class Dummy(@XmlValue(true) val data: Snippet)
+
         /** Parse the given HTML string as a [Snippet] (i.e. for use in clues). */
         fun htmlToSnippet(html: String): Snippet {
-            @Serializable
-            @SerialName("dummy")
-            data class Dummy(@XmlValue(true) val data: Snippet)
-
             val dummyXml = "<dummy>$html</dummy>"
             val snippet = XML(module()) {
                 autoPolymorphic = true
