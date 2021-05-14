@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Publish a SNAPSHOT build on any commit to master.
+# Publish a build on any commit to master.
 #
 # Does nothing for other repositories and branches, or on pull requests.
 
@@ -19,6 +19,6 @@ elif [ "$GITHUB_BRANCH" != "$BRANCH" ]; then
   echo "Not publishing snapshot; wrong branch. Expected '$BRANCH' but was '$GITHUB_BRANCH'."
 else
   echo "Publishing snapshot..."
-  ./gradlew artifactoryPublish
-  echo "Published snapshot to OJO!"
+  ./gradlew publishToSonatype
+  echo "Published build!"
 fi
