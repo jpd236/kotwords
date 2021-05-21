@@ -33,7 +33,8 @@ private suspend fun <T : Any> readResource(
     return suspendCoroutine { continuation ->
         val xhr = XMLHttpRequest()
         xhr.responseType = responseType
-        xhr.open("GET", "/base/resources/test/$resourceName")
+        // See karma.config.d/resources.js for details on this path.
+        xhr.open("GET", "/base/build/processedResources/js/test/$resourceName")
         xhr.onload = {
             if (xhr.status != 200.toShort()) {
                 continuation.resumeWithException(

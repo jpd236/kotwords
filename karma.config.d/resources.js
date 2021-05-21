@@ -1,7 +1,11 @@
-// Serve the resource files copied into the resources/ directory.
-// See build.gradle under jsTestProcessResources.
+// Hack to make resources available to JS tests.
+// JsTestRunner can fetch these from Karma's webserver.
+// Works around https://youtrack.jetbrains.com/issue/KT-42923
+config.set({
+  basePath: '../../../../'
+});
 config.files.push({
-    "pattern": "resources/**",
+    "pattern": "build/processedResources/js/**",
     "served": true,
     "included": false
 });
