@@ -8,10 +8,10 @@ import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 import com.jeffpdavidson.kotwords.web.html.Tabs
 import com.jeffpdavidson.kotwords.web.html.Tabs.tabs
+import io.ktor.utils.io.charsets.Charsets
+import io.ktor.utils.io.core.String
 import kotlinx.html.InputType
 import kotlinx.html.dom.append
-import kotlinx.io.charsets.Charsets
-import kotlinx.io.core.String
 import kotlin.js.Promise
 
 /** Form to convert Acrostic puzzles into JPZ files. */

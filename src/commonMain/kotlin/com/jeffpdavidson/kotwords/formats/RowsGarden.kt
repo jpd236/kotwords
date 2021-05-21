@@ -1,8 +1,8 @@
 package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.model.Puzzle
-import kotlinx.io.charsets.Charsets
-import kotlinx.io.core.String
+import io.ktor.utils.io.charsets.Charsets
+import io.ktor.utils.io.core.String
 import kotlinx.serialization.Serializable
 import net.mamoe.yamlkt.Yaml
 import kotlin.math.floor

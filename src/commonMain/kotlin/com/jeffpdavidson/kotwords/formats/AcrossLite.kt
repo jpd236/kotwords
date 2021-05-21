@@ -3,18 +3,19 @@ package com.jeffpdavidson.kotwords.formats
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
-import kotlinx.io.charsets.Charsets
-import kotlinx.io.core.BytePacketBuilder
-import kotlinx.io.core.ByteReadPacket
-import kotlinx.io.core.String
-import kotlinx.io.core.buildPacket
-import kotlinx.io.core.discardExact
-import kotlinx.io.core.readBytes
-import kotlinx.io.core.readShortLittleEndian
-import kotlinx.io.core.toByteArray
-import kotlinx.io.core.writeFully
-import kotlinx.io.core.writeLongLittleEndian
-import kotlinx.io.core.writeShortLittleEndian
+import io.ktor.utils.io.charsets.Charsets
+import io.ktor.utils.io.core.BytePacketBuilder
+import io.ktor.utils.io.core.ByteReadPacket
+import io.ktor.utils.io.core.String
+import io.ktor.utils.io.core.buildPacket
+import io.ktor.utils.io.core.fill
+import io.ktor.utils.io.core.readBytes
+import io.ktor.utils.io.core.readShortLittleEndian
+import io.ktor.utils.io.core.toByteArray
+import io.ktor.utils.io.core.writeFully
+import io.ktor.utils.io.core.writeLongLittleEndian
+import io.ktor.utils.io.core.writeShortLittleEndian
+import io.ktor.utils.io.core.writeText
 
 private const val FILE_MAGIC = "ACROSS&DOWN"
 private const val FORMAT_VERSION = "1.4"
@@ -192,7 +193,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 name: String, length: Int,
                 writeDataFn: (BytePacketBuilder) -> Unit
             ) {
-                writeStringUtf8(name)
+                writeText(name, charset = Charsets.ISO_8859_1)
                 writeShortLittleEndian(length.toShort())
 
                 // Write the data to a separate packet so we can calculate the checksum.
@@ -305,7 +306,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                         "${if (it.value < 10) " " else ""}${it.value}:${it.key}"
                     }
                     writeExtraSection("RTBL", rtblData.length) { packetBuilder ->
-                        packetBuilder.writeStringUtf8(rtblData)
+                        packetBuilder.writeText(rtblData, charset = Charsets.UTF_8)
                     }
 
                     if (solved) {
@@ -336,7 +337,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 if (solved) {
                     // LTIM section: timer (stopped at 0).
                     writeExtraSection("LTIM", 3) { packetBuilder ->
-                        packetBuilder.writeStringUtf8("0,1")
+                        packetBuilder.writeText("0,1", charset = Charsets.ISO_8859_1)
                     }
                 }
 
