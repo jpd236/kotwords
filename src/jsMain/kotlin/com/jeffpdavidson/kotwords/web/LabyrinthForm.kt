@@ -6,7 +6,7 @@ import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 import kotlin.js.Promise
 
-class LabyrinthForm {
+internal class LabyrinthForm {
     private val jpzForm = JpzForm(::createPuzzle)
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val creator: FormFields.InputField = FormFields.InputField("creator")

@@ -15,7 +15,7 @@ import kotlinx.html.dom.append
 import kotlin.js.Promise
 
 /** Form to convert Acrostic puzzles into JPZ files. */
-class AcrosticForm {
+internal class AcrosticForm {
     private val manualEntryForm = JpzForm(
         ::createPuzzleFromManualEntry,
         id = "manual-entry",

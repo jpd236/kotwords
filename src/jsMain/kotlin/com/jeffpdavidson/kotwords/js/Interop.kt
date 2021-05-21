@@ -7,7 +7,7 @@ import org.w3c.files.FileReader
 import kotlin.js.Promise
 
 /** Helpers for operating on Javascript objects and data types in Kotlin. */
-object Interop {
+internal object Interop {
 
     /** Return this [ArrayBuffer] as a [ByteArray]. */
     fun ArrayBuffer.toByteArray(): ByteArray {

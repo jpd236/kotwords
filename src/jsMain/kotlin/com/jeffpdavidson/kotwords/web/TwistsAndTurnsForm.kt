@@ -9,7 +9,7 @@ import kotlinx.html.div
 import kotlin.js.Promise
 
 /** Form to convert Twists and Turns puzzles into JPZ files. */
-class TwistsAndTurnsForm {
+internal class TwistsAndTurnsForm {
     private val jpzForm = JpzForm(::createPuzzle)
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val creator: FormFields.InputField = FormFields.InputField("creator")

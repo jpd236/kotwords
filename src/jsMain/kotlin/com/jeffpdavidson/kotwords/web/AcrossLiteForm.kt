@@ -8,7 +8,7 @@ import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 import kotlin.js.Promise
 
 /** Form to convert Across Lite files into JPZ files. */
-class AcrossLiteForm {
+internal class AcrossLiteForm {
     private val jpzForm = JpzForm(::createPuzzle, { getFileName() })
     private val file: FormFields.FileField = FormFields.FileField("file")
 

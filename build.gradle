@@ -6,7 +6,7 @@ buildscript {
 plugins {
     id 'maven-publish'
     id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
-    id 'org.jetbrains.dokka' version '0.10.1'
+    id 'org.jetbrains.dokka' version '1.4.32'
     id 'org.jetbrains.kotlin.multiplatform' version "$kotlin_version"
     id 'org.jetbrains.kotlin.kapt' version "$kotlin_version"
     id 'org.jetbrains.kotlin.plugin.serialization' version "$kotlin_version"
@@ -69,33 +69,15 @@ dependencies {
     jsTestImplementation "org.jetbrains.kotlin:kotlin-test-js"
 }
 
-dokka {
-    outputFormat = 'html'
-    outputDirectory = "$buildDir/javadoc"
-
-    configuration {
-        perPackageOption {
-            prefix = "com.jeffpdavidson.kotwords.formats.json"
-            suppress = true
-        }
-    }
-}
-
 task dokkaJar(type: Jar) {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
     archiveClassifier.set("javadoc")
-    from(dokka)
-}
-
-tasks.named("jvmSourcesJar") {
-    exclude("com/jeffpdavidson/kotwords/formats/json")
+    from(dokkaHtml.outputDirectory)
 }
 
 publishing {
-    publications {
-        jvm {
-            artifact(dokkaJar)
-        }
+    publications.withType(MavenPublication) {
+        artifact(dokkaJar)
     }
 }
 

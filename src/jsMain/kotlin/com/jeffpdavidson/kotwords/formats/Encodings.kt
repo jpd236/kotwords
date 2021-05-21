@@ -4,7 +4,7 @@ import org.w3c.dom.HTMLTextAreaElement
 import kotlin.browser.document
 import kotlin.browser.window
 
-external fun decodeURIComponent(encodedURI: String): String
+internal external fun decodeURIComponent(encodedURI: String): String
 
 internal actual object Encodings {
     actual fun decodeBase64(string: String): ByteArray =

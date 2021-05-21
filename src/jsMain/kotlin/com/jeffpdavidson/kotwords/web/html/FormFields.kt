@@ -22,7 +22,7 @@ import kotlin.dom.addClass
 import kotlin.dom.removeClass
 
 /** Classes to encapsulate and render form fields. */
-object FormFields {
+internal object FormFields {
 
     /**
      * Create an <input> field for standard input types.

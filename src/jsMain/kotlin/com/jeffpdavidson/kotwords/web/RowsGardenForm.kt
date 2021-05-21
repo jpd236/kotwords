@@ -18,7 +18,7 @@ import kotlinx.html.p
 import kotlin.js.Promise
 
 /** Form to convert Rows Garden puzzles into JPZ files. */
-class RowsGardenForm {
+internal class RowsGardenForm {
     private val manualEntryForm = JpzForm(::createPuzzleFromManualEntry, id = "manual-entry")
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val author: FormFields.InputField = FormFields.InputField("author")

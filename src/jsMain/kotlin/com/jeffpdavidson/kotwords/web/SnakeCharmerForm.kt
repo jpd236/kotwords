@@ -7,7 +7,7 @@ import com.jeffpdavidson.kotwords.web.html.Html
 import kotlinx.html.classes
 import kotlin.js.Promise
 
-class SnakeCharmerForm {
+internal class SnakeCharmerForm {
     private val jpzForm = JpzForm(::createPuzzle)
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val creator: FormFields.InputField = FormFields.InputField("creator")

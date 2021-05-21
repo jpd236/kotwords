@@ -11,7 +11,7 @@ import kotlinx.html.role
 import kotlinx.html.ul
 
 /** Templates for creating tabbed layouts. */
-object Tabs {
+internal object Tabs {
 
     /**
      * A tab to render in a tab layout.

@@ -18,7 +18,7 @@ private external class navigator {
     }
 }
 
-object Html {
+internal object Html {
     @Suppress("UNCHECKED_CAST")
     fun <T : HTMLElement> getElementById(id: String): Lazy<T> {
         return lazy {

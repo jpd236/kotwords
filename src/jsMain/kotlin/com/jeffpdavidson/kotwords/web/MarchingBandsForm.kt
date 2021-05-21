@@ -8,7 +8,7 @@ import kotlinx.html.InputType
 import kotlinx.html.div
 import kotlin.js.Promise
 
-class MarchingBandsForm {
+internal class MarchingBandsForm {
     private val jpzForm = JpzForm(::createPuzzle)
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val creator: FormFields.InputField = FormFields.InputField("creator")

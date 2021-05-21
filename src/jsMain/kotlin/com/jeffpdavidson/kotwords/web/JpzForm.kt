@@ -38,7 +38,7 @@ import kotlin.js.Promise
  * @param completionMessageDefaultValue optional default value to use for the completion message.
  * @param completionMessageHelpText optional help text to use for the completion message.
  */
-class JpzForm(
+internal class JpzForm(
     private val createPuzzleFn: (Puzzle.CrosswordSolverSettings) -> Promise<Puzzle>,
     private val getFileNameFn: (Puzzle) -> String = ::getDefaultFileName,
     private val id: String = "",
