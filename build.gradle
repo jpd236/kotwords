@@ -78,6 +78,28 @@ task dokkaJar(type: Jar) {
 publishing {
     publications.withType(MavenPublication) {
         artifact(dokkaJar)
+        pom {
+            name = 'Kotwords'
+            description = 'Collection of crossword puzzle file format converters and other utilities, written in Kotlin.'
+            url = 'https://jpd236.github.io/kotwords'
+            developers {
+                developer {
+                    id = 'jpd236'
+                    name = 'Jeff Davidson'
+                }
+            }
+            licenses {
+                license {
+                    name = "The Apache License, Version 2.0"
+                    url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                }
+            }
+            scm {
+                connection = 'scm:git:git://github.com/jpd236/kotwords.git'
+                developerConnection = 'scm:git:ssh://git@github.com/jpd236/kotwords.git'
+                url = 'https://github.com/jpd236/kotwords'
+            }
+        }
     }
 }
 
