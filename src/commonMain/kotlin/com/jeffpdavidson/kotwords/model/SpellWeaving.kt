@@ -12,8 +12,8 @@ data class SpellWeaving(
 ) {
 
     fun asPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Puzzle {
-        val filteredAnswers = answers.map { answer -> answer.toUpperCase().filter { it in 'A'..'Z' } }
-        val length = filteredAnswers.sumBy { it.length }
+        val filteredAnswers = answers.map { answer -> answer.uppercase().filter { it in 'A'..'Z' } }
+        val length = filteredAnswers.sumOf { it.length }
         val middleRowLengthDouble = (1 + sqrt(4 * length - 3.0)) / 2
         val middleRowLength = middleRowLengthDouble.toInt()
         require(middleRowLength > 2 && middleRowLength % 2 == 0 && middleRowLengthDouble - middleRowLength == 0.0) {

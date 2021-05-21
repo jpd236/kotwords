@@ -11,6 +11,7 @@ import io.ktor.utils.io.core.buildPacket
 import io.ktor.utils.io.core.fill
 import io.ktor.utils.io.core.readBytes
 import io.ktor.utils.io.core.readShortLittleEndian
+import io.ktor.utils.io.core.readTextExactCharacters
 import io.ktor.utils.io.core.toByteArray
 import io.ktor.utils.io.core.writeFully
 import io.ktor.utils.io.core.writeLongLittleEndian
@@ -54,7 +55,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
             for (y in 0 until height) {
                 val row = mutableListOf<Square>()
                 for (x in 0 until width) {
-                    val solution = readByte().toChar()
+                    val solution = readTextExactCharacters(1, Charsets.ISO_8859_1)[0]
                     row.add(
                         if (solution == '.') {
                             BLACK_SQUARE
@@ -264,16 +265,16 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 writeShortLittleEndian(0)
 
                 // Board solution, reading left to right, top to bottom
-                writeGrid(grid, '.'.toByte()) {
-                    it.solution!!.toByte()
+                writeGrid(grid, '.') {
+                    it.solution!!
                 }
 
                 // Player state, reading left to right, top to bottom
-                writeGrid(grid, '.'.toByte()) {
+                writeGrid(grid, '.') {
                     when {
-                        solved || it.isGiven -> it.solution!!.toByte()
-                        it.entry != null -> it.entry.toByte()
-                        else -> '-'.toByte()
+                        solved || it.isGiven -> it.solution!!
+                        it.entry != null -> it.entry
+                        else -> '-'
                     }
                 }
 
@@ -325,7 +326,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
 
                     // RUSR section: user rebus entries.
                     if (solved || grid.flatAny { it.isGiven || it.entryRebus != null }) {
-                        val length = grid.flatten().sumBy { it.solutionRebus.length + 1 }
+                        val length = grid.flatten().sumOf { it.solutionRebus.length + 1 }
                         writeExtraSection("RUSR", length) { packetBuilder ->
                             grid.forEach { row ->
                                 row.forEach { square ->
@@ -389,12 +390,18 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
 }
 
 private inline fun BytePacketBuilder.writeGrid(
-    grid: List<List<Square>>, blackSquareValue: Byte, whiteSquareFn: (Square) -> Byte
+    grid: List<List<Square>>, blackSquareValue: Byte, crossinline whiteSquareFn: (Square) -> Byte
 ) {
-    grid.forEach { row ->
-        row.forEach { square ->
-            writeByte(if (square.isBlack) blackSquareValue else whiteSquareFn(square))
-        }
+    Crossword.forEachSquare(grid) { _, _, _, _, _, square ->
+        writeByte(if (square.isBlack) blackSquareValue else whiteSquareFn(square))
+    }
+}
+private inline fun BytePacketBuilder.writeGrid(
+    grid: List<List<Square>>, blackSquareValue: Char, crossinline whiteSquareFn: (Square) -> Char
+) {
+    Crossword.forEachSquare(grid) { _, _, _, _, _, square ->
+        val char = if (square.isBlack) blackSquareValue else whiteSquareFn(square)
+        writeText(char.toString(), charset = Charsets.ISO_8859_1)
     }
 }
 

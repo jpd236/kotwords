@@ -18,7 +18,7 @@ data class Spiral(
     }
 
     fun asPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Puzzle {
-        val sideLength = SpiralGrid.getSideLength(inwardAnswers.sumBy { it.length })
+        val sideLength = SpiralGrid.getSideLength(inwardAnswers.sumOf { it.length })
         val squareList = SpiralGrid.createSquareList(sideLength)
         val inwardLetters = inwardAnswers.joinToString("")
         val gridMap = squareList.mapIndexed { i, (x, y) ->

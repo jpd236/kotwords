@@ -70,7 +70,7 @@ internal class MarchingBandsForm {
             copyright = copyright.getValue(),
             description = description.getValue(),
             grid = grid.getValue().split("\n").map { row ->
-                row.toUpperCase().replace("[^A-Z.]".toRegex(), "").map { ch -> if (ch == '.') null else ch }
+                row.uppercase().replace("[^A-Z.]".toRegex(), "").map { ch -> if (ch == '.') null else ch }
             },
             bandClues = bandClues.getValue().split("\n").map { clues ->
                 clues.trim().split("/").map { it.trim() }

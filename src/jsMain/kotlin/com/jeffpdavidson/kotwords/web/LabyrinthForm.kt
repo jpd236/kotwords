@@ -59,7 +59,7 @@ internal class LabyrinthForm {
             copyright = copyright.getValue(),
             description = description.getValue(),
             grid = grid.getValue().split("\n").map { row ->
-                row.toUpperCase().replace("[^A-Z.]".toRegex(), "").toList()
+                row.uppercase().replace("[^A-Z.]".toRegex(), "").toList()
             },
             gridKey = gridKey.getValue().split("\n").map { row ->
                 row.trim().split(" ").map { it.toInt() }

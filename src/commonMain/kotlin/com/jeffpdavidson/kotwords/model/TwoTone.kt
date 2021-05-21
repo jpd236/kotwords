@@ -44,7 +44,7 @@ data class TwoTone(
         addNumberedSquares(oddSquaresAnswers, 0, true)
         addNumberedSquares(evenSquaresAnswers, 1, true)
 
-        val sideLength = SpiralGrid.getSideLength(allSquaresAnswers.sumBy { it.length })
+        val sideLength = SpiralGrid.getSideLength(allSquaresAnswers.sumOf { it.length })
         val squareList = SpiralGrid.createSquareList(sideLength)
         val letters = allSquaresAnswers.joinToString("")
         var currentNumber = 1

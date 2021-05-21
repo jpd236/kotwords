@@ -37,7 +37,7 @@ internal class SnakeCharmerForm {
                 }
                 gridShape.render(this, "Grid shape", "Use '*' characters to represent white squares.") {
                     rows = "10"
-                    classes += "text-monospace"
+                    classes = classes + "text-monospace"
                     +"""
                      | ************
                      | *          *

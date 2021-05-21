@@ -34,7 +34,7 @@ data class RowsGarden(
             "Must have at least 3 rows"
         }
         val rowLetters = rows.map { words ->
-            words.joinToString("") { word -> word.answer.filter(::isAlphanumeric) }
+            words.joinToString("") { word -> word.answer.filter(Char::isLetterOrDigit) }
         }
         require(rowLetters.subList(1, rowLetters.size - 1).all { it.length == rowLetters[1].length }) {
             "All rows except the first and last must have the same width"
@@ -172,8 +172,6 @@ data class RowsGarden(
             crosswordSolverSettings = crosswordSolverSettings
         )
     }
-
-    private fun isAlphanumeric(ch: Char) = ch in 'A'..'Z' || ch in 'a'..'z' || ch in '0'..'9'
 
     private fun formatClue(
         entry: Entry,

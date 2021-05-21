@@ -215,7 +215,7 @@ interface Jpz : Crosswordable {
             Pair<Map<Int, String>, Map<Int, String>> {
         // Create a map from clue list title to the list of <clue> elements under that title.
         val clueGroups = clues.filter { it.title.data.isNotEmpty() }.associate {
-            val clueListTitle = it.title.data.toText().toLowerCase()
+            val clueListTitle = it.title.data.toText().lowercase()
             val clueList = it.clues
             clueListTitle to clueList
         }

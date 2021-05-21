@@ -34,7 +34,7 @@ class WorldOfCrosswords(
         }.toSet()
         val grid = mutableListOf<List<Square>>()
         val answerLetters =
-            clueData.first.joinToString("") { it[1].jsonPrimitive.content }.toUpperCase()
+            clueData.first.joinToString("") { it[1].jsonPrimitive.content }.uppercase()
         var answerLetterIndex = 0
         for (y in 0 until size) {
             val row = mutableListOf<Square>()

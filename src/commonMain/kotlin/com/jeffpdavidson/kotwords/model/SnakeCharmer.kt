@@ -14,7 +14,7 @@ data class SnakeCharmer(
         require(gridCoordinates.isNotEmpty()) {
             "Cannot have an empty grid"
         }
-        require(gridCoordinates.size * 2 == answers.sumBy { it.length }) {
+        require(gridCoordinates.size * 2 == answers.sumOf { it.length }) {
             "Grid size must be exactly half the length of all the answers"
         }
     }

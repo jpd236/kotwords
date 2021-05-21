@@ -53,7 +53,7 @@ internal object Index {
                 GENERATORS.chunked(4).forEach { generatorRow ->
                     div(classes = "row row-cols-1 row-cols-md-4") {
                         generatorRow.forEach { generator ->
-                            val id = generator.toLowerCase().replace(' ', '-')
+                            val id = generator.lowercase().replace(' ', '-')
                             div(classes = "col mb-4") {
                                 div(classes = "card text-center") {
                                     div(classes = "card-body") {

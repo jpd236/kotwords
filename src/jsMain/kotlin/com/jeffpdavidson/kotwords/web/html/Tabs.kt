@@ -31,7 +31,7 @@ internal object Tabs {
                 li(classes = "nav-item") {
                     a(classes = "nav-link") {
                         if (i == 0) {
-                            classes += "active"
+                            classes = classes + "active"
                             attributes["aria-selected"] = "true"
                         }
                         attributes["aria-controls"] = "${tab.id}-tab"
@@ -49,8 +49,7 @@ internal object Tabs {
             tabs.forEachIndexed { i, tab ->
                 div(classes = "tab-pane fade") {
                     if (i == 0) {
-                        classes += "show"
-                        classes += "active"
+                        classes = classes + setOf("show", "active")
                     }
                     id = "${tab.id}-body"
                     role = "tabpanel"

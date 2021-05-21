@@ -56,7 +56,7 @@ data class JellyRoll(
         addNumberedSquares(lightSquaresAnswers, 0, LIGHT_SQUARE_MODULOS)
         addNumberedSquares(darkSquaresAnswers, 1, DARK_SQUARE_MODULOS)
 
-        val sideLength = SpiralGrid.getSideLength(jellyRollAnswers.sumBy { it.length })
+        val sideLength = SpiralGrid.getSideLength(jellyRollAnswers.sumOf { it.length })
         val squareList = SpiralGrid.createSquareList(sideLength)
         val letters = jellyRollAnswers.joinToString("")
         var currentNumber = 1

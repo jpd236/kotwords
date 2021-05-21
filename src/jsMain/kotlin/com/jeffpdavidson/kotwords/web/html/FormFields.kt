@@ -227,7 +227,7 @@ internal object FormFields {
     private fun FlowContent.formGroup(flexCols: Int? = 0, block: DIV.() -> Unit) {
         div(classes = "form-group") {
             if (flexCols != null) {
-                classes += "col-md-${flexCols}"
+                classes = classes + "col-md-${flexCols}"
             }
             block()
         }

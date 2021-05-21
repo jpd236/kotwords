@@ -33,7 +33,7 @@ internal actual object Encodings {
     }
 
     actual fun decodeBase64(string: String): ByteArray =
-        window.atob(string).map { it.toByte() }.toByteArray()
+        window.atob(string).map { it.code.toByte() }.toByteArray()
 
     actual fun decodeUrl(url: String): String = decodeURIComponent(url)
 

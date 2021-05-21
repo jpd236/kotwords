@@ -4,7 +4,7 @@ import org.jsoup.Jsoup
 import org.jsoup.parser.Parser
 
 private open class ElementImpl(private val jsoupElement: org.jsoup.nodes.Element) : Element {
-    override val tag: String = jsoupElement.tagName().toUpperCase()
+    override val tag: String = jsoupElement.tagName().uppercase()
     override val data: String = jsoupElement.data()
     override val text: String = jsoupElement.text()
     override val children: List<Node> = jsoupElement.childNodes().mapNotNull { node ->

@@ -194,7 +194,7 @@ data class Acrostic(
                 copyright.trim(),
                 description.trim(),
                 suggestedWidthInt,
-                solution.trim().toUpperCase(),
+                solution.trim().uppercase(),
                 gridKeyList,
                 clues.trim().split("\n").map { it.trim() },
                 answersList,
