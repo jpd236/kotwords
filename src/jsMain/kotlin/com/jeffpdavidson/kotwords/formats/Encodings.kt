@@ -1,8 +1,8 @@
 package com.jeffpdavidson.kotwords.formats
 
-import org.w3c.dom.HTMLTextAreaElement
 import kotlinx.browser.document
 import kotlinx.browser.window
+import org.w3c.dom.HTMLTextAreaElement
 
 internal external fun decodeURIComponent(encodedURI: String): String
 

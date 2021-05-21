@@ -174,7 +174,7 @@ data class Puzzle(
                 if (square == BLACK_SQUARE) {
                     gridMap[x to y] = Cell(x + 1, y + 1, cellType = CellType.BLOCK)
                 } else {
-                    val solution = square.solutionRebus.ifEmpty {"${square.solution}" }
+                    val solution = square.solutionRebus.ifEmpty { "${square.solution}" }
                     val number = "${clueNumber ?: ""}"
                     val backgroundShape =
                         if (square.isCircled) {

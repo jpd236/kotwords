@@ -81,7 +81,8 @@ internal class TwistsAndTurnsForm {
             width = width.getValue().toInt(),
             height = height.getValue().toInt(),
             twistBoxSize = twistBoxSize.getValue().toInt(),
-            turnsAnswers = turnsAnswers.getValue().toUpperCase().replace("[^A-Z\\s]".toRegex(), "").split("\\s+".toRegex()),
+            turnsAnswers = turnsAnswers.getValue().toUpperCase().replace("[^A-Z\\s]".toRegex(), "")
+                .split("\\s+".toRegex()),
             turnsClues = turnsClues.getValue().split("\n").map { it.trim() },
             twistsClues = twistsClues.getValue().split("\n").map { it.trim() },
             lightTwistsColor = lightTwistsColor.getValue(),

@@ -255,7 +255,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 // Player state, reading left to right, top to bottom
                 writeGrid(grid, '.'.toByte()) {
                     when {
-                        solved ->  it.solution!!.toByte()
+                        solved -> it.solution!!.toByte()
                         it.entry != null -> it.entry.toByte()
                         else -> '-'.toByte()
                     }
