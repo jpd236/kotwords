@@ -5,7 +5,7 @@ import com.jeffpdavidson.kotwords.formats.json.PuzzleMeJson
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
-import kotlinx.io.core.String
+import io.ktor.utils.io.core.String
 
 private val PUZZLE_DATA_REGEX = """\bwindow\.rawc\s*=\s*'([^']+)'""".toRegex()
 
