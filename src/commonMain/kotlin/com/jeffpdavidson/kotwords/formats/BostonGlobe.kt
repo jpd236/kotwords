@@ -22,12 +22,12 @@ class BostonGlobe(private val html: String) : Crosswordable {
 
         val gridElement = document.selectFirst("table#puzzle")
             ?: throw InvalidFormatException("No puzzle table")
-        val squareMap = gridElement.select("td[data-coords]").map {
+        val squareMap = gridElement.select("td[data-coords]").associate {
             val coordinates = it.attr("data-coords").split(",").map(String::toInt)
             val solution = it.selectFirst("input[name]")?.attr("name")
                 ?: throw InvalidFormatException("No input with name attribute")
             (coordinates[0] to coordinates[1]) to solution
-        }.toMap()
+        }
         val width = squareMap.keys.maxByOrNull { (x, _) -> x }!!.first
         val height = squareMap.keys.maxByOrNull { (_, y) -> y }!!.second
         val grid = (1..height).map { y ->
@@ -60,7 +60,7 @@ class BostonGlobe(private val html: String) : Crosswordable {
     }
 
     private fun toClueMap(clueElements: Iterable<Element>): Map<Int, String> {
-        return clueElements.map {
+        return clueElements.associate {
             val clue = it.text!!
             clue.substringBefore(". ", clue).toInt() to clue.substringAfter(". ", clue)
         }.toMap()

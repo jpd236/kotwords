@@ -47,8 +47,8 @@ data class Crossword(
             ) -> Unit
         ) {
             var currentClueNumber = 1
-            for (y in 0 until grid.size) {
-                for (x in 0 until grid[y].size) {
+            for (y in grid.indices) {
+                for (x in grid[y].indices) {
                     if (grid[y][x].isBlack) {
                         fn(
                             x, y, /* clueNumber= */ null, /* isAcross= */ false, /* isDown= */ false,

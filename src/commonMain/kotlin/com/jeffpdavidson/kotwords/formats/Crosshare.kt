@@ -39,8 +39,6 @@ class Crosshare(private val json: String) : Crosswordable {
     }
 
     private fun getClues(clues: List<CrosshareJson.Clue>, direction: Int): Map<Int, String> {
-        return clues.filter { it.dir == direction }.map { clue ->
-            clue.num to clue.clue
-        }.toMap()
+        return clues.filter { it.dir == direction }.associate { it.num to it.clue }
     }
 }

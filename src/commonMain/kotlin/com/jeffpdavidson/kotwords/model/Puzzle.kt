@@ -101,12 +101,12 @@ data class Puzzle(
                     Jpz.RectangularPuzzle.Crossword.Grid.Cell(
                         x = cell.x,
                         y = cell.y,
-                        solution = if (cell.solution.isEmpty()) null else cell.solution,
-                        backgroundColor = if (cell.backgroundColor.isEmpty()) null else cell.backgroundColor,
-                        number = if (cell.number.isEmpty()) null else cell.number,
+                        solution = cell.solution.ifEmpty { null },
+                        backgroundColor = cell.backgroundColor.ifEmpty { null },
+                        number = cell.number.ifEmpty { null },
                         type = type,
                         solveState = if (cell.cellType == CellType.CLUE) cell.solution else null,
-                        topRightNumber = if (cell.topRightNumber.isEmpty()) null else cell.topRightNumber,
+                        topRightNumber = cell.topRightNumber.ifEmpty { null },
                         backgroundShape = backgroundShape,
                         topBar = if (topBorder) true else null,
                         bottomBar = if (bottomBorder) true else null,
@@ -153,10 +153,10 @@ data class Puzzle(
             ),
             rectangularPuzzle = Jpz.RectangularPuzzle(
                 metadata = Jpz.RectangularPuzzle.Metadata(
-                    title = if (title.isBlank()) null else title,
-                    creator = if (creator.isBlank()) null else creator,
-                    copyright = if (copyright.isBlank()) null else copyright,
-                    description = if (description.isBlank()) null else description
+                    title = title.ifBlank { null },
+                    creator = creator.ifBlank { null },
+                    copyright = copyright.ifBlank { null },
+                    description = description.ifBlank { null }
                 ),
                 crossword = if (puzzleType == PuzzleType.CROSSWORD) crossword else null,
                 acrostic = if (puzzleType == PuzzleType.ACROSTIC) crossword else null
@@ -174,13 +174,8 @@ data class Puzzle(
                 if (square == BLACK_SQUARE) {
                     gridMap[x to y] = Cell(x + 1, y + 1, cellType = CellType.BLOCK)
                 } else {
-                    val solution =
-                        if (square.solutionRebus.isEmpty()) {
-                            "${square.solution}"
-                        } else {
-                            square.solutionRebus
-                        }
-                    val number = if (clueNumber != null) "$clueNumber" else ""
+                    val solution = square.solutionRebus.ifEmpty {"${square.solution}" }
+                    val number = "${clueNumber ?: ""}"
                     val backgroundShape =
                         if (square.isCircled) {
                             BackgroundShape.CIRCLE

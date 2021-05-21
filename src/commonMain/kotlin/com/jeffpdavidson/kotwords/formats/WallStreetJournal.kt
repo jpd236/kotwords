@@ -28,14 +28,14 @@ class WallStreetJournal(
                     Square(
                         solution = square.letter[0],
                         solutionRebus = if (square.letter.length > 1) square.letter else "",
-                        isCircled = square.style.highlight || !square.style.shapebg.isEmpty()
+                        isCircled = square.style.highlight || square.style.shapebg.isNotEmpty()
                     )
                 }
             }
         }.toList()
         val publishDate = response.data.copy.datePublish.unescapeEntities()
         val title = if (includeDateInTitle) {
-            "${response.data.copy.title.unescapeEntities()} - ${publishDate}"
+            "${response.data.copy.title.unescapeEntities()} - $publishDate"
         } else {
             response.data.copy.title.unescapeEntities()
         }
@@ -55,7 +55,7 @@ class WallStreetJournal(
             Map<Int, String> {
         // TODO(#2): Generalize and centralize accented character replacement.
         return response.data.copy.clues.first { it.title.unescapeEntities() == direction }
-            .clues.map { it.number to it.clue.unescapeEntities().replace('⁄', '/') }.toMap()
+            .clues.associate { it.number to it.clue.unescapeEntities().replace('⁄', '/') }
     }
 
     companion object {

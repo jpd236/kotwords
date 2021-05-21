@@ -254,12 +254,10 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
 
                 // Player state, reading left to right, top to bottom
                 writeGrid(grid, '.'.toByte()) {
-                    if (solved) {
-                        it.solution!!.toByte()
-                    } else if (it.entry != null) {
-                        it.entry.toByte()
-                    } else {
-                        '-'.toByte()
+                    when {
+                        solved ->  it.solution!!.toByte()
+                        it.entry != null -> it.entry.toByte()
+                        else -> '-'.toByte()
                     }
                 }
 
@@ -281,7 +279,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 writeNullTerminatedString(notes)
 
                 // GRBS/RUSR/RTBL sections for rebus squares.
-                if (grid.flatAny { !it.solutionRebus.isEmpty() }) {
+                if (grid.flatAny { it.solutionRebus.isNotEmpty() }) {
                     // Create map from solution rebus to a unique index for that rebus, starting at 1.
                     val rebusTable = grid.flatMap { row ->
                         row.map { square ->
@@ -378,8 +376,8 @@ private inline fun <T> List<List<T>>.flatAny(predicate: (T) -> Boolean): Boolean
 
 private fun ByteReadPacket.readNullTerminatedString(): String {
     val data = BytePacketBuilder()
-    var byte: Byte = 0
-    while ({ byte = readByte(); byte }() != 0.toByte()) {
+    var byte: Byte
+    while (run { byte = readByte(); byte } != 0.toByte()) {
         data.writeByte(byte)
     }
     return String(data.build().readBytes(), charset = Charsets.ISO_8859_1)

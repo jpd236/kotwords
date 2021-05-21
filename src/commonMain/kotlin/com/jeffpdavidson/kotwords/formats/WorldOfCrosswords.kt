@@ -60,8 +60,8 @@ class WorldOfCrosswords(
 
     private fun buildClueMap(clueData: List<JsonArray>): Map<Int, String> {
         // Replace italics in HTML (for titles) with quotes.
-        return clueData.map {
+        return clueData.associate {
             it[4].jsonPrimitive.int to it[6].jsonPrimitive.content.replace("</?i>".toRegex(), "\"")
-        }.toMap()
+        }
     }
 }

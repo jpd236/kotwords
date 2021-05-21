@@ -32,9 +32,7 @@ data class ApzFile(
 
     fun toAcrostic(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Acrostic {
         val completionMessage =
-            if (crosswordSolverSettings.completionMessage.isNotEmpty()) {
-                crosswordSolverSettings.completionMessage
-            } else {
+            crosswordSolverSettings.completionMessage.ifEmpty {
                 val source = source ?: ""
                 val quote = quote ?: ""
                 listOf(source.trim(), quote.trim())

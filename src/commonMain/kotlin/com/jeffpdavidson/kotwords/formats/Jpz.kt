@@ -193,18 +193,17 @@ interface Jpz : Crosswordable {
     ):
             Pair<Map<Int, String>, Map<Int, String>> {
         // Create a map from clue list title to the list of <clue> elements under that title.
-        val clueGroups = clues.filter { it.title.data.isNotEmpty() }
-            .map {
-                val clueListTitle = it.title.data.textContent().toLowerCase()
-                val clueList = it.clues
-                clueListTitle to clueList
-            }.toMap()
+        val clueGroups = clues.filter { it.title.data.isNotEmpty() }.associate {
+            val clueListTitle = it.title.data.textContent().toLowerCase()
+            val clueList = it.clues
+            clueListTitle to clueList
+        }
 
         // Convert the <clue> element lists for across/down clues into the expected map format.
-        val acrossClues = (clueGroups["across"] ?: error("No Across clues"))
-            .map { it.number.toInt() to it.text.textContent() }.toMap()
-        val downClues = (clueGroups["down"] ?: error("No Down clues"))
-            .map { it.number.toInt() to it.text.textContent() }.toMap()
+        val acrossClues =
+            (clueGroups["across"] ?: error("No Across clues")).associate { it.number.toInt() to it.text.textContent() }
+        val downClues =
+            (clueGroups["down"] ?: error("No Down clues")).associate { it.number.toInt() to it.text.textContent() }
 
         // Sanitize the clue numbers/clues to be Across Lite compatible.
         return ClueSanitizer.sanitizeClues(grid, givenSquareNumbers, acrossClues, downClues)

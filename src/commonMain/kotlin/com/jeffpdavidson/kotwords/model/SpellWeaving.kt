@@ -26,7 +26,7 @@ data class SpellWeaving(
         filteredAnswers.forEachIndexed { answerIndex, answer ->
             val word = mutableListOf<Pair<Int, Int>>()
             answer.forEachIndexed { i, ch ->
-                val cellState = gridMap.getOrPut(position.x to position.y, { CellState(solution = "$ch") })
+                val cellState = gridMap.getOrPut(position.x to position.y) { CellState(solution = "$ch") }
                 require(cellState.solution == "$ch") {
                     "Conflict at cell (${position.x}, ${position.y}) for answer $answerIndex ($answer): " +
                             "${cellState.solution} from previous answer does not match $ch from this answer."

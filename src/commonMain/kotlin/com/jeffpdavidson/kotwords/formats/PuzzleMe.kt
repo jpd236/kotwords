@@ -21,14 +21,18 @@ class PuzzleMe(private val json: String) : Crosswordable {
         // mechanism to map to circles (preferring "isCircled" which is a direct match) and
         // ignore any others.
         val circledCells =
-            if (data.cellInfos.find { it.isCircled } != null) {
-                data.cellInfos.filter { it.isCircled }.map { it.x to it.y }
-            } else if (data.backgroundShapeBoxes.isNotEmpty()) {
-                data.backgroundShapeBoxes.filter { it.size == 2 }.map { it[0] to it[1] }
-            } else {
-                // Note that if there are multiple distinct colors, all of them will be
-                // mapped to circles.
-                data.cellInfos.filter { it.bgColor != "" }.map { it.x to it.y }
+            when {
+                data.cellInfos.find { it.isCircled } != null -> {
+                    data.cellInfos.filter { it.isCircled }.map { it.x to it.y }
+                }
+                data.backgroundShapeBoxes.isNotEmpty() -> {
+                    data.backgroundShapeBoxes.filter { it.size == 2 }.map { it[0] to it[1] }
+                }
+                else -> {
+                    // Note that if there are multiple distinct colors, all of them will be
+                    // mapped to circles.
+                    data.cellInfos.filter { it.bgColor != "" }.map { it.x to it.y }
+                }
             }
 
         // If bgColor == fgColor, assume the square is meant to be hidden/black and revealed after solving.
@@ -74,10 +78,9 @@ class PuzzleMe(private val json: String) : Crosswordable {
         val topRowsToDelete = grid.indexOfFirst(anyNonBlackSquare)
         val bottomRowsToDelete = grid.size - grid.indexOfLast(anyNonBlackSquare) - 1
         val leftRowsToDelete =
-            grid.filter(anyNonBlackSquare).map { row -> row.indexOfFirst { it != BLACK_SQUARE } }.minOrNull()!!
+            grid.filter(anyNonBlackSquare).minOf { row -> row.indexOfFirst { it != BLACK_SQUARE } }
         val rightRowsToDelete = grid[0].size -
-                grid.filter(anyNonBlackSquare).map { row -> row.indexOfLast { it != BLACK_SQUARE } }
-                    .maxOrNull()!! - 1
+                grid.filter(anyNonBlackSquare).maxOf { row -> row.indexOfLast { it != BLACK_SQUARE } } - 1
         val filteredGrid = grid.drop(topRowsToDelete).dropLast(bottomRowsToDelete)
             .map { row -> row.drop(leftRowsToDelete).dropLast(rightRowsToDelete) }
 
@@ -177,15 +180,13 @@ class PuzzleMe(private val json: String) : Crosswordable {
             .map { (key, value) -> key.toRegex() to value }.toMap()
 
         private fun buildClueMap(clueList: List<PuzzleMeJson.PlacedWord>): Map<Int, String> {
-            return clueList
-                .map {
-                    // TODO(#2): Generalize and centralize accented character replacement.
-                    it.clueNum to
-                            clueReplacements.entries.fold(it.clue.clue) { clue, (from, to) ->
-                                clue.replace(from, to)
-                            }
-                }
-                .toMap()
+            return clueList.associate {
+                // TODO(#2): Generalize and centralize accented character replacement.
+                it.clueNum to
+                        clueReplacements.entries.fold(it.clue.clue) { clue, (from, to) ->
+                            clue.replace(from, to)
+                        }
+            }
         }
     }
 }

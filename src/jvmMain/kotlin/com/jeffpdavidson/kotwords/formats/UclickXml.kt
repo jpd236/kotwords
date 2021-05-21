@@ -58,8 +58,8 @@ class UclickXml(
     }
 
     private fun toClueMap(clues: List<Element>): Map<Int, String> {
-        return clues.map { it ->
+        return clues.associate {
             it.getAttribute("cn").toInt() to URLDecoder.decode(it.getAttribute("c"), "UTF-8")
-        }.toMap()
+        }
     }
 }

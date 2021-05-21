@@ -55,8 +55,8 @@ object DownsOnly {
             curWordLength = 0
         }
 
-        for (y in 0 until grid.size) {
-            for (x in 0 until grid[y].size) {
+        for (y in grid.indices) {
+            for (x in grid[y].indices) {
                 if (grid[y][x].isBlack) {
                     if (curWordLength > 0) {
                         acrossWordStats.onWordFinished()
@@ -70,8 +70,8 @@ object DownsOnly {
             }
         }
 
-        for (x in 0 until grid[0].size) {
-            for (y in 0 until grid.size) {
+        for (x in grid[0].indices) {
+            for (y in grid.indices) {
                 if (grid[y][x].isBlack) {
                     if (curWordLength > 0) {
                         downWordStats.onWordFinished()

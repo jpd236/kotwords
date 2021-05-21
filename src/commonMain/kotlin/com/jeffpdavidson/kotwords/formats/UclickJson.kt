@@ -22,13 +22,13 @@ class UclickJson(
     override fun asCrossword(): Crossword {
         val response = JsonSerializer.fromJson<UclickJson.Response>(json)
         val date = JSON_DATE_FORMAT.parseDate(response.date)
-        val copyright = if (!response.copyright.isEmpty()) decode(response.copyright) else copyright
+        val copyright = if (response.copyright.isNotEmpty()) decode(response.copyright) else copyright
         val grid = response.allAnswer.chunked(response.width).map { row ->
             row.map { square -> if (square == '-') BLACK_SQUARE else Square(square) }
         }
         val rawTitle = decode(response.title)
         val title = if (addDateToTitle) {
-            "${rawTitle} - ${TITLE_DATE_FORMAT.format(date)}"
+            "$rawTitle - ${TITLE_DATE_FORMAT.format(date)}"
         } else {
             rawTitle
         }
@@ -43,10 +43,10 @@ class UclickJson(
     }
 
     private fun toClueMap(clueString: String): Map<Int, String> {
-        return clueString.split("\n").takeWhile { it != "end" }.map {
+        return clueString.split("\n").takeWhile { it != "end" }.associate {
             val parts = it.split('|')
             parts[0].toInt() to parts[1].replace('\u0092', '\'')
-        }.toMap()
+        }
     }
 
     private fun decode(input: String): String = Encodings.decodeUrl(input)
