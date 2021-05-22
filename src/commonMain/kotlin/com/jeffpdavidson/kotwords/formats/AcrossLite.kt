@@ -206,7 +206,10 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 writeByte(0)
             }
 
-            val clueCount = acrossClues.size + downClues.size
+            // Sanitize the clue numbers/clues to be Across Lite compatible.
+            val (adjustedAcrossClues, adjustedDownClues) = ClueSanitizer.sanitizeClues(grid, acrossClues, downClues)
+
+            val clueCount = adjustedAcrossClues.size + adjustedDownClues.size
             val squareCount = grid.size * grid[0].size
 
             // Construct the puzzle data, leaving placeholders for each checksum.
@@ -267,12 +270,12 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 writeNullTerminatedString(copyright)
 
                 // Clues in numerical order. If two clues have the same number, across comes before down.
-                acrossClues.keys.plus(downClues.keys).sorted().forEach { clueNum ->
-                    if (clueNum in acrossClues) {
-                        writeNullTerminatedString(acrossClues[clueNum]!!)
+                adjustedAcrossClues.keys.plus(adjustedDownClues.keys).sorted().forEach { clueNum ->
+                    if (clueNum in adjustedAcrossClues) {
+                        writeNullTerminatedString(adjustedAcrossClues[clueNum]!!)
                     }
-                    if (clueNum in downClues) {
-                        writeNullTerminatedString(downClues[clueNum]!!)
+                    if (clueNum in adjustedDownClues) {
+                        writeNullTerminatedString(adjustedDownClues[clueNum]!!)
                     }
                 }
 

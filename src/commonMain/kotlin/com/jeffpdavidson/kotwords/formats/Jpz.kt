@@ -143,7 +143,6 @@ interface Jpz : Crosswordable {
         val width = rectangularPuzzle.crossword!!.grid.width
         val height = rectangularPuzzle.crossword!!.grid.height
         val gridMap: MutableMap<Pair<Int, Int>, Square> = mutableMapOf()
-        val givenSquareNumbers: MutableMap<Pair<Int, Int>, Int> = mutableMapOf()
         rectangularPuzzle.crossword!!.grid.cell.forEach {
             val position = Pair(it.x - 1, it.y - 1)
             if (it.type == "block") {
@@ -156,11 +155,9 @@ interface Jpz : Crosswordable {
                 gridMap[position] = Square(
                     solution = solution[0],
                     solutionRebus = solutionRebus,
-                    isCircled = isCircled
+                    isCircled = isCircled,
+                    number = if (it.number?.isNotEmpty() == true) it.number.toInt() else null
                 )
-                if (it.number?.isNotEmpty() == true) {
-                    givenSquareNumbers[position] = it.number.toInt()
-                }
             }
         }
         val grid: MutableList<MutableList<Square>> = mutableListOf()
@@ -172,8 +169,7 @@ interface Jpz : Crosswordable {
             grid.add(row)
         }
 
-        val (acrossClues, downClues) =
-            buildClueMaps(grid, rectangularPuzzle.crossword!!.clues, givenSquareNumbers)
+        val (acrossClues, downClues) = buildClueMaps(rectangularPuzzle.crossword!!.clues)
 
         return Crossword(
             title = rectangularPuzzle.metadata.title ?: "",
@@ -187,10 +183,7 @@ interface Jpz : Crosswordable {
     }
 
     /** Convert the given list of <clues> elements into across and down clues lists. */
-    private fun buildClueMaps(
-        grid: List<List<Square>>, clues: List<RectangularPuzzle.Crossword.Clues>,
-        givenSquareNumbers: Map<Pair<Int, Int>, Int>
-    ):
+    private fun buildClueMaps(clues: List<RectangularPuzzle.Crossword.Clues>):
             Pair<Map<Int, String>, Map<Int, String>> {
         // Create a map from clue list title to the list of <clue> elements under that title.
         val clueGroups = clues.filter { it.title.data.isNotEmpty() }.associate {
@@ -205,8 +198,7 @@ interface Jpz : Crosswordable {
         val downClues =
             (clueGroups["down"] ?: error("No Down clues")).associate { it.number.toInt() to it.text.textContent() }
 
-        // Sanitize the clue numbers/clues to be Across Lite compatible.
-        return ClueSanitizer.sanitizeClues(grid, givenSquareNumbers, acrossClues, downClues)
+        return acrossClues to downClues
     }
 
     private fun Snippet.textContent(): String {

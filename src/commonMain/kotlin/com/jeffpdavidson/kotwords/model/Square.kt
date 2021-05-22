@@ -14,6 +14,10 @@ package com.jeffpdavidson.kotwords.model
  *                      permitted, and the maximum length is 8.
  * @param isCircled Whether the square contains a circle.
  * @param entry Optional field denoting the user's entry for the square.
+ * @param isGiven Whether the solution should be prefilled for the user.
+ * @param number Optional field indicating the clue number in the square. If all squares in a grid
+ *               leave the number unset, then the puzzle will be assumed to use conventional
+ *               crossword numbering.
  */
 // TODO: Support entry rebuses.
 data class Square(
@@ -22,11 +26,19 @@ data class Square(
     val solutionRebus: String = "",
     val isCircled: Boolean = false,
     val entry: Char? = null,
-    val isGiven: Boolean = false
+    val isGiven: Boolean = false,
+    val number: Int? = null
 ) {
     init {
         if (isBlack) {
-            require(solution == null && solutionRebus == "" && !isCircled && entry == null && !isGiven) {
+            require(
+                solution == null &&
+                        solutionRebus == "" &&
+                        !isCircled &&
+                        entry == null &&
+                        !isGiven &&
+                        number == null
+            ) {
                 "Black squares must not set other properties"
             }
         }
