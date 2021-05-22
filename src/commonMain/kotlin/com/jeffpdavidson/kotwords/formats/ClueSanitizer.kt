@@ -95,6 +95,8 @@ internal object ClueSanitizer {
     private val clueReplacements = mapOf(
         "</?b>" to "*",
         "</?i>" to "\"",
+        "</?sub>" to "",
+        "</?sup>" to "",
         "</?span>" to "",
         "&amp;" to "&",
         "&lt;" to "<",
