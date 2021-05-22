@@ -91,7 +91,10 @@ interface Jpz : Crosswordable {
 
             @Serializable
             @SerialName("word")
-            data class Word(@SerialName("id") val id: Int, val cells: List<Cells>) {
+            data class Word(
+                @SerialName("id") val id: Int,
+                val cells: List<Cells>
+            ) {
 
                 @Serializable
                 @SerialName("cells")
@@ -126,6 +129,14 @@ interface Jpz : Crosswordable {
     data class I(@XmlValue(true) val data: Snippet)
 
     @Serializable
+    @SerialName("sub")
+    data class Sub(@XmlValue(true) val data: Snippet)
+
+    @Serializable
+    @SerialName("sup")
+    data class Sup(@XmlValue(true) val data: Snippet)
+
+    @Serializable
     @SerialName("span")
     data class Span(@XmlValue(true) val data: Snippet)
 
@@ -134,9 +145,7 @@ interface Jpz : Crosswordable {
     }
 
     override fun asCrossword(): Crossword {
-        // Extract the grid by first building a map from point to square and then converting it to a
-        // list-of-lists. We also extract the square numbers for grid sanitization later (see
-        // sanitizeClues).
+        // Extract the grid by first building a map from point to square and then converting it to a list-of-lists.
         require(rectangularPuzzle.crossword != null) {
             "JPZ file does not contain a <crossword> element"
         }
@@ -178,7 +187,8 @@ interface Jpz : Crosswordable {
             notes = rectangularPuzzle.metadata.description ?: "",
             grid = grid,
             acrossClues = acrossClues,
-            downClues = downClues
+            downClues = downClues,
+            hasHtmlClues = true,
         )
     }
 
@@ -187,27 +197,43 @@ interface Jpz : Crosswordable {
             Pair<Map<Int, String>, Map<Int, String>> {
         // Create a map from clue list title to the list of <clue> elements under that title.
         val clueGroups = clues.filter { it.title.data.isNotEmpty() }.associate {
-            val clueListTitle = it.title.data.textContent().toLowerCase()
+            val clueListTitle = it.title.data.toText().toLowerCase()
             val clueList = it.clues
             clueListTitle to clueList
         }
 
         // Convert the <clue> element lists for across/down clues into the expected map format.
         val acrossClues =
-            (clueGroups["across"] ?: error("No Across clues")).associate { it.number.toInt() to it.text.textContent() }
+            (clueGroups["across"] ?: error("No Across clues")).associate { it.number.toInt() to it.text.toHtml() }
         val downClues =
-            (clueGroups["down"] ?: error("No Down clues")).associate { it.number.toInt() to it.text.textContent() }
+            (clueGroups["down"] ?: error("No Down clues")).associate { it.number.toInt() to it.text.toHtml() }
 
         return acrossClues to downClues
     }
 
-    private fun Snippet.textContent(): String {
+    private fun Snippet.toHtml(): String {
         return joinToString("") {
             when (it) {
-                is String -> it
-                is B -> it.data.textContent()
-                is I -> it.data.textContent()
-                is Span -> it.data.textContent()
+                is String -> it.replace("&", "&amp;").replace("<", "&lt;")
+                is B -> "<b>${it.data.toHtml()}</b>"
+                is I -> "<i>${it.data.toHtml()}</i>"
+                is Sub -> "<sub>${it.data.toHtml()}</sub>"
+                is Sup -> "<sup>${it.data.toHtml()}</sup>"
+                is Span -> "<span>${it.data.toHtml()}</span>"
+                else -> throw IllegalStateException("Unknown data type: $it")
+            }
+        }.trim()
+    }
+
+    private fun Snippet.toText(): String {
+        return joinToString("") {
+            when (it) {
+                is String -> it.replace("&", "&amp;").replace("<", "&lt;")
+                is B -> it.data.toText()
+                is I -> it.data.toText()
+                is Sub -> it.data.toText()
+                is Sup -> it.data.toText()
+                is Span -> it.data.toText()
                 else -> throw IllegalStateException("Unknown data type: $it")
             }
         }.trim()
@@ -220,6 +246,8 @@ interface Jpz : Crosswordable {
                 polymorphic(Any::class, String::class, String.serializer())
                 polymorphic(Any::class, B::class, B.serializer())
                 polymorphic(Any::class, I::class, I.serializer())
+                polymorphic(Any::class, Sub::class, Sub.serializer())
+                polymorphic(Any::class, Sup::class, Sup.serializer())
                 polymorphic(Any::class, Span::class, Span.serializer())
             }
         }

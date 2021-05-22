@@ -5,7 +5,6 @@
       <title>Test</title>
       <creator>Test</creator>
       <copyright>Test</copyright>
-      <description/>
     </metadata>
     <crossword>
       <grid width="7" height="5">
@@ -45,37 +44,81 @@
         <cell x="6" y="5" solution="X"/>
         <cell x="7" y="5" solution="X"/>
       </grid>
-      <word id="1" x="1-3" y="1"/>
-      <word id="2" x="1-3" y="2"/>
-      <word id="3" x="5-7" y="2"/>
-      <word id="4" x="1-3" y="3"/>
-      <word id="5" x="5-7" y="3"/>
-      <word id="6" x="1-3" y="4"/>
-      <word id="7" x="5-7" y="4"/>
-      <word id="8" x="5-7" y="5"/>
-      <word id="9" x="1" y="1-4"/>
-      <word id="10" x="2" y="1-4"/>
-      <word id="11" x="3" y="1-4"/>
-      <word id="12" x="5" y="2-5"/>
-      <word id="13" x="6" y="2-5"/>
-      <word id="14" x="7" y="2-5"/>
-      <word id="15" x="7" y="3-5"/>
+      <word id="1">
+        <cells x="1" y="1"/>
+        <cells x="2" y="1"/>
+        <cells x="3" y="1"/>
+      </word>
+      <word id="5">
+        <cells x="1" y="3"/>
+        <cells x="2" y="3"/>
+        <cells x="3" y="3"/>
+      </word>
+      <word id="6">
+        <cells x="5" y="3"/>
+        <cells x="6" y="3"/>
+        <cells x="7" y="3"/>
+      </word>
+      <word id="8">
+        <cells x="1" y="4"/>
+        <cells x="2" y="4"/>
+        <cells x="3" y="4"/>
+      </word>
+      <word id="9">
+        <cells x="5" y="4"/>
+        <cells x="6" y="4"/>
+        <cells x="7" y="4"/>
+      </word>
+      <word id="10">
+        <cells x="5" y="5"/>
+        <cells x="6" y="5"/>
+        <cells x="7" y="5"/>
+      </word>
+      <word id="1001">
+        <cells x="1" y="1"/>
+        <cells x="1" y="2"/>
+        <cells x="1" y="3"/>
+        <cells x="1" y="4"/>
+      </word>
+      <word id="1002">
+        <cells x="3" y="1"/>
+        <cells x="3" y="2"/>
+        <cells x="3" y="3"/>
+        <cells x="3" y="4"/>
+      </word>
+      <word id="1003">
+        <cells x="6" y="2"/>
+        <cells x="6" y="3"/>
+        <cells x="6" y="4"/>
+        <cells x="6" y="5"/>
+      </word>
+      <word id="1004">
+        <cells x="7" y="2"/>
+        <cells x="7" y="3"/>
+        <cells x="7" y="4"/>
+        <cells x="7" y="5"/>
+      </word>
+      <word id="1007">
+        <cells x="7" y="3"/>
+        <cells x="7" y="4"/>
+        <cells x="7" y="5"/>
+      </word>
       <clues>
-        <title>Across</title>
+        <title><b>Across</b></title>
         <clue word="1" number="1">See 3-Down</clue>
-        <clue word="4" number="5">See 1- and 6-Across</clue>
-        <clue word="5" number="6">Normal clue</clue>
-        <clue word="6" number="8">See 1-, 5- and 10-Across and 3- and 4-Down</clue>
-        <clue word="7" number="9">Normal clue</clue>
-        <clue word="8" number="10">See 2-Down</clue>
+        <clue word="5" number="5">See 1- and 6-Across</clue>
+        <clue word="6" number="6">Normal clue</clue>
+        <clue word="8" number="8">See 1-, 5- and 10-Across and 3- and 4-Down</clue>
+        <clue word="9" number="9">Normal clue</clue>
+        <clue word="10" number="10">See 2-Down</clue>
       </clues>
       <clues>
-        <title>Down</title>
-        <clue word="9" number="1">9-Across, for example</clue>
-        <clue word="11" number="2">Normal clue</clue>
-        <clue word="13" number="3">See 4-Down</clue>
-        <clue word="14" number="4">See 3-Down and 1-, 6- and 9-Across</clue>
-        <clue word="15" number="7">Will be removed</clue>
+        <title><b>Down</b></title>
+        <clue word="1001" number="1">9-Across, for example</clue>
+        <clue word="1002" number="2">Normal clue</clue>
+        <clue word="1003" number="3">See 4-Down</clue>
+        <clue word="1004" number="4">See 3-Down and 1-, 6- and 9-Across</clue>
+        <clue word="1007" number="7">Will be removed</clue>
       </clues>
     </crossword>
   </rectangular-puzzle>

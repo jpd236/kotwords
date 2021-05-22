@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.CrosswordCompiler
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.formats.Jpz
 
@@ -12,7 +13,7 @@ data class Puzzle(
     val grid: List<List<Cell>>,
     val clues: List<ClueList>,
     val hasHtmlClues: Boolean = false,
-    val crosswordSolverSettings: CrosswordSolverSettings,
+    val crosswordSolverSettings: CrosswordSolverSettings? = null,
     val puzzleType: PuzzleType = PuzzleType.CROSSWORD
 ) {
 
@@ -143,39 +144,53 @@ data class Puzzle(
 
         val crossword = Jpz.RectangularPuzzle.Crossword(jpzGrid, words, jpzClues)
 
-        return CrosswordCompilerApplet(
-            appletSettings = CrosswordCompilerApplet.AppletSettings(
-                cursorColor = crosswordSolverSettings.cursorColor,
-                selectedCellsColor = crosswordSolverSettings.selectedCellsColor,
-                completion = CrosswordCompilerApplet.AppletSettings.Completion(
-                    message = crosswordSolverSettings.completionMessage
-                )
+        val rectangularPuzzle = Jpz.RectangularPuzzle(
+            metadata = Jpz.RectangularPuzzle.Metadata(
+                title = title.ifBlank { null },
+                creator = creator.ifBlank { null },
+                copyright = copyright.ifBlank { null },
+                description = description.ifBlank { null }
             ),
-            rectangularPuzzle = Jpz.RectangularPuzzle(
-                metadata = Jpz.RectangularPuzzle.Metadata(
-                    title = title.ifBlank { null },
-                    creator = creator.ifBlank { null },
-                    copyright = copyright.ifBlank { null },
-                    description = description.ifBlank { null }
-                ),
-                crossword = if (puzzleType == PuzzleType.CROSSWORD) crossword else null,
-                acrostic = if (puzzleType == PuzzleType.ACROSTIC) crossword else null
-            )
+            crossword = if (puzzleType == PuzzleType.CROSSWORD) crossword else null,
+            acrostic = if (puzzleType == PuzzleType.ACROSTIC) crossword else null
         )
+
+        return if (crosswordSolverSettings == null) {
+            CrosswordCompiler(rectangularPuzzle = rectangularPuzzle)
+        } else {
+            CrosswordCompilerApplet(
+                appletSettings = CrosswordCompilerApplet.AppletSettings(
+                    cursorColor = crosswordSolverSettings.cursorColor,
+                    selectedCellsColor = crosswordSolverSettings.selectedCellsColor,
+                    completion = CrosswordCompilerApplet.AppletSettings.Completion(
+                        message = crosswordSolverSettings.completionMessage
+                    )
+                ),
+                rectangularPuzzle = rectangularPuzzle
+            )
+        }
     }
 
     companion object {
         fun fromCrossword(
             crossword: Crossword,
-            crosswordSolverSettings: CrosswordSolverSettings
+            crosswordSolverSettings: CrosswordSolverSettings? = null
         ): Puzzle {
             val gridMap = mutableMapOf<Pair<Int, Int>, Cell>()
+            val hasCustomNumbering = Crossword.hasCustomNumbering(crossword.grid)
             Crossword.forEachSquare(crossword.grid) { x, y, clueNumber, _, _, square ->
                 if (square == BLACK_SQUARE) {
                     gridMap[x to y] = Cell(x + 1, y + 1, cellType = CellType.BLOCK)
                 } else {
                     val solution = square.solutionRebus.ifEmpty { "${square.solution}" }
-                    val number = "${clueNumber ?: ""}"
+                    val number =
+                        "${
+                            if (hasCustomNumbering) {
+                                square.number
+                            } else {
+                                clueNumber
+                            } ?: ""
+                        }"
                     val backgroundShape =
                         if (square.isCircled) {
                             BackgroundShape.CIRCLE
@@ -202,7 +217,11 @@ data class Puzzle(
 
             val acrossClues = mutableListOf<Clue>()
             val downClues = mutableListOf<Clue>()
-            Crossword.forEachNumberedSquare(crossword.grid) { x, y, number, isAcross, isDown ->
+            // TODO(#9): This approach assumes every word is conventional, though it permits skipped clues. To handle
+            // this properly for arbitrary puzzles, we'd need to extend Crossword to support optional population of
+            // custom words, and then use those instead.
+            Crossword.forEachSquare(crossword.grid) { x, y, number, isAcross, isDown, square ->
+                val clueNumber = if (hasCustomNumbering) square.number else number
                 if (isAcross) {
                     val word = mutableListOf<Cell>()
                     var i = x
@@ -210,12 +229,11 @@ data class Puzzle(
                         word.add(grid[y][i])
                         i++
                     }
-                    acrossClues.add(
-                        Clue(
-                            Word(number, word), "$number",
-                            crossword.acrossClues[number] ?: error("No across clue for number $number")
+                    if (clueNumber != null && crossword.acrossClues.containsKey(clueNumber)) {
+                        acrossClues.add(
+                            Clue(Word(clueNumber, word), "$clueNumber", crossword.acrossClues[clueNumber]!!)
                         )
-                    )
+                    }
                 }
                 if (isDown) {
                     val word = mutableListOf<Cell>()
@@ -224,12 +242,11 @@ data class Puzzle(
                         word.add(grid[j][x])
                         j++
                     }
-                    downClues.add(
-                        Clue(
-                            Word(1000 + number, word), "$number",
-                            crossword.downClues[number] ?: error("No down clue for number $number")
+                    if (clueNumber != null && crossword.downClues.containsKey(clueNumber)) {
+                        downClues.add(
+                            Clue(Word(1000 + clueNumber, word), "$clueNumber", crossword.downClues[clueNumber]!!)
                         )
-                    )
+                    }
                 }
             }
 
@@ -240,7 +257,8 @@ data class Puzzle(
                 crossword.notes,
                 grid,
                 listOf(ClueList("Across", acrossClues), ClueList("Down", downClues)),
-                crosswordSolverSettings = crosswordSolverSettings
+                crosswordSolverSettings = crosswordSolverSettings,
+                hasHtmlClues = crossword.hasHtmlClues,
             )
         }
 

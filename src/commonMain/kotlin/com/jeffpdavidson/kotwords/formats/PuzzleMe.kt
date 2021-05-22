@@ -56,6 +56,12 @@ class PuzzleMe(private val json: String) : Crosswordable {
                     val solutionRebus = if (box.length > 1) box else ""
                     val isCircled = circledCells.contains(x to y)
                     val isPrefilled = data.preRevealIdxs.isNotEmpty() && data.preRevealIdxs[x][y]
+                    val number =
+                        if (data.clueNums.isNotEmpty() && data.clueNums[x][y] != 0) {
+                            data.clueNums[x][y]
+                        } else {
+                            null
+                        }
                     row.add(
                         Square(
                             solution = box[0],
@@ -63,7 +69,7 @@ class PuzzleMe(private val json: String) : Crosswordable {
                             isCircled = isCircled,
                             entry = if (isPrefilled) box[0] else null,
                             isGiven = isPrefilled,
-                            number = if (data.clueNums.isNotEmpty()) data.clueNums[x][y] else null
+                            number = number
                         )
                     )
                 }
@@ -92,7 +98,8 @@ class PuzzleMe(private val json: String) : Crosswordable {
             notes = data.description,
             grid = filteredGrid,
             acrossClues = buildClueMap(data.placedWords.filter { it.acrossNotDown }),
-            downClues = buildClueMap(data.placedWords.filter { !it.acrossNotDown })
+            downClues = buildClueMap(data.placedWords.filter { !it.acrossNotDown }),
+            hasHtmlClues = true,
         )
     }
 

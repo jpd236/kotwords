@@ -12,6 +12,7 @@ package com.jeffpdavidson.kotwords.model
  *             each row going from left to right.
  * @param acrossClues Mapping from across clue number to the clue for that number.
  * @param downClues Mapping from down clue number to the clue for that number.
+ * @param hasHtmlClues Whether clue contents are in HTML.
  */
 data class Crossword(
     val title: String,
@@ -20,7 +21,8 @@ data class Crossword(
     val notes: String = "",
     val grid: List<List<Square>>,
     val acrossClues: Map<Int, String>,
-    val downClues: Map<Int, String>
+    val downClues: Map<Int, String>,
+    val hasHtmlClues: Boolean = false,
 ) {
     init {
         // Validate that grid is a rectangle.
@@ -86,6 +88,15 @@ data class Crossword(
                 }
             }
         }
+
+        /**
+         * Whether the given grid uses a custom numbering scheme.
+         *
+         * If at least one square is numbered, we apply renumbering logic. Otherwise, we assume that the puzzle uses
+         * normal crossword numbering and avoid any numbering adjustment to the clues.
+         */
+        fun hasCustomNumbering(grid: List<List<Square>>): Boolean =
+            grid.find { row -> row.find { square -> square.number != null } != null } != null
 
         private fun needsAcrossNumber(grid: List<List<Square>>, x: Int, y: Int): Boolean {
             return !grid[y][x].isBlack && (x == 0 || grid[y][x - 1].isBlack)

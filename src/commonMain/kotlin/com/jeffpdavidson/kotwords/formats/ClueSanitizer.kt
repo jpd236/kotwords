@@ -26,9 +26,7 @@ internal object ClueSanitizer {
         acrossClues: Map<Int, String>,
         downClues: Map<Int, String>
     ): Pair<Map<Int, String>, Map<Int, String>> {
-        // If at least one square is numbered, we apply renumbering logic. Otherwise, we assume that the puzzle uses
-        // normal crossword numbering and avoid any numbering adjustment to the clues.
-        val hasCustomNumbering = grid.find { row -> row.find { square -> square.number != null } != null } != null
+        val hasCustomNumbering = Crossword.hasCustomNumbering(grid)
         val givenToSanitizedClueNumberMap = if (hasCustomNumbering) mapGivenToSanitizedClueNumbers(grid) else null
 
         val sanitizedAcrossClues: MutableMap<Int, String> = mutableMapOf()
@@ -98,6 +96,8 @@ internal object ClueSanitizer {
         "</?b>" to "*",
         "</?i>" to "\"",
         "</?span>" to "",
+        "&amp;" to "&",
+        "&lt;" to "<",
         "ł" to "l",
         "[ăāạ]" to "a",
         "Ō" to "O",
