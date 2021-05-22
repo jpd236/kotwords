@@ -122,7 +122,7 @@ class PuzzleMe(private val json: String) : Crosswordable {
         internal fun extractPuzzleJson(html: String): String {
             // Look for "window.rawc = '[data]'" inside <script> tags; this is JSON puzzle data
             // encoded as Base64.
-            Html.parse(html).select("script").forEach {
+            Xml.parse(html, format = DocumentFormat.HTML).select("script").forEach {
                 val matchResult = PUZZLE_DATA_REGEX.find(it.data)
                 if (matchResult != null) {
                     return String(Encodings.decodeBase64(matchResult.groupValues[1]))

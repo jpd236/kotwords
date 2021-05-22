@@ -1,39 +1,36 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.formats.Xml.getChildElementList
-import com.jeffpdavidson.kotwords.formats.Xml.getElementByTagName
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
-import org.w3c.dom.Element
-import java.net.URLDecoder
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import com.soywiz.klock.Date
+import com.soywiz.klock.DateFormat
+import com.soywiz.klock.format
 
-private val TITLE_DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")
+private val TITLE_DATE_FORMAT = DateFormat("EEEE, MMMM d, yyyy")
 
 /** Container for a puzzle in the Universal Uclick XML format. */
 class UclickXml(
     private val xml: String,
-    private val date: LocalDate,
+    private val date: Date,
     private val addDateToTitle: Boolean = true
 ) : Crosswordable {
 
     override fun asCrossword(): Crossword {
-        val document = Xml.parseDocument(xml)
+        val document = Xml.parse(xml)
 
-        val rawTitle = document.getElementByTagName("Title").getAttribute("v")
+        val rawTitle = document.selectFirst("Title")?.attr("v") ?: ""
         val title = if (addDateToTitle) {
             "$rawTitle - ${TITLE_DATE_FORMAT.format(date)}"
         } else {
             rawTitle
         }
 
-        val author = document.getElementByTagName("Author").getAttribute("v")
-        val copyright = document.getElementByTagName("Copyright").getAttribute("v")
+        val author = document.selectFirst("Author")?.attr("v") ?: ""
+        val copyright = document.selectFirst("Copyright")?.attr("v") ?: ""
 
-        val allAnswer = document.getElementByTagName("AllAnswer").getAttribute("v")
-        val width = document.getElementByTagName("Width").getAttribute("v").toInt()
+        val allAnswer = document.selectFirst("AllAnswer")?.attr("v") ?: ""
+        val width = document.selectFirst("Width")?.attr("v")?.toInt() ?: 0
         val grid = allAnswer.chunked(width).map { row ->
             row.map { square ->
                 if (square == '-') {
@@ -44,8 +41,8 @@ class UclickXml(
             }
         }
 
-        val acrossClues = document.getElementByTagName("across").getChildElementList()
-        val downClues = document.getElementByTagName("down").getChildElementList()
+        val acrossClues = document.select("across > *")
+        val downClues = document.select("down > *")
 
         return Crossword(
             title = title,
@@ -57,9 +54,9 @@ class UclickXml(
         )
     }
 
-    private fun toClueMap(clues: List<Element>): Map<Int, String> {
+    private fun toClueMap(clues: Iterable<Element>): Map<Int, String> {
         return clues.associate {
-            it.getAttribute("cn").toInt() to URLDecoder.decode(it.getAttribute("c"), "UTF-8")
+            it.attr("cn").toInt() to Encodings.decodeUrl(it.attr("c"))
         }
     }
 }

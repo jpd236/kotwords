@@ -1,38 +1,30 @@
 package com.jeffpdavidson.kotwords.formats
 
-import org.w3c.dom.Element
-import org.w3c.dom.Node
-import org.w3c.dom.NodeList
-import org.xml.sax.InputSource
-import java.io.StringReader
-import javax.xml.parsers.DocumentBuilderFactory
+import org.jsoup.Jsoup
+import org.jsoup.parser.Parser
 
-/** Helper methods for parsing XML files. */
-internal object Xml {
-    fun parseDocument(xml: String): Element {
-        val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-        return documentBuilder.parse(InputSource(StringReader(xml))).documentElement
-    }
+private open class ElementImpl(private val jsoupElement: org.jsoup.nodes.Element) : Element {
+    override val data: String
+        get() = jsoupElement.data()
+    override val text: String
+        get() = jsoupElement.text()
 
-    fun Element.getElementListByTagName(tagName: String): List<Element> {
-        return NodeStandardList(getElementsByTagName(tagName)).map { it as Element }
-    }
+    override fun attr(key: String): String = jsoupElement.attr(key)
 
-    fun Element.getChildElementList(): List<Element> {
-        return NodeStandardList(childNodes)
-            .filter { it.nodeType == Node.ELEMENT_NODE }
-            .map { it as Element }
-    }
+    override fun select(selector: String): Iterable<Element> =
+        jsoupElement.select(selector).map { ElementImpl(it) }
 
-    fun Element.getElementByTagName(tagName: String): Element {
-        return getElementsByTagName(tagName).item(0) as Element
+    override fun selectFirst(selector: String): Element? {
+        return ElementImpl(jsoupElement.selectFirst(selector) ?: return null)
     }
 }
 
-private class NodeStandardList(private val list: NodeList) : AbstractList<Node>(), RandomAccess {
-    override fun get(index: Int): Node {
-        return list.item(index)
+internal actual object Xml {
+    actual fun parse(html: String, baseUri: String?, format: DocumentFormat): Element {
+        val parser = when (format) {
+            DocumentFormat.HTML -> Parser.htmlParser()
+            DocumentFormat.XML -> Parser.xmlParser()
+        }
+        return ElementImpl(Jsoup.parse(html, baseUri ?: "", parser))
     }
-
-    override val size = list.length
 }

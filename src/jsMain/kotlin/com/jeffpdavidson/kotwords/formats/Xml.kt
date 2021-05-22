@@ -23,10 +23,14 @@ private class ElementImpl(private val jsElement: org.w3c.dom.Element) : Element 
     }
 }
 
-internal actual object Html {
-    actual fun parse(html: String, baseUri: String?): Element {
+internal actual object Xml {
+    actual fun parse(html: String, baseUri: String?, format: DocumentFormat): Element {
         val parser = DOMParser()
-        val document = parser.parseFromString(html, "text/html")
+        val type = when (format) {
+            DocumentFormat.HTML -> "text/html"
+            DocumentFormat.XML -> "application/xml"
+        }
+        val document = parser.parseFromString(html, type)
         if (baseUri != null) {
             val baseElement = document.createElement("base")
             baseElement.setAttribute("href", baseUri)

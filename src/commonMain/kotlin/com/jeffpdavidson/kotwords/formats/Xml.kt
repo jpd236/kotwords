@@ -9,6 +9,11 @@ internal interface Element {
     fun selectFirst(selector: String): Element?
 }
 
-internal expect object Html {
-    fun parse(html: String, baseUri: String? = null): Element
+internal enum class DocumentFormat {
+    HTML,
+    XML
+}
+
+internal expect object Xml {
+    fun parse(html: String, baseUri: String? = null, format: DocumentFormat = DocumentFormat.XML): Element
 }

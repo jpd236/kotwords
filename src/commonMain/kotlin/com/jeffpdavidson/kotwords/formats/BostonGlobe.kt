@@ -10,7 +10,7 @@ private val SUB_HEADER_REGEX = "([^a-z]+(?![a-z])) ([^,]+), (.+)".toRegex()
 /** Container for a puzzle in the Boston Globe HTML format. */
 class BostonGlobe(private val html: String) : Crosswordable {
     override fun asCrossword(): Crossword {
-        val document = Html.parse(html)
+        val document = Xml.parse(html, format = DocumentFormat.HTML)
 
         val subHeader = document.selectFirst("p.subhed")?.text
             ?: throw InvalidFormatException("No sub header")
