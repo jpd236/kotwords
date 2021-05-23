@@ -246,7 +246,7 @@ interface Jpz : Crosswordable {
          *
          * @param solved If true, the grid will be filled in with the correct solution.
          */
-        fun Crossword.toJpz(solved: Boolean) : Jpz {
+        fun Crossword.toJpz(solved: Boolean = false) : Jpz {
             return Puzzle.fromCrossword(this).asJpzFile(solved = solved)
         }
 
