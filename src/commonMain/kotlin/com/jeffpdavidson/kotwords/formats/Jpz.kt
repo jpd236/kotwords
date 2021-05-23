@@ -2,6 +2,7 @@ package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
+import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.Square
 import io.ktor.utils.io.charsets.Charsets
 import io.ktor.utils.io.core.toByteArray
@@ -240,6 +241,24 @@ interface Jpz : Crosswordable {
     }
 
     companion object {
+        /**
+         * Serialize this crossword into a JPZ document.
+         *
+         * @param solved If true, the grid will be filled in with the correct solution.
+         */
+        fun Crossword.toJpz(solved: Boolean) : Jpz {
+            return Puzzle.fromCrossword(this).asJpzFile(solved = solved)
+        }
+
+        fun fromXmlString(xml: String): Jpz {
+            // Try to parse as a <crossword-compiler-applet>; if it fails, fall back to <crossword-compiler>.
+            return try {
+                XmlSerializer.decodeFromString(CrosswordCompilerApplet.serializer(), xml)
+            } catch (e: XmlException) {
+                XmlSerializer.decodeFromString(CrosswordCompiler.serializer(), xml)
+            }
+        }
+
         internal fun module(): SerializersModule {
             return SerializersModule {
                 // Snippet tags
@@ -252,21 +271,12 @@ interface Jpz : Crosswordable {
             }
         }
 
-        fun fromXmlString(xml: String): Jpz {
-            // Try to parse as a <crossword-compiler-applet>; if it fails, fall back to <crossword-compiler>.
-            return try {
-                XmlSerializer.decodeFromString(CrosswordCompilerApplet.serializer(), xml)
-            } catch (e: XmlException) {
-                XmlSerializer.decodeFromString(CrosswordCompiler.serializer(), xml)
-            }
-        }
-
         @Serializable
         @SerialName("dummy")
         private data class Dummy(@XmlValue(true) val data: Snippet)
 
         /** Parse the given HTML string as a [Snippet] (i.e. for use in clues). */
-        fun htmlToSnippet(html: String): Snippet {
+        internal fun htmlToSnippet(html: String): Snippet {
             val dummyXml = "<dummy>$html</dummy>"
             val snippet = XML(module()) {
                 autoPolymorphic = true

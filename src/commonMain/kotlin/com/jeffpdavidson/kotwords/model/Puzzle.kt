@@ -75,8 +75,12 @@ data class Puzzle(
         ACROSTIC
     }
 
-    /** Returns this puzzle as a JPZ file. */
-    fun asJpzFile(): Jpz {
+    /**
+     * Returns this puzzle as a JPZ file.
+     *
+     * @param solved If true, the grid will be filled in with the correct solution.
+     */
+    fun asJpzFile(solved: Boolean = false): Jpz {
         val jpzGrid = Jpz.RectangularPuzzle.Crossword.Grid(
             width = grid[0].size,
             height = grid.size,
@@ -106,13 +110,13 @@ data class Puzzle(
                         backgroundColor = cell.backgroundColor.ifEmpty { null },
                         number = cell.number.ifEmpty { null },
                         type = type,
-                        solveState = if (cell.cellType == CellType.CLUE) cell.solution else null,
+                        solveState = if (cell.cellType == CellType.CLUE || solved) cell.solution else null,
                         topRightNumber = cell.topRightNumber.ifEmpty { null },
                         backgroundShape = backgroundShape,
                         topBar = if (topBorder) true else null,
                         bottomBar = if (bottomBorder) true else null,
                         leftBar = if (leftBorder) true else null,
-                        rightBar = if (rightBorder) true else null
+                        rightBar = if (rightBorder) true else null,
                     )
                 }
             }.flatten()

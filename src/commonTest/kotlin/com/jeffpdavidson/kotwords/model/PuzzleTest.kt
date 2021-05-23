@@ -55,4 +55,11 @@ class PuzzleTest {
 
         assertEquals(parsedJpz, adjustedJpz)
     }
+
+    @Test
+    fun jpzReadAndWrite_solved() = runTest {
+        val parsedJpz = Jpz.fromXmlString(readStringResource(PuzzleTest::class, "jpz/test.jpz"))
+        val convertedJpz = Puzzle.fromCrossword(parsedJpz.asCrossword()).asJpzFile(solved = true)
+        assertEquals(readStringResource(PuzzleTest::class, "jpz/test-solved.jpz"), convertedJpz.toXmlString())
+    }
 }
