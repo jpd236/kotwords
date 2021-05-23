@@ -206,7 +206,8 @@ data class Puzzle(
                             x + 1, y + 1,
                             solution = solution,
                             number = number,
-                            backgroundShape = backgroundShape
+                            backgroundShape = backgroundShape,
+                            cellType = if (square.isGiven) CellType.CLUE else CellType.REGULAR
                         )
                 }
             }

@@ -121,6 +121,19 @@ class PuzzleMe(private val json: String) : Crosswordable {
         }
 
         private fun buildClueMap(clueList: List<PuzzleMeJson.PlacedWord>): Map<Int, String> =
-            clueList.associate { it.clueNum to it.clue.clue }
+            clueList.associate { it.clueNum to toHtml(it.clue.clue) }
+
+        /**
+         * Convert a PuzzleMe JSON string to HTML.
+         *
+         * PuzzleMe mixes unescaped special XML characters (&, <) with HTML tags. This method escapes the special
+         * characters while leaving the HTML tags untouched.
+         */
+        private fun toHtml(clue: String): String {
+            return clue
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace("&lt;(/?[^>]+)>".toRegex(), "<$1>")
+        }
     }
 }
