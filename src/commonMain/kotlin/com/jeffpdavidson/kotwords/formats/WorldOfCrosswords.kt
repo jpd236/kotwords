@@ -54,14 +54,14 @@ class WorldOfCrosswords(
             copyright = "\u00a9 $year $copyright",
             grid = grid,
             acrossClues = buildClueMap(clueData.first),
-            downClues = buildClueMap(clueData.second)
+            downClues = buildClueMap(clueData.second),
+            hasHtmlClues = true,
         )
     }
 
     private fun buildClueMap(clueData: List<JsonArray>): Map<Int, String> {
-        // Replace italics in HTML (for titles) with quotes.
         return clueData.associate {
-            it[4].jsonPrimitive.int to it[6].jsonPrimitive.content.replace("</?i>".toRegex(), "\"")
+            it[4].jsonPrimitive.int to it[6].jsonPrimitive.content
         }
     }
 }
