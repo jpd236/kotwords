@@ -72,7 +72,7 @@ internal class SnakeCharmerForm {
         }
         var y = 0
         var x = grid[0].indexOfFirst { it == '*' }
-        require(x > 0) {
+        require(x >= 0) {
             "First row of grid must contain a white square ('*')"
         }
         val gridCoordinates = linkedSetOf<Pair<Int, Int>>()
