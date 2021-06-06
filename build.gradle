@@ -104,9 +104,11 @@ publishing {
     }
 }
 
-signing {
-    useInMemoryPgpKeys(System.env.PGP_KEY_ID, System.env.PGP_KEY, System.env.PGP_PASSPHRASE)
-    sign publishing.publications
+if (System.env.PGP_KEY_ID != null) {
+    signing {
+        useInMemoryPgpKeys(System.env.PGP_KEY_ID, System.env.PGP_KEY, System.env.PGP_PASSPHRASE)
+        sign publishing.publications
+    }
 }
 
 nexusPublishing {
