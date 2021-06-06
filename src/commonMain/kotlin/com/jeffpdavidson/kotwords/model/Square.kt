@@ -3,31 +3,34 @@ package com.jeffpdavidson.kotwords.model
 /**
  * A square in the grid of a [Crossword].
  *
- * Black squares will have [isBlack] set to true and will equal [BLACK_SQUARE]; the other parameters
- * are undefined in this case. White squares will have a valid solution character.
+ * Black squares will have [isBlack] set to true. White squares will have a valid solution character.
  *
  * @constructor Create a new white Square. (For black squares, use [BLACK_SQUARE]).
  * @param isBlack Whether the square is black.
  * @param solution The solution as a single character.
  * @param solutionRebus An optional alternative solution representing a full rebus entry (multiple
- *                      letters in a single square). Only upper-case letters and numbers are
- *                      permitted, and the maximum length is 8.
+ *                      letters in a single square).
  * @param isCircled Whether the square contains a circle.
  * @param entry Optional field denoting the user's entry for the square.
+ * @param entryRebus Optional field denoting the user's rebus entry for the square.
  * @param isGiven Whether the solution should be prefilled for the user.
  * @param number Optional field indicating the clue number in the square. If all squares in a grid
  *               leave the number unset, then the puzzle will be assumed to use conventional
  *               crossword numbering.
+ * @param foregroundColor Optional field indicating the foreground (text) color of the square.
+ * @param backgroundColor Optional field indicating the background color of the square.
  */
-// TODO: Support entry rebuses.
 data class Square(
     val solution: Char?,
     val isBlack: Boolean = false,
     val solutionRebus: String = "",
     val isCircled: Boolean = false,
     val entry: Char? = null,
+    val entryRebus: String? = null,
     val isGiven: Boolean = false,
-    val number: Int? = null
+    val number: Int? = null,
+    val foregroundColor: String? = null,
+    val backgroundColor: String? = null,
 ) {
     init {
         if (isBlack) {
@@ -39,11 +42,18 @@ data class Square(
                         !isGiven &&
                         number == null
             ) {
+                // Note: OK for black squares to have different background colors.
                 "Black squares must not set other properties"
             }
         }
     }
 }
 
-/** Constant representing a black square. */
+/**
+ * Constant representing a black square.
+ *
+ * Note that not all black squares will equal BLACK_SQUARE, since black squares may have other properties like
+ * background color set to non-default values. This may be used as shorthand to create a standard black square, but
+ * checking if a square is black should always be done with [Square.isBlack].
+ */
 val BLACK_SQUARE = Square(isBlack = true, solution = null)

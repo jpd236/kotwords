@@ -77,6 +77,7 @@ interface Jpz : Crosswordable {
                     @SerialName("x") val x: Int,
                     @SerialName("y") val y: Int,
                     @SerialName("solution") val solution: String? = null,
+                    @SerialName("foreground-color") val foregroundColor: String? = null,
                     @SerialName("background-color") val backgroundColor: String? = null,
                     @SerialName("number") val number: String? = null,
                     @SerialName("type") val type: String? = null,
@@ -156,7 +157,7 @@ interface Jpz : Crosswordable {
         rectangularPuzzle.crossword!!.grid.cell.forEach {
             val position = Pair(it.x - 1, it.y - 1)
             if (it.type == "block") {
-                gridMap[position] = BLACK_SQUARE
+                gridMap[position] = BLACK_SQUARE.copy(backgroundColor = it.backgroundColor)
             } else {
                 val solution = it.solution ?: ""
                 val solutionRebus = if (solution.length > 1) solution else ""
@@ -166,7 +167,9 @@ interface Jpz : Crosswordable {
                     solution = solution[0],
                     solutionRebus = solutionRebus,
                     isCircled = isCircled,
-                    number = if (it.number?.isNotEmpty() == true) it.number.toInt() else null
+                    number = if (it.number?.isNotEmpty() == true) it.number.toInt() else null,
+                    foregroundColor = it.foregroundColor,
+                    backgroundColor = it.backgroundColor,
                 )
             }
         }
@@ -246,7 +249,7 @@ interface Jpz : Crosswordable {
          *
          * @param solved If true, the grid will be filled in with the correct solution.
          */
-        fun Crossword.toJpz(solved: Boolean = false) : Jpz {
+        fun Crossword.toJpz(solved: Boolean = false): Jpz {
             return Puzzle.fromCrossword(this).asJpzFile(solved = solved)
         }
 

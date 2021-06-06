@@ -141,6 +141,15 @@ internal object ClueSanitizer {
         "[Χχ]" to "[Chi]",
         "[Ψψ]" to "[Psi]",
         "[Ωω]" to "[Omega]",
+        // Replace fancy quotes (which don't render in Across Lite on Mac) with normal ones.
+        // Ref: http://www.i18nqa.com/debug/table-iso8859-1-vs-windows-1252.html
+        "‘" to "'",
+        "’" to "'",
+        "“" to "\"",
+        "”" to "\"",
+        // en/em dashes are unsupported in ISO-8859-1
+        "—" to "-",
+        "–" to "-",
         "★" to "*",
     ).map { (key, value) -> key.toRegex() to value }.toMap()
 

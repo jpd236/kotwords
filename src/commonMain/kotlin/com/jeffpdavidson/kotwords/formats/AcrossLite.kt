@@ -89,6 +89,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
             // Read the extra sections for rebuses and circled squares.
             val rebusMap = mutableMapOf<Pair<Int, Int>, Int>()
             val rebusTable = mutableMapOf<Int, String>()
+            val rebusEntries = mutableMapOf<Pair<Int, Int>, String>()
             val circles = mutableSetOf<Pair<Int, Int>>()
             while (canRead()) {
                 val sectionTitleBytes = readBytes(4)
@@ -115,6 +116,16 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                         data.substringBeforeLast(';').split(';').forEach {
                             val parts = it.split(':')
                             rebusTable[parts[0].trim().toInt()] = parts[1]
+                        }
+                    }
+                    "RUSR" -> {
+                        for (y in 0 until height) {
+                            for (x in 0 until width) {
+                                val entryRebus = readNullTerminatedString()
+                                if (entryRebus.isNotEmpty()) {
+                                    rebusEntries[x to y] = entryRebus
+                                }
+                            }
                         }
                     }
                     "GEXT" -> {
@@ -145,14 +156,16 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 downClues = downClues,
                 grid = grid.mapIndexed { y, row ->
                     row.mapIndexed { x, square ->
-                        if (square == BLACK_SQUARE) {
+                        if (square.isBlack) {
                             square
                         } else {
                             val solutionRebus = rebusMap[x to y]?.let { rebusTable[it] } ?: ""
                             Square(
                                 solution = square.solution,
                                 solutionRebus = solutionRebus,
-                                isCircled = circles.contains(x to y)
+                                isCircled = circles.contains(x to y),
+                                entry = square.entry,
+                                entryRebus = rebusEntries[x to y]
                             )
                         }
                     }
@@ -258,7 +271,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 // Player state, reading left to right, top to bottom
                 writeGrid(grid, '.'.toByte()) {
                     when {
-                        solved -> it.solution!!.toByte()
+                        solved || it.isGiven -> it.solution!!.toByte()
                         it.entry != null -> it.entry.toByte()
                         else -> '-'.toByte()
                     }
@@ -282,7 +295,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 writeNullTerminatedString(notes)
 
                 // GRBS/RUSR/RTBL sections for rebus squares.
-                if (grid.flatAny { it.solutionRebus.isNotEmpty() }) {
+                if (grid.flatAny { it.solutionRebus.isNotEmpty() || it.entryRebus?.isNotEmpty() == true }) {
                     // Create map from solution rebus to a unique index for that rebus, starting at 1.
                     val rebusTable = grid.flatMap { row ->
                         row.map { square ->
@@ -310,13 +323,19 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                         packetBuilder.writeText(rtblData, charset = Charsets.UTF_8)
                     }
 
-                    if (solved) {
-                        // RUSR section: user rebus entries.
+                    // RUSR section: user rebus entries.
+                    if (solved || grid.flatAny { it.isGiven || it.entryRebus != null }) {
                         val length = grid.flatten().sumBy { it.solutionRebus.length + 1 }
                         writeExtraSection("RUSR", length) { packetBuilder ->
                             grid.forEach { row ->
                                 row.forEach { square ->
-                                    packetBuilder.writeNullTerminatedString(square.solutionRebus)
+                                    val entryRebus =
+                                        if (solved || square.isGiven) {
+                                            square.solutionRebus
+                                        } else {
+                                            square.entryRebus ?: ""
+                                        }
+                                    packetBuilder.writeNullTerminatedString(entryRebus)
                                 }
                             }
                         }
@@ -324,11 +343,17 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 }
 
                 // GEXT section for circled/given squares.
-                if (grid.flatAny { it.isCircled || it.isGiven }) {
+                if (grid.flatAny { it.isCircled || it.isGiven || (!it.isBlack && it.backgroundColor != null) }) {
+                    val hasCircledSquare = grid.flatAny { it.isCircled }
                     writeExtraSection("GEXT", squareCount) { packetBuilder ->
                         packetBuilder.writeGrid(grid, 0) {
                             var status = 0
-                            if (it.isCircled) status = status or 0x80
+                            // If at least one square is circled, respect the isCircled bit and ignore all background
+                            // colors. If no squares are circled, then circle any square with an explicit background
+                            // color.
+                            if (it.isCircled || (!hasCircledSquare && !it.isBlack && it.backgroundColor != null)) {
+                                status = status or 0x80
+                            }
                             if (it.isGiven) status = status or 0x40
                             status.toByte()
                         }
@@ -387,17 +412,7 @@ private fun ByteReadPacket.readNullTerminatedString(): String {
 }
 
 private fun BytePacketBuilder.writeNullTerminatedString(string: String) {
-    // Replace fancy quotes (which don't render in Across Lite on Mac) with normal ones.
-    // Ref: http://www.i18nqa.com/debug/table-iso8859-1-vs-windows-1252.html
-    // TODO: More explicit handling of unsupported characters.
-    val stringBytes = string.replace('‘', '\'')
-        .replace('’', '\'')
-        .replace('“', '"')
-        .replace('”', '"')
-        // en/em dashes are unsupported in ISO-8859-1
-        .replace("—", "-")
-        .replace("–", "-")
-        .toByteArray(Charsets.ISO_8859_1)
+    val stringBytes = string.toByteArray(Charsets.ISO_8859_1)
     writeFully(stringBytes)
     writeByte(0)
 }

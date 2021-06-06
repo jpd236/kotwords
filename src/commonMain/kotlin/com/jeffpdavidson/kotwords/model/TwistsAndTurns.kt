@@ -52,7 +52,7 @@ data class TwistsAndTurns(
                     } else {
                         darkTwistsColor
                     }
-                val cell = Puzzle.Cell(x, y, "$ch", backgroundColor, number)
+                val cell = Puzzle.Cell(x, y, solution = "$ch", backgroundColor = backgroundColor, number = number)
                 cellMap[x to y] = cell
                 word.add(cell)
 

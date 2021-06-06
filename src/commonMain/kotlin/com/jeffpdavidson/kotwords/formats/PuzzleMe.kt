@@ -16,22 +16,18 @@ class PuzzleMe(private val json: String) : Crosswordable {
         val data = JsonSerializer.fromJson<PuzzleMeJson.Data>(json)
         val grid: MutableList<MutableList<Square>> = mutableListOf()
 
-        // PuzzleMe supports circled cells, cells with special background shapes, and different
-        // background colors per cell, but Across Lite only supports circled cells. We pick one
-        // mechanism to map to circles (preferring "isCircled" which is a direct match) and
-        // ignore any others.
+        val cellInfoMap = data.cellInfos.associateBy { it.x to it.y }
+
+        // PuzzleMe supports circled cells and cells with special background shapes. We pick one
+        // mechanism to map to circles (preferring "isCircled" which is a direct match) and the
+        // other if present.
         val circledCells =
             when {
                 data.cellInfos.find { it.isCircled } != null -> {
-                    data.cellInfos.filter { it.isCircled }.map { it.x to it.y }
-                }
-                data.backgroundShapeBoxes.isNotEmpty() -> {
-                    data.backgroundShapeBoxes.filter { it.size == 2 }.map { it[0] to it[1] }
+                    cellInfoMap.filterValues { it.isCircled }.keys
                 }
                 else -> {
-                    // Note that if there are multiple distinct colors, all of them will be
-                    // mapped to circles.
-                    data.cellInfos.filter { it.bgColor != "" }.map { it.x to it.y }
+                    data.backgroundShapeBoxes.filter { it.size == 2 }.map { it[0] to it[1] }
                 }
             }
 
@@ -51,7 +47,14 @@ class PuzzleMe(private val json: String) : Crosswordable {
                     (data.boxToPlacedWordsIdxs.isNotEmpty() && data.boxToPlacedWordsIdxs[x][y] == null &&
                             (data.preRevealIdxs.isEmpty() || !data.preRevealIdxs[x][y]))
                 ) {
-                    row.add(BLACK_SQUARE)
+                    // Black square, though it may have a custom background color.
+                    val backgroundColor =
+                        if (box == "\u0000") {
+                            cellInfoMap[x to y]?.bgColor?.ifEmpty { null }
+                        } else {
+                            null
+                        }
+                    row.add(BLACK_SQUARE.copy(backgroundColor = backgroundColor))
                 } else {
                     val solutionRebus = if (box.length > 1) box else ""
                     val isCircled = circledCells.contains(x to y)
@@ -69,7 +72,9 @@ class PuzzleMe(private val json: String) : Crosswordable {
                             isCircled = isCircled,
                             entry = if (isPrefilled) box[0] else null,
                             isGiven = isPrefilled,
-                            number = number
+                            number = number,
+                            foregroundColor = cellInfoMap[x to y]?.fgColor?.ifEmpty { null },
+                            backgroundColor = cellInfoMap[x to y]?.bgColor?.ifEmpty { null }
                         )
                     )
                 }
@@ -81,13 +86,13 @@ class PuzzleMe(private val json: String) : Crosswordable {
         }
 
         // Void cells can lead to entirely black rows/columns on the outer edges. Delete these.
-        val anyNonBlackSquare = { row: List<Square> -> row.any { it != BLACK_SQUARE } }
+        val anyNonBlackSquare = { row: List<Square> -> row.any { !it.isBlack } }
         val topRowsToDelete = grid.indexOfFirst(anyNonBlackSquare)
         val bottomRowsToDelete = grid.size - grid.indexOfLast(anyNonBlackSquare) - 1
         val leftRowsToDelete =
-            grid.filter(anyNonBlackSquare).minOf { row -> row.indexOfFirst { it != BLACK_SQUARE } }
+            grid.filter(anyNonBlackSquare).minOf { row -> row.indexOfFirst { !it.isBlack } }
         val rightRowsToDelete = grid[0].size -
-                grid.filter(anyNonBlackSquare).maxOf { row -> row.indexOfLast { it != BLACK_SQUARE } } - 1
+                grid.filter(anyNonBlackSquare).maxOf { row -> row.indexOfLast { !it.isBlack } } - 1
         val filteredGrid = grid.drop(topRowsToDelete).dropLast(bottomRowsToDelete)
             .map { row -> row.drop(leftRowsToDelete).dropLast(rightRowsToDelete) }
 

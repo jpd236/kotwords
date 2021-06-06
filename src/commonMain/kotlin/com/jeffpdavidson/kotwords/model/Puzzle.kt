@@ -46,6 +46,7 @@ data class Puzzle(
         val x: Int,
         val y: Int,
         val solution: String = "",
+        val foregroundColor: String = "",
         val backgroundColor: String = "",
         val number: String = "",
         val topRightNumber: String = "",
@@ -183,8 +184,12 @@ data class Puzzle(
             val gridMap = mutableMapOf<Pair<Int, Int>, Cell>()
             val hasCustomNumbering = Crossword.hasCustomNumbering(crossword.grid)
             Crossword.forEachSquare(crossword.grid) { x, y, clueNumber, _, _, square ->
-                if (square == BLACK_SQUARE) {
-                    gridMap[x to y] = Cell(x + 1, y + 1, cellType = CellType.BLOCK)
+                if (square.isBlack) {
+                    gridMap[x to y] = Cell(
+                        x + 1, y + 1,
+                        cellType = CellType.BLOCK,
+                        backgroundColor = square.backgroundColor ?: ""
+                    )
                 } else {
                     val solution = square.solutionRebus.ifEmpty { "${square.solution}" }
                     val number =
@@ -207,7 +212,9 @@ data class Puzzle(
                             solution = solution,
                             number = number,
                             backgroundShape = backgroundShape,
-                            cellType = if (square.isGiven) CellType.CLUE else CellType.REGULAR
+                            cellType = if (square.isGiven) CellType.CLUE else CellType.REGULAR,
+                            foregroundColor = square.foregroundColor ?: "",
+                            backgroundColor = square.backgroundColor ?: "",
                         )
                 }
             }
@@ -230,7 +237,7 @@ data class Puzzle(
                 if (isAcross) {
                     val word = mutableListOf<Cell>()
                     var i = x
-                    while (i < crossword.grid[y].size && crossword.grid[y][i] != BLACK_SQUARE) {
+                    while (i < crossword.grid[y].size && !crossword.grid[y][i].isBlack) {
                         word.add(grid[y][i])
                         i++
                     }
@@ -243,7 +250,7 @@ data class Puzzle(
                 if (isDown) {
                     val word = mutableListOf<Cell>()
                     var j = y
-                    while (j < crossword.grid.size && crossword.grid[j][x] != BLACK_SQUARE) {
+                    while (j < crossword.grid.size && !crossword.grid[j][x].isBlack) {
                         word.add(grid[j][x])
                         j++
                     }
