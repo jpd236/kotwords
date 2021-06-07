@@ -13,6 +13,10 @@ package com.jeffpdavidson.kotwords.model
  * @param acrossClues Mapping from across clue number to the clue for that number.
  * @param downClues Mapping from down clue number to the clue for that number.
  * @param hasHtmlClues Whether clue contents are in HTML.
+ * @param acrossWords Optional specification of all words in the Across direction. Only needed for irregular numbering/
+ *                    cluing schemes.
+ * @param downWords Optional specification of all words in the Down direction. Only needed for irregular numbering/
+ *                  cluing schemes.
  */
 data class Crossword(
     val title: String,
@@ -23,6 +27,8 @@ data class Crossword(
     val acrossClues: Map<Int, String>,
     val downClues: Map<Int, String>,
     val hasHtmlClues: Boolean = false,
+    val acrossWords: List<Word> = listOf(),
+    val downWords: List<Word> = listOf(),
 ) {
     init {
         // Validate that grid is a rectangle.
@@ -34,6 +40,17 @@ data class Crossword(
         }
         // TODO: Validate standard grid numbering / clues.
     }
+
+    /**
+     * A word in the crossword grid.
+     *
+     * @param id Unique identifier for the word.
+     * @param squares List of (x, y) coordinates for each square in the word.
+     */
+    data class Word(
+        val id: Int,
+        val squares: List<Pair<Int, Int>>,
+    )
 
     companion object {
         /** Execute the given function for each square in the grid. */

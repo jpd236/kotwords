@@ -65,11 +65,12 @@ data class Labyrinth(
             }
         }.flatten().sortedBy { it.first }.map { it.second }
         val windingClueList = if (alphabetizeWindingClues) windingClues.sorted() else windingClues
-        val windingClue = Puzzle.Clue(Puzzle.Word(101, windingPath), "1", windingClueList.joinToString(" / "))
+        val windingWord = Puzzle.Word(101, windingPath)
+        val windingClue = Puzzle.Clue(101, "1", windingClueList.joinToString(" / "))
 
-        val rowPuzzleClues = puzzleGrid.mapIndexed { y, row ->
-            Puzzle.Clue(Puzzle.Word(y + 1, row), "${y + 1}", rowClues[y].joinToString(" / "))
-        }
+        val (rowPuzzleClues, rowPuzzleWords) = puzzleGrid.mapIndexed { y, row ->
+            Puzzle.Clue(y + 1, "${y + 1}", rowClues[y].joinToString(" / ")) to Puzzle.Word(y + 1, row)
+        }.unzip()
 
         return Puzzle(
             title = title,
@@ -81,6 +82,7 @@ data class Labyrinth(
                 Puzzle.ClueList("Rows", rowPuzzleClues),
                 Puzzle.ClueList("Winding", listOf(windingClue))
             ),
+            words = rowPuzzleWords + windingWord,
             crosswordSolverSettings = crosswordSolverSettings
         )
     }

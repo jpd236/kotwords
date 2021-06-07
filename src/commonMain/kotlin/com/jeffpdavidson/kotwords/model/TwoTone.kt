@@ -78,31 +78,35 @@ data class TwoTone(
             clues: List<String>,
             squareList: List<SpiralGrid.Square>,
             firstWordId: Int
-        ): List<Puzzle.Clue> {
+        ): Pair<List<Puzzle.Clue>, List<Puzzle.Word>> {
             val jpzClues = mutableListOf<Puzzle.Clue>()
+            val jpzWords = mutableListOf<Puzzle.Word>()
             answers.foldIndexed(0) { wordNumber, i, answer ->
                 val firstCell = squareList[i]
+                jpzWords += Puzzle.Word(
+                    firstWordId + wordNumber,
+                    squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }
+                )
                 jpzClues += Puzzle.Clue(
-                    Puzzle.Word(
-                        firstWordId + wordNumber,
-                        squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }),
+                    firstWordId + wordNumber,
                     grid[firstCell.y][firstCell.x].number,
                     clues[wordNumber]
                 )
                 i + answer.length
             }
-            return jpzClues
+            return jpzClues to jpzWords
         }
 
-        val allSquaresJpzClues = createClues(allSquaresAnswers, allSquaresClues, squareList, 1)
+        val (allSquaresJpzClues, allSquaresJpzWords) = createClues(allSquaresAnswers, allSquaresClues, squareList, 1)
         val partitionedSquares = squareList
             .mapIndexed { i, square -> i to square }
             .partition { it.first % 2 == 0 }
             .toList()
             .map { it.map { (_, square) -> square } }
-        val everyOtherJpzClues =
-            createClues(oddSquaresAnswers, oddSquaresClues, partitionedSquares[0], 101) +
-                    createClues(evenSquaresAnswers, evenSquaresClues, partitionedSquares[1], 201)
+        val (oddSquaresJpzClues, oddSquaresJpzWords) =
+            createClues(oddSquaresAnswers, oddSquaresClues, partitionedSquares[0], 101)
+        val (evenSquaresJpzClues, evenSquaresJpzWords) =
+            createClues(evenSquaresAnswers, evenSquaresClues, partitionedSquares[1], 201)
 
         return Puzzle(
             title = title,
@@ -112,8 +116,9 @@ data class TwoTone(
             grid = grid,
             clues = listOf(
                 Puzzle.ClueList("All Squares", allSquaresJpzClues),
-                Puzzle.ClueList("Every Other", everyOtherJpzClues)
+                Puzzle.ClueList("Every Other", oddSquaresJpzClues + evenSquaresJpzClues)
             ),
+            words = allSquaresJpzWords + oddSquaresJpzWords + evenSquaresJpzWords,
             crosswordSolverSettings = crosswordSolverSettings
         )
     }

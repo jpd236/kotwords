@@ -19,6 +19,7 @@ package com.jeffpdavidson.kotwords.model
  *               crossword numbering.
  * @param foregroundColor Optional field indicating the foreground (text) color of the square.
  * @param backgroundColor Optional field indicating the background color of the square.
+ * @param borderDirections Optional field indicating the directions of any barred borders (walls).
  */
 data class Square(
     val solution: Char?,
@@ -31,6 +32,7 @@ data class Square(
     val number: Int? = null,
     val foregroundColor: String? = null,
     val backgroundColor: String? = null,
+    val borderDirections: Set<BorderDirection> = setOf(),
 ) {
     init {
         if (isBlack) {
@@ -40,12 +42,20 @@ data class Square(
                         !isCircled &&
                         entry == null &&
                         !isGiven &&
-                        number == null
+                        number == null &&
+                        borderDirections.isEmpty()
             ) {
                 // Note: OK for black squares to have different background colors.
                 "Black squares must not set other properties"
             }
         }
+    }
+
+    enum class BorderDirection {
+        TOP,
+        LEFT,
+        RIGHT,
+        BOTTOM
     }
 }
 

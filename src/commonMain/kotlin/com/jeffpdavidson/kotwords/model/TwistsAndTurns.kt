@@ -36,6 +36,7 @@ data class TwistsAndTurns(
         var x = 1
         var y = 1
         val turnsCluesList = mutableListOf<Puzzle.Clue>()
+        val turnsWordsList = mutableListOf<Puzzle.Word>()
         val cellMap = mutableMapOf<Pair<Int, Int>, Puzzle.Cell>()
         turnsAnswers.forEachIndexed { answerIndex, answer ->
             val word = mutableListOf<Puzzle.Cell>()
@@ -71,10 +72,12 @@ data class TwistsAndTurns(
                     }
                 }
             }
-            turnsCluesList.add(Puzzle.Clue(Puzzle.Word(clueNumber, word), "$clueNumber", turnsClues[answerIndex]))
+            turnsWordsList.add(Puzzle.Word(clueNumber, word))
+            turnsCluesList.add(Puzzle.Clue(clueNumber, "$clueNumber", turnsClues[answerIndex]))
         }
 
         val grid = generateGrid(cellMap)
+        val (twistsCluesList, twistsWordsList) = generateTwistsCluesList(grid)
 
         return Puzzle(
             title,
@@ -84,8 +87,9 @@ data class TwistsAndTurns(
             grid,
             listOf(
                 Puzzle.ClueList("Turns", turnsCluesList),
-                Puzzle.ClueList("Twists", generateTwistsCluesList(grid))
+                Puzzle.ClueList("Twists", twistsCluesList)
             ),
+            turnsWordsList + twistsWordsList,
             crosswordSolverSettings = crosswordSolverSettings
         )
     }
@@ -102,8 +106,9 @@ data class TwistsAndTurns(
         return grid
     }
 
-    private fun generateTwistsCluesList(grid: List<List<Puzzle.Cell>>): List<Puzzle.Clue> {
+    private fun generateTwistsCluesList(grid: List<List<Puzzle.Cell>>): Pair<List<Puzzle.Clue>, List<Puzzle.Word>> {
         val twistsCluesList = mutableListOf<Puzzle.Clue>()
+        val twistsWordsList = mutableListOf<Puzzle.Word>()
         var twistNumber = 0
         for (j in 0 until (height / twistBoxSize)) {
             for (i in 0 until (width / twistBoxSize)) {
@@ -114,12 +119,11 @@ data class TwistsAndTurns(
                     }
                 }
                 val wordId = (1001 + (j * (width / twistBoxSize)) + i)
-                twistsCluesList.add(
-                    Puzzle.Clue(Puzzle.Word(wordId, cells), "${twistNumber + 1}", twistsClues[twistNumber])
-                )
+                twistsWordsList.add(Puzzle.Word(wordId, cells))
+                twistsCluesList.add(Puzzle.Clue(wordId, "${twistNumber + 1}", twistsClues[twistNumber]))
                 twistNumber++
             }
         }
-        return twistsCluesList
+        return twistsCluesList to twistsWordsList
     }
 }

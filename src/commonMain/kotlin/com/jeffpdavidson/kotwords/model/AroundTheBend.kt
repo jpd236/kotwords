@@ -23,16 +23,17 @@ data class AroundTheBend(
                 )
             }
         }
-        val puzzleClues = clues.mapIndexed { y, clue ->
+        val (puzzleClues, puzzleWords) = clues.mapIndexed { y, clue ->
             Puzzle.Clue(
-                Puzzle.Word(y,
-                    grid[y].filterNot { it.cellType == Puzzle.CellType.BLOCK } +
-                            grid[(y + 1) % grid.size].filterNot { it.cellType == Puzzle.CellType.BLOCK }.reversed()
-                ),
+                y,
                 "${y + 1}",
                 clue
+            ) to Puzzle.Word(
+                y,
+                grid[y].filterNot { it.cellType == Puzzle.CellType.BLOCK } +
+                        grid[(y + 1) % grid.size].filterNot { it.cellType == Puzzle.CellType.BLOCK }.reversed()
             )
-        }
+        }.unzip()
         return Puzzle(
             title = title,
             creator = creator,
@@ -40,6 +41,7 @@ data class AroundTheBend(
             description = description,
             grid = grid,
             clues = listOf(Puzzle.ClueList("Clues", puzzleClues)),
+            words = puzzleWords,
             crosswordSolverSettings = crosswordSolverSettings
         )
     }

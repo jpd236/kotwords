@@ -80,6 +80,7 @@ data class RowsGarden(
             BloomType.DARK to BloomData(darkBloomColor, dark)
         )
         val cellMap = mutableMapOf<Pair<Int, Int>, Puzzle.Cell>()
+        val bloomsWords = mutableListOf<Puzzle.Word>()
         fun getOrCreateCell(x: Int, y: Int): Puzzle.Cell {
             if (cellMap.containsKey(x to y)) {
                 return cellMap.getValue(x to y)
@@ -111,18 +112,22 @@ data class RowsGarden(
                         backgroundColor = blooms.getValue(bloomType).color
                     )
                     if (bloomIndex > 0) {
+                        val wordId = 1000 * (bloomType.ordinal + 1) + bloomIndex
+                        bloomsWords.add(
+                            Puzzle.Word(
+                                wordId, listOf(
+                                    getOrCreateCell(x - 2, y),
+                                    getOrCreateCell(x - 1, y),
+                                    cell,
+                                    getOrCreateCell(x, y + 1),
+                                    getOrCreateCell(x - 1, y + 1),
+                                    getOrCreateCell(x - 2, y + 1)
+                                )
+                            )
+                        )
                         blooms[bloomType]?.puzzleClues!!.add(
                             Puzzle.Clue(
-                                Puzzle.Word(
-                                    1000 * (bloomType.ordinal + 1) + bloomIndex, listOf(
-                                        getOrCreateCell(x - 2, y),
-                                        getOrCreateCell(x - 1, y),
-                                        cell,
-                                        getOrCreateCell(x, y + 1),
-                                        getOrCreateCell(x - 1, y + 1),
-                                        getOrCreateCell(x - 2, y + 1)
-                                    )
-                                ),
+                                wordId,
                                 number,
                                 formatClue(
                                     blooms.getValue(bloomType).clues[bloomIndex - 1],
@@ -142,12 +147,12 @@ data class RowsGarden(
             }
         }
 
-        val rowClues = grid.mapIndexed { y, row ->
+        val (rowClues, rowsWords) = grid.mapIndexed { y, row ->
             val letters = row.filter { it.cellType != Puzzle.CellType.BLOCK }
-            Puzzle.Clue(Puzzle.Word(y + 1, letters), "${y + 1}", rows[y].joinToString(" / ") {
+            Puzzle.Clue(y + 1, "${y + 1}", rows[y].joinToString(" / ") {
                 formatClue(it, addWordCount, addHyphenated)
-            })
-        }
+            }) to Puzzle.Word(y + 1, letters)
+        }.unzip()
 
         val bloomClues = listOf(
             blooms.getValue(BloomType.LIGHT).puzzleClues,
@@ -163,6 +168,7 @@ data class RowsGarden(
             description = notes ?: "",
             grid = grid,
             clues = listOf(Puzzle.ClueList("Rows", rowClues), Puzzle.ClueList("Blooms", bloomClues)),
+            words = rowsWords + bloomsWords.sortedBy { it.id },
             crosswordSolverSettings = crosswordSolverSettings
         )
     }

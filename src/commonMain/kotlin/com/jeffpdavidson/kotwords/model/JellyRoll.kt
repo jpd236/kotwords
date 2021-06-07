@@ -95,23 +95,26 @@ data class JellyRoll(
             clues: List<String>,
             squareList: List<SpiralGrid.Square>,
             firstWordId: Int
-        ): List<Puzzle.Clue> {
+        ): Pair<List<Puzzle.Clue>, List<Puzzle.Word>> {
             val jpzClues = mutableListOf<Puzzle.Clue>()
+            val jpzWords = mutableListOf<Puzzle.Word>()
             answers.foldIndexed(0) { wordNumber, i, answer ->
                 val firstCell = squareList[i]
+                jpzWords += Puzzle.Word(
+                    firstWordId + wordNumber,
+                    squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }
+                )
                 jpzClues += Puzzle.Clue(
-                    Puzzle.Word(
-                        firstWordId + wordNumber,
-                        squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }),
+                    firstWordId + wordNumber,
                     grid[firstCell.y][firstCell.x].number,
                     clues[wordNumber]
                 )
                 i + answer.length
             }
-            return jpzClues
+            return jpzClues to jpzWords
         }
 
-        val allSquaresJpzClues =
+        val (allSquaresJpzClues, allSquaresJpzWords) =
             if (combineJellyRollClues) {
                 createClues(
                     listOf(jellyRollAnswers.joinToString("")),
@@ -127,9 +130,11 @@ data class JellyRoll(
             .partition { LIGHT_SQUARE_MODULOS.contains(it.first % 4) }
             .toList()
             .map { it.map { (_, square) -> square } }
-        val everyOtherJpzClues =
-            createClues(lightSquaresAnswers, lightSquaresClues, partitionedSquares[0], 101) +
-                    createClues(darkSquaresAnswers, darkSquaresClues, partitionedSquares[1], 201)
+
+        val (lightSquaresJpzClues, lightSquaresJpzWords) =
+            createClues(lightSquaresAnswers, lightSquaresClues, partitionedSquares[0], 101)
+        val (darkSquaresJpzClues, darkSquaresJpzWords) =
+            createClues(darkSquaresAnswers, darkSquaresClues, partitionedSquares[1], 201)
 
         return Puzzle(
             title = title,
@@ -139,8 +144,9 @@ data class JellyRoll(
             grid = grid,
             clues = listOf(
                 Puzzle.ClueList("Jelly Rolls", allSquaresJpzClues),
-                Puzzle.ClueList("Colored Paths", everyOtherJpzClues)
+                Puzzle.ClueList("Colored Paths", lightSquaresJpzClues + darkSquaresJpzClues)
             ),
+            words = allSquaresJpzWords + lightSquaresJpzWords + darkSquaresJpzWords,
             crosswordSolverSettings = crosswordSolverSettings
         )
     }

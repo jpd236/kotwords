@@ -45,12 +45,16 @@ data class Spiral(
             }
         }
 
+        val words = mutableListOf<Puzzle.Word>()
+
         val inwardJpzClues = mutableListOf<Puzzle.Clue>()
         inwardAnswers.foldIndexed(0) { wordNumber, i, answer ->
+            words += Puzzle.Word(
+                wordNumber + 1,
+                squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }
+            )
             inwardJpzClues += Puzzle.Clue(
-                Puzzle.Word(
-                    wordNumber + 1,
-                    squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }),
+                wordNumber + 1,
                 "${i + 1}-${i + answer.length}",
                 inwardClues[wordNumber]
             )
@@ -59,10 +63,12 @@ data class Spiral(
 
         val outwardJpzClues = mutableListOf<Puzzle.Clue>()
         outwardAnswers.foldIndexed(inwardLetters.length) { wordNumber, i, answer ->
+            words += Puzzle.Word(
+                wordNumber + 101,
+                squareList.slice(i - answer.length until i).reversed().map { (x, y) -> grid[y][x] }
+            )
             outwardJpzClues += Puzzle.Clue(
-                Puzzle.Word(
-                    wordNumber + 101,
-                    squareList.slice(i - answer.length until i).reversed().map { (x, y) -> grid[y][x] }),
+                wordNumber + 101,
                 "$i-${i - answer.length + 1}",
                 outwardClues[wordNumber]
             )
@@ -76,6 +82,7 @@ data class Spiral(
             description = description,
             grid = grid,
             clues = listOf(Puzzle.ClueList("Inward", inwardJpzClues), Puzzle.ClueList("Outward", outwardJpzClues)),
+            words = words,
             crosswordSolverSettings = crosswordSolverSettings
         )
     }

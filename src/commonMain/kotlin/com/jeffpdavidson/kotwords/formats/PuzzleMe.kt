@@ -74,13 +74,24 @@ class PuzzleMe(private val json: String) : Crosswordable {
                             isGiven = isPrefilled,
                             number = number,
                             foregroundColor = cellInfoMap[x to y]?.fgColor?.ifEmpty { null },
-                            backgroundColor = cellInfoMap[x to y]?.bgColor?.ifEmpty { null }
+                            backgroundColor = cellInfoMap[x to y]?.bgColor?.ifEmpty { null },
+                            borderDirections =
+                            setOfNotNull(
+                                if (cellInfoMap[x to y]?.topWall == true) Square.BorderDirection.TOP else null,
+                                if (cellInfoMap[x to y]?.bottomWall == true) {
+                                    Square.BorderDirection.BOTTOM
+                                } else {
+                                    null
+                                },
+                                if (cellInfoMap[x to y]?.leftWall == true) Square.BorderDirection.LEFT else null,
+                                if (cellInfoMap[x to y]?.rightWall == true) Square.BorderDirection.RIGHT else null,
+                            )
                         )
                     )
                 }
             }
             if (grid.size > 0 && grid[0].size != row.size) {
-                throw InvalidFormatException("Grid is not square")
+                throw InvalidFormatException("Grid is not rectangular")
             }
             grid.add(row)
         }
@@ -96,15 +107,26 @@ class PuzzleMe(private val json: String) : Crosswordable {
         val filteredGrid = grid.drop(topRowsToDelete).dropLast(bottomRowsToDelete)
             .map { row -> row.drop(leftRowsToDelete).dropLast(rightRowsToDelete) }
 
+        val acrossWords = data.placedWords
+            .filter { it.acrossNotDown }
+            .filter { it.y >= topRowsToDelete && it.y <= grid.size - bottomRowsToDelete }
+            .map { it.copy(x = it.x - leftRowsToDelete, y = it.y - topRowsToDelete) }
+        val downWords = data.placedWords
+            .filterNot { it.acrossNotDown }
+            .filter { it.x >= leftRowsToDelete && it.x <= grid[0].size - rightRowsToDelete }
+            .map { it.copy(x = it.x - leftRowsToDelete, y = it.y - topRowsToDelete) }
+
         return Crossword(
             title = data.title,
             author = data.author,
             copyright = data.copyright,
-            notes = data.description,
+            notes = data.description.ifBlank { data.help?.ifBlank { "" } ?: "" },
             grid = filteredGrid,
-            acrossClues = buildClueMap(data.placedWords.filter { it.acrossNotDown }),
-            downClues = buildClueMap(data.placedWords.filter { !it.acrossNotDown }),
+            acrossClues = buildClueMap(acrossWords),
+            downClues = buildClueMap(downWords),
             hasHtmlClues = true,
+            acrossWords = buildWordList(acrossWords),
+            downWords = buildWordList(downWords),
         )
     }
 
@@ -127,6 +149,23 @@ class PuzzleMe(private val json: String) : Crosswordable {
 
         private fun buildClueMap(clueList: List<PuzzleMeJson.PlacedWord>): Map<Int, String> =
             clueList.associate { it.clueNum to toHtml(it.clue.clue) }
+
+        private fun buildWordList(words: List<PuzzleMeJson.PlacedWord>): List<Crossword.Word> {
+            return words.map { word ->
+                var x = word.x
+                var y = word.y
+                val squares = mutableListOf<Pair<Int, Int>>()
+                repeat(word.nBoxes) {
+                    squares.add(x to y)
+                    if (word.acrossNotDown) {
+                        x++
+                    } else {
+                        y++
+                    }
+                }
+                Crossword.Word(id = (if (word.acrossNotDown) 0 else 1000) + word.clueNum, squares = squares)
+            }
+        }
 
         /**
          * Convert a PuzzleMe JSON string to HTML.

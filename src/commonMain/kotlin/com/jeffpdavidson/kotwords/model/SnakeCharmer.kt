@@ -56,9 +56,9 @@ data class SnakeCharmer(
                 }
             }
         }
-        val jpzClues = clues.mapIndexed { i, clue ->
-            Puzzle.Clue(Puzzle.Word(i + 1, words[i].map { (x, y) -> grid[y][x] }), "${i + 1}", clue)
-        }
+        val (jpzClues, jpzWords) = clues.mapIndexed { i, clue ->
+            Puzzle.Clue(i + 1, "${i + 1}", clue) to Puzzle.Word(i + 1, words[i].map { (x, y) -> grid[y][x] })
+        }.unzip()
         return Puzzle(
             title = title,
             creator = creator,
@@ -66,6 +66,7 @@ data class SnakeCharmer(
             description = description,
             grid = grid,
             clues = listOf(Puzzle.ClueList("Clues", jpzClues)),
+            words = jpzWords,
             crosswordSolverSettings = crosswordSolverSettings
         )
     }

@@ -112,7 +112,7 @@ data class Acrostic(
         nextRow()
 
         // Generate the clue/answer portion of the grid.
-        val answerWords = mutableMapOf<Int, List<Puzzle.Cell>>()
+        val answerWordMap = mutableMapOf<Int, List<Puzzle.Cell>>()
         fun addClue(clueIndex: Int, columnEndIndex: Int, answer: List<Int>) {
             row.add(
                 Puzzle.Cell(
@@ -125,7 +125,7 @@ data class Acrostic(
                 val solutionNumber = "${gridKey[clueIndex][i]}"
                 Puzzle.Cell(x++, y, solution = solutionLetter, number = solutionNumber)
             }
-            answerWords[clueIndex] = word
+            answerWordMap[clueIndex] = word
             row.addAll(word)
             row.addAll(generateWhiteCells(x..columnEndIndex, y))
             x = columnEndIndex + 1
@@ -143,11 +143,14 @@ data class Acrostic(
             nextRow()
         }
 
-        val answerClues = clues.mapIndexed { index, clue ->
-            val answerWord = answerWords[index] ?: error("Impossible")
-            Puzzle.Clue(Puzzle.Word(index + 1, answerWord), "${'A' + index}", clue)
-        }
-        val clueList = Puzzle.ClueList("Clues", answerClues + Puzzle.Clue(Puzzle.Word(1000, quoteWord), "", "[QUOTE]"))
+
+        val (answerClues, answerWords) = clues.mapIndexed { index, clue ->
+            val answerWord = answerWordMap[index] ?: error("Impossible")
+            val word = Puzzle.Word(index + 1, answerWord)
+            Puzzle.Clue(index + 1, "${'A' + index}", clue) to word
+        }.unzip()
+        val words = answerWords + listOf(Puzzle.Word(1000, quoteWord))
+        val clueList = Puzzle.ClueList("Clues", answerClues + Puzzle.Clue(1000, "", "[QUOTE]"))
 
         return Puzzle(
             title,
@@ -156,6 +159,7 @@ data class Acrostic(
             description,
             grid,
             listOf(clueList),
+            words,
             crosswordSolverSettings = crosswordSolverSettings,
             puzzleType = Puzzle.PuzzleType.ACROSTIC
         )

@@ -12,6 +12,7 @@ data class Puzzle(
     val description: String,
     val grid: List<List<Cell>>,
     val clues: List<ClueList>,
+    val words: List<Word>,
     val hasHtmlClues: Boolean = false,
     val crosswordSolverSettings: CrosswordSolverSettings? = null,
     val puzzleType: PuzzleType = PuzzleType.CROSSWORD
@@ -61,7 +62,7 @@ data class Puzzle(
     )
 
     data class Clue(
-        val word: Word,
+        val wordId: Int,
         val number: String,
         val text: String
     )
@@ -123,15 +124,13 @@ data class Puzzle(
             }.flatten()
         )
 
-        val words = clues.flatMap { clueList ->
-            clueList.clues.map { clue ->
-                Jpz.RectangularPuzzle.Crossword.Word(
-                    id = clue.word.id,
-                    cells = clue.word.cells.map { cell ->
-                        Jpz.RectangularPuzzle.Crossword.Word.Cells(cell.x, cell.y)
-                    }
-                )
-            }
+        val jpzWords = words.map { word ->
+            Jpz.RectangularPuzzle.Crossword.Word(
+                id = word.id,
+                cells = word.cells.map { cell ->
+                    Jpz.RectangularPuzzle.Crossword.Word.Cells(cell.x, cell.y)
+                }
+            )
         }
 
         val jpzClues = clues.map { clueList ->
@@ -140,14 +139,14 @@ data class Puzzle(
                 clues = clueList.clues.map { clue ->
                     val htmlClues = if (hasHtmlClues) clue.text else formatClue(clue.text)
                     Jpz.RectangularPuzzle.Crossword.Clues.Clue(
-                        word = clue.word.id,
+                        word = clue.wordId,
                         number = clue.number,
                         text = Jpz.htmlToSnippet(htmlClues)
                     )
                 })
         }
 
-        val crossword = Jpz.RectangularPuzzle.Crossword(jpzGrid, words, jpzClues)
+        val crossword = Jpz.RectangularPuzzle.Crossword(jpzGrid, jpzWords, jpzClues)
 
         val rectangularPuzzle = Jpz.RectangularPuzzle(
             metadata = Jpz.RectangularPuzzle.Metadata(
@@ -215,6 +214,7 @@ data class Puzzle(
                             cellType = if (square.isGiven) CellType.CLUE else CellType.REGULAR,
                             foregroundColor = square.foregroundColor ?: "",
                             backgroundColor = square.backgroundColor ?: "",
+                            borderDirections = square.borderDirections.mapNotNull { BORDER_DIRECTION_MAP[it] }.toSet()
                         )
                 }
             }
@@ -229,35 +229,76 @@ data class Puzzle(
 
             val acrossClues = mutableListOf<Clue>()
             val downClues = mutableListOf<Clue>()
-            // TODO(#9): This approach assumes every word is conventional, though it permits skipped clues. To handle
-            // this properly for arbitrary puzzles, we'd need to extend Crossword to support optional population of
-            // custom words, and then use those instead.
-            Crossword.forEachSquare(crossword.grid) { x, y, number, isAcross, isDown, square ->
-                val clueNumber = if (hasCustomNumbering) square.number else number
-                if (isAcross) {
-                    val word = mutableListOf<Cell>()
-                    var i = x
-                    while (i < crossword.grid[y].size && !crossword.grid[y][i].isBlack) {
-                        word.add(grid[y][i])
-                        i++
-                    }
-                    if (clueNumber != null && crossword.acrossClues.containsKey(clueNumber)) {
-                        acrossClues.add(
-                            Clue(Word(clueNumber, word), "$clueNumber", crossword.acrossClues[clueNumber]!!)
-                        )
+            val words = mutableListOf<Word>()
+            if (crossword.acrossWords.isNotEmpty() && crossword.downWords.isNotEmpty()) {
+                // Custom word scheme. Use all of the provided words, and add clue entries for each clue that
+                // corresponds to a word. (Some words may be unclued, but all clues must have words - a clue without a
+                // word will be dropped).
+                crossword.acrossWords.forEach { word ->
+                    words.add(Word(word.id, word.squares.map { (x, y) -> grid[y][x] }))
+                    val clueNumberString = grid[word.squares[0].second][word.squares[0].first].number
+                    if (clueNumberString.isNotEmpty()) {
+                        val clueNumber = clueNumberString.toInt()
+                        val clueText = crossword.acrossClues[clueNumber]
+                        if (clueText != null) {
+                            acrossClues.add(
+                                Clue(
+                                    wordId = word.id,
+                                    number = clueNumberString,
+                                    text = clueText
+                                )
+                            )
+                        }
                     }
                 }
-                if (isDown) {
-                    val word = mutableListOf<Cell>()
-                    var j = y
-                    while (j < crossword.grid.size && !crossword.grid[j][x].isBlack) {
-                        word.add(grid[j][x])
-                        j++
+                crossword.downWords.forEach { word ->
+                    words.add(Word(word.id, word.squares.map { (x, y) -> grid[y][x] }))
+                    val clueNumberString = grid[word.squares[0].second][word.squares[0].first].number
+                    if (clueNumberString.isNotEmpty()) {
+                        val clueNumber = clueNumberString.toInt()
+                        val clueText = crossword.downClues[clueNumber]
+                        if (clueText != null) {
+                            downClues.add(
+                                Clue(
+                                    wordId = word.id,
+                                    number = clueNumberString,
+                                    text = clueText
+                                )
+                            )
+                        }
                     }
-                    if (clueNumber != null && crossword.downClues.containsKey(clueNumber)) {
-                        downClues.add(
-                            Clue(Word(1000 + clueNumber, word), "$clueNumber", crossword.downClues[clueNumber]!!)
-                        )
+                }
+            } else {
+                // No custom word scheme - generate words based on standard crossword numbering.
+                Crossword.forEachSquare(crossword.grid) { x, y, number, isAcross, isDown, square ->
+                    val clueNumber = if (hasCustomNumbering) square.number else number
+                    if (isAcross) {
+                        val word = mutableListOf<Cell>()
+                        var i = x
+                        while (i < crossword.grid[y].size && !crossword.grid[y][i].isBlack) {
+                            word.add(grid[y][i])
+                            i++
+                        }
+                        if (clueNumber != null && crossword.acrossClues.containsKey(clueNumber)) {
+                            acrossClues.add(
+                                Clue(clueNumber, "$clueNumber", crossword.acrossClues[clueNumber]!!)
+                            )
+                            words.add(Word(clueNumber, word))
+                        }
+                    }
+                    if (isDown) {
+                        val word = mutableListOf<Cell>()
+                        var j = y
+                        while (j < crossword.grid.size && !crossword.grid[j][x].isBlack) {
+                            word.add(grid[j][x])
+                            j++
+                        }
+                        if (clueNumber != null && crossword.downClues.containsKey(clueNumber)) {
+                            downClues.add(
+                                Clue(1000 + clueNumber, "$clueNumber", crossword.downClues[clueNumber]!!)
+                            )
+                            words.add(Word(1000 + clueNumber, word))
+                        }
                     }
                 }
             }
@@ -269,6 +310,7 @@ data class Puzzle(
                 crossword.notes,
                 grid,
                 listOf(ClueList("Across", acrossClues), ClueList("Down", downClues)),
+                words.sortedBy { it.id },
                 crosswordSolverSettings = crosswordSolverSettings,
                 hasHtmlClues = crossword.hasHtmlClues,
             )
@@ -283,5 +325,12 @@ data class Puzzle(
             return rawClue.replace("&", "&amp;").replace("<", "&lt;")
                 .replace("\\*([^*]+)\\*".toRegex(), "<i>$1</i>")
         }
+
+        private val BORDER_DIRECTION_MAP = mapOf(
+            Square.BorderDirection.TOP to BorderDirection.TOP,
+            Square.BorderDirection.BOTTOM to BorderDirection.BOTTOM,
+            Square.BorderDirection.LEFT to BorderDirection.LEFT,
+            Square.BorderDirection.RIGHT to BorderDirection.RIGHT,
+        )
     }
 }

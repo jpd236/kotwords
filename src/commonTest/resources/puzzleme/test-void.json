@@ -76,70 +76,100 @@
       "clueNum": 1,
       "clue": {
         "clue": "First across clue"
-      }
+      },
+      "nBoxes": 4,
+      "x": 1,
+      "y": 1
     },
     {
       "acrossNotDown": true,
       "clueNum": 5,
       "clue": {
         "clue": "Second across clue"
-      }
+      },
+      "nBoxes": 4,
+      "x": 1,
+      "y": 2
     },
     {
       "acrossNotDown": true,
       "clueNum": 6,
       "clue": {
         "clue": "Third across clue"
-      }
+      },
+      "nBoxes": 5,
+      "x": 1,
+      "y": 3
     },
     {
       "acrossNotDown": true,
       "clueNum": 8,
       "clue": {
         "clue": "Fourth across clue"
-      }
+      },
+      "nBoxes": 4,
+      "x": 2,
+      "y": 4
     },
     {
       "acrossNotDown": true,
       "clueNum": 9,
       "clue": {
         "clue": "Fifth across clue"
-      }
+      },
+      "nBoxes": 4,
+      "x": 2,
+      "y": 5
     },
     {
       "acrossNotDown": false,
       "clueNum": 1,
       "clue": {
         "clue": "First down clue"
-      }
+      },
+      "nBoxes": 3,
+      "x": 1,
+      "y": 1
     },
     {
       "acrossNotDown": false,
       "clueNum": 2,
       "clue": {
         "clue": "Second down clue"
-      }
+      },
+      "nBoxes": 5,
+      "x": 2,
+      "y": 1
     },
     {
       "acrossNotDown": false,
       "clueNum": 3,
       "clue": {
         "clue": "Third down clue"
-      }
+      },
+      "nBoxes": 5,
+      "x": 3,
+      "y": 1
     },
     {
       "acrossNotDown": false,
       "clueNum": 4,
       "clue": {
         "clue": "Fourth down clue"
-      }
+      },
+      "nBoxes": 5,
+      "x": 4,
+      "y": 1
     },
     {
       "acrossNotDown": false,
       "clueNum": 7,
       "clue": {
         "clue": "Fifth down clue"
-      }
+      },
+      "nBoxes": 3,
+      "x": 5,
+      "y": 3
     }
   ],
   "cellInfos": [

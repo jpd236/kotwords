@@ -161,8 +161,7 @@ interface Jpz : Crosswordable {
             } else {
                 val solution = it.solution ?: ""
                 val solutionRebus = if (solution.length > 1) solution else ""
-                val isCircled =
-                    "circle".equals(it.backgroundShape, ignoreCase = true)
+                val isCircled = "circle".equals(it.backgroundShape, ignoreCase = true)
                 gridMap[position] = Square(
                     solution = solution[0],
                     solutionRebus = solutionRebus,
@@ -170,6 +169,12 @@ interface Jpz : Crosswordable {
                     number = if (it.number?.isNotEmpty() == true) it.number.toInt() else null,
                     foregroundColor = it.foregroundColor,
                     backgroundColor = it.backgroundColor,
+                    borderDirections = setOfNotNull(
+                        if (it.topBar == true) Square.BorderDirection.TOP else null,
+                        if (it.bottomBar == true) Square.BorderDirection.BOTTOM else null,
+                        if (it.leftBar == true) Square.BorderDirection.LEFT else null,
+                        if (it.rightBar == true) Square.BorderDirection.RIGHT else null,
+                    )
                 )
             }
         }
@@ -184,6 +189,13 @@ interface Jpz : Crosswordable {
 
         val (acrossClues, downClues) = buildClueMaps(rectangularPuzzle.crossword!!.clues)
 
+        val (acrossWords, downWords) = rectangularPuzzle.crossword!!.words.map {
+            Crossword.Word(it.id, it.cells.map { cell -> cell.x - 1 to cell.y - 1 })
+        }.partition { word ->
+            // Across clues have the same y coordinate for all squares in the word.
+            word.squares.all { square -> square.second == word.squares[0].second }
+        }
+
         return Crossword(
             title = rectangularPuzzle.metadata.title ?: "",
             author = rectangularPuzzle.metadata.creator ?: "",
@@ -193,6 +205,8 @@ interface Jpz : Crosswordable {
             acrossClues = acrossClues,
             downClues = downClues,
             hasHtmlClues = true,
+            acrossWords = acrossWords,
+            downWords = downWords,
         )
     }
 

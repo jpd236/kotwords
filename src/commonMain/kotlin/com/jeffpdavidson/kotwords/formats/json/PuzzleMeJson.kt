@@ -7,7 +7,14 @@ internal object PuzzleMeJson {
     internal data class Clue(val clue: String)
 
     @Serializable
-    internal data class PlacedWord(val clue: Clue, val clueNum: Int, val acrossNotDown: Boolean)
+    internal data class PlacedWord(
+        val clue: Clue,
+        val clueNum: Int,
+        val acrossNotDown: Boolean,
+        val nBoxes: Int = 0,
+        val x: Int = 0,
+        val y: Int = 0,
+    )
 
     @Serializable
     internal data class CellInfo(
@@ -17,6 +24,10 @@ internal object PuzzleMeJson {
         val isVoid: Boolean,
         val fgColor: String = "",
         val bgColor: String = "",
+        val topWall: Boolean = false,
+        val bottomWall: Boolean = false,
+        val leftWall: Boolean = false,
+        val rightWall: Boolean = false,
     )
 
     @Serializable
@@ -25,6 +36,7 @@ internal object PuzzleMeJson {
         val description: String,
         val copyright: String,
         val author: String,
+        val help: String? = null,
         val box: List<List<String?>>,
         val cellInfos: List<CellInfo> = listOf(),
         val placedWords: List<PlacedWord>,

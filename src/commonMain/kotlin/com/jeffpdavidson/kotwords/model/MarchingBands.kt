@@ -52,11 +52,11 @@ data class MarchingBands(
                 }
             }
         }
-        val rowClueList = rowClues.mapIndexed { y, clues ->
+        val (rowClueList, rowWordList) = rowClues.mapIndexed { y, clues ->
             val cells = puzzleGrid[y].filterNot { it.cellType == Puzzle.CellType.BLOCK }
-            Puzzle.Clue(Puzzle.Word(y + 1, cells), "${y + 1}", clues.joinToString(" / "))
-        }
-        val bandClueList = bandClues.mapIndexed { i, clues ->
+            Puzzle.Clue(y + 1, "${y + 1}", clues.joinToString(" / ")) to Puzzle.Word(y + 1, cells)
+        }.unzip()
+        val (bandClueList, bandWordList) = bandClues.mapIndexed { i, clues ->
             val cells = mutableListOf<Puzzle.Cell>()
             cells.addAll(puzzleGrid[i].subList(i, puzzleGrid[i].size - i))
             (i + 1 until puzzleGrid.size - i).forEach { y ->
@@ -66,8 +66,8 @@ data class MarchingBands(
             (puzzleGrid.size - i - 1 downTo i + 1).forEach { y ->
                 cells.add(puzzleGrid[y][i])
             }
-            Puzzle.Clue(Puzzle.Word(1000 + i + 1, cells), "${'A' + i}", clues.joinToString(" / "))
-        }
+            Puzzle.Clue(1000 + i + 1, "${'A' + i}", clues.joinToString(" / ")) to Puzzle.Word(1000 + i + 1, cells)
+        }.unzip()
         return Puzzle(
             title = title,
             creator = creator,
@@ -75,6 +75,7 @@ data class MarchingBands(
             description = description,
             grid = puzzleGrid,
             clues = listOf(Puzzle.ClueList("Bands", bandClueList), Puzzle.ClueList("Rows", rowClueList)),
+            words = bandWordList + rowWordList,
             crosswordSolverSettings = crosswordSolverSettings
         )
     }
