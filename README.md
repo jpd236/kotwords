@@ -13,7 +13,7 @@ This project also includes a [web interface](https://jpd236.github.io/kotwords/)
 * Read crosswords in a variety of file formats, including formats used by online puzzle sites
 * Remove a direction of clues to make puzzles more challenging
 * Write crosswords in .puz and .jpz format
-* Generate PDFs for crosswords (currently JVM only)
+* Generate PDFs for crosswords
 * Create .jpz files for variety crossword puzzles
 
 ## How To Use

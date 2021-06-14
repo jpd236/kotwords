@@ -55,7 +55,7 @@ dependencies {
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common"
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-common"
 
-    jvmMainImplementation "org.apache.pdfbox:pdfbox:2.0.9"
+    jvmMainImplementation "org.apache.pdfbox:pdfbox:2.0.24"
     jvmMainImplementation "org.glassfish:javax.json:1.1.2"
     jvmMainImplementation "org.jsoup:jsoup:1.11.2"
 
@@ -64,10 +64,12 @@ dependencies {
 
     jsMainImplementation(npm("jszip", "3.4.0"))
     jsMainImplementation(npm("text-encoding", "0.7.0"))
+    jsMainImplementation(npm("jspdf", "2.3.1"))
     jsMainImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.4.2"
     jsMainImplementation "org.jetbrains.kotlinx:kotlinx-html-js:0.7.3"
 
     jsTestImplementation "org.jetbrains.kotlin:kotlin-test-js"
+    jsTestImplementation(npm("pdfjs-dist", "2.8.335"))
 }
 
 task dokkaJar(type: Jar) {

@@ -9,3 +9,9 @@ config.files.push({
     "served": true,
     "included": false
 });
+// See PdfComparator
+config.files.push({
+    "pattern": "build/js/node_modules/pdfjs-dist/legacy/build/**",
+    "served": true,
+    "included": false,
+});
