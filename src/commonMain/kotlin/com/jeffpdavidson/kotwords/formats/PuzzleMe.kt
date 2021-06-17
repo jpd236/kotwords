@@ -117,10 +117,10 @@ class PuzzleMe(private val json: String) : Crosswordable {
             .map { it.copy(x = it.x - leftRowsToDelete, y = it.y - topRowsToDelete) }
 
         return Crossword(
-            title = data.title,
-            author = data.author,
-            copyright = data.copyright,
-            notes = data.description.ifBlank { data.help?.ifBlank { "" } ?: "" },
+            title = data.title.trim(),
+            author = data.author.trim(),
+            copyright = data.copyright.trim(),
+            notes = data.description.ifBlank { data.help?.ifBlank { "" } ?: "" }.trim(),
             grid = filteredGrid,
             acrossClues = buildClueMap(acrossWords),
             downClues = buildClueMap(downWords),
