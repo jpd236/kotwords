@@ -15,6 +15,9 @@ object Pdf {
     /** Size of the puzzle author. */
     private const val AUTHOR_SIZE = 14f
 
+    /** Size of the puzzle notes. */
+    private const val NOTES_SIZE = 12f
+
     /** Size of the puzzle copyright. */
     private const val COPYRIGHT_SIZE = 9f
 
@@ -68,9 +71,10 @@ object Pdf {
     fun Crossword.asPdf(): ByteArray = PdfDocument().run {
         val pageWidth = width
         val pageHeight = height
+        val headerWidth = pageWidth - 2 * MARGIN
         val gridRows = grid.size
         val gridCols = grid[0].size
-        val gridWidth = getGridWidthPercentage(gridRows) * (pageWidth - 2 * MARGIN)
+        val gridWidth = getGridWidthPercentage(gridRows) * headerWidth
         val gridHeight = gridWidth * gridRows / gridCols
         val gridSquareSize = gridHeight / gridRows
         val gridNumberSize = getGridNumberSize(gridRows)
@@ -78,7 +82,7 @@ object Pdf {
         val gridY = MARGIN + COPYRIGHT_SIZE
         val clueSize = getClueTextSize(gridRows)
         val columns = getClueColumns(gridRows)
-        val columnWidth = (pageWidth - 2 * MARGIN - (columns - 1) * COLUMN_PADDING) / columns
+        val columnWidth = (headerWidth - (columns - 1) * COLUMN_PADDING) / columns
         val titleX = MARGIN
         val titleY = pageHeight - MARGIN
 
@@ -92,12 +96,17 @@ object Pdf {
         newLineAtOffset(titleX, titleY)
 
         setFont(Font.TIMES_BOLD, TITLE_SIZE)
-        drawText(title)
-        newLine(TITLE_SIZE)
+        drawMultiLineText(title, TITLE_SIZE, headerWidth, ::newLine)
 
         setFont(Font.TIMES_ROMAN, AUTHOR_SIZE)
-        drawText(author)
-        newLine(2 * AUTHOR_SIZE)
+        drawMultiLineText(author, AUTHOR_SIZE, headerWidth, ::newLine)
+
+        if (notes.isNotBlank()) {
+            setFont(Font.TIMES_ITALIC, NOTES_SIZE)
+            drawMultiLineText(notes, NOTES_SIZE, headerWidth, ::newLine)
+        }
+
+        newLine(AUTHOR_SIZE)
 
         val clueTopY = positionY
         // For the first column, the clues descend to the bottom of the grid.
@@ -191,6 +200,15 @@ object Pdf {
         endText()
 
         toByteArray()
+    }
+
+    private fun PdfDocument.drawMultiLineText(
+        text: String, fontSize: Float, lineWidth: Float, newLineFn: (Float) -> Unit
+    ) {
+        splitTextToLines(this, text, fontSize, lineWidth).forEach { line ->
+            drawText(line)
+            newLineFn(fontSize)
+        }
     }
 
     /** Split [text] into lines (using spaces as word separators) to fit the given [lineWidth]. */

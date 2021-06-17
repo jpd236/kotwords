@@ -4,6 +4,7 @@ internal enum class Font {
     COURIER,
     TIMES_ROMAN,
     TIMES_BOLD,
+    TIMES_ITALIC,
 }
 
 /**

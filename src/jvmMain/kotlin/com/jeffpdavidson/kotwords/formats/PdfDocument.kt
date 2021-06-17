@@ -90,6 +90,7 @@ internal actual class PdfDocument {
             Font.COURIER -> PDType1Font.COURIER
             Font.TIMES_ROMAN -> PDType1Font.TIMES_ROMAN
             Font.TIMES_BOLD -> PDType1Font.TIMES_BOLD
+            Font.TIMES_ITALIC -> PDType1Font.TIMES_ITALIC
         }
     }
 }

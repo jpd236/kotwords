@@ -42,6 +42,7 @@ internal actual class PdfDocument {
             Font.COURIER -> "courier" to "normal"
             Font.TIMES_BOLD -> "times" to "bold"
             Font.TIMES_ROMAN -> "times" to "normal"
+            Font.TIMES_ITALIC -> "times" to "italic"
         }
         pdf.setFont(fontName, fontStyle)
         pdf.setFontSize(size)
