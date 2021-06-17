@@ -21,9 +21,6 @@ object Pdf {
     /** Size of the puzzle copyright. */
     private const val COPYRIGHT_SIZE = 9f
 
-    /** Size of clue section headers ("ACROSS" and "DOWN"). */
-    private const val CLUE_HEADER_SIZE = 12f
-
     /** Size of the space between adjacent clue columns. */
     private const val COLUMN_PADDING = 12f
 
@@ -32,6 +29,15 @@ object Pdf {
 
     /** Color to use for "black" squares from 0 (black) to 1 (white). */
     private const val GRID_BLACK_COLOR = 0.75f
+
+    /** Maximum size of clues. */
+    private const val CLUE_TEXT_MAX_SIZE = 11f
+
+    /** Minimum size of clues. */
+    private const val CLUE_TEXT_MIN_SIZE = 5f
+
+    /** Amount to shrink the font size for each render attempt if the clues do not fit on one page. */
+    private const val CLUE_TEXT_SIZE_DELTA = 0.1f
 
     /** Returns the number of columns to use for the clues. */
     private fun getClueColumns(gridRows: Int): Int = if (gridRows >= 15) {
@@ -45,13 +51,6 @@ object Pdf {
         8f
     } else {
         6f
-    }
-
-    /** Returns the size of the clue text. */
-    private fun getClueTextSize(gridRows: Int): Float = if (gridRows <= 17) {
-        11f
-    } else {
-        8.5f
     }
 
     /** Returns the percentage of the content width to use for the grid. */
@@ -80,7 +79,6 @@ object Pdf {
         val gridNumberSize = getGridNumberSize(gridRows)
         val gridX = pageWidth - MARGIN - gridWidth
         val gridY = MARGIN + COPYRIGHT_SIZE
-        val clueSize = getClueTextSize(gridRows)
         val columns = getClueColumns(gridRows)
         val columnWidth = (headerWidth - (columns - 1) * COLUMN_PADDING) / columns
         val titleX = MARGIN
@@ -108,58 +106,35 @@ object Pdf {
 
         newLine(AUTHOR_SIZE)
 
-        val clueTopY = positionY
-        // For the first column, the clues descend to the bottom of the grid.
-        var clueBottomY = gridY
-        var column = 0
-
-        setFont(Font.TIMES_ROMAN, 11f)
-        fun showClueList(clues: Map<Int, String>, header: String) {
-            clues.entries.forEachIndexed { index, (clueNumber, clue) ->
-                val prefix = "$clueNumber "
-                val prefixWidth = getTextWidth(prefix, clueSize)
-
-                // Count the number of lines needed for the entire clue, plus the section header if
-                // this is the first clue in a section, as we do not want to split a clue apart or
-                // show a section header at the end of a column.
-                val lines = splitTextToLines(this, clue, clueSize, columnWidth - prefixWidth)
-                val clueHeight = lines.size * clueSize +
-                        if (index == 0) {
-                            CLUE_HEADER_SIZE
-                        } else {
-                            0f
-                        }
-
-                if (positionY + clueSize - clueHeight < clueBottomY) {
-                    // This clue extends below the grid, so move to the next column.
-                    if (++column == columns) {
-                        throw UnsupportedOperationException("Clues do not fit on a single page")
-                    }
-                    newLineAtOffset(columnWidth + COLUMN_PADDING, clueTopY - positionY)
-                    positionY = clueTopY
-                    clueBottomY = gridY + gridHeight + clueSize
-                }
-
-                if (index == 0) {
-                    setFont(Font.TIMES_BOLD, CLUE_HEADER_SIZE)
-                    drawText(header)
-                    newLine(CLUE_HEADER_SIZE)
-
-                    setFont(Font.TIMES_ROMAN, clueSize)
-                }
-                drawText(prefix)
-                newLineAtOffset(prefixWidth, 0f)
-                lines.forEach {
-                    drawText(it)
-                    newLine(clueSize)
-                }
-                newLineAtOffset(-prefixWidth, 0f)
-            }
+        // Try progressively smaller clue sizes until we find one small enough to fit every clue on one page.
+        setFont(Font.TIMES_ROMAN, CLUE_TEXT_MAX_SIZE)
+        val clueTextSizes =
+            generateSequence(CLUE_TEXT_MAX_SIZE) { it - CLUE_TEXT_SIZE_DELTA }.takeWhile { it >= CLUE_TEXT_MIN_SIZE }
+        val bestTextSize = clueTextSizes.firstOrNull { clueTextSize ->
+            showClueLists(
+                crossword = this@asPdf,
+                columnWidth = columnWidth,
+                columns = columns,
+                clueTopY = positionY,
+                gridY = gridY,
+                gridHeight = gridHeight,
+                clueTextSize = clueTextSize,
+                render = false
+            )
         }
-
-        showClueList(acrossClues, "ACROSS")
-        newLine(clueSize)
-        showClueList(downClues, "DOWN")
+        require(bestTextSize != null) {
+            "Clues do not fit on a single page"
+        }
+        showClueLists(
+            crossword = this@asPdf,
+            columnWidth = columnWidth,
+            columns = columns,
+            clueTopY = positionY,
+            gridY = gridY,
+            gridHeight = gridHeight,
+            clueTextSize = bestTextSize,
+            render = true
+        )
 
         endText()
 
@@ -254,5 +229,137 @@ object Pdf {
             currentSeparator = " "
         }
         return lines.map { it.toString() }
+    }
+
+    private data class CluePosition(
+        val positionY: Float,
+        val column: Int,
+        val columnBottomY: Float,
+    )
+
+    private fun PdfDocument.showClueLists(
+        crossword: Crossword,
+        columnWidth: Float,
+        columns: Int,
+        clueTopY: Float,
+        gridY: Float,
+        gridHeight: Float,
+        clueTextSize: Float,
+        render: Boolean
+    ): Boolean {
+        var positionY = clueTopY
+        if (render) {
+            setFont(Font.TIMES_ROMAN, clueTextSize)
+        }
+        val (success, cluePosition) =
+            showClueList(
+                clues = crossword.acrossClues,
+                header = "ACROSS",
+                columnWidth = columnWidth,
+                columns = columns,
+                clueTopY = clueTopY,
+                gridY = gridY,
+                gridHeight = gridHeight,
+                clueTextSize = clueTextSize,
+                cluePosition = CluePosition(positionY = positionY, column = 0, columnBottomY = gridY),
+                render = render
+            )
+        if (!success) {
+            return false
+        }
+        positionY = cluePosition.positionY
+        if (render) {
+            newLineAtOffset(0f, -clueTextSize)
+        }
+        positionY -= clueTextSize
+        return showClueList(
+            clues = crossword.downClues,
+            header = "DOWN",
+            columnWidth = columnWidth,
+            columns = columns,
+            clueTopY = clueTopY,
+            gridY = gridY,
+            gridHeight = gridHeight,
+            clueTextSize = clueTextSize,
+            cluePosition = CluePosition(
+                positionY = positionY,
+                column = cluePosition.column,
+                columnBottomY = cluePosition.columnBottomY
+            ),
+            render = render
+        ).first
+    }
+
+    private fun PdfDocument.showClueList(
+        clues: Map<Int, String>,
+        header: String,
+        columnWidth: Float,
+        columns: Int,
+        clueTopY: Float,
+        gridY: Float,
+        gridHeight: Float,
+        clueTextSize: Float,
+        cluePosition: CluePosition,
+        render: Boolean
+    ): Pair<Boolean, CluePosition> {
+        var positionY = cluePosition.positionY
+        var columnBottomY = cluePosition.columnBottomY
+        var column = cluePosition.column
+
+        clues.entries.forEachIndexed { index, (clueNumber, clue) ->
+            val clueHeaderSize = clueTextSize + 1.0f
+            val prefix = "$clueNumber "
+            val prefixWidth = getTextWidth(prefix, clueTextSize)
+
+            // Count the number of lines needed for the entire clue, plus the section header if
+            // this is the first clue in a section, as we do not want to split a clue apart or
+            // show a section header at the end of a column.
+            val lines = splitTextToLines(this, clue, clueTextSize, columnWidth - prefixWidth)
+            val clueHeight = lines.size * clueTextSize +
+                    if (index == 0) {
+                        clueHeaderSize
+                    } else {
+                        0f
+                    }
+
+            if (positionY + clueTextSize - clueHeight < columnBottomY) {
+                // This clue extends below the grid, so move to the next column.
+                if (++column == columns) {
+                    // Can't fit clues at this font size
+                    return false to CluePosition(positionY = positionY, column = column, columnBottomY = columnBottomY)
+                }
+                if (render) {
+                    newLineAtOffset(columnWidth + COLUMN_PADDING, clueTopY - positionY)
+                }
+                positionY = clueTopY
+                columnBottomY = gridY + gridHeight + clueTextSize
+            }
+
+            if (index == 0) {
+                if (render) {
+                    setFont(Font.TIMES_BOLD, clueHeaderSize)
+                    drawText(header)
+                    newLineAtOffset(0f, -clueHeaderSize)
+
+                    setFont(Font.TIMES_ROMAN, clueTextSize)
+                }
+                positionY -= clueHeaderSize
+            }
+            if (render) {
+                drawText(prefix)
+                newLineAtOffset(prefixWidth, 0f)
+            }
+            lines.forEach {
+                if (render) {
+                    drawText(it)
+                    newLineAtOffset(0f, -clueTextSize)
+                }
+                positionY -= clueTextSize
+            }
+            if (render) {
+                newLineAtOffset(-prefixWidth, 0f)
+            }
+        }
+        return true to CluePosition(positionY = positionY, column = column, columnBottomY = columnBottomY)
     }
 }
