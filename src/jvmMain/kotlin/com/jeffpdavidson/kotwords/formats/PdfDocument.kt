@@ -48,8 +48,11 @@ internal actual class PdfDocument {
         content.showText(text)
     }
 
-    actual fun setColor(r: Float, g: Float, b: Float) {
+    actual fun setStrokeColor(r: Float, g: Float, b: Float) {
         content.setStrokingColor(r, g, b)
+    }
+
+    actual fun setFillColor(r: Float, g: Float, b: Float) {
         content.setNonStrokingColor(r, g, b)
     }
 

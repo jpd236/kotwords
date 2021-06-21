@@ -1,6 +1,9 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.github.ajalt.colormath.HSL
+import com.github.ajalt.colormath.RGB
 import com.jeffpdavidson.kotwords.model.Crossword
+import kotlin.math.roundToInt
 
 /** Extension functions to render crosswords as PDFs. */
 object Pdf {
@@ -26,9 +29,6 @@ object Pdf {
 
     /** X offset of clue numbers in grid squares. (The Y offset is based on font size). */
     private const val GRID_NUMBER_X_OFFSET = 2f
-
-    /** Color to use for "black" squares from 0 (black) to 1 (white). */
-    private const val GRID_BLACK_COLOR = 0.75f
 
     /** Maximum size of clues. */
     private const val CLUE_TEXT_MAX_SIZE = 11f
@@ -66,8 +66,12 @@ object Pdf {
      *
      * Inspired by [puz2pdf](https://sourceforge.net/projects/puz2pdf) and
      * [Crossword Nexus's PDF converter](https://crosswordnexus.com/js/puz_functions.js).
+     *
+     * @param blackSquareLightnessAdjustment Percentage (from 0 to 1) indicating how much to brighten black/colored
+     *                                       squares (i.e. to save ink). 0 indicates no adjustment; 1 would be fully
+     *                                       white.
      */
-    fun Crossword.asPdf(): ByteArray = PdfDocument().run {
+    fun Crossword.asPdf(blackSquareLightnessAdjustment: Float = 0f): ByteArray = PdfDocument().run {
         val pageWidth = width
         val pageHeight = height
         val headerWidth = pageWidth - 2 * MARGIN
@@ -138,12 +142,20 @@ object Pdf {
 
         endText()
 
-        setColor(GRID_BLACK_COLOR, GRID_BLACK_COLOR, GRID_BLACK_COLOR)
+        val gridBlackColor = getAdjustedColor("#000000", blackSquareLightnessAdjustment)
+        setStrokeColor(gridBlackColor.r / 255f, gridBlackColor.g / 255f, gridBlackColor.b / 255f)
+        setFillColor(gridBlackColor.r / 255f, gridBlackColor.g / 255f, gridBlackColor.b / 255f)
         Crossword.forEachSquare(grid) { x, y, clueNumber, _, _, square ->
             val squareX = gridX + x * gridSquareSize
             val squareY = gridY + gridHeight - (y + 1) * gridSquareSize
             addRect(squareX, squareY, gridSquareSize, gridSquareSize)
             if (square.isBlack) {
+                if (square.backgroundColor?.isNotBlank() == true) {
+                    val backgroundColor = getAdjustedColor(square.backgroundColor, blackSquareLightnessAdjustment)
+                    setFillColor(backgroundColor.r / 255f, backgroundColor.g / 255f, backgroundColor.b / 255f)
+                } else {
+                    setFillColor(gridBlackColor.r / 255f, gridBlackColor.g / 255f, gridBlackColor.b / 255f)
+                }
                 fillAndStroke()
             } else {
                 stroke()
@@ -152,7 +164,7 @@ object Pdf {
                     stroke()
                 }
                 if (clueNumber != null) {
-                    setColor(0f, 0f, 0f)
+                    setFillColor(0f, 0f, 0f)
                     beginText()
                     newLineAtOffset(
                         gridX + x * gridSquareSize + GRID_NUMBER_X_OFFSET,
@@ -161,12 +173,11 @@ object Pdf {
                     setFont(Font.TIMES_ROMAN, gridNumberSize)
                     drawText(clueNumber.toString())
                     endText()
-                    setColor(GRID_BLACK_COLOR, GRID_BLACK_COLOR, GRID_BLACK_COLOR)
                 }
             }
         }
 
-        setColor(0f, 0f, 0f)
+        setFillColor(0f, 0f, 0f)
 
         beginText()
         newLineAtOffset(gridX, MARGIN)
@@ -175,6 +186,11 @@ object Pdf {
         endText()
 
         toByteArray()
+    }
+
+    private fun getAdjustedColor(rgbString: String, lightnessAdjustment: Float): RGB {
+        val hsl = RGB(rgbString).toHSL()
+        return HSL(hsl.h, hsl.s, (hsl.l + (100 - hsl.l) * lightnessAdjustment).roundToInt()).toRGB()
     }
 
     private fun PdfDocument.drawMultiLineText(

@@ -35,8 +35,11 @@ internal expect class PdfDocument() {
     /** Draw and stroke the given [text]. */
     fun drawText(text: String)
 
-    /** Set the stroke and fill color. */
-    fun setColor(r: Float, g: Float, b: Float)
+    /** Set the stroke color. */
+    fun setStrokeColor(r: Float, g: Float, b: Float)
+
+    /** Set the fill color. */
+    fun setFillColor(r: Float, g: Float, b: Float)
 
     /** Add a rectangular path from bottom-left coordinates ([x], [y]). */
     fun addRect(x: Float, y: Float, width: Float, height: Float)

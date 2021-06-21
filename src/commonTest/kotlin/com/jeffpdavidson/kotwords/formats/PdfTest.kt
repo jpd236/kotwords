@@ -12,7 +12,8 @@ class PdfTest {
     fun asPdf() = runTest {
         PdfComparator.assertPdfEquals(
             readBinaryResource(PdfComparator::class, "pdf/test.pdf"),
-            AcrossLite(readBinaryResource(PdfTest::class, "puz/test.puz")).asCrossword().asPdf()
+            AcrossLite(readBinaryResource(PdfTest::class, "puz/test.puz"))
+                .asCrossword().asPdf(blackSquareLightnessAdjustment = 0.75f)
         )
     }
 

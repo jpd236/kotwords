@@ -48,6 +48,7 @@ dependencies {
     commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0"
     commonMainImplementation "net.mamoe.yamlkt:yamlkt:0.9.0"
     commonMainImplementation "io.github.pdvrieze.xmlutil:serialization:0.81.2"
+    commonMainImplementation "com.github.ajalt.colormath:colormath:2.0.0"
 
     // TODO: Migrate to kotlinx-datetime if parsing/formatting support is added.
     commonMainImplementation "com.soywiz.korlibs.klock:klock:2.0.7"

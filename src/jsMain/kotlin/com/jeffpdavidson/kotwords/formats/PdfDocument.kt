@@ -56,8 +56,11 @@ internal actual class PdfDocument {
         pdf.text(text, textOffsetX, height - textOffsetY)
     }
 
-    actual fun setColor(r: Float, g: Float, b: Float) {
+    actual fun setStrokeColor(r: Float, g: Float, b: Float) {
         pdf.setDrawColor(r.toString(), g.toString(), b.toString())
+    }
+
+    actual fun setFillColor(r: Float, g: Float, b: Float) {
         pdf.setFillColor(r.toString(), g.toString(), b.toString())
     }
 
