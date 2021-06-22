@@ -53,6 +53,15 @@ internal actual class PdfDocument {
         content.setNonStrokingColor(r, g, b)
     }
 
+    actual fun setLineWidth(width: Float) {
+        content.setLineWidth(width)
+    }
+
+    actual fun addLine(x1: Float, y1: Float, x2: Float, y2: Float) {
+        content.moveTo(x1, y1)
+        content.lineTo(x2, y2)
+    }
+
     actual fun addRect(x: Float, y: Float, width: Float, height: Float) {
         content.addRect(x, y, width, height)
     }

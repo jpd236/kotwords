@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.formats
 import com.github.ajalt.colormath.HSL
 import com.github.ajalt.colormath.RGB
 import com.jeffpdavidson.kotwords.model.Crossword
+import com.jeffpdavidson.kotwords.model.Square
 import kotlin.math.roundToInt
 
 /** Extension functions to render crosswords as PDFs. */
@@ -171,6 +172,21 @@ object Pdf {
                     drawText(number.toString())
                     endText()
                 }
+            }
+            if (square.borderDirections.isNotEmpty()) {
+                setLineWidth(3f)
+                square.borderDirections.forEach { borderDirection ->
+                    val squareXEnd = squareX + gridSquareSize
+                    val squareYEnd = squareY + gridSquareSize
+                    when (borderDirection) {
+                        Square.BorderDirection.TOP -> addLine(squareX, squareYEnd, squareXEnd, squareYEnd)
+                        Square.BorderDirection.BOTTOM -> addLine(squareX, squareY, squareXEnd, squareY)
+                        Square.BorderDirection.LEFT -> addLine(squareX, squareY, squareX, squareYEnd)
+                        Square.BorderDirection.RIGHT -> addLine(squareXEnd, squareY, squareXEnd, squareYEnd)
+                    }
+                    stroke()
+                }
+                setLineWidth(1f)
             }
         }
 

@@ -15,7 +15,7 @@ internal actual class PdfDocument {
     private val pdf = JsPDF(newJsPdfOptions())
 
     init {
-        pdf.setLineWidth(1.0f)
+        setLineWidth(1.0f)
     }
 
     actual val width: Float = pdf.internal.pageSize.getWidth()
@@ -77,6 +77,14 @@ internal actual class PdfDocument {
 
     actual fun setFillColor(r: Float, g: Float, b: Float) {
         pdf.setFillColor(r.toString(), g.toString(), b.toString())
+    }
+
+    actual fun setLineWidth(width: Float) {
+        pdf.setLineWidth(width)
+    }
+
+    actual fun addLine(x1: Float, y1: Float, x2: Float, y2: Float) {
+        pdf.line(x1, y1, x2, y2, style = null)
     }
 
     actual fun addRect(x: Float, y: Float, width: Float, height: Float) {

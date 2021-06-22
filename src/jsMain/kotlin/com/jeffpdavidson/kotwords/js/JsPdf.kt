@@ -14,8 +14,9 @@ internal external class JsPDF(options: JsPdfOptions = definedExternally) {
 
     fun setDrawColor(r: String, g: String, b: String)
     fun setFillColor(r: String, g: String, b: String)
-
     fun setLineWidth(width: Float)
+
+    fun line(x1: Float, y1: Float, x2: Float, y2: Float, style: String? = definedExternally)
     fun rect(x: Float, y: Float, width: Float, height: Float, style: String? = definedExternally)
     fun circle(x: Float, y: Float, radius: Float, style: String? = definedExternally)
     fun stroke()
