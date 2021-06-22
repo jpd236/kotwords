@@ -1,13 +1,19 @@
 package com.jeffpdavidson.kotwords.formats
 
-internal interface Element {
+internal interface Element: Node {
+    val tag: String
     val data: String
     val text: String?
+    val children: List<Node>
 
     fun attr(key: String): String
     fun select(selector: String): Iterable<Element>
     fun selectFirst(selector: String): Element?
 }
+
+data class TextNode(val text: String): Node
+
+internal interface Node
 
 internal enum class DocumentFormat {
     HTML,

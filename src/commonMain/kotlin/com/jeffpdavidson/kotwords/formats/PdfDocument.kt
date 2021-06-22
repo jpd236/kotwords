@@ -2,9 +2,13 @@ package com.jeffpdavidson.kotwords.formats
 
 internal enum class Font {
     COURIER,
+    COURIER_BOLD,
+    COURIER_ITALIC,
+    COURIER_BOLD_ITALIC,
     TIMES_ROMAN,
     TIMES_BOLD,
     TIMES_ITALIC,
+    TIMES_BOLD_ITALIC,
 }
 
 /**
@@ -29,8 +33,8 @@ internal expect class PdfDocument() {
     /** Set the font to be used for text. */
     fun setFont(font: Font, size: Float)
 
-    /** Get the width of the given [text] with font size [size] and the current font. */
-    fun getTextWidth(text: String, size: Float): Float
+    /** Get the width of the given [text] with font [font] and font size [size]. */
+    fun getTextWidth(text: String, font: Font, size: Float): Float
 
     /** Draw and stroke the given [text]. */
     fun drawText(text: String)

@@ -14,8 +14,6 @@ internal actual class PdfDocument {
     actual val width: Float
     actual val height: Float
 
-    private var currentFont = PDType1Font.TIMES_ROMAN
-
     init {
         document.addPage(page)
         width = page.mediaBox.width
@@ -36,12 +34,11 @@ internal actual class PdfDocument {
     }
 
     actual fun setFont(font: Font, size: Float) {
-        currentFont = font.toPdfFont()
-        content.setFont(currentFont, size)
+        content.setFont(font.toPdfFont(), size)
     }
 
-    actual fun getTextWidth(text: String, size: Float): Float {
-        return currentFont.getStringWidth(text) * size / 1000
+    actual fun getTextWidth(text: String, font: Font, size: Float): Float {
+        return font.toPdfFont().getStringWidth(text) * size / 1000
     }
 
     actual fun drawText(text: String) {
@@ -91,9 +88,13 @@ internal actual class PdfDocument {
     private fun Font.toPdfFont(): PDType1Font {
         return when (this) {
             Font.COURIER -> PDType1Font.COURIER
+            Font.COURIER_BOLD -> PDType1Font.COURIER_BOLD
+            Font.COURIER_ITALIC -> PDType1Font.COURIER_OBLIQUE
+            Font.COURIER_BOLD_ITALIC -> PDType1Font.COURIER_BOLD_OBLIQUE
             Font.TIMES_ROMAN -> PDType1Font.TIMES_ROMAN
             Font.TIMES_BOLD -> PDType1Font.TIMES_BOLD
             Font.TIMES_ITALIC -> PDType1Font.TIMES_ITALIC
+            Font.TIMES_BOLD_ITALIC -> PDType1Font.TIMES_BOLD_ITALIC
         }
     }
 }

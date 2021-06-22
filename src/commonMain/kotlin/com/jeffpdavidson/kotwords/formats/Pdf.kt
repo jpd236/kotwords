@@ -97,15 +97,10 @@ object Pdf {
         beginText()
         newLineAtOffset(titleX, titleY)
 
-        setFont(Font.TIMES_BOLD, TITLE_SIZE)
-        drawMultiLineText(title, TITLE_SIZE, headerWidth, ::newLine)
-
-        setFont(Font.TIMES_ROMAN, AUTHOR_SIZE)
-        drawMultiLineText(author, AUTHOR_SIZE, headerWidth, ::newLine)
-
+        drawMultiLineText(title, Font.TIMES_BOLD, TITLE_SIZE, headerWidth, ::newLine)
+        drawMultiLineText(author, Font.TIMES_ROMAN, AUTHOR_SIZE, headerWidth, ::newLine)
         if (notes.isNotBlank()) {
-            setFont(Font.TIMES_ITALIC, NOTES_SIZE)
-            drawMultiLineText(notes, NOTES_SIZE, headerWidth, ::newLine)
+            drawMultiLineText(notes, Font.TIMES_ITALIC, NOTES_SIZE, headerWidth, ::newLine)
         }
 
         newLine(AUTHOR_SIZE)
@@ -194,33 +189,140 @@ object Pdf {
     }
 
     private fun PdfDocument.drawMultiLineText(
-        text: String, fontSize: Float, lineWidth: Float, newLineFn: (Float) -> Unit
+        text: String, font: Font, fontSize: Float, lineWidth: Float, newLineFn: (Float) -> Unit
     ) {
-        splitTextToLines(this, text, fontSize, lineWidth).forEach { line ->
+        setFont(font, fontSize)
+        splitTextToLines(this, text, font, fontSize, lineWidth).lines.forEach { line ->
             drawText(line)
             newLineFn(fontSize)
         }
     }
 
+    internal sealed class ClueTextElement {
+        data class Text(val text: String) : ClueTextElement()
+        object NewLine : ClueTextElement()
+        data class SetFont(val font: Font) : ClueTextElement()
+    }
+
+    internal data class NodeState(
+        val node: Node,
+        val boldTagLevel: Int,
+        val italicTagLevel: Int,
+    )
+
+    private fun getFont(fontFamily: FontFamily, boldTagLevel: Int, italicTagLevel: Int): Font {
+        return when {
+            boldTagLevel > 0 && italicTagLevel > 0 -> fontFamily.boldItalicFont
+            boldTagLevel > 0 -> fontFamily.boldFont
+            italicTagLevel > 0 -> fontFamily.italicFont
+            else -> fontFamily.baseFont
+        }
+    }
+
+    // TODO: Handle sub/sup
+    internal fun splitTextToLines(
+        document: PdfDocument,
+        rawText: String,
+        fontFamily: FontFamily,
+        fontSize: Float,
+        lineWidth: Float,
+        isHtml: Boolean,
+    ): List<ClueTextElement> {
+        val elements = mutableListOf<ClueTextElement>()
+        var boldTagLevel = 0
+        var italicTagLevel = 0
+        var currentLineLength = 0f
+        val nodeStack = ArrayDeque<NodeState>()
+        if (isHtml) {
+            val node = Xml.parse(rawText, format = DocumentFormat.HTML)
+            nodeStack.add(NodeState(node, boldTagLevel = 0, italicTagLevel = 0))
+        } else {
+            nodeStack.add(NodeState(TextNode(rawText), boldTagLevel = 0, italicTagLevel = 0))
+        }
+        while (nodeStack.isNotEmpty()) {
+            val nodeState = nodeStack.removeFirst()
+
+            // Handle any font changes from the previous state to the new one.
+            val addBold = boldTagLevel == 0 && nodeState.boldTagLevel > 0
+            val removeBold = boldTagLevel > 0 && nodeState.boldTagLevel == 0
+            val addItalic = italicTagLevel == 0 && nodeState.italicTagLevel > 0
+            val removeItalic = italicTagLevel > 0 && nodeState.italicTagLevel == 0
+            if (addBold || removeBold || addItalic || removeItalic) {
+                val newFont = getFont(fontFamily, nodeState.boldTagLevel, nodeState.italicTagLevel)
+                elements.add(ClueTextElement.SetFont(newFont))
+            }
+
+            boldTagLevel = nodeState.boldTagLevel
+            italicTagLevel = nodeState.italicTagLevel
+
+            when (nodeState.node) {
+                is Element -> {
+                    nodeState.node.children.reversed().forEach { childNode ->
+                        nodeStack.addFirst(
+                            NodeState(
+                                childNode,
+                                boldTagLevel = if (nodeState.node.tag == "B") boldTagLevel + 1 else boldTagLevel,
+                                italicTagLevel = if (nodeState.node.tag == "I") italicTagLevel + 1 else italicTagLevel
+                            )
+                        )
+                    }
+                }
+                is TextNode -> {
+                    val splitResult = splitTextToLines(
+                        document = document,
+                        text = nodeState.node.text,
+                        font = getFont(fontFamily, boldTagLevel, italicTagLevel),
+                        fontSize = fontSize,
+                        lineWidth = lineWidth,
+                        startingLineLength = currentLineLength
+                    )
+                    currentLineLength = splitResult.currentLineLength
+                    splitResult.lines.forEachIndexed { i, line ->
+                        if (i > 0) {
+                            elements.add(ClueTextElement.NewLine)
+                        }
+                        if (line.isNotBlank()) {
+                            elements.add(ClueTextElement.Text(line))
+                        }
+                    }
+                }
+            }
+        }
+        if (boldTagLevel > 0 || italicTagLevel > 0) {
+            elements.add(ClueTextElement.SetFont(Font.TIMES_ROMAN))
+        }
+        return elements
+    }
+
+    internal data class SplitTextToLinesResult(
+        val lines: List<String>,
+        val currentLineLength: Float,
+    )
+
     /** Split [text] into lines (using spaces as word separators) to fit the given [lineWidth]. */
     internal fun splitTextToLines(
-        document: PdfDocument, text: String, fontSize: Float, lineWidth: Float
-    ): List<String> {
+        document: PdfDocument,
+        text: String,
+        font: Font,
+        fontSize: Float,
+        lineWidth: Float,
+        startingLineLength: Float = 0f
+    ): SplitTextToLinesResult {
         val lines = mutableListOf<StringBuilder>()
         var currentLine = StringBuilder()
         lines += currentLine
-        var currentLineLength = 0f
+        var currentLineLength = startingLineLength
         var currentSeparator = ""
         text.split(" ").forEach { word ->
-            val separatorLength = document.getTextWidth(currentSeparator, fontSize)
-            val wordLength = document.getTextWidth(word, fontSize)
+            val separatorLength = document.getTextWidth(currentSeparator, font, fontSize)
+            val wordLength = document.getTextWidth(word, font, fontSize)
             if (currentLineLength + separatorLength + wordLength > lineWidth) {
                 // This word pushes us over the line length limit, so we'll need a new line.
                 if (wordLength > lineWidth) {
                     // Word is too long to fit on a single line; have to chop by letter.
                     word.forEach { ch ->
-                        val charLength = document.getTextWidth(ch.toString(), fontSize)
-                        val wordSeparatorLengthPts = document.getTextWidth(currentSeparator, fontSize)
+                        val charLength = document.getTextWidth(ch.toString(), font, fontSize)
+                        val wordSeparatorLengthPts = document.getTextWidth(currentSeparator, font, fontSize)
                         if (currentLineLength + wordSeparatorLengthPts + charLength > lineWidth) {
                             currentLine = StringBuilder(ch.toString())
                             lines += currentLine
@@ -244,7 +346,7 @@ object Pdf {
             }
             currentSeparator = " "
         }
-        return lines.map { it.toString() }
+        return SplitTextToLinesResult(lines.map { it.toString() }, currentLineLength)
     }
 
     private data class CluePosition(
@@ -270,6 +372,7 @@ object Pdf {
         val (success, cluePosition) =
             showClueList(
                 clues = crossword.acrossClues,
+                isHtml = crossword.hasHtmlClues,
                 header = "ACROSS",
                 columnWidth = columnWidth,
                 columns = columns,
@@ -290,6 +393,7 @@ object Pdf {
         positionY -= clueTextSize
         return showClueList(
             clues = crossword.downClues,
+            isHtml = crossword.hasHtmlClues,
             header = "DOWN",
             columnWidth = columnWidth,
             columns = columns,
@@ -308,6 +412,7 @@ object Pdf {
 
     private fun PdfDocument.showClueList(
         clues: Map<Int, String>,
+        isHtml: Boolean,
         header: String,
         columnWidth: Float,
         columns: Int,
@@ -325,13 +430,14 @@ object Pdf {
         clues.entries.forEachIndexed { index, (clueNumber, clue) ->
             val clueHeaderSize = clueTextSize + 1.0f
             val prefix = "$clueNumber "
-            val prefixWidth = getTextWidth(prefix, clueTextSize)
+            val prefixWidth = getTextWidth(prefix, Font.TIMES_ROMAN, clueTextSize)
 
             // Count the number of lines needed for the entire clue, plus the section header if
             // this is the first clue in a section, as we do not want to split a clue apart or
             // show a section header at the end of a column.
-            val lines = splitTextToLines(this, clue, clueTextSize, columnWidth - prefixWidth)
-            val clueHeight = lines.size * clueTextSize +
+            val clueElements =
+                splitTextToLines(this, clue, FontFamily.TIMES_ROMAN, clueTextSize, columnWidth - prefixWidth, isHtml)
+            val clueHeight = (clueElements.count { it == ClueTextElement.NewLine } + 1) * clueTextSize +
                     if (index == 0) {
                         clueHeaderSize
                     } else {
@@ -365,17 +471,38 @@ object Pdf {
                 drawText(prefix)
                 newLineAtOffset(prefixWidth, 0f)
             }
-            lines.forEach {
-                if (render) {
-                    drawText(it)
-                    newLineAtOffset(0f, -clueTextSize)
+            clueElements.forEach { clueElement ->
+                when (clueElement) {
+                    is ClueTextElement.Text -> {
+                        if (render) {
+                            drawText(clueElement.text)
+                        }
+                    }
+                    is ClueTextElement.NewLine -> {
+                        if (render) {
+                            newLineAtOffset(0f, -clueTextSize)
+                        }
+                        positionY -= clueTextSize
+                    }
+                    is ClueTextElement.SetFont -> {
+                        if (render) {
+                            setFont(clueElement.font, clueTextSize)
+                        }
+                    }
                 }
-                positionY -= clueTextSize
             }
             if (render) {
-                newLineAtOffset(-prefixWidth, 0f)
+                newLineAtOffset(-prefixWidth, -clueTextSize)
             }
+            positionY -= clueTextSize
         }
         return true to CluePosition(positionY = positionY, column = column, columnBottomY = columnBottomY)
+    }
+
+    internal enum class FontFamily(
+        val baseFont: Font, val boldFont: Font, val italicFont: Font, val boldItalicFont: Font
+    ) {
+        COURIER(Font.COURIER, Font.COURIER_BOLD, Font.COURIER_ITALIC, Font.COURIER_BOLD_ITALIC),
+        TIMES_ROMAN(Font.TIMES_ROMAN, Font.TIMES_BOLD, Font.TIMES_ITALIC, Font.TIMES_BOLD_ITALIC),
     }
 }

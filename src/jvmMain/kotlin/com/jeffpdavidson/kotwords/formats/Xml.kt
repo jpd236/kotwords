@@ -4,10 +4,16 @@ import org.jsoup.Jsoup
 import org.jsoup.parser.Parser
 
 private open class ElementImpl(private val jsoupElement: org.jsoup.nodes.Element) : Element {
-    override val data: String
-        get() = jsoupElement.data()
-    override val text: String
-        get() = jsoupElement.text()
+    override val tag: String = jsoupElement.tagName().toUpperCase()
+    override val data: String = jsoupElement.data()
+    override val text: String = jsoupElement.text()
+    override val children: List<Node> = jsoupElement.childNodes().mapNotNull { node ->
+            when (node) {
+                is org.jsoup.nodes.TextNode -> TextNode(node.text())
+                is org.jsoup.nodes.Element -> ElementImpl(node)
+                else -> null
+            }
+        }
 
     override fun attr(key: String): String = jsoupElement.attr(key)
 

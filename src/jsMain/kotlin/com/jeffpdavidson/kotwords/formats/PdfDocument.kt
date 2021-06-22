@@ -25,6 +25,8 @@ internal actual class PdfDocument {
     private var textOffsetX = 0f
     private var textOffsetY = 0f
 
+    private var currentFont: Font = Font.TIMES_ROMAN
+
     actual fun beginText() {
         textOffsetX = 0f
         textOffsetY = 0f
@@ -38,18 +40,31 @@ internal actual class PdfDocument {
     }
 
     actual fun setFont(font: Font, size: Float) {
-        val (fontName, fontStyle) = when (font) {
-            Font.COURIER -> "courier" to "normal"
-            Font.TIMES_BOLD -> "times" to "bold"
-            Font.TIMES_ROMAN -> "times" to "normal"
-            Font.TIMES_ITALIC -> "times" to "italic"
-        }
-        pdf.setFont(fontName, fontStyle)
+        setFont(font)
         pdf.setFontSize(size)
+        currentFont = font
     }
 
-    actual fun getTextWidth(text: String, size: Float): Float {
-        return pdf.getStringUnitWidth(text) * size
+    private fun setFont(font: Font) {
+        val (fontName, fontStyle) = when (font) {
+            Font.COURIER -> "courier" to "normal"
+            Font.COURIER_BOLD -> "courier" to "bold"
+            Font.COURIER_ITALIC -> "courier" to "italic"
+            Font.COURIER_BOLD_ITALIC -> "courier" to "bolditalic"
+            Font.TIMES_ROMAN -> "times" to "normal"
+            Font.TIMES_BOLD -> "times" to "bold"
+            Font.TIMES_ITALIC -> "times" to "italic"
+            Font.TIMES_BOLD_ITALIC -> "times" to "bolditalic"
+        }
+        pdf.setFont(fontName, fontStyle)
+    }
+
+    actual fun getTextWidth(text: String, font: Font, size: Float): Float {
+        // getStringUnitWidth uses the current font, so temporarily set it to the desired value.
+        setFont(font)
+        val result = pdf.getStringUnitWidth(text) * size
+        setFont(currentFont)
+        return result
     }
 
     actual fun drawText(text: String) {

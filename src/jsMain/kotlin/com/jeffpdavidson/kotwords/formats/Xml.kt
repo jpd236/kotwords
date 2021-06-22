@@ -1,13 +1,20 @@
 package com.jeffpdavidson.kotwords.formats
 
+import org.w3c.dom.Text
 import org.w3c.dom.asList
 import org.w3c.dom.parsing.DOMParser
 
 private class ElementImpl(private val jsElement: org.w3c.dom.Element) : Element {
-    override val data: String
-        get() = jsElement.innerHTML
-    override val text: String
-        get() = jsElement.textContent!!.replace(WHITESPACE_PATTERN, " ").trim()
+    override val tag: String = jsElement.tagName
+    override val data: String = jsElement.innerHTML
+    override val text: String = jsElement.textContent!!.replace(WHITESPACE_PATTERN, " ").trim()
+    override val children: List<Node> = jsElement.childNodes.asList().mapNotNull {
+            when (it) {
+                is Text -> TextNode(it.textContent!!)
+                is org.w3c.dom.Element -> ElementImpl(it)
+                else -> null
+            }
+        }
 
     override fun attr(key: String): String = jsElement.getAttribute(key) ?: ""
 

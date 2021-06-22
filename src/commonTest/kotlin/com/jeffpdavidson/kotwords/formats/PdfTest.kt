@@ -22,7 +22,6 @@ class PdfTest {
     @Test
     fun splitTextToLines_standardText() {
         val document = PdfDocument()
-        document.setFont(Font.COURIER, 10f)
         assertEquals(
             listOf(
                 "a b c d e f g h",
@@ -34,8 +33,61 @@ class PdfTest {
             splitTextToLines(
                 document,
                 "a b c d e f g h i jj kk ll mm nn oo ppp qqq rrr sss tttt uuuu vvvv",
+                Font.COURIER,
                 10f,
                 100f
+            ).lines
+        )
+    }
+
+    @Test
+    fun splitTextToLines_withHtmlFormatting() {
+        val document = PdfDocument()
+        assertEquals(
+            listOf(
+                Pdf.ClueTextElement.Text("a "),
+                Pdf.ClueTextElement.SetFont(Font.COURIER_BOLD),
+                Pdf.ClueTextElement.Text("b c"),
+                Pdf.ClueTextElement.SetFont(Font.COURIER),
+                Pdf.ClueTextElement.Text(" d e "),
+                Pdf.ClueTextElement.SetFont(Font.COURIER_ITALIC),
+                Pdf.ClueTextElement.Text("f g"),
+                Pdf.ClueTextElement.SetFont(Font.COURIER),
+                Pdf.ClueTextElement.Text(" h "),
+                Pdf.ClueTextElement.SetFont(Font.COURIER_BOLD),
+                Pdf.ClueTextElement.SetFont(Font.COURIER_BOLD_ITALIC),
+                Pdf.ClueTextElement.NewLine,
+
+                Pdf.ClueTextElement.Text("i"),
+                Pdf.ClueTextElement.SetFont(Font.COURIER),
+                Pdf.ClueTextElement.Text(" jj kk ll mm "),
+                Pdf.ClueTextElement.SetFont(Font.COURIER_BOLD),
+                Pdf.ClueTextElement.Text("nn"),
+                Pdf.ClueTextElement.NewLine,
+
+                Pdf.ClueTextElement.Text("oo"),
+                Pdf.ClueTextElement.SetFont(Font.COURIER),
+                Pdf.ClueTextElement.Text(" ppp qqq "),
+                Pdf.ClueTextElement.SetFont(Font.COURIER_ITALIC),
+                Pdf.ClueTextElement.Text("rrr "),
+                Pdf.ClueTextElement.SetFont(Font.COURIER_BOLD_ITALIC),
+                Pdf.ClueTextElement.NewLine,
+
+                Pdf.ClueTextElement.Text("sss"),
+                Pdf.ClueTextElement.SetFont(Font.COURIER_ITALIC),
+                Pdf.ClueTextElement.Text(" tttt uuuu"),
+                Pdf.ClueTextElement.SetFont(Font.COURIER),
+                Pdf.ClueTextElement.NewLine,
+
+                Pdf.ClueTextElement.Text("vvvv")
+            ),
+            splitTextToLines(
+                document,
+                "a <b>b c</b> d e <i>f g</i> h <b><i>i</i></b> jj kk ll mm <b>nn oo</b> ppp qqq <i>rrr <b>sss</b> tttt uuuu</i> vvvv",
+                Pdf.FontFamily.COURIER,
+                10f,
+                100f,
+                isHtml = true,
             )
         )
     }
@@ -43,7 +95,6 @@ class PdfTest {
     @Test
     fun splitTextToLines_longWords() {
         val document = PdfDocument()
-        document.setFont(Font.COURIER, 10f)
         assertEquals(
             listOf(
                 "1234567890123456",
@@ -54,9 +105,10 @@ class PdfTest {
             splitTextToLines(
                 document,
                 "12345678901234567890 12345678901234567890 12345678901234567890",
+                Font.COURIER,
                 10f,
                 100f
-            )
+            ).lines
         )
     }
 }
