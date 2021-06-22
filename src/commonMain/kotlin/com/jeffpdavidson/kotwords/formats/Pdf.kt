@@ -158,7 +158,9 @@ object Pdf {
                     addCircle(squareX, squareY, gridSquareSize / 2)
                     stroke()
                 }
-                if (clueNumber != null) {
+                // If custom words are provided, use only provided numbering. Otherwise, use generated numbering.
+                val number = if (acrossWords.isNotEmpty() && downWords.isNotEmpty()) square.number else clueNumber
+                if (number != null) {
                     setFillColor(0f, 0f, 0f)
                     beginText()
                     newLineAtOffset(
@@ -166,7 +168,7 @@ object Pdf {
                         gridY + gridHeight - y * gridSquareSize - gridNumberSize
                     )
                     setFont(Font.TIMES_ROMAN, gridNumberSize)
-                    drawText(clueNumber.toString())
+                    drawText(number.toString())
                     endText()
                 }
             }
