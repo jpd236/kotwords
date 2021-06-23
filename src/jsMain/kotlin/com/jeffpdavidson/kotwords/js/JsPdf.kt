@@ -7,6 +7,9 @@ package com.jeffpdavidson.kotwords.js
 internal external class JsPDF(options: JsPdfOptions = definedExternally) {
     val internal: Internal
 
+    fun addFileToVFS(fileName: String, data: String)
+    fun addFont(fileName: String, name: String, style: String)
+
     fun setFont(fontName: String, fontStyle: String)
     fun setFontSize(size: Float)
     fun getStringUnitWidth(text: String): Float

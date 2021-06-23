@@ -1,16 +1,5 @@
 package com.jeffpdavidson.kotwords.formats
 
-internal enum class Font {
-    COURIER,
-    COURIER_BOLD,
-    COURIER_ITALIC,
-    COURIER_BOLD_ITALIC,
-    TIMES_ROMAN,
-    TIMES_BOLD,
-    TIMES_ITALIC,
-    TIMES_BOLD_ITALIC,
-}
-
 /**
  * A document canvas which can be rendered as a PDF.
  *
@@ -31,10 +20,10 @@ internal expect class PdfDocument() {
     fun newLineAtOffset(offsetX: Float, offsetY: Float)
 
     /** Set the font to be used for text. */
-    fun setFont(font: Font, size: Float)
+    fun setFont(font: PdfFont, size: Float)
 
     /** Get the width of the given [text] with font [font] and font size [size]. */
-    fun getTextWidth(text: String, font: Font, size: Float): Float
+    fun getTextWidth(text: String, font: PdfFont, size: Float): Float
 
     /** Draw and stroke the given [text]. */
     fun drawText(text: String)

@@ -3,7 +3,10 @@ package com.jeffpdavidson.kotwords.formats
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage
 import org.apache.pdfbox.pdmodel.PDPageContentStream
+import org.apache.pdfbox.pdmodel.font.PDFont
+import org.apache.pdfbox.pdmodel.font.PDType0Font
 import org.apache.pdfbox.pdmodel.font.PDType1Font
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
 internal actual class PdfDocument {
@@ -13,6 +16,8 @@ internal actual class PdfDocument {
 
     actual val width: Float
     actual val height: Float
+
+    private val loadedTtfFonts: MutableMap<Pair<String, String>, PDType0Font> = mutableMapOf()
 
     init {
         document.addPage(page)
@@ -33,11 +38,11 @@ internal actual class PdfDocument {
         content.newLineAtOffset(offsetX, offsetY)
     }
 
-    actual fun setFont(font: Font, size: Float) {
+    actual fun setFont(font: PdfFont, size: Float) {
         content.setFont(font.toPdfFont(), size)
     }
 
-    actual fun getTextWidth(text: String, font: Font, size: Float): Float {
+    actual fun getTextWidth(text: String, font: PdfFont, size: Float): Float {
         return font.toPdfFont().getStringWidth(text) * size / 1000
     }
 
@@ -94,16 +99,25 @@ internal actual class PdfDocument {
         }
     }
 
-    private fun Font.toPdfFont(): PDType1Font {
+    private fun PdfFont.toPdfFont(): PDFont {
         return when (this) {
-            Font.COURIER -> PDType1Font.COURIER
-            Font.COURIER_BOLD -> PDType1Font.COURIER_BOLD
-            Font.COURIER_ITALIC -> PDType1Font.COURIER_OBLIQUE
-            Font.COURIER_BOLD_ITALIC -> PDType1Font.COURIER_BOLD_OBLIQUE
-            Font.TIMES_ROMAN -> PDType1Font.TIMES_ROMAN
-            Font.TIMES_BOLD -> PDType1Font.TIMES_BOLD
-            Font.TIMES_ITALIC -> PDType1Font.TIMES_ITALIC
-            Font.TIMES_BOLD_ITALIC -> PDType1Font.TIMES_BOLD_ITALIC
+            is PdfFont.BuiltInFont -> {
+                when (fontName) {
+                    BuiltInFontName.COURIER -> PDType1Font.COURIER
+                    BuiltInFontName.COURIER_BOLD -> PDType1Font.COURIER_BOLD
+                    BuiltInFontName.COURIER_ITALIC -> PDType1Font.COURIER_OBLIQUE
+                    BuiltInFontName.COURIER_BOLD_ITALIC -> PDType1Font.COURIER_BOLD_OBLIQUE
+                    BuiltInFontName.TIMES_ROMAN -> PDType1Font.TIMES_ROMAN
+                    BuiltInFontName.TIMES_BOLD -> PDType1Font.TIMES_BOLD
+                    BuiltInFontName.TIMES_ITALIC -> PDType1Font.TIMES_ITALIC
+                    BuiltInFontName.TIMES_BOLD_ITALIC -> PDType1Font.TIMES_BOLD_ITALIC
+                }
+            }
+            is PdfFont.TtfFont -> {
+                loadedTtfFonts.getOrPut(fontName to fontStyle) {
+                    PDType0Font.load(document, ByteArrayInputStream(fontData))
+                }
+            }
         }
     }
 }

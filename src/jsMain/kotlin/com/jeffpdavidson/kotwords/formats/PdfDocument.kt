@@ -23,13 +23,17 @@ internal actual class PdfDocument {
 
     // Track the current offset, since jsPDF doesn't do this.
     private var textOffsetX = 0f
+    private var lineOffsetX = 0f
     private var textOffsetY = 0f
 
-    private var currentFont: Font = Font.TIMES_ROMAN
+    private val loadedTtfFonts: MutableSet<Pair<String, String>> = mutableSetOf()
+    private var currentFont: PdfFont? = null
+    private var currentFontSize: Float? = null
 
     actual fun beginText() {
         textOffsetX = 0f
         textOffsetY = 0f
+        lineOffsetX = 0f
     }
 
     actual fun endText() {}
@@ -37,38 +41,54 @@ internal actual class PdfDocument {
     actual fun newLineAtOffset(offsetX: Float, offsetY: Float) {
         this.textOffsetX += offsetX
         this.textOffsetY += offsetY
+        this.lineOffsetX = 0f
     }
 
-    actual fun setFont(font: Font, size: Float) {
+    actual fun setFont(font: PdfFont, size: Float) {
         setFont(font)
         pdf.setFontSize(size)
         currentFont = font
+        currentFontSize = size
     }
 
-    private fun setFont(font: Font) {
+    private fun setFont(font: PdfFont) {
         val (fontName, fontStyle) = when (font) {
-            Font.COURIER -> "courier" to "normal"
-            Font.COURIER_BOLD -> "courier" to "bold"
-            Font.COURIER_ITALIC -> "courier" to "italic"
-            Font.COURIER_BOLD_ITALIC -> "courier" to "bolditalic"
-            Font.TIMES_ROMAN -> "times" to "normal"
-            Font.TIMES_BOLD -> "times" to "bold"
-            Font.TIMES_ITALIC -> "times" to "italic"
-            Font.TIMES_BOLD_ITALIC -> "times" to "bolditalic"
+            is PdfFont.BuiltInFont -> {
+                when (font.fontName) {
+                    BuiltInFontName.COURIER -> "courier" to "normal"
+                    BuiltInFontName.COURIER_BOLD -> "courier" to "bold"
+                    BuiltInFontName.COURIER_ITALIC -> "courier" to "italic"
+                    BuiltInFontName.COURIER_BOLD_ITALIC -> "courier" to "bolditalic"
+                    BuiltInFontName.TIMES_ROMAN -> "times" to "normal"
+                    BuiltInFontName.TIMES_BOLD -> "times" to "bold"
+                    BuiltInFontName.TIMES_ITALIC -> "times" to "italic"
+                    BuiltInFontName.TIMES_BOLD_ITALIC -> "times" to "bolditalic"
+                }
+            }
+            is PdfFont.TtfFont -> {
+                if (!loadedTtfFonts.contains(font.fontName to font.fontStyle)) {
+                    val fileName = "${font.fontName}-${font.fontStyle}.ttf"
+                    pdf.addFileToVFS(fileName, Encodings.encodeBase64(font.fontData))
+                    pdf.addFont(fileName, font.fontName, font.fontStyle)
+                    loadedTtfFonts.add(font.fontName to font.fontStyle)
+                }
+                font.fontName to font.fontStyle
+            }
         }
         pdf.setFont(fontName, fontStyle)
     }
 
-    actual fun getTextWidth(text: String, font: Font, size: Float): Float {
+    actual fun getTextWidth(text: String, font: PdfFont, size: Float): Float {
         // getStringUnitWidth uses the current font, so temporarily set it to the desired value.
         setFont(font)
         val result = pdf.getStringUnitWidth(text) * size
-        setFont(currentFont)
+        currentFont?.let { setFont(it) }
         return result
     }
 
     actual fun drawText(text: String) {
-        pdf.text(text, textOffsetX, height - textOffsetY)
+        pdf.text(text, textOffsetX + lineOffsetX, height - textOffsetY)
+        lineOffsetX += getTextWidth(text, currentFont!!, currentFontSize!!)
     }
 
     actual fun setStrokeColor(r: Float, g: Float, b: Float) {

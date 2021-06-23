@@ -68,11 +68,15 @@ object Pdf {
      * Inspired by [puz2pdf](https://sourceforge.net/projects/puz2pdf) and
      * [Crossword Nexus's PDF converter](https://crosswordnexus.com/js/puz_functions.js).
      *
+     * @param fontFamily Font family to use for the PDF.
      * @param blackSquareLightnessAdjustment Percentage (from 0 to 1) indicating how much to brighten black/colored
      *                                       squares (i.e. to save ink). 0 indicates no adjustment; 1 would be fully
      *                                       white.
      */
-    fun Crossword.asPdf(blackSquareLightnessAdjustment: Float = 0f): ByteArray = PdfDocument().run {
+    fun Crossword.asPdf(
+        fontFamily: PdfFontFamily = FONT_FAMILY_TIMES_ROMAN,
+        blackSquareLightnessAdjustment: Float = 0f
+    ): ByteArray = PdfDocument().run {
         val pageWidth = width
         val pageHeight = height
         val headerWidth = pageWidth - 2 * MARGIN
@@ -98,21 +102,22 @@ object Pdf {
         beginText()
         newLineAtOffset(titleX, titleY)
 
-        drawMultiLineText(title, Font.TIMES_BOLD, TITLE_SIZE, headerWidth, ::newLine)
-        drawMultiLineText(author, Font.TIMES_ROMAN, AUTHOR_SIZE, headerWidth, ::newLine)
+        drawMultiLineText(title, fontFamily.boldFont, TITLE_SIZE, headerWidth, ::newLine)
+        drawMultiLineText(author, fontFamily.baseFont, AUTHOR_SIZE, headerWidth, ::newLine)
         if (notes.isNotBlank()) {
-            drawMultiLineText(notes, Font.TIMES_ITALIC, NOTES_SIZE, headerWidth, ::newLine)
+            drawMultiLineText(notes, fontFamily.italicFont, NOTES_SIZE, headerWidth, ::newLine)
         }
 
         newLine(AUTHOR_SIZE)
 
         // Try progressively smaller clue sizes until we find one small enough to fit every clue on one page.
-        setFont(Font.TIMES_ROMAN, CLUE_TEXT_MAX_SIZE)
+        setFont(fontFamily.baseFont, CLUE_TEXT_MAX_SIZE)
         val clueTextSizes =
             generateSequence(CLUE_TEXT_MAX_SIZE) { it - CLUE_TEXT_SIZE_DELTA }.takeWhile { it >= CLUE_TEXT_MIN_SIZE }
         val bestTextSize = clueTextSizes.firstOrNull { clueTextSize ->
             showClueLists(
                 crossword = this@asPdf,
+                fontFamily = fontFamily,
                 columnWidth = columnWidth,
                 columns = columns,
                 clueTopY = positionY,
@@ -127,6 +132,7 @@ object Pdf {
         }
         showClueLists(
             crossword = this@asPdf,
+            fontFamily = fontFamily,
             columnWidth = columnWidth,
             columns = columns,
             clueTopY = positionY,
@@ -168,7 +174,7 @@ object Pdf {
                         gridX + x * gridSquareSize + GRID_NUMBER_X_OFFSET,
                         gridY + gridHeight - y * gridSquareSize - gridNumberSize
                     )
-                    setFont(Font.TIMES_ROMAN, gridNumberSize)
+                    setFont(fontFamily.baseFont, gridNumberSize)
                     drawText(number.toString())
                     endText()
                 }
@@ -194,7 +200,7 @@ object Pdf {
 
         beginText()
         newLineAtOffset(gridX, MARGIN)
-        setFont(Font.TIMES_ROMAN, COPYRIGHT_SIZE)
+        setFont(fontFamily.baseFont, COPYRIGHT_SIZE)
         drawText(copyright)
         endText()
 
@@ -207,7 +213,7 @@ object Pdf {
     }
 
     private fun PdfDocument.drawMultiLineText(
-        text: String, font: Font, fontSize: Float, lineWidth: Float, newLineFn: (Float) -> Unit
+        text: String, font: PdfFont, fontSize: Float, lineWidth: Float, newLineFn: (Float) -> Unit
     ) {
         setFont(font, fontSize)
         splitTextToLines(this, text, font, fontSize, lineWidth).lines.forEach { line ->
@@ -219,7 +225,7 @@ object Pdf {
     internal sealed class ClueTextElement {
         data class Text(val text: String) : ClueTextElement()
         object NewLine : ClueTextElement()
-        data class SetFont(val font: Font) : ClueTextElement()
+        data class SetFont(val font: PdfFont) : ClueTextElement()
     }
 
     internal data class NodeState(
@@ -228,7 +234,7 @@ object Pdf {
         val italicTagLevel: Int,
     )
 
-    private fun getFont(fontFamily: FontFamily, boldTagLevel: Int, italicTagLevel: Int): Font {
+    private fun getFont(fontFamily: PdfFontFamily, boldTagLevel: Int, italicTagLevel: Int): PdfFont {
         return when {
             boldTagLevel > 0 && italicTagLevel > 0 -> fontFamily.boldItalicFont
             boldTagLevel > 0 -> fontFamily.boldFont
@@ -241,7 +247,7 @@ object Pdf {
     internal fun splitTextToLines(
         document: PdfDocument,
         rawText: String,
-        fontFamily: FontFamily,
+        fontFamily: PdfFontFamily,
         fontSize: Float,
         lineWidth: Float,
         isHtml: Boolean,
@@ -307,7 +313,7 @@ object Pdf {
             }
         }
         if (boldTagLevel > 0 || italicTagLevel > 0) {
-            elements.add(ClueTextElement.SetFont(Font.TIMES_ROMAN))
+            elements.add(ClueTextElement.SetFont(fontFamily.baseFont))
         }
         return elements
     }
@@ -321,7 +327,7 @@ object Pdf {
     internal fun splitTextToLines(
         document: PdfDocument,
         text: String,
-        font: Font,
+        font: PdfFont,
         fontSize: Float,
         lineWidth: Float,
         startingLineLength: Float = 0f
@@ -375,6 +381,7 @@ object Pdf {
 
     private fun PdfDocument.showClueLists(
         crossword: Crossword,
+        fontFamily: PdfFontFamily,
         columnWidth: Float,
         columns: Int,
         clueTopY: Float,
@@ -385,12 +392,13 @@ object Pdf {
     ): Boolean {
         var positionY = clueTopY
         if (render) {
-            setFont(Font.TIMES_ROMAN, clueTextSize)
+            setFont(fontFamily.baseFont, clueTextSize)
         }
         val (success, cluePosition) =
             showClueList(
                 clues = crossword.acrossClues,
                 isHtml = crossword.hasHtmlClues,
+                fontFamily = fontFamily,
                 header = "ACROSS",
                 columnWidth = columnWidth,
                 columns = columns,
@@ -412,6 +420,7 @@ object Pdf {
         return showClueList(
             clues = crossword.downClues,
             isHtml = crossword.hasHtmlClues,
+            fontFamily = fontFamily,
             header = "DOWN",
             columnWidth = columnWidth,
             columns = columns,
@@ -431,6 +440,7 @@ object Pdf {
     private fun PdfDocument.showClueList(
         clues: Map<Int, String>,
         isHtml: Boolean,
+        fontFamily: PdfFontFamily,
         header: String,
         columnWidth: Float,
         columns: Int,
@@ -448,13 +458,13 @@ object Pdf {
         clues.entries.forEachIndexed { index, (clueNumber, clue) ->
             val clueHeaderSize = clueTextSize + 1.0f
             val prefix = "$clueNumber "
-            val prefixWidth = getTextWidth(prefix, Font.TIMES_ROMAN, clueTextSize)
+            val prefixWidth = getTextWidth(prefix, fontFamily.baseFont, clueTextSize)
 
             // Count the number of lines needed for the entire clue, plus the section header if
             // this is the first clue in a section, as we do not want to split a clue apart or
             // show a section header at the end of a column.
             val clueElements =
-                splitTextToLines(this, clue, FontFamily.TIMES_ROMAN, clueTextSize, columnWidth - prefixWidth, isHtml)
+                splitTextToLines(this, clue, fontFamily, clueTextSize, columnWidth - prefixWidth, isHtml)
             val clueHeight = (clueElements.count { it == ClueTextElement.NewLine } + 1) * clueTextSize +
                     if (index == 0) {
                         clueHeaderSize
@@ -477,11 +487,11 @@ object Pdf {
 
             if (index == 0) {
                 if (render) {
-                    setFont(Font.TIMES_BOLD, clueHeaderSize)
+                    setFont(fontFamily.boldFont, clueHeaderSize)
                     drawText(header)
                     newLineAtOffset(0f, -clueHeaderSize)
 
-                    setFont(Font.TIMES_ROMAN, clueTextSize)
+                    setFont(fontFamily.baseFont, clueTextSize)
                 }
                 positionY -= clueHeaderSize
             }
@@ -515,12 +525,5 @@ object Pdf {
             positionY -= clueTextSize
         }
         return true to CluePosition(positionY = positionY, column = column, columnBottomY = columnBottomY)
-    }
-
-    internal enum class FontFamily(
-        val baseFont: Font, val boldFont: Font, val italicFont: Font, val boldItalicFont: Font
-    ) {
-        COURIER(Font.COURIER, Font.COURIER_BOLD, Font.COURIER_ITALIC, Font.COURIER_BOLD_ITALIC),
-        TIMES_ROMAN(Font.TIMES_ROMAN, Font.TIMES_BOLD, Font.TIMES_ITALIC, Font.TIMES_BOLD_ITALIC),
     }
 }
