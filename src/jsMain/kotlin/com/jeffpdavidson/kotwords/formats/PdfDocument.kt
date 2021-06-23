@@ -104,7 +104,7 @@ internal actual class PdfDocument {
     }
 
     actual fun addLine(x1: Float, y1: Float, x2: Float, y2: Float) {
-        pdf.line(x1, y1, x2, y2, style = null)
+        pdf.line(x1, this.height - y1, x2, this.height - y2, style = null)
     }
 
     actual fun addRect(x: Float, y: Float, width: Float, height: Float) {
