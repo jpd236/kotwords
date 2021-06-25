@@ -23,6 +23,7 @@ internal external class JsPDF(options: JsPdfOptions = definedExternally) {
     fun rect(x: Float, y: Float, width: Float, height: Float, style: String? = definedExternally)
     fun circle(x: Float, y: Float, radius: Float, style: String? = definedExternally)
     fun stroke()
+    fun fill()
     fun fillStroke()
 
     fun output(type: String): Any

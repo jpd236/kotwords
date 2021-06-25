@@ -37,8 +37,14 @@ object Pdf {
     /** Minimum size of clues. */
     private const val CLUE_TEXT_MIN_SIZE = 5f
 
-    /** Amount to shrink the font size for each render attempt if the clues do not fit on one page. */
-    private const val CLUE_TEXT_SIZE_DELTA = 0.1f
+    /** Maximum size of answer text. */
+    private const val SOLUTION_TEXT_MAX_SIZE = 16f
+
+    /** Minimum size of answer text. */
+    private const val SOLUTION_TEXT_MIN_SIZE = 3f
+
+    /** Amount to shrink the font size for each render attempt if text does not fit in the given bounds. */
+    private const val TEXT_SIZE_DELTA = 0.1f
 
     /** Returns the number of columns to use for the clues. */
     private fun getClueColumns(gridRows: Int): Int = if (gridRows >= 15) {
@@ -112,9 +118,7 @@ object Pdf {
 
         // Try progressively smaller clue sizes until we find one small enough to fit every clue on one page.
         setFont(fontFamily.baseFont, CLUE_TEXT_MAX_SIZE)
-        val clueTextSizes =
-            generateSequence(CLUE_TEXT_MAX_SIZE) { it - CLUE_TEXT_SIZE_DELTA }.takeWhile { it >= CLUE_TEXT_MIN_SIZE }
-        val bestTextSize = clueTextSizes.firstOrNull { clueTextSize ->
+        val bestTextSize = findBestFontSize(CLUE_TEXT_MIN_SIZE, CLUE_TEXT_MAX_SIZE) {
             showClueLists(
                 crossword = this@asPdf,
                 fontFamily = fontFamily,
@@ -123,7 +127,7 @@ object Pdf {
                 clueTopY = positionY,
                 gridY = gridY,
                 gridHeight = gridHeight,
-                clueTextSize = clueTextSize,
+                clueTextSize = it,
                 render = false
             )
         }
@@ -145,22 +149,24 @@ object Pdf {
         endText()
 
         val gridBlackColor = getAdjustedColor("#000000", blackSquareLightnessAdjustment)
-        setStrokeColor(gridBlackColor.r / 255f, gridBlackColor.g / 255f, gridBlackColor.b / 255f)
-        setFillColor(gridBlackColor.r / 255f, gridBlackColor.g / 255f, gridBlackColor.b / 255f)
         Crossword.forEachSquare(grid) { x, y, clueNumber, _, _, square ->
             val squareX = gridX + x * gridSquareSize
             val squareY = gridY + gridHeight - (y + 1) * gridSquareSize
+
+            // Fill in the square background if a background color is specified, or if this is a black square.
+            // Otherwise, use a white background.
             addRect(squareX, squareY, gridSquareSize, gridSquareSize)
-            if (square.isBlack) {
-                if (square.backgroundColor?.isNotBlank() == true) {
-                    val backgroundColor = getAdjustedColor(square.backgroundColor, blackSquareLightnessAdjustment)
-                    setFillColor(backgroundColor.r / 255f, backgroundColor.g / 255f, backgroundColor.b / 255f)
-                } else {
-                    setFillColor(gridBlackColor.r / 255f, gridBlackColor.g / 255f, gridBlackColor.b / 255f)
-                }
-                fillAndStroke()
-            } else {
-                stroke()
+            val backgroundColor = when {
+                square.backgroundColor?.isNotBlank() == true ->
+                    getAdjustedColor(square.backgroundColor, blackSquareLightnessAdjustment)
+                square.isBlack -> gridBlackColor
+                else -> RGB("#ffffff")
+            }
+            setStrokeColor(gridBlackColor.r / 255f, gridBlackColor.g / 255f, gridBlackColor.b / 255f)
+            setFillColor(backgroundColor.r / 255f, backgroundColor.g / 255f, backgroundColor.b / 255f)
+            fillAndStroke()
+
+            if (!square.isBlack) {
                 if (square.isCircled) {
                     addCircle(squareX, squareY, gridSquareSize / 2)
                     stroke()
@@ -168,6 +174,15 @@ object Pdf {
                 // If custom words are provided, use only provided numbering. Otherwise, use generated numbering.
                 val number = if (acrossWords.isNotEmpty() && downWords.isNotEmpty()) square.number else clueNumber
                 if (number != null) {
+                    // Erase a rectangle around the number to make sure it stands out if there is a circle.
+                    addRect(
+                        gridX + x * gridSquareSize + GRID_NUMBER_X_OFFSET,
+                        gridY + gridHeight - y * gridSquareSize - gridNumberSize,
+                        getTextWidth(number.toString(), fontFamily.baseFont, gridNumberSize),
+                        gridNumberSize - 2f
+                    )
+                    fill()
+
                     setFillColor(0f, 0f, 0f)
                     beginText()
                     newLineAtOffset(
@@ -177,6 +192,45 @@ object Pdf {
                     setFont(fontFamily.baseFont, gridNumberSize)
                     drawText(number.toString())
                     endText()
+                }
+                if (square.isGiven) {
+                    // Render the square's solution.
+                    // Truncate the solution if it's greater than eight characters, and split it into two lines if it's
+                    // more than four characters.
+                    var solutionString = square.solutionRebus.ifEmpty { square.solution!!.toString() }
+                    if (solutionString.length > 8) {
+                        solutionString = solutionString.substring(0, 5) + "..."
+                    }
+                    val solutionLines = solutionString.chunked(4)
+                    // Find the maximum font size for the solution that can fit the solution text into 80% of the
+                    // square size.
+                    val maxSize = 0.8 * gridSquareSize
+                    val solutionTextSize =
+                        findBestFontSize(SOLUTION_TEXT_MIN_SIZE, SOLUTION_TEXT_MAX_SIZE) { textSize ->
+                            val maxWidth = solutionLines.maxOf { line ->
+                                getTextWidth(line, fontFamily.baseFont, textSize)
+                            }
+                            val height = solutionLines.size * textSize
+                            maxWidth < maxSize && height < maxSize
+                        }
+                    require(solutionTextSize != null) {
+                        "Solution text does not fit into square"
+                    }
+                    // Center align each line and draw the text.
+                    setFillColor(0f, 0f, 0f)
+                    val textHeight = solutionLines.size * solutionTextSize
+                    solutionLines.forEachIndexed { i, line ->
+                        beginText()
+                        setFont(fontFamily.baseFont, solutionTextSize)
+                        val lineWidth = getTextWidth(line, fontFamily.baseFont, solutionTextSize)
+                        val solutionX = squareX + (gridSquareSize - lineWidth) / 2
+                        val baseYOffset = (gridSquareSize - textHeight) / 2
+                        val lineOffset = (solutionLines.size - i - 1) * solutionTextSize
+                        val solutionY = squareY + baseYOffset + lineOffset
+                        newLineAtOffset(solutionX, solutionY)
+                        drawText(line)
+                        endText()
+                    }
                 }
             }
             if (square.borderDirections.isNotEmpty()) {
@@ -525,5 +579,10 @@ object Pdf {
             positionY -= clueTextSize
         }
         return true to CluePosition(positionY = positionY, column = column, columnBottomY = columnBottomY)
+    }
+
+    private fun findBestFontSize(minSize: Float, maxSize: Float, testFn: (Float) -> Boolean): Float? {
+        val textSizes = generateSequence(maxSize) { it - TEXT_SIZE_DELTA }.takeWhile { it >= minSize }
+        return textSizes.firstOrNull(testFn)
     }
 }

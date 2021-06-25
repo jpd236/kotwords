@@ -115,13 +115,9 @@ internal actual class PdfDocument {
         pdf.circle(x + radius, height - y - radius, radius, style = null)
     }
 
-    actual fun stroke() {
-        pdf.stroke()
-    }
-
-    actual fun fillAndStroke() {
-        pdf.fillStroke()
-    }
+    actual fun stroke() = pdf.stroke()
+    actual fun fill() = pdf.fill()
+    actual fun fillAndStroke() = pdf.fillStroke()
 
     actual fun toByteArray(): ByteArray {
         return (pdf.output("arraybuffer") as ArrayBuffer).toByteArray()

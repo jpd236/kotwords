@@ -49,6 +49,9 @@ internal expect class PdfDocument() {
     /** Draw a stroke around the current path. */
     fun stroke()
 
+    /** Fill the current path. */
+    fun fill()
+
     /** Draw a stroke around the current path and fill it. */
     fun fillAndStroke()
 

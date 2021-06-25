@@ -83,13 +83,9 @@ internal actual class PdfDocument {
         content.curveTo(cx - k * radius, cy - radius, cx - radius, cy - k * radius, cx - radius, cy)
     }
 
-    actual fun stroke() {
-        content.stroke()
-    }
-
-    actual fun fillAndStroke() {
-        content.fillAndStroke()
-    }
+    actual fun stroke() = content.stroke()
+    actual fun fill() = content.fill()
+    actual fun fillAndStroke() = content.fillAndStroke()
 
     actual fun toByteArray(): ByteArray {
         content.close()
