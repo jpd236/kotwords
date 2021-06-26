@@ -98,7 +98,8 @@ class PdfTest {
                 Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER)),
                 Pdf.ClueTextElement.NewLine,
 
-                Pdf.ClueTextElement.Text("vvvv")
+                Pdf.ClueTextElement.Text("vvvv"),
+                Pdf.ClueTextElement.NewLine,
             ),
             splitTextToLines(
                 document,

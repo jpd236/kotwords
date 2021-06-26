@@ -22,6 +22,9 @@ object Pdf {
     /** Size of the puzzle notes. */
     private const val NOTES_SIZE = 12f
 
+    /** Space between the header text and the start of the clues. */
+    private const val HEADER_CLUES_SPACING = 28f
+
     /** Size of the puzzle copyright. */
     private const val COPYRIGHT_SIZE = 9f
 
@@ -45,6 +48,9 @@ object Pdf {
 
     /** Amount to shrink the font size for each render attempt if text does not fit in the given bounds. */
     private const val TEXT_SIZE_DELTA = 0.1f
+
+    /** Line spacing for text. */
+    private const val LINE_SPACING = 1.15f
 
     /** Returns the number of columns to use for the clues. */
     private fun getClueColumns(gridRows: Int): Int = if (gridRows >= 15) {
@@ -109,12 +115,14 @@ object Pdf {
         newLineAtOffset(titleX, titleY)
 
         drawMultiLineText(title, fontFamily.boldFont, TITLE_SIZE, headerWidth, ::newLine)
+        newLine(AUTHOR_SIZE * LINE_SPACING)
         drawMultiLineText(author, fontFamily.baseFont, AUTHOR_SIZE, headerWidth, ::newLine)
         if (notes.isNotBlank()) {
+            newLine(NOTES_SIZE * LINE_SPACING)
             drawMultiLineText(notes, fontFamily.italicFont, NOTES_SIZE, headerWidth, ::newLine)
         }
 
-        newLine(AUTHOR_SIZE)
+        newLine(HEADER_CLUES_SPACING)
 
         // Try progressively smaller clue sizes until we find one small enough to fit every clue on one page.
         setFont(fontFamily.baseFont, CLUE_TEXT_MAX_SIZE)
@@ -270,9 +278,11 @@ object Pdf {
         text: String, font: PdfFont, fontSize: Float, lineWidth: Float, newLineFn: (Float) -> Unit
     ) {
         setFont(font, fontSize)
-        splitTextToLines(this, text, font, fontSize, lineWidth).lines.forEach { line ->
+        splitTextToLines(this, text, font, fontSize, lineWidth).lines.forEachIndexed { i, line ->
+            if (i > 0) {
+                newLineFn(fontSize * LINE_SPACING)
+            }
             drawText(line)
-            newLineFn(fontSize)
         }
     }
 
@@ -369,6 +379,7 @@ object Pdf {
         if (boldTagLevel > 0 || italicTagLevel > 0) {
             elements.add(ClueTextElement.SetFont(fontFamily.baseFont))
         }
+        elements.add(ClueTextElement.NewLine)
         return elements
     }
 
@@ -519,9 +530,10 @@ object Pdf {
             // show a section header at the end of a column.
             val clueElements =
                 splitTextToLines(this, clue, fontFamily, clueTextSize, columnWidth - prefixWidth, isHtml)
-            val clueHeight = (clueElements.count { it == ClueTextElement.NewLine } + 1) * clueTextSize +
+            val lineCount = clueElements.count { it == ClueTextElement.NewLine }
+            val clueHeight = clueTextSize * (1 + LINE_SPACING * (lineCount - 1)) +
                     if (index == 0) {
-                        clueHeaderSize
+                        clueHeaderSize + (LINE_SPACING - 1) * clueTextSize
                     } else {
                         0f
                     }
@@ -540,14 +552,15 @@ object Pdf {
             }
 
             if (index == 0) {
+                val offset = clueTextSize * LINE_SPACING
                 if (render) {
                     setFont(fontFamily.boldFont, clueHeaderSize)
                     drawText(header)
-                    newLineAtOffset(0f, -clueHeaderSize)
+                    newLineAtOffset(0f, -offset)
 
                     setFont(fontFamily.baseFont, clueTextSize)
                 }
-                positionY -= clueHeaderSize
+                positionY -= offset
             }
             if (render) {
                 drawText(prefix)
@@ -561,10 +574,11 @@ object Pdf {
                         }
                     }
                     is ClueTextElement.NewLine -> {
+                        val offset = clueTextSize * LINE_SPACING
                         if (render) {
-                            newLineAtOffset(0f, -clueTextSize)
+                            newLineAtOffset(0f, -offset)
                         }
-                        positionY -= clueTextSize
+                        positionY -= offset
                     }
                     is ClueTextElement.SetFont -> {
                         if (render) {
@@ -573,10 +587,9 @@ object Pdf {
                     }
                 }
             }
-            if (render) {
-                newLineAtOffset(-prefixWidth, -clueTextSize)
+            if (render)  {
+                newLineAtOffset(-prefixWidth, 0f)
             }
-            positionY -= clueTextSize
         }
         return true to CluePosition(positionY = positionY, column = column, columnBottomY = columnBottomY)
     }
