@@ -546,17 +546,16 @@ object Pdf {
         var columnBottomY = cluePosition.columnBottomY
         var column = cluePosition.column
 
-        clues.entries.forEachIndexed { index, (clueNumber, clue) ->
-            val clueHeaderSize = clueTextSize + 1.0f
-            val prefix = "$clueNumber "
-            val prefixWidth = getTextWidth(prefix, fontFamily.baseFont, clueTextSize)
+        val maxPrefixWidth = clues.keys.maxOf { getTextWidth("$it ", fontFamily.baseFont, clueTextSize) }
 
+        clues.entries.forEachIndexed { index, (clueNumber, clue) ->
             // Count the number of lines needed for the entire clue, plus the section header if
             // this is the first clue in a section, as we do not want to split a clue apart or
             // show a section header at the end of a column.
             val clueElements =
-                splitTextToLines(this, clue, fontFamily, clueTextSize, columnWidth - prefixWidth, isHtml)
+                splitTextToLines(this, clue, fontFamily, clueTextSize, columnWidth - maxPrefixWidth, isHtml)
             val lineCount = clueElements.count { it == ClueTextElement.NewLine }
+            val clueHeaderSize = clueTextSize + 1.0f
             val clueHeight = clueTextSize * (1 + LINE_SPACING * (lineCount - 1)) +
                     if (index == 0) {
                         clueHeaderSize + (LINE_SPACING - 1) * clueTextSize
@@ -580,15 +579,20 @@ object Pdf {
             if (index == 0) {
                 val offset = clueTextSize * LINE_SPACING
                 if (render) {
+                    newLineAtOffset(maxPrefixWidth, 0f)
                     setFont(fontFamily.boldFont, clueHeaderSize)
                     drawText(header)
-                    newLineAtOffset(0f, -offset)
+                    newLineAtOffset(-maxPrefixWidth, -offset)
 
                     setFont(fontFamily.baseFont, clueTextSize)
                 }
                 positionY -= offset
             }
+
             if (render) {
+                val prefix = "$clueNumber "
+                val prefixWidth = getTextWidth(prefix, fontFamily.baseFont, clueTextSize)
+                newLineAtOffset(maxPrefixWidth - prefixWidth, 0f)
                 drawText(prefix)
                 newLineAtOffset(prefixWidth, 0f)
             }
@@ -614,7 +618,7 @@ object Pdf {
                 }
             }
             if (render) {
-                newLineAtOffset(-prefixWidth, 0f)
+                newLineAtOffset(-maxPrefixWidth, 0f)
             }
         }
         return true to CluePosition(positionY = positionY, column = column, columnBottomY = columnBottomY)
