@@ -271,7 +271,7 @@ object Pdf {
         text: String, font: PdfFont, fontSize: Float, lineWidth: Float, newLineFn: (Float) -> Unit
     ) {
         setFont(font, fontSize)
-        splitTextToLines(this, text, font, fontSize, lineWidth).lines.forEachIndexed { i, line ->
+        splitTextToLines(this, text, font, fontSize, lineWidth).forEachIndexed { i, line ->
             if (i > 0) {
                 newLineFn(fontSize * LINE_SPACING)
             }
@@ -285,20 +285,7 @@ object Pdf {
         data class SetFont(val font: PdfFont) : ClueTextElement()
     }
 
-    internal data class NodeState(
-        val node: Node,
-        val boldTagLevel: Int,
-        val italicTagLevel: Int,
-    )
-
-    private fun getFont(fontFamily: PdfFontFamily, boldTagLevel: Int, italicTagLevel: Int): PdfFont {
-        return when {
-            boldTagLevel > 0 && italicTagLevel > 0 -> fontFamily.boldItalicFont
-            boldTagLevel > 0 -> fontFamily.boldFont
-            italicTagLevel > 0 -> fontFamily.italicFont
-            else -> fontFamily.baseFont
-        }
-    }
+    private data class FormattedChar(val char: Char, val font: PdfFont)
 
     // TODO: Handle sub/sup
     internal fun splitTextToLines(
@@ -309,10 +296,12 @@ object Pdf {
         lineWidth: Float,
         isHtml: Boolean,
     ): List<ClueTextElement> {
-        val elements = mutableListOf<ClueTextElement>()
-        var boldTagLevel = 0
-        var italicTagLevel = 0
-        var currentLineLength = 0f
+        // Parse the HTML to create a list of character + font pairs.
+        data class NodeState(
+            val node: Node,
+            val boldTagLevel: Int,
+            val italicTagLevel: Int,
+        )
         val nodeStack = ArrayDeque<NodeState>()
         if (isHtml) {
             val node = Xml.parse(rawText, format = DocumentFormat.HTML)
@@ -320,66 +309,88 @@ object Pdf {
         } else {
             nodeStack.add(NodeState(TextNode(rawText), boldTagLevel = 0, italicTagLevel = 0))
         }
+        val formattedChars = mutableListOf<FormattedChar>()
         while (nodeStack.isNotEmpty()) {
             val nodeState = nodeStack.removeFirst()
-
-            // Handle any font changes from the previous state to the new one.
-            val addBold = boldTagLevel == 0 && nodeState.boldTagLevel > 0
-            val removeBold = boldTagLevel > 0 && nodeState.boldTagLevel == 0
-            val addItalic = italicTagLevel == 0 && nodeState.italicTagLevel > 0
-            val removeItalic = italicTagLevel > 0 && nodeState.italicTagLevel == 0
-            if (addBold || removeBold || addItalic || removeItalic) {
-                val newFont = getFont(fontFamily, nodeState.boldTagLevel, nodeState.italicTagLevel)
-                elements.add(ClueTextElement.SetFont(newFont))
-            }
-
-            boldTagLevel = nodeState.boldTagLevel
-            italicTagLevel = nodeState.italicTagLevel
-
             when (nodeState.node) {
                 is Element -> {
                     nodeState.node.children.reversed().forEach { childNode ->
                         nodeStack.addFirst(
                             NodeState(
                                 childNode,
-                                boldTagLevel = if (nodeState.node.tag == "B") boldTagLevel + 1 else boldTagLevel,
-                                italicTagLevel = if (nodeState.node.tag == "I") italicTagLevel + 1 else italicTagLevel
+                                boldTagLevel = nodeState.boldTagLevel + if (nodeState.node.tag == "B") 1 else 0,
+                                italicTagLevel = nodeState.italicTagLevel + if (nodeState.node.tag == "I") 1 else 0,
                             )
                         )
                     }
                 }
                 is TextNode -> {
-                    val splitResult = splitTextToLines(
-                        document = document,
-                        text = nodeState.node.text,
-                        font = getFont(fontFamily, boldTagLevel, italicTagLevel),
-                        fontSize = fontSize,
-                        lineWidth = lineWidth,
-                        startingLineLength = currentLineLength
-                    )
-                    currentLineLength = splitResult.currentLineLength
-                    splitResult.lines.forEachIndexed { i, line ->
-                        if (i > 0) {
-                            elements.add(ClueTextElement.NewLine)
-                        }
-                        if (line.isNotBlank()) {
-                            elements.add(ClueTextElement.Text(line))
-                        }
-                    }
+                    val currentFont = getFont(fontFamily, nodeState.boldTagLevel, nodeState.italicTagLevel)
+                    formattedChars.addAll(nodeState.node.text.map { FormattedChar(it, currentFont) })
                 }
             }
         }
-        if (boldTagLevel > 0 || italicTagLevel > 0) {
-            elements.add(ClueTextElement.SetFont(fontFamily.baseFont))
+
+        // Split the formatted text into lines, and convert into a stream of text, font changes, and new lines.
+        val lines = splitTextToLines(document, formattedChars, fontFamily.baseFont, fontSize, lineWidth)
+        val clueTextElements = mutableListOf<ClueTextElement>()
+        var currentFont = fontFamily.baseFont
+        lines.forEach { line ->
+            forEachFont(line) { text, font ->
+                if (font != currentFont) {
+                    clueTextElements.add(ClueTextElement.SetFont(font))
+                    currentFont = font
+                }
+                clueTextElements.add(ClueTextElement.Text(text))
+            }
+            clueTextElements.add(ClueTextElement.NewLine)
         }
-        elements.add(ClueTextElement.NewLine)
-        return elements
+        if (currentFont != fontFamily.baseFont) {
+            clueTextElements.add(ClueTextElement.SetFont(fontFamily.baseFont))
+        }
+        return clueTextElements
     }
 
-    internal data class SplitTextToLinesResult(
-        val lines: List<String>,
-        val currentLineLength: Float,
-    )
+    private fun getFont(fontFamily: PdfFontFamily, boldTagLevel: Int, italicTagLevel: Int): PdfFont {
+        return when {
+            boldTagLevel > 0 && italicTagLevel > 0 -> fontFamily.boldItalicFont
+            boldTagLevel > 0 -> fontFamily.boldFont
+            italicTagLevel > 0 -> fontFamily.italicFont
+            else -> fontFamily.baseFont
+        }
+    }
+
+    /** Run the given function on each word, using space as a separator. */
+    private fun forEachWord(
+        text: List<FormattedChar>,
+        fn: (word: List<FormattedChar>, nextSeparator: FormattedChar?) -> Unit
+    ) {
+        val currentWord = mutableListOf<FormattedChar>()
+        text.forEach { formattedChar ->
+            if (formattedChar.char == ' ') {
+                fn(currentWord, formattedChar)
+                currentWord.clear()
+            } else {
+                currentWord.add(formattedChar)
+            }
+        }
+        fn(currentWord, null)
+    }
+
+    /** Run the given function for each chunk of the given string which has the same font. */
+    private fun forEachFont(text: List<FormattedChar>, fn: (text: String, font: PdfFont) -> Unit) {
+        val currentString = StringBuilder()
+        var currentFont: PdfFont? = null
+        text.forEach { formattedChar ->
+            if (currentFont != null && currentFont != formattedChar.font) {
+                fn(currentString.toString(), currentFont!!)
+                currentString.clear()
+            }
+            currentString.append(formattedChar.char)
+            currentFont = formattedChar.font
+        }
+        fn(currentString.toString(), currentFont!!)
+    }
 
     /** Split [text] into lines (using spaces as word separators) to fit the given [lineWidth]. */
     internal fun splitTextToLines(
@@ -388,47 +399,69 @@ object Pdf {
         font: PdfFont,
         fontSize: Float,
         lineWidth: Float,
-        startingLineLength: Float = 0f
-    ): SplitTextToLinesResult {
-        val lines = mutableListOf<StringBuilder>()
-        var currentLine = StringBuilder()
+    ): List<String> {
+        val formattedText = text.map { FormattedChar(it, font) }
+        return splitTextToLines(document, formattedText, font, fontSize, lineWidth).map { line ->
+            line.map { it.char }.toCharArray().concatToString()
+        }
+    }
+
+    /** Split formatted [text] into lines (using spaces as word separators) to fit the given [lineWidth]. */
+    private fun splitTextToLines(
+        document: PdfDocument,
+        text: List<FormattedChar>,
+        baseFont: PdfFont,
+        fontSize: Float,
+        lineWidth: Float,
+    ): List<List<FormattedChar>> {
+        val lines = mutableListOf<List<FormattedChar>>()
+        var currentLine = mutableListOf<FormattedChar>()
         lines += currentLine
-        var currentLineLength = startingLineLength
+        var currentLineLength = 0f
         var currentSeparator = ""
-        text.split(" ").forEach { word ->
-            val separatorLength = document.getTextWidth(currentSeparator, font, fontSize)
-            val wordLength = document.getTextWidth(word, font, fontSize)
+        var currentSeparatorFont = baseFont
+        forEachWord(text) { formattedWord, nextSeparator ->
+            val separatorLength = document.getTextWidth(currentSeparator, currentSeparatorFont, fontSize)
+            var wordLength = 0f
+            forEachFont(formattedWord) { word, font ->
+                wordLength += document.getTextWidth(word, font, fontSize)
+            }
             if (currentLineLength + separatorLength + wordLength > lineWidth) {
                 // This word pushes us over the line length limit, so we'll need a new line.
                 if (wordLength > lineWidth) {
                     // Word is too long to fit on a single line; have to chop by letter.
-                    word.forEach { ch ->
-                        val charLength = document.getTextWidth(ch.toString(), font, fontSize)
-                        val wordSeparatorLengthPts = document.getTextWidth(currentSeparator, font, fontSize)
+                    formattedWord.forEach { formattedChar ->
+                        val charLength =
+                            document.getTextWidth(formattedChar.char.toString(), formattedChar.font, fontSize)
+                        val wordSeparatorLengthPts =
+                            document.getTextWidth(currentSeparator, currentSeparatorFont, fontSize)
                         if (currentLineLength + wordSeparatorLengthPts + charLength > lineWidth) {
-                            currentLine = StringBuilder(ch.toString())
+                            currentLine = mutableListOf(formattedChar)
                             lines += currentLine
                             currentLineLength = charLength
                         } else {
-                            currentLine.append(currentSeparator).append(ch)
+                            currentLine.addAll(currentSeparator.map { FormattedChar(it, currentSeparatorFont) })
+                            currentLine.add(formattedChar)
                             currentLineLength += wordSeparatorLengthPts + charLength
                         }
                         currentSeparator = ""
                     }
                 } else {
                     // Start a new line with this word.
-                    currentLine = StringBuilder(word)
+                    currentLine = formattedWord.toMutableList()
                     lines += currentLine
                     currentLineLength = wordLength
                 }
             } else {
                 // This word fits, so continue the current line with it.
-                currentLine.append(currentSeparator).append(word)
+                currentLine.addAll(currentSeparator.map { FormattedChar(it, currentSeparatorFont) })
+                currentLine.addAll(formattedWord)
                 currentLineLength += separatorLength + wordLength
             }
-            currentSeparator = " "
+            currentSeparator = nextSeparator?.char?.toString() ?: ""
+            currentSeparatorFont = nextSeparator?.font ?: currentSeparatorFont
         }
-        return SplitTextToLinesResult(lines.map { it.toString() }, currentLineLength)
+        return lines
     }
 
     private data class CluePosition(
@@ -580,7 +613,7 @@ object Pdf {
                     }
                 }
             }
-            if (render)  {
+            if (render) {
                 newLineAtOffset(-prefixWidth, 0f)
             }
         }

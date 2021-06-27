@@ -21,13 +21,17 @@ class PdfTest {
     fun asPdf_customFonts() = runTest {
         val notoSerifFontFamily = PdfFontFamily(
             PdfFont.TtfFont(
-                "NotoSerif", "normal", readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-Regular.ttf")),
+                "NotoSerif", "normal", readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-Regular.ttf")
+            ),
             PdfFont.TtfFont(
-                "NotoSerif", "bold", readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-Bold.ttf")),
+                "NotoSerif", "bold", readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-Bold.ttf")
+            ),
             PdfFont.TtfFont(
-                "NotoSerif", "italic", readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-Italic.ttf")),
+                "NotoSerif", "italic", readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-Italic.ttf")
+            ),
             PdfFont.TtfFont(
-                "NotoSerif", "bolditalic", readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-BoldItalic.ttf")),
+                "NotoSerif", "bolditalic", readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-BoldItalic.ttf")
+            ),
         )
         PdfComparator.assertPdfEquals(
             readBinaryResource(PdfComparator::class, "pdf/test-customFonts.pdf"),
@@ -55,7 +59,7 @@ class PdfTest {
                 PdfFont.BuiltInFont(BuiltInFontName.COURIER),
                 10f,
                 100f
-            ).lines
+            )
         )
     }
 
@@ -72,11 +76,10 @@ class PdfTest {
                 Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER_ITALIC)),
                 Pdf.ClueTextElement.Text("f g"),
                 Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER)),
-                Pdf.ClueTextElement.Text(" h "),
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER_BOLD)),
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER_BOLD_ITALIC)),
+                Pdf.ClueTextElement.Text(" h"),
                 Pdf.ClueTextElement.NewLine,
 
+                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER_BOLD_ITALIC)),
                 Pdf.ClueTextElement.Text("i"),
                 Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER)),
                 Pdf.ClueTextElement.Text(" jj kk ll mm "),
@@ -88,16 +91,16 @@ class PdfTest {
                 Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER)),
                 Pdf.ClueTextElement.Text(" ppp qqq "),
                 Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER_ITALIC)),
-                Pdf.ClueTextElement.Text("rrr "),
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER_BOLD_ITALIC)),
+                Pdf.ClueTextElement.Text("rrr"),
                 Pdf.ClueTextElement.NewLine,
 
+                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER_BOLD_ITALIC)),
                 Pdf.ClueTextElement.Text("sss"),
                 Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER_ITALIC)),
                 Pdf.ClueTextElement.Text(" tttt uuuu"),
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER)),
                 Pdf.ClueTextElement.NewLine,
 
+                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER)),
                 Pdf.ClueTextElement.Text("vvvv"),
                 Pdf.ClueTextElement.NewLine,
             ),
@@ -132,7 +135,7 @@ class PdfTest {
                 PdfFont.BuiltInFont(BuiltInFontName.COURIER),
                 10f,
                 100f
-            ).lines
+            )
         )
     }
 }
