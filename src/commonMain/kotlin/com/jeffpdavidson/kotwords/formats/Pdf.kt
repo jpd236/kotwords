@@ -59,13 +59,6 @@ object Pdf {
         3
     }
 
-    /** Returns the size of the grid number text. */
-    private fun getGridNumberSize(gridRows: Int): Float = if (gridRows <= 17) {
-        8f
-    } else {
-        6f
-    }
-
     /** Returns the percentage of the content width to use for the grid. */
     private fun getGridWidthPercentage(gridRows: Int): Float =
         if (gridRows >= 15) {
@@ -97,7 +90,7 @@ object Pdf {
         val gridWidth = getGridWidthPercentage(gridRows) * headerWidth
         val gridHeight = gridWidth * gridRows / gridCols
         val gridSquareSize = gridHeight / gridRows
-        val gridNumberSize = getGridNumberSize(gridRows)
+        val gridNumberSize = gridSquareSize / 3
         val gridX = pageWidth - MARGIN - gridWidth
         val gridY = MARGIN + COPYRIGHT_SIZE
         val columns = getClueColumns(gridRows)
