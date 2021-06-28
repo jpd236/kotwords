@@ -65,52 +65,59 @@ class PdfTest {
 
     @Test
     fun splitTextToLines_withHtmlFormatting() {
+        fun format(fontName: BuiltInFontName, script: Pdf.Script): Pdf.Format =
+            Pdf.Format(PdfFont.BuiltInFont(fontName), script)
+
         val document = PdfDocument()
         assertEquals(
             listOf(
                 Pdf.ClueTextElement.Text("a "),
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER_BOLD)),
+                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_BOLD, Pdf.Script.REGULAR)),
                 Pdf.ClueTextElement.Text("b c"),
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER)),
+                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER, Pdf.Script.REGULAR)),
                 Pdf.ClueTextElement.Text(" d e "),
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER_ITALIC)),
+                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_ITALIC, Pdf.Script.REGULAR)),
                 Pdf.ClueTextElement.Text("f g"),
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER)),
+                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER, Pdf.Script.REGULAR)),
                 Pdf.ClueTextElement.Text(" h"),
                 Pdf.ClueTextElement.NewLine,
 
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER_BOLD_ITALIC)),
+                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_BOLD_ITALIC, Pdf.Script.REGULAR)),
                 Pdf.ClueTextElement.Text("i"),
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER)),
+                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER, Pdf.Script.REGULAR)),
                 Pdf.ClueTextElement.Text(" jj kk ll mm "),
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER_BOLD)),
+                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_BOLD, Pdf.Script.REGULAR)),
                 Pdf.ClueTextElement.Text("nn"),
                 Pdf.ClueTextElement.NewLine,
 
                 Pdf.ClueTextElement.Text("oo"),
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER)),
+                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER, Pdf.Script.REGULAR)),
                 Pdf.ClueTextElement.Text(" ppp qqq "),
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER_ITALIC)),
-                Pdf.ClueTextElement.Text("rrr"),
+                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_ITALIC, Pdf.Script.REGULAR)),
+                Pdf.ClueTextElement.Text("rr"),
+                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_ITALIC, Pdf.Script.SUPERSCRIPT)),
+                Pdf.ClueTextElement.Text("r"),
                 Pdf.ClueTextElement.NewLine,
 
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER_BOLD_ITALIC)),
+                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_BOLD_ITALIC, Pdf.Script.REGULAR)),
                 Pdf.ClueTextElement.Text("sss"),
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER_ITALIC)),
-                Pdf.ClueTextElement.Text(" tttt uuuu"),
+                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_ITALIC, Pdf.Script.REGULAR)),
+                Pdf.ClueTextElement.Text(" tttt"),
+                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_ITALIC, Pdf.Script.SUBSCRIPT)),
+                Pdf.ClueTextElement.Text("uuuu"),
                 Pdf.ClueTextElement.NewLine,
 
-                Pdf.ClueTextElement.SetFont(PdfFont.BuiltInFont(BuiltInFontName.COURIER)),
-                Pdf.ClueTextElement.Text("vvvv"),
+                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER, Pdf.Script.REGULAR)),
+                Pdf.ClueTextElement.Text("vvvvv"),
                 Pdf.ClueTextElement.NewLine,
             ),
             splitTextToLines(
                 document,
                 "a <b>b c</b> d e <i>f g</i> h " +
                         "<b><i>i</i></b> jj kk ll mm <b>nn " +
-                        "oo</b> ppp qqq <i>rrr " +
-                        "<b>sss</b> tttt uuuu</i> " +
-                        "vvvv",
+                        "oo</b> ppp qqq <i>rr<sup>r</sup> " +
+                        "<b>sss</b> tttt<sub>uuuu</sub></i> " +
+                        "vvvvv",
                 FONT_FAMILY_COURIER,
                 10f,
                 100f,

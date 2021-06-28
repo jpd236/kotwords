@@ -52,6 +52,15 @@ object Pdf {
     /** Line spacing for text. */
     private const val LINE_SPACING = 1.15f
 
+    /** Percentage of the current font size to use for sub/superscripts. */
+    private const val SUB_SUPER_SCRIPT_FONT_SIZE_PERCENTAGE = 0.75f
+
+    /** Percentage of the current font size to offset superscripts upwards. */
+    private const val SUPER_SCRIPT_OFFSET_PERCENTAGE = 0.2f
+
+    /** Percentage of the current font size to offset subscripts downwards. */
+    private const val SUB_SCRIPT_OFFSET_PERCENTAGE = 0.2f
+
     /** Returns the number of columns to use for the clues. */
     private fun getClueColumns(gridRows: Int): Int = if (gridRows >= 15) {
         4
@@ -279,15 +288,29 @@ object Pdf {
         }
     }
 
+    internal enum class Script {
+        REGULAR,
+        SUBSCRIPT,
+        SUPERSCRIPT;
+
+        fun getScaledFontSize(fontSize: Float): Float {
+            return when (this) {
+                REGULAR -> fontSize
+                else -> fontSize * SUB_SUPER_SCRIPT_FONT_SIZE_PERCENTAGE
+            }
+        }
+    }
+
+    internal data class Format(val font: PdfFont, val script: Script)
+
     internal sealed class ClueTextElement {
         data class Text(val text: String) : ClueTextElement()
         object NewLine : ClueTextElement()
-        data class SetFont(val font: PdfFont) : ClueTextElement()
+        data class SetFormat(val format: Format) : ClueTextElement()
     }
 
-    private data class FormattedChar(val char: Char, val font: PdfFont)
+    private data class FormattedChar(val char: Char, val format: Format)
 
-    // TODO: Handle sub/sup
     internal fun splitTextToLines(
         document: PdfDocument,
         rawText: String,
@@ -301,13 +324,17 @@ object Pdf {
             val node: Node,
             val boldTagLevel: Int,
             val italicTagLevel: Int,
+            val subTagLevel: Int,
+            val supTagLevel: Int,
         )
         val nodeStack = ArrayDeque<NodeState>()
         if (isHtml) {
             val node = Xml.parse(rawText, format = DocumentFormat.HTML)
-            nodeStack.add(NodeState(node, boldTagLevel = 0, italicTagLevel = 0))
+            nodeStack.add(
+                NodeState(node, boldTagLevel = 0, italicTagLevel = 0, subTagLevel = 0, supTagLevel = 0))
         } else {
-            nodeStack.add(NodeState(TextNode(rawText), boldTagLevel = 0, italicTagLevel = 0))
+            nodeStack.add(
+                NodeState(TextNode(rawText), boldTagLevel = 0, italicTagLevel = 0, subTagLevel = 0, supTagLevel = 0))
         }
         val formattedChars = mutableListOf<FormattedChar>()
         while (nodeStack.isNotEmpty()) {
@@ -320,13 +347,17 @@ object Pdf {
                                 childNode,
                                 boldTagLevel = nodeState.boldTagLevel + if (nodeState.node.tag == "B") 1 else 0,
                                 italicTagLevel = nodeState.italicTagLevel + if (nodeState.node.tag == "I") 1 else 0,
+                                subTagLevel = nodeState.subTagLevel + if (nodeState.node.tag == "SUB") 1 else 0,
+                                supTagLevel = nodeState.supTagLevel + if (nodeState.node.tag == "SUP") 1 else 0,
                             )
                         )
                     }
                 }
                 is TextNode -> {
                     val currentFont = getFont(fontFamily, nodeState.boldTagLevel, nodeState.italicTagLevel)
-                    formattedChars.addAll(nodeState.node.text.map { FormattedChar(it, currentFont) })
+                    val currentScript = getScript(nodeState.subTagLevel, nodeState.supTagLevel)
+                    val text = nodeState.node.text.map { FormattedChar(it, Format(currentFont, currentScript)) }
+                    formattedChars.addAll(text)
                 }
             }
         }
@@ -334,19 +365,20 @@ object Pdf {
         // Split the formatted text into lines, and convert into a stream of text, font changes, and new lines.
         val lines = splitTextToLines(document, formattedChars, fontFamily.baseFont, fontSize, lineWidth)
         val clueTextElements = mutableListOf<ClueTextElement>()
-        var currentFont = fontFamily.baseFont
+        val baseFormat = Format(fontFamily.baseFont, Script.REGULAR)
+        var currentFormat = baseFormat
         lines.forEach { line ->
-            forEachFont(line) { text, font ->
-                if (font != currentFont) {
-                    clueTextElements.add(ClueTextElement.SetFont(font))
-                    currentFont = font
+            forEachFormat(line) { text, format ->
+                if (format != currentFormat) {
+                    clueTextElements.add(ClueTextElement.SetFormat(format))
+                    currentFormat = format
                 }
                 clueTextElements.add(ClueTextElement.Text(text))
             }
             clueTextElements.add(ClueTextElement.NewLine)
         }
-        if (currentFont != fontFamily.baseFont) {
-            clueTextElements.add(ClueTextElement.SetFont(fontFamily.baseFont))
+        if (currentFormat != baseFormat) {
+            clueTextElements.add(ClueTextElement.SetFormat(baseFormat))
         }
         return clueTextElements
     }
@@ -357,6 +389,14 @@ object Pdf {
             boldTagLevel > 0 -> fontFamily.boldFont
             italicTagLevel > 0 -> fontFamily.italicFont
             else -> fontFamily.baseFont
+        }
+    }
+
+    private fun getScript(subTagLevel: Int, supTagLevel: Int): Script {
+        return when {
+            subTagLevel > 0 -> Script.SUBSCRIPT
+            supTagLevel > 0 -> Script.SUPERSCRIPT
+            else -> Script.REGULAR
         }
     }
 
@@ -377,19 +417,19 @@ object Pdf {
         fn(currentWord, null)
     }
 
-    /** Run the given function for each chunk of the given string which has the same font. */
-    private fun forEachFont(text: List<FormattedChar>, fn: (text: String, font: PdfFont) -> Unit) {
+    /** Run the given function for each chunk of the given string which has the same format. */
+    private fun forEachFormat(text: List<FormattedChar>, fn: (text: String, format: Format) -> Unit) {
         val currentString = StringBuilder()
-        var currentFont: PdfFont? = null
+        var currentFormat: Format? = null
         text.forEach { formattedChar ->
-            if (currentFont != null && currentFont != formattedChar.font) {
-                fn(currentString.toString(), currentFont!!)
+            if (currentFormat != null && currentFormat != formattedChar.format) {
+                fn(currentString.toString(), currentFormat!!)
                 currentString.clear()
             }
             currentString.append(formattedChar.char)
-            currentFont = formattedChar.font
+            currentFormat = formattedChar.format
         }
-        fn(currentString.toString(), currentFont!!)
+        fn(currentString.toString(), currentFormat!!)
     }
 
     /** Split [text] into lines (using spaces as word separators) to fit the given [lineWidth]. */
@@ -400,7 +440,7 @@ object Pdf {
         fontSize: Float,
         lineWidth: Float,
     ): List<String> {
-        val formattedText = text.map { FormattedChar(it, font) }
+        val formattedText = text.map { FormattedChar(it, Format(font, Script.REGULAR)) }
         return splitTextToLines(document, formattedText, font, fontSize, lineWidth).map { line ->
             line.map { it.char }.toCharArray().concatToString()
         }
@@ -419,12 +459,12 @@ object Pdf {
         lines += currentLine
         var currentLineLength = 0f
         var currentSeparator = ""
-        var currentSeparatorFont = baseFont
+        var currentSeparatorFormat = Format(baseFont, Script.REGULAR)
         forEachWord(text) { formattedWord, nextSeparator ->
-            val separatorLength = document.getTextWidth(currentSeparator, currentSeparatorFont, fontSize)
+            val separatorLength = document.getTextWidth(currentSeparator, currentSeparatorFormat, fontSize)
             var wordLength = 0f
-            forEachFont(formattedWord) { word, font ->
-                wordLength += document.getTextWidth(word, font, fontSize)
+            forEachFormat(formattedWord) { word, format ->
+                wordLength += document.getTextWidth(word, format, fontSize)
             }
             if (currentLineLength + separatorLength + wordLength > lineWidth) {
                 // This word pushes us over the line length limit, so we'll need a new line.
@@ -432,15 +472,15 @@ object Pdf {
                     // Word is too long to fit on a single line; have to chop by letter.
                     formattedWord.forEach { formattedChar ->
                         val charLength =
-                            document.getTextWidth(formattedChar.char.toString(), formattedChar.font, fontSize)
+                            document.getTextWidth(formattedChar.char.toString(), formattedChar.format, fontSize)
                         val wordSeparatorLengthPts =
-                            document.getTextWidth(currentSeparator, currentSeparatorFont, fontSize)
+                            document.getTextWidth(currentSeparator, currentSeparatorFormat, fontSize)
                         if (currentLineLength + wordSeparatorLengthPts + charLength > lineWidth) {
                             currentLine = mutableListOf(formattedChar)
                             lines += currentLine
                             currentLineLength = charLength
                         } else {
-                            currentLine.addAll(currentSeparator.map { FormattedChar(it, currentSeparatorFont) })
+                            currentLine.addAll(currentSeparator.map { FormattedChar(it, currentSeparatorFormat) })
                             currentLine.add(formattedChar)
                             currentLineLength += wordSeparatorLengthPts + charLength
                         }
@@ -454,12 +494,12 @@ object Pdf {
                 }
             } else {
                 // This word fits, so continue the current line with it.
-                currentLine.addAll(currentSeparator.map { FormattedChar(it, currentSeparatorFont) })
+                currentLine.addAll(currentSeparator.map { FormattedChar(it, currentSeparatorFormat) })
                 currentLine.addAll(formattedWord)
                 currentLineLength += separatorLength + wordLength
             }
             currentSeparator = nextSeparator?.char?.toString() ?: ""
-            currentSeparatorFont = nextSeparator?.font ?: currentSeparatorFont
+            currentSeparatorFormat = nextSeparator?.format ?: currentSeparatorFormat
         }
         return lines
     }
@@ -596,23 +636,50 @@ object Pdf {
                 drawText(prefix)
                 newLineAtOffset(prefixWidth, 0f)
             }
+            var currentFont = fontFamily.baseFont
+            var currentFontSize = clueTextSize
+            var currentScript = Script.REGULAR
+            var currentLinePosition = 0f
+            var lastLineXOffset = 0f
+            var lastLineYOffset = 0f
             clueElements.forEach { clueElement ->
                 when (clueElement) {
                     is ClueTextElement.Text -> {
                         if (render) {
                             drawText(clueElement.text)
+                            currentLinePosition += getTextWidth(clueElement.text, currentFont, currentFontSize)
                         }
                     }
                     is ClueTextElement.NewLine -> {
                         val offset = clueTextSize * LINE_SPACING
                         if (render) {
-                            newLineAtOffset(0f, -offset)
+                            newLineAtOffset(-lastLineXOffset, -offset)
+                            currentLinePosition = 0f
+                            lastLineXOffset = 0f
                         }
                         positionY -= offset
                     }
-                    is ClueTextElement.SetFont -> {
+                    is ClueTextElement.SetFormat -> {
                         if (render) {
-                            setFont(clueElement.font, clueTextSize)
+                            val newFont = clueElement.format.font
+                            val newFontSize = clueElement.format.script.getScaledFontSize(clueTextSize)
+                            if (newFont != currentFont || newFontSize != currentFontSize) {
+                                setFont(newFont, newFontSize)
+                                currentFont = newFont
+                                currentFontSize = newFontSize
+                            }
+                            if (currentScript != clueElement.format.script) {
+                                val yOffset =
+                                    when (clueElement.format.script) {
+                                        Script.SUPERSCRIPT -> clueTextSize * SUPER_SCRIPT_OFFSET_PERCENTAGE
+                                        Script.SUBSCRIPT -> -clueTextSize * SUB_SCRIPT_OFFSET_PERCENTAGE
+                                        Script.REGULAR -> 0f
+                                    }
+                                newLineAtOffset(currentLinePosition - lastLineXOffset, yOffset - lastLineYOffset)
+                                lastLineXOffset = currentLinePosition
+                                lastLineYOffset = yOffset
+                                currentScript = clueElement.format.script
+                            }
                         }
                     }
                 }
@@ -627,5 +694,9 @@ object Pdf {
     private fun findBestFontSize(minSize: Float, maxSize: Float, testFn: (Float) -> Boolean): Float? {
         val textSizes = generateSequence(maxSize) { it - TEXT_SIZE_DELTA }.takeWhile { it >= minSize }
         return textSizes.firstOrNull(testFn)
+    }
+
+    private fun PdfDocument.getTextWidth(text: String, format: Format, fontSize: Float): Float {
+        return getTextWidth(text, format.font, format.script.getScaledFontSize(fontSize))
     }
 }
