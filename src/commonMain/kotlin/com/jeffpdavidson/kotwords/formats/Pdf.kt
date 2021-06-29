@@ -414,7 +414,9 @@ object Pdf {
                 currentWord.add(formattedChar)
             }
         }
-        fn(currentWord, null)
+        if (currentWord.isNotEmpty()) {
+            fn(currentWord, null)
+        }
     }
 
     /** Run the given function for each chunk of the given string which has the same format. */
@@ -429,7 +431,9 @@ object Pdf {
             currentString.append(formattedChar.char)
             currentFormat = formattedChar.format
         }
-        fn(currentString.toString(), currentFormat!!)
+        if (currentString.isNotEmpty()) {
+            fn(currentString.toString(), currentFormat!!)
+        }
     }
 
     /** Split [text] into lines (using spaces as word separators) to fit the given [lineWidth]. */
