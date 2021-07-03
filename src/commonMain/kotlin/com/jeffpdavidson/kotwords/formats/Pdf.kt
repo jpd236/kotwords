@@ -696,8 +696,9 @@ object Pdf {
     }
 
     private fun findBestFontSize(minSize: Float, maxSize: Float, testFn: (Float) -> Boolean): Float? {
-        val textSizes = generateSequence(maxSize) { it - TEXT_SIZE_DELTA }.takeWhile { it >= minSize }
-        return textSizes.firstOrNull(testFn)
+        val textSizes = generateSequence(maxSize) { it - TEXT_SIZE_DELTA }.takeWhile { it >= minSize }.toList()
+        val insertionIndex = -textSizes.binarySearch { size -> if (testFn(size)) 1 else -1 } - 1
+        return if (insertionIndex > textSizes.lastIndex) null else textSizes[insertionIndex]
     }
 
     private fun PdfDocument.getTextWidth(text: String, format: Format, fontSize: Float): Float {
