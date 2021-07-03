@@ -43,8 +43,7 @@ class PdfTest {
     // Note for splitTextToLines tests: a 100 pt line fits 16 10pt Courier characters.
 
     @Test
-    fun splitTextToLines_standardText() {
-        val document = PdfDocument()
+    fun splitTextToLines_standardText() = withDocument { document ->
         assertEquals(
             listOf(
                 "a b c d e f g h",
@@ -64,11 +63,9 @@ class PdfTest {
     }
 
     @Test
-    fun splitTextToLines_withHtmlFormatting() {
+    fun splitTextToLines_withHtmlFormatting() = withDocument { document ->
         fun format(fontName: BuiltInFontName, script: Pdf.Script): Pdf.Format =
             Pdf.Format(PdfFont.BuiltInFont(fontName), script)
-
-        val document = PdfDocument()
         assertEquals(
             listOf(
                 Pdf.ClueTextElement.Text("a "),
@@ -127,8 +124,7 @@ class PdfTest {
     }
 
     @Test
-    fun splitTextToLines_longWords() {
-        val document = PdfDocument()
+    fun splitTextToLines_longWords() = withDocument { document ->
         assertEquals(
             listOf(
                 "1234567890123456",
@@ -144,6 +140,15 @@ class PdfTest {
                 100f
             )
         )
+    }
+
+    private fun withDocument(fn: (PdfDocument) -> Unit) {
+        val document = PdfDocument()
+        try {
+            fn(document)
+        } finally {
+            document.toByteArray()
+        }
     }
 }
 

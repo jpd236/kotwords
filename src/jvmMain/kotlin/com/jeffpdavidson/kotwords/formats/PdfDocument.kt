@@ -91,6 +91,7 @@ internal actual class PdfDocument {
         content.close()
         ByteArrayOutputStream().use { stream ->
             document.save(stream)
+            document.close()
             return stream.toByteArray()
         }
     }
