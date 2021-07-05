@@ -322,8 +322,16 @@ data class Puzzle(
          * <p>Invalid XML characters are escaped, and text surrounded by asterisks is italicized.
          */
         private fun formatClue(rawClue: String): String {
-            return rawClue.replace("&", "&amp;").replace("<", "&lt;")
-                .replace("\\*([^*]+)\\*".toRegex(), "<i>$1</i>")
+            val escapedClue = rawClue.replace("&", "&amp;").replace("<", "&lt;")
+            // Only italicize text if there are an even number of asterisks to try to avoid false positives on text like
+            // "M*A*S*H". If this proves to trigger in other unintended circumstances, it may need to be removed from
+            // here and applied instead at a higher level where the intent is clearer.
+            val asteriskCount = escapedClue.count { it == '*' }
+            return if (asteriskCount > 0 && asteriskCount % 2 == 0) {
+                escapedClue.replace("\\*([^*]+)\\*".toRegex(), "<i>$1</i>")
+            } else {
+                escapedClue
+            }
         }
 
         private val BORDER_DIRECTION_MAP = mapOf(
