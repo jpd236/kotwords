@@ -5,8 +5,8 @@ import com.jeffpdavidson.kotwords.model.Square
 
 private val CROSS_REFERENCE_PATTERN = "([1-9][0-9]*)-(?:(?!Across|Down).)*(Across|Down)".toRegex()
 
-/** Utility to constrain clues to fit Across Lite format restrictions. */
-internal object ClueSanitizer {
+/** Utility to constrain clues and metadata to fit Across Lite format restrictions. */
+internal object AcrossLiteSanitizer {
     /**
      * Sanitize the given across/down clues to handle format differences with Across Lite.
      *
@@ -18,13 +18,14 @@ internal object ClueSanitizer {
      * 2. Clues may be omitted where they should be present. Any missing clues are set to a
      *    dummy "-".
      *
-     * Characters that aren't supported in Windows-1252 must also be replaced with equivalents
-     * which are.
+     * If [sanitizeCharacters] is true, characters that aren't supported in ISO-8859-1 are replaced
+     * with equivalents which are.
      */
     fun sanitizeClues(
         grid: List<List<Square>>,
         acrossClues: Map<Int, String>,
-        downClues: Map<Int, String>
+        downClues: Map<Int, String>,
+        sanitizeCharacters: Boolean,
     ): Pair<Map<Int, String>, Map<Int, String>> {
         val hasCustomNumbering = Crossword.hasCustomNumbering(grid)
         val givenToSanitizedClueNumberMap = if (hasCustomNumbering) mapGivenToSanitizedClueNumbers(grid) else null
@@ -35,12 +36,12 @@ internal object ClueSanitizer {
             val givenSquareNumber = grid[y][x].number ?: if (hasCustomNumbering) -1 else clueNumber
             if (isAcross) {
                 sanitizedAcrossClues[clueNumber] = sanitizeClue(
-                    acrossClues[givenSquareNumber], givenToSanitizedClueNumberMap
+                    acrossClues[givenSquareNumber], givenToSanitizedClueNumberMap, sanitizeCharacters
                 )
             }
             if (isDown) {
                 sanitizedDownClues[clueNumber] = sanitizeClue(
-                    downClues[givenSquareNumber], givenToSanitizedClueNumberMap
+                    downClues[givenSquareNumber], givenToSanitizedClueNumberMap, sanitizeCharacters
                 )
             }
         }
@@ -63,10 +64,14 @@ internal object ClueSanitizer {
      * Sanitize the given clue.
      *
      * Missing clues are set to "-", and cross references are updated to reflect any shifted
-     * clue numbers in the sanitized grid. Invalid characters in Windows-1252 are replaced with
-     * supported equivalents.
+     * clue numbers in the sanitized grid. If sanitizeCharacters is true, invalid characters in
+     * ISO-8859-1 are replaced with supported equivalents.
      */
-    internal fun sanitizeClue(givenClue: String?, givenToSanitizedClueNumberMap: Map<Int, Int>?): String {
+    internal fun sanitizeClue(
+        givenClue: String?,
+        givenToSanitizedClueNumberMap: Map<Int, Int>?,
+        sanitizeCharacters: Boolean,
+    ): String {
         if (givenClue == null) {
             return "-"
         }
@@ -89,10 +94,10 @@ internal object ClueSanitizer {
                 sanitizedClue.toString()
             }
 
-        return substituteUnsupportedText(renumberedClue)
+        return substituteUnsupportedText(renumberedClue, sanitizeCharacters)
     }
 
-    private val clueReplacements = mapOf(
+    private val htmlClueReplacements = mapOf(
         "</?b>" to "*",
         "</?i>" to "\"",
         "</?sub>" to "",
@@ -100,6 +105,9 @@ internal object ClueSanitizer {
         "</?span>" to "",
         "&amp;" to "&",
         "&lt;" to "<",
+    )
+
+    private val utf8ClueReplacements = mapOf(
         "ł" to "l",
         "[ăāạ]" to "a",
         "Ō" to "O",
@@ -151,11 +159,13 @@ internal object ClueSanitizer {
         "—" to "-",
         "–" to "-",
         "★" to "*",
-    ).map { (key, value) -> key.toRegex() to value }.toMap()
+    )
 
-    private fun substituteUnsupportedText(text: String): String {
+    fun substituteUnsupportedText(text: String, sanitizeCharacters: Boolean): String {
         // TODO(#2): Generalize accented character replacement.
-        return clueReplacements.entries.fold(text) { clue, (from, to) ->
+        val clueReplacements =
+            if (sanitizeCharacters) htmlClueReplacements + utf8ClueReplacements else htmlClueReplacements
+        return clueReplacements.map { (key, value) -> key.toRegex() to value }.fold(text) { clue, (from, to) ->
             clue.replace(from, to)
         }
     }

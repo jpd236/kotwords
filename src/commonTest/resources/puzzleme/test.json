@@ -47,7 +47,7 @@
       "acrossNotDown": true,
       "clueNum": 1,
       "clue": {
-        "clue": "First across clue"
+        "clue": "First across clue with special characters \u03B1\u03B2\u03B3\u03B4\u03B5"
       }
     },
     {

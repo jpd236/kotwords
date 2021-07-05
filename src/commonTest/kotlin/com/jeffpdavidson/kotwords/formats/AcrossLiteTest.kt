@@ -15,9 +15,19 @@ class AcrossLiteTest {
     }
 
     @Test
-    fun readAndWrite_notesCirclesAndRebus() = runTest {
+    fun readAndWrite_notesCirclesRebusUtf8() = runTest {
         val data = readBinaryResource(AcrossLiteTest::class, "puz/test.puz")
         assertTrue(data.contentEquals(AcrossLite(data).asCrossword().toAcrossLiteBinary()))
+    }
+
+    @Test
+    fun readAndWrite_notesCirclesRebusUtf8_forceIso88591() = runTest {
+        val data = readBinaryResource(AcrossLiteTest::class, "puz/test.puz")
+        assertTrue(
+            readBinaryResource(AcrossLiteTest::class, "puz/test-iso-8859-1.puz").contentEquals(
+                AcrossLite(data).asCrossword().toAcrossLiteBinary(writeUtf8 = false)
+            )
+        )
     }
 
     @Test

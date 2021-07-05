@@ -102,7 +102,7 @@
         <title>
           <b>Across</b>
         </title>
-        <clue word="1" number="1">First across clue</clue>
+        <clue word="1" number="1">First across clue with special characters &#945;&#946;&#947;&#948;&#949;</clue>
         <clue word="5" number="5">Second across clue</clue>
         <clue word="6" number="6">Third across clue</clue>
         <clue word="8" number="8">Fourth across clue</clue>

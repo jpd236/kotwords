@@ -5,7 +5,7 @@ import com.jeffpdavidson.kotwords.model.Square
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ClueSanitizerTest {
+class AcrossLiteSanitizerTest {
     @Test
     fun mapGivenToSanitizedClueNumbers() {
         // Skip 2-Down, 4-Across, and 5-Across/Down; add a fake 7-Down
@@ -37,21 +37,24 @@ class ClueSanitizerTest {
             9 to 11,
             10 to 12
         )
-        assertEquals(expectedSanitizedMap, ClueSanitizer.mapGivenToSanitizedClueNumbers(grid))
+        assertEquals(expectedSanitizedMap, AcrossLiteSanitizer.mapGivenToSanitizedClueNumbers(grid))
     }
 
     @Test
     fun sanitizeClue_normalClue() {
         val givenClue = "Just a normal clue"
         val givenToSanitizedClueNumMap: Map<Int, Int> = mapOf()
-        assertEquals("Just a normal clue", ClueSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap))
+        assertEquals(
+            "Just a normal clue",
+            AcrossLiteSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap, true)
+        )
     }
 
     @Test
     fun sanitizeClue_simpleReplacement() {
         val givenClue = "See 25-Down"
         val givenToSanitizedClueNumMap = mapOf(25 to 27)
-        assertEquals("See 27-Down", ClueSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap))
+        assertEquals("See 27-Down", AcrossLiteSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap, true))
     }
 
     @Test
@@ -60,14 +63,27 @@ class ClueSanitizerTest {
         val givenToSanitizedClueNumMap = mapOf(14 to 14, 17 to 17, 25 to 26, 28 to 29, 47 to 49)
         assertEquals(
             "Where the end of 17-, 26- and 49-Across and 14- and 29-Down may be found",
-            ClueSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap)
+            AcrossLiteSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap, true)
         )
     }
 
     @Test
     fun sanitizeClue_specialCharacters() {
-        val givenClue = "★Clue with a star"
+        val givenClue = "★Clue with a <i>star</i>"
         val givenToSanitizedClueNumMap: Map<Int, Int> = mapOf()
-        assertEquals("*Clue with a star", ClueSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap))
+        assertEquals(
+            "*Clue with a \"star\"",
+            AcrossLiteSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap, true)
+        )
+    }
+
+    @Test
+    fun sanitizeClue_specialCharacters_doNotSanitizeCharacters() {
+        val givenClue = "★Clue with a <i>star</i>"
+        val givenToSanitizedClueNumMap: Map<Int, Int> = mapOf()
+        assertEquals(
+            "★Clue with a \"star\"",
+            AcrossLiteSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap, false)
+        )
     }
 }

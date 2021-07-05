@@ -16,7 +16,7 @@
           "clues": [
             {
               "number": "1",
-              "clue": "First across clue"
+              "clue": "First across clue with special characters αβγδε"
             },
             {
               "number": "5",

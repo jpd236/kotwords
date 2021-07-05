@@ -12,7 +12,7 @@
         "clues": [
           {
             "dir": 0,
-            "clue": "First across clue",
+            "clue": "First across clue with special characters αβγδε",
             "num": 1
           },
           {

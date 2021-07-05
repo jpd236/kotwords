@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.formats
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
+import io.ktor.utils.io.charsets.Charset
 import io.ktor.utils.io.charsets.Charsets
 import io.ktor.utils.io.core.BytePacketBuilder
 import io.ktor.utils.io.core.ByteReadPacket
@@ -20,10 +21,11 @@ import io.ktor.utils.io.core.writeText
 
 private const val FILE_MAGIC = "ACROSS&DOWN"
 private const val FORMAT_VERSION = "1.4"
+private const val UTF8_FORMAT_VERSION = "2.0"
 private val validSymbolRegex = "[@#$%&+?A-Z0-9]".toRegex()
 
 /**
- * Container for a puzzle in the Across Lite (1.4) binary file format.
+ * Container for a puzzle in the Across Lite binary file format.
  *
  * This implements [Crosswordable] and as such can create a [Crossword] structure for the puzzle it
  * represents with [asCrossword]. However, in the common case that the puzzle is just being
@@ -46,7 +48,12 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
 
     override fun asCrossword(): Crossword {
         with(ByteReadPacket(binaryData)) {
-            discardExact(0x2C)
+            discardExact(0x18)
+            val version = readTextExactCharacters(4, Charsets.ISO_8859_1)
+            // 2.0 uses UTF-8; earlier versions use ISO-8859-1.
+            val charset = if (version[0].digitToInt() > 1) Charsets.UTF_8 else Charsets.ISO_8859_1
+
+            discardExact(0x10)
             val width = readByte()
             val height = readByte()
 
@@ -70,22 +77,22 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
             // Skip the response grid.
             discardExact(width * height)
 
-            val title = readNullTerminatedString()
-            val author = readNullTerminatedString()
-            val copyright = readNullTerminatedString()
+            val title = readNullTerminatedString(charset)
+            val author = readNullTerminatedString(charset)
+            val copyright = readNullTerminatedString(charset)
 
             val acrossClues = mutableMapOf<Int, String>()
             val downClues = mutableMapOf<Int, String>()
             Crossword.forEachNumberedSquare(grid) { _, _, clueNumber, isAcross, isDown ->
                 if (isAcross) {
-                    acrossClues[clueNumber] = readNullTerminatedString()
+                    acrossClues[clueNumber] = readNullTerminatedString(charset)
                 }
                 if (isDown) {
-                    downClues[clueNumber] = readNullTerminatedString()
+                    downClues[clueNumber] = readNullTerminatedString(charset)
                 }
             }
 
-            val notes = readNullTerminatedString()
+            val notes = readNullTerminatedString(charset)
 
             // Read the extra sections for rebuses and circled squares.
             val rebusMap = mutableMapOf<Pair<Int, Int>, Int>()
@@ -113,7 +120,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                         discardExact(1)
                     }
                     "RTBL" -> {
-                        val data = readNullTerminatedString()
+                        val data = readNullTerminatedString(Charsets.ISO_8859_1)
                         data.substringBeforeLast(';').split(';').forEach {
                             val parts = it.split(':')
                             rebusTable[parts[0].trim().toInt()] = parts[1]
@@ -122,7 +129,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                     "RUSR" -> {
                         for (y in 0 until height) {
                             for (x in 0 until width) {
-                                val entryRebus = readNullTerminatedString()
+                                val entryRebus = readNullTerminatedString(Charsets.ISO_8859_1)
                                 if (entryRebus.isNotEmpty()) {
                                     rebusEntries[x to y] = entryRebus
                                 }
@@ -180,8 +187,15 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
          * Serialize this crossword into Across Lite binary format.
          *
          * @param solved If true, the grid will be filled in with the correct solution.
+         * @param writeUtf8 If true, clues and metadata will be written directly as UTF-8 characters, if needed. This
+         *                  uses the 2.0 version of the Across Lite format, which may not be supported by all
+         *                  applications. If false, clues and metadata will be written as ISO-8859-1 characters, and
+         *                  unsupported characters will be substituted or dropped.
          */
-        fun Crossword.toAcrossLiteBinary(solved: Boolean = false): ByteArray {
+        fun Crossword.toAcrossLiteBinary(
+            solved: Boolean = false,
+            writeUtf8: Boolean = true,
+        ): ByteArray {
             // Validate that the solution and entry grids only contains supported characters.
             grid.flatten().forEach { square ->
                 square.run {
@@ -220,8 +234,12 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 writeByte(0)
             }
 
+            val useUtf8 = writeUtf8 && needsUtf8()
+            val charset = if (useUtf8) Charsets.UTF_8 else Charsets.ISO_8859_1
+
             // Sanitize the clue numbers/clues to be Across Lite compatible.
-            val (adjustedAcrossClues, adjustedDownClues) = ClueSanitizer.sanitizeClues(grid, acrossClues, downClues)
+            val (adjustedAcrossClues, adjustedDownClues) =
+                AcrossLiteSanitizer.sanitizeClues(grid, acrossClues, downClues, sanitizeCharacters = !useUtf8)
 
             val clueCount = adjustedAcrossClues.size + adjustedDownClues.size
             val squareCount = grid.size * grid[0].size
@@ -232,13 +250,13 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 writeShortLittleEndian(0)
 
                 // 0x02-0x0D: file magic
-                writeNullTerminatedString(FILE_MAGIC)
+                writeNullTerminatedString(FILE_MAGIC, Charsets.ISO_8859_1)
 
                 // 0x0E-0x17: checksum placeholders
                 fill(10, 0)
 
                 // 0x18-0x1B: format version
-                writeNullTerminatedString(FORMAT_VERSION)
+                writeNullTerminatedString(if (useUtf8) UTF8_FORMAT_VERSION else FORMAT_VERSION, Charsets.ISO_8859_1)
 
                 // 0x1C-0x1D: unknown
                 writeShortLittleEndian(0)
@@ -279,21 +297,29 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 }
 
                 // Strings
-                writeNullTerminatedString(title)
-                writeNullTerminatedString(author)
-                writeNullTerminatedString(copyright)
+                writeNullTerminatedString(
+                    AcrossLiteSanitizer.substituteUnsupportedText(title, sanitizeCharacters = !useUtf8), charset
+                )
+                writeNullTerminatedString(
+                    AcrossLiteSanitizer.substituteUnsupportedText(author, sanitizeCharacters = !useUtf8), charset
+                )
+                writeNullTerminatedString(
+                    AcrossLiteSanitizer.substituteUnsupportedText(copyright, sanitizeCharacters = !useUtf8), charset
+                )
 
                 // Clues in numerical order. If two clues have the same number, across comes before down.
                 adjustedAcrossClues.keys.plus(adjustedDownClues.keys).sorted().forEach { clueNum ->
                     if (clueNum in adjustedAcrossClues) {
-                        writeNullTerminatedString(adjustedAcrossClues[clueNum]!!)
+                        writeNullTerminatedString(adjustedAcrossClues[clueNum]!!, charset)
                     }
                     if (clueNum in adjustedDownClues) {
-                        writeNullTerminatedString(adjustedDownClues[clueNum]!!)
+                        writeNullTerminatedString(adjustedDownClues[clueNum]!!, charset)
                     }
                 }
 
-                writeNullTerminatedString(notes)
+                writeNullTerminatedString(
+                    AcrossLiteSanitizer.substituteUnsupportedText(notes, sanitizeCharacters = !useUtf8), charset
+                )
 
                 // GRBS/RUSR/RTBL sections for rebus squares.
                 if (grid.flatAny { it.solutionRebus.isNotEmpty() || it.entryRebus?.isNotEmpty() == true }) {
@@ -336,7 +362,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                                         } else {
                                             square.entryRebus ?: ""
                                         }
-                                    packetBuilder.writeNullTerminatedString(entryRebus)
+                                    packetBuilder.writeNullTerminatedString(entryRebus, Charsets.ISO_8859_1)
                                 }
                             }
                         }
@@ -386,6 +412,17 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
 
             return checksumPacketBuilder.build().readBytes()
         }
+
+        private fun Crossword.needsUtf8(): Boolean {
+            return title.needsUtf8()
+                    || author.needsUtf8()
+                    || copyright.needsUtf8()
+                    || notes.needsUtf8()
+                    || acrossClues.values.any { it.needsUtf8() }
+                    || downClues.values.any { it.needsUtf8() }
+        }
+
+        private fun String.needsUtf8(): Boolean = any { it.code >= 256 }
     }
 }
 
@@ -396,6 +433,7 @@ private inline fun BytePacketBuilder.writeGrid(
         writeByte(if (square.isBlack) blackSquareValue else whiteSquareFn(square))
     }
 }
+
 private inline fun BytePacketBuilder.writeGrid(
     grid: List<List<Square>>, blackSquareValue: Char, crossinline whiteSquareFn: (Square) -> Char
 ) {
@@ -409,17 +447,17 @@ private inline fun <T> List<List<T>>.flatAny(predicate: (T) -> Boolean): Boolean
     return any { row -> row.any { predicate(it) } }
 }
 
-private fun ByteReadPacket.readNullTerminatedString(): String {
+private fun ByteReadPacket.readNullTerminatedString(charset: Charset): String {
     val data = BytePacketBuilder()
     var byte: Byte
     while (run { byte = readByte(); byte } != 0.toByte()) {
         data.writeByte(byte)
     }
-    return String(data.build().readBytes(), charset = Charsets.ISO_8859_1)
+    return String(data.build().readBytes(), charset = charset)
 }
 
-private fun BytePacketBuilder.writeNullTerminatedString(string: String) {
-    val stringBytes = string.toByteArray(Charsets.ISO_8859_1)
+private fun BytePacketBuilder.writeNullTerminatedString(string: String, charset: Charset) {
+    val stringBytes = string.toByteArray(charset)
     writeFully(stringBytes)
     writeByte(0)
 }
