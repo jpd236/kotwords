@@ -38,6 +38,12 @@ kotlin {
             dceTask {
                 keep 'kotwords'
             }
+            testTask {
+                useMocha {
+                    // PDF tests occasionally exceed the default two second timeout.
+                    timeout = 10000
+                }
+            }
         }
     }
 }
