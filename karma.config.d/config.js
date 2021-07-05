@@ -15,3 +15,12 @@ config.files.push({
     "served": true,
     "included": false,
 });
+
+// PDF tests occasionally exceed the default two second timeout.
+config.set({
+  client: {
+    mocha: {
+      timeout: 10000
+    }
+  }
+})
