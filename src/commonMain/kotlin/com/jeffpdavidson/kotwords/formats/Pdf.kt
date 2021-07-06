@@ -158,7 +158,7 @@ object Pdf {
 
         endText()
 
-        val gridBlackColor = getAdjustedColor("#000000", blackSquareLightnessAdjustment)
+        val gridBlackColor = getAdjustedColor(RGB("#000000"), blackSquareLightnessAdjustment)
         Crossword.forEachSquare(grid) { x, y, clueNumber, _, _, square ->
             val squareX = gridX + x * gridSquareSize
             val squareY = gridY + gridHeight - (y + 1) * gridSquareSize
@@ -168,7 +168,7 @@ object Pdf {
             addRect(squareX, squareY, gridSquareSize, gridSquareSize)
             val backgroundColor = when {
                 square.backgroundColor?.isNotBlank() == true ->
-                    getAdjustedColor(square.backgroundColor, blackSquareLightnessAdjustment)
+                    getAdjustedColor(RGB(square.backgroundColor), blackSquareLightnessAdjustment)
                 square.isBlack -> gridBlackColor
                 else -> RGB("#ffffff")
             }
@@ -271,8 +271,9 @@ object Pdf {
         toByteArray()
     }
 
-    private fun getAdjustedColor(rgbString: String, lightnessAdjustment: Float): RGB {
-        val hsl = RGB(rgbString).toHSL()
+    /** Return the adjusted color as a result of applying [lightnessAdjustment] to the given [rgb] color. */
+    fun getAdjustedColor(rgb: RGB, lightnessAdjustment: Float): RGB {
+        val hsl = rgb.toHSL()
         return HSL(hsl.h, hsl.s, (hsl.l + (100 - hsl.l) * lightnessAdjustment).roundToInt()).toRGB()
     }
 
