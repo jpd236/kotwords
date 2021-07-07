@@ -42,13 +42,19 @@ internal object Index {
                         target = "_blank"
                         +"Crossword Nexus solver"
                     }
+                    +", "
+                    a {
+                        href = "https://squares.io"
+                        target = "_blank"
+                        +"squares.io"
+                    }
                     +", and "
                     a {
                         href = "https://www.crosswordsolver.info/"
                         target = "_blank"
                         +"Crossword Solver"
                     }
-                    +" (except Acrostics)."
+                    + "."
                 }
                 GENERATORS.chunked(4).forEach { generatorRow ->
                     div(classes = "row row-cols-1 row-cols-md-4") {

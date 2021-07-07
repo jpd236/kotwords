@@ -11,7 +11,11 @@ import com.jeffpdavidson.kotwords.web.html.Tabs.tabs
 import io.ktor.utils.io.charsets.Charsets
 import io.ktor.utils.io.core.String
 import kotlinx.html.InputType
+import kotlinx.html.a
+import kotlinx.html.div
 import kotlinx.html.dom.append
+import kotlinx.html.role
+import kotlinx.html.strong
 import kotlin.js.Promise
 
 /** Form to convert Acrostic puzzles into JPZ files. */
@@ -43,6 +47,25 @@ internal class AcrosticForm {
 
     init {
         renderPage {
+            append.div("alert alert-info") {
+                role = "alert"
+                strong {
+                    +"Note:"
+                }
+                +" Acrostic JPZ files are only supported in "
+                a {
+                    href = "https://mrichards42.github.io/xword/"
+                    target = "_blank"
+                    +"XWord"
+                }
+                +" and the "
+                a {
+                    href = "https://www.crosswordnexus.com/solve/"
+                    target = "_blank"
+                    +"Crossword Nexus solver"
+                }
+                +"."
+            }
             append.tabs(Tabs.Tab("manual-entry-tab", "Form") {
                 manualEntryForm.render(this, bodyBlock = {
                     this@AcrosticForm.title.render(this, "Title")
