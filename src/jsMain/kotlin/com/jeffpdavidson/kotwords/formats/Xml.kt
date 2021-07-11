@@ -9,12 +9,12 @@ private class ElementImpl(private val jsElement: org.w3c.dom.Element) : Element 
     override val data: String = jsElement.innerHTML
     override val text: String = jsElement.textContent!!.replace(WHITESPACE_PATTERN, " ").trim()
     override val children: List<Node> = jsElement.childNodes.asList().mapNotNull {
-            when (it) {
-                is Text -> TextNode(it.textContent!!)
-                is org.w3c.dom.Element -> ElementImpl(it)
-                else -> null
-            }
+        when (it) {
+            is Text -> TextNode(it.textContent!!)
+            is org.w3c.dom.Element -> ElementImpl(it)
+            else -> null
         }
+    }
 
     override fun attr(key: String): String = jsElement.getAttribute(key) ?: ""
 

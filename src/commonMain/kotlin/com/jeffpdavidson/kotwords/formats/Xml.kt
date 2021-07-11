@@ -1,6 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
-internal interface Element: Node {
+internal interface Element : Node {
     val tag: String
     val data: String
     val text: String?
@@ -11,7 +11,7 @@ internal interface Element: Node {
     fun selectFirst(selector: String): Element?
 }
 
-data class TextNode(val text: String): Node
+data class TextNode(val text: String) : Node
 
 internal interface Node
 

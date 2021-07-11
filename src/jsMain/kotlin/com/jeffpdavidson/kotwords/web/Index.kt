@@ -54,7 +54,7 @@ internal object Index {
                         target = "_blank"
                         +"Crossword Solver"
                     }
-                    + "."
+                    +"."
                 }
                 GENERATORS.chunked(4).forEach { generatorRow ->
                     div(classes = "row row-cols-1 row-cols-md-4") {

@@ -5,7 +5,6 @@ import com.jeffpdavidson.kotwords.js.Interop.toArrayBuffer
 import com.jeffpdavidson.kotwords.js.getDocument
 import com.jeffpdavidson.kotwords.js.newGetViewportParameters
 import com.jeffpdavidson.kotwords.js.newPdfRenderParams
-import com.jeffpdavidson.kotwords.readBinaryResource
 import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.html.canvas
