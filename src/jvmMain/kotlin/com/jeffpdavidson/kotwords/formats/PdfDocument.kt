@@ -9,7 +9,7 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
-internal actual class PdfDocument {
+actual class PdfDocument {
     private val document = PDDocument()
     private val page = PDPage()
     private val content: PDPageContentStream

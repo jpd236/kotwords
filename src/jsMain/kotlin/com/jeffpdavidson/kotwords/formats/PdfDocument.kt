@@ -11,7 +11,7 @@ import org.khronos.webgl.ArrayBuffer
  * Note that jsPDF uses a different coordinate system where (0,0) is the top-left instead of the bottom-left. When
  * rendering, we should always invert the provided y coordinate against the height of the document.
  */
-internal actual class PdfDocument {
+actual class PdfDocument {
     private val pdf = JsPDF(newJsPdfOptions())
 
     init {

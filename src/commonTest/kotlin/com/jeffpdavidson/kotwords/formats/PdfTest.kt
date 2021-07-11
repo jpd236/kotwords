@@ -1,6 +1,5 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.formats.Pdf.asPdf
 import com.jeffpdavidson.kotwords.formats.Pdf.splitTextToLines
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.runTest

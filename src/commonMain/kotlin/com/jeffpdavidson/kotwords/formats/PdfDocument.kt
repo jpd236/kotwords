@@ -6,7 +6,7 @@ package com.jeffpdavidson.kotwords.formats
  * Implementations should assume one-page, letter-sized documents. All units are in points. Coordinates are measured as
  * distance from the bottom-left corner of the document.
  */
-internal expect class PdfDocument() {
+expect class PdfDocument() {
     val width: Float
     val height: Float
 

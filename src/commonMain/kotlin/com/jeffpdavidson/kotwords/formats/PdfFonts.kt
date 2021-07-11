@@ -20,7 +20,8 @@ data class PdfFontFamily(
     val baseFont: PdfFont,
     val boldFont: PdfFont,
     val italicFont: PdfFont,
-    val boldItalicFont: PdfFont)
+    val boldItalicFont: PdfFont
+)
 
 val FONT_FAMILY_COURIER = PdfFontFamily(
     PdfFont.BuiltInFont(BuiltInFontName.COURIER),
