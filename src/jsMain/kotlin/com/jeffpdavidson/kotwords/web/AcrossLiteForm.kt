@@ -9,7 +9,7 @@ import kotlin.js.Promise
 
 /** Form to convert Across Lite files into JPZ files. */
 internal class AcrossLiteForm {
-    private val jpzForm = JpzForm(::createPuzzle, { getFileName() })
+    private val jpzForm = PuzzleFileForm(::createPuzzle, { getFileName() })
     private val file: FormFields.FileField = FormFields.FileField("file")
 
     init {
@@ -28,6 +28,6 @@ internal class AcrossLiteForm {
     }
 
     private fun getFileName(): String {
-        return file.getValue().name.replace(".puz", ".jpz")
+        return file.getValue().name.removeSuffix(".puz")
     }
 }

@@ -75,6 +75,14 @@ object Pdf {
             0.6f
         }
 
+    /** Result metrics from drawing the grid. */
+    data class DrawGridResult(
+        /** The maximum height of the rendered grid. */
+        val gridHeight: Float,
+        /** The start (x) offset of the bottom row of the rendered grid; used to align the copyright text. */
+        val bottomRowStartOffset: Float,
+    )
+
     /**
      * Render this puzzle as a PDF document.
      *
@@ -100,7 +108,7 @@ object Pdf {
             gridX: Float,
             gridY: Float,
             fontFamily: PdfFontFamily,
-        ) -> Float = ::drawGrid,
+        ) -> DrawGridResult = ::drawGrid,
     ): ByteArray = PdfDocument().run {
         val pageWidth = width
         val pageHeight = height
@@ -134,7 +142,7 @@ object Pdf {
         endText()
 
         // Grid
-        val gridHeight = gridRenderer(
+        val drawGridResult = gridRenderer(
             this,
             grid,
             blackSquareLightnessAdjustment,
@@ -160,7 +168,7 @@ object Pdf {
                 columns = columns,
                 clueTopY = positionY,
                 gridY = gridY,
-                gridHeight = gridHeight,
+                gridHeight = drawGridResult.gridHeight,
                 clueTextSize = it,
                 render = false
             )
@@ -175,7 +183,7 @@ object Pdf {
             columns = columns,
             clueTopY = positionY,
             gridY = gridY,
-            gridHeight = gridHeight,
+            gridHeight = drawGridResult.gridHeight,
             clueTextSize = bestTextSize,
             render = true
         )
@@ -183,7 +191,7 @@ object Pdf {
 
         // Copyright
         beginText()
-        newLineAtOffset(gridX, MARGIN)
+        newLineAtOffset(gridX + drawGridResult.bottomRowStartOffset, MARGIN)
         setFont(fontFamily.baseFont, COPYRIGHT_SIZE)
         drawText(copyright)
         endText()
@@ -191,7 +199,8 @@ object Pdf {
         toByteArray()
     }
 
-    private fun drawGrid(
+    /** Default grid drawing function for [asPdf]. */
+    fun drawGrid(
         document: PdfDocument,
         grid: List<List<Puzzle.Cell>>,
         blackSquareLightnessAdjustment: Float,
@@ -199,7 +208,7 @@ object Pdf {
         gridX: Float,
         gridY: Float,
         fontFamily: PdfFontFamily,
-    ): Float = document.run {
+    ): DrawGridResult = document.run {
         val gridRows = grid.size
         val gridCols = grid.maxOf { it.size }
         val gridSquareSize = gridWidth / gridCols
@@ -233,24 +242,25 @@ object Pdf {
                     }
 
                     if (square.number.isNotBlank()) {
-                        // Erase a rectangle around the number to make sure it stands out if there is a circle.
-                        addRect(
-                            gridX + x * gridSquareSize + GRID_NUMBER_X_OFFSET,
-                            gridY + gridHeight - y * gridSquareSize - gridNumberSize,
-                            getTextWidth(square.number, fontFamily.baseFont, gridNumberSize),
-                            gridNumberSize - 2f
+                        drawSquareNumber(
+                            x = gridX + x * gridSquareSize + GRID_NUMBER_X_OFFSET,
+                            y = gridY + gridHeight - y * gridSquareSize - gridNumberSize,
+                            text = square.number,
+                            textWidth = getTextWidth(square.number, fontFamily.baseFont, gridNumberSize),
+                            gridNumberSize = gridNumberSize,
+                            font = fontFamily.baseFont,
                         )
-                        fill()
-
-                        setFillColor(0f, 0f, 0f)
-                        beginText()
-                        newLineAtOffset(
-                            gridX + x * gridSquareSize + GRID_NUMBER_X_OFFSET,
-                            gridY + gridHeight - y * gridSquareSize - gridNumberSize
+                    }
+                    if (square.topRightNumber.isNotBlank()) {
+                        val textWidth = getTextWidth(square.topRightNumber, fontFamily.baseFont, gridNumberSize)
+                        drawSquareNumber(
+                            x = gridX + (x + 1) * gridSquareSize - GRID_NUMBER_X_OFFSET - textWidth,
+                            y = gridY + gridHeight - y * gridSquareSize - gridNumberSize,
+                            text = square.topRightNumber,
+                            textWidth = getTextWidth(square.number, fontFamily.baseFont, gridNumberSize),
+                            gridNumberSize = gridNumberSize,
+                            font = fontFamily.baseFont,
                         )
-                        setFont(fontFamily.baseFont, gridNumberSize)
-                        drawText(square.number)
-                        endText()
                     }
                     if (square.cellType == Puzzle.CellType.CLUE) {
                         // Render the square's solution.
@@ -309,13 +319,38 @@ object Pdf {
                 }
             }
         }
-        return gridHeight
+        return DrawGridResult(gridHeight = gridHeight, bottomRowStartOffset = 0f)
     }
 
     /** Return the adjusted color as a result of applying [lightnessAdjustment] to the given [rgb] color. */
     fun getAdjustedColor(rgb: RGB, lightnessAdjustment: Float): RGB {
         val hsl = rgb.toHSL()
         return HSL(hsl.h, hsl.s, (hsl.l + (100 - hsl.l) * lightnessAdjustment).roundToInt()).toRGB()
+    }
+
+    private fun PdfDocument.drawSquareNumber(
+        x: Float,
+        y: Float,
+        text: String,
+        textWidth: Float,
+        gridNumberSize: Float,
+        font: PdfFont
+    ) {
+        // Erase a rectangle around the number to make sure it stands out if there is a circle.
+        addRect(
+            x,
+            y,
+            textWidth,
+            gridNumberSize - 2f
+        )
+        fill()
+
+        setFillColor(0f, 0f, 0f)
+        beginText()
+        newLineAtOffset(x, y)
+        setFont(font, gridNumberSize)
+        drawText(text)
+        endText()
     }
 
     private fun PdfDocument.drawMultiLineText(
@@ -580,6 +615,7 @@ object Pdf {
         puzzle.clues.forEachIndexed { i, clueList ->
             val (success, cluePosition) =
                 showClueList(
+                    puzzle = puzzle,
                     clues = clueList,
                     isHtml = puzzle.hasHtmlClues,
                     fontFamily = fontFamily,
@@ -614,6 +650,7 @@ object Pdf {
     }
 
     private fun PdfDocument.showClueList(
+        puzzle: Puzzle,
         clues: Puzzle.ClueList,
         isHtml: Boolean,
         fontFamily: PdfFontFamily,
@@ -630,7 +667,9 @@ object Pdf {
         var columnBottomY = cluePosition.columnBottomY
         var column = cluePosition.column
 
-        val maxPrefixWidth = clues.clues.maxOf { getTextWidth("${it.number} ", fontFamily.baseFont, clueTextSize) }
+        val maxPrefixWidth = puzzle.clues.flatMap { it.clues }.maxOf {
+            getTextWidth("${it.number.ifBlank { "•" }} ", fontFamily.baseFont, clueTextSize)
+        }
 
         clues.clues.forEachIndexed { index, clue ->
             // Count the number of lines needed for the entire clue, plus the section header if
@@ -674,7 +713,7 @@ object Pdf {
             }
 
             if (render) {
-                val prefix = "${clue.number} "
+                val prefix = "${clue.number.ifBlank { "•" }} "
                 val prefixWidth = getTextWidth(prefix, fontFamily.baseFont, clueTextSize)
                 newLineAtOffset(maxPrefixWidth - prefixWidth, 0f)
                 drawText(prefix)

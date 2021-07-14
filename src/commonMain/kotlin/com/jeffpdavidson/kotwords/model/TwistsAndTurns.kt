@@ -1,5 +1,11 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.FONT_FAMILY_TIMES_ROMAN
+import com.jeffpdavidson.kotwords.formats.Pdf
+import com.jeffpdavidson.kotwords.formats.Pdf.asPdf
+import com.jeffpdavidson.kotwords.formats.PdfDocument
+import com.jeffpdavidson.kotwords.formats.PdfFontFamily
+
 data class TwistsAndTurns(
     val title: String,
     val creator: String,
@@ -13,7 +19,7 @@ data class TwistsAndTurns(
     val twistsClues: List<String>,
     val lightTwistsColor: String,
     val darkTwistsColor: String,
-    val crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+    val crosswordSolverSettings: Puzzle.CrosswordSolverSettings,
 ) {
     init {
         require(width % twistBoxSize == 0 && height % twistBoxSize == 0) {
@@ -32,7 +38,11 @@ data class TwistsAndTurns(
         }
     }
 
-    fun asPuzzle(): Puzzle {
+    fun asPuzzle(
+        separateLightAndDarkTwists: Boolean = false,
+        numberTwists: Boolean = true,
+        sortTwists: Boolean = false,
+    ): Puzzle {
         var x = 1
         var y = 1
         val turnsCluesList = mutableListOf<Puzzle.Clue>()
@@ -48,12 +58,19 @@ data class TwistsAndTurns(
                     ""
                 }
                 val backgroundColor =
-                    if ((((x - 1) / twistBoxSize) % 2) == (((y - 1) / twistBoxSize) % 2)) {
+                    if (isLightTwist(x, y, twistBoxSize)) {
                         lightTwistsColor
                     } else {
                         darkTwistsColor
                     }
-                val cell = Puzzle.Cell(x, y, solution = "$ch", backgroundColor = backgroundColor, number = number)
+                val cell = Puzzle.Cell(
+                    x,
+                    y,
+                    solution = "$ch",
+                    backgroundColor = backgroundColor,
+                    number = if (y % 2 == 1) number else "",
+                    topRightNumber = if (y % 2 == 0) number else "",
+                )
                 cellMap[x to y] = cell
                 word.add(cell)
 
@@ -77,7 +94,19 @@ data class TwistsAndTurns(
         }
 
         val grid = generateGrid(cellMap)
-        val (twistsCluesList, twistsWordsList) = generateTwistsCluesList(grid)
+        val twistsClues = generateTwistsClues(grid, numberTwists)
+        val transformClues = { cluesList: List<Puzzle.Clue> ->
+            if (sortTwists) cluesList.sortedBy { it.text } else cluesList
+        }
+        val twistsClueLists = if (separateLightAndDarkTwists) {
+            listOf(
+                Puzzle.ClueList("Light Twists", transformClues(twistsClues.lightTwistsClues)),
+                Puzzle.ClueList("Dark Twists", transformClues(twistsClues.darkTwistsClues))
+            )
+        } else {
+            val allTwistsClues = (twistsClues.lightTwistsClues + twistsClues.darkTwistsClues).sortedBy { it.wordId }
+            listOf(Puzzle.ClueList("Twists", transformClues(allTwistsClues)))
+        }
 
         return Puzzle(
             title,
@@ -85,12 +114,96 @@ data class TwistsAndTurns(
             copyright,
             description,
             grid,
-            listOf(
-                Puzzle.ClueList("Turns", turnsCluesList),
-                Puzzle.ClueList("Twists", twistsCluesList)
-            ),
-            turnsWordsList + twistsWordsList,
+            listOf(Puzzle.ClueList("Turns", turnsCluesList)) + twistsClueLists,
+            turnsWordsList + twistsClues.twistsWords,
             crosswordSolverSettings = crosswordSolverSettings
+        )
+    }
+
+    fun asPdf(
+        sortTwists: Boolean,
+        fontFamily: PdfFontFamily = FONT_FAMILY_TIMES_ROMAN,
+        blackSquareLightnessAdjustment: Float = 0f,
+    ): ByteArray {
+        val puzzle = asPuzzle(separateLightAndDarkTwists = true, numberTwists = false, sortTwists = sortTwists)
+        return puzzle.asPdf(fontFamily, blackSquareLightnessAdjustment, ::drawGrid)
+    }
+
+    private fun drawGrid(
+        document: PdfDocument,
+        grid: List<List<Puzzle.Cell>>,
+        blackSquareLightnessAdjustment: Float,
+        gridWidth: Float,
+        gridX: Float,
+        gridY: Float,
+        fontFamily: PdfFontFamily,
+    ): Pdf.DrawGridResult = document.run {
+        // Use the regular grid drawing function, but padded on the left and right to have space for the "START" and
+        // "END" text along with the arrow between each row.
+        val originalGridSquareSize = gridWidth / this@TwistsAndTurns.width
+        val startEndFontSize = originalGridSquareSize / 4
+        val startEndMargin = startEndFontSize / 2
+        val startWidth = getTextWidth("START", fontFamily.baseFont, startEndFontSize)
+        val endWidth = getTextWidth("END", fontFamily.baseFont, startEndFontSize)
+        val arrowWidth = endWidth / 2
+        val leftPadding = startWidth + startEndMargin
+        val rightPadding = startEndMargin + if (this@TwistsAndTurns.height % 2 == 0) {
+            arrowWidth
+        } else {
+            endWidth
+        }
+        val adjustedGridWidth = gridWidth - leftPadding - rightPadding
+        val drawGridResult = Pdf.drawGrid(
+            document = document,
+            grid = grid,
+            blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
+            gridWidth = adjustedGridWidth,
+            gridX = gridX + leftPadding,
+            gridY = gridY,
+            fontFamily = fontFamily
+        )
+        val gridSquareSize = adjustedGridWidth / this@TwistsAndTurns.width
+
+        // Draw the START and END text.
+        beginText()
+        setFont(fontFamily.baseFont, startEndFontSize)
+        newLineAtOffset(gridX, gridY + drawGridResult.gridHeight - gridSquareSize / 2 - startEndFontSize / 2)
+        drawText("START")
+        endText()
+
+        beginText()
+        if (this@TwistsAndTurns.height % 2 == 0) {
+            newLineAtOffset(gridX + startWidth - endWidth, gridY + gridSquareSize / 2 - startEndFontSize / 2)
+        } else {
+            newLineAtOffset(gridX + gridWidth - endWidth, gridY + gridSquareSize / 2 - startEndFontSize / 2)
+        }
+        drawText("END")
+        endText()
+
+        // Draw the arrows between each row.
+        (0 until this@TwistsAndTurns.height - 1).forEach { y ->
+            if (y % 2 == 0) {
+                drawArrow(
+                    x = gridX + gridWidth - rightPadding + startEndMargin,
+                    y = gridY + drawGridResult.gridHeight - (y + 0.75f) * gridSquareSize,
+                    width = arrowWidth,
+                    height = 0.5f * gridSquareSize,
+                    leftSide = false,
+                )
+            } else {
+                drawArrow(
+                    x = gridX + startWidth,
+                    y = gridY + drawGridResult.gridHeight - (y + 0.75f) * gridSquareSize,
+                    width = arrowWidth,
+                    height = 0.5f * gridSquareSize,
+                    leftSide = true,
+                )
+            }
+        }
+
+        Pdf.DrawGridResult(
+            gridHeight = drawGridResult.gridHeight,
+            bottomRowStartOffset = drawGridResult.bottomRowStartOffset + leftPadding
         )
     }
 
@@ -106,8 +219,15 @@ data class TwistsAndTurns(
         return grid
     }
 
-    private fun generateTwistsCluesList(grid: List<List<Puzzle.Cell>>): Pair<List<Puzzle.Clue>, List<Puzzle.Word>> {
-        val twistsCluesList = mutableListOf<Puzzle.Clue>()
+    private data class TwistsClues(
+        val lightTwistsClues: List<Puzzle.Clue>,
+        val darkTwistsClues: List<Puzzle.Clue>,
+        val twistsWords: List<Puzzle.Word>,
+    )
+
+    private fun generateTwistsClues(grid: List<List<Puzzle.Cell>>, numberTwists: Boolean): TwistsClues {
+        val lightTwistsCluesList = mutableListOf<Puzzle.Clue>()
+        val darkTwistsCluesList = mutableListOf<Puzzle.Clue>()
         val twistsWordsList = mutableListOf<Puzzle.Word>()
         var twistNumber = 0
         for (j in 0 until (height / twistBoxSize)) {
@@ -119,11 +239,34 @@ data class TwistsAndTurns(
                     }
                 }
                 val wordId = (1001 + (j * (width / twistBoxSize)) + i)
-                twistsWordsList.add(Puzzle.Word(wordId, cells))
-                twistsCluesList.add(Puzzle.Clue(wordId, "${twistNumber + 1}", twistsClues[twistNumber]))
+                val word = Puzzle.Word(wordId, cells)
+                val clueNumber = if (numberTwists) "${twistNumber + 1}" else ""
+                val clue = Puzzle.Clue(wordId, clueNumber, twistsClues[twistNumber])
+                if (isLightTwist(i * twistBoxSize + 1, j * twistBoxSize + 1, twistBoxSize)) {
+                    lightTwistsCluesList.add(clue)
+                } else {
+                    darkTwistsCluesList.add(clue)
+                }
+                twistsWordsList.add(word)
                 twistNumber++
             }
         }
-        return twistsCluesList to twistsWordsList
+        return TwistsClues(lightTwistsCluesList, darkTwistsCluesList, twistsWordsList)
+    }
+
+    private fun isLightTwist(x: Int, y: Int, twistBoxSize: Int): Boolean =
+        (((x - 1) / twistBoxSize) % 2) == (((y - 1) / twistBoxSize) % 2)
+
+    private fun PdfDocument.drawArrow(x: Float, y: Float, width: Float, height: Float, leftSide: Boolean) {
+        val midX = if (leftSide) x - width else x + width
+        val endY = y - height
+        addLine(x, y, midX, y)
+        addLine(midX, y, midX, endY)
+        addLine(midX, endY, x, endY)
+        val arrowWidth = width / 4f
+        val arrowEndX = if (leftSide) x - arrowWidth else x + arrowWidth
+        addLine(x, endY, arrowEndX, endY - arrowWidth)
+        addLine(x, endY, arrowEndX, endY + arrowWidth)
+        stroke()
     }
 }

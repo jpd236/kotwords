@@ -1,49 +1,17 @@
 package com.jeffpdavidson.kotwords
 
+import com.jeffpdavidson.kotwords.js.Http
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.promise
-import org.khronos.webgl.ArrayBuffer
-import org.khronos.webgl.Int8Array
-import org.w3c.xhr.ARRAYBUFFER
-import org.w3c.xhr.TEXT
-import org.w3c.xhr.XMLHttpRequest
-import org.w3c.xhr.XMLHttpRequestResponseType
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 import kotlin.reflect.KClass
 
 actual fun runTest(block: suspend () -> Unit): dynamic = GlobalScope.promise { block() }
 
-actual suspend fun <T : Any> readBinaryResource(clazz: KClass<T>, resourceName: String): ByteArray {
-    return readResource(resourceName, XMLHttpRequestResponseType.ARRAYBUFFER) {
-        Int8Array(it.response as ArrayBuffer).asDynamic() as ByteArray
-    }
-}
+// See karma.config.d/resources.js for details on this path.
+private const val BASE_RESOURCE_PATH = "/base/build/processedResources/js/test"
 
-actual suspend fun <T : Any> readStringResource(clazz: KClass<T>, resourceName: String): String {
-    return readResource(resourceName, XMLHttpRequestResponseType.TEXT) { it.responseText }
-}
+actual suspend fun <T : Any> readBinaryResource(clazz: KClass<T>, resourceName: String): ByteArray =
+    Http.getBinary("$BASE_RESOURCE_PATH/$resourceName")
 
-private suspend fun <T : Any> readResource(
-    resourceName: String,
-    responseType: XMLHttpRequestResponseType,
-    responseHandler: (XMLHttpRequest) -> T
-): T {
-    return suspendCoroutine { continuation ->
-        val xhr = XMLHttpRequest()
-        xhr.responseType = responseType
-        // See karma.config.d/resources.js for details on this path.
-        xhr.open("GET", "/base/build/processedResources/js/test/$resourceName")
-        xhr.onload = {
-            if (xhr.status != 200.toShort()) {
-                continuation.resumeWithException(
-                    IllegalArgumentException("Error loading resource $resourceName")
-                )
-            } else {
-                continuation.resume(responseHandler(xhr))
-            }
-        }
-        xhr.send()
-    }
-}
+actual suspend fun <T : Any> readStringResource(clazz: KClass<T>, resourceName: String): String =
+    Http.getString("$BASE_RESOURCE_PATH/$resourceName")

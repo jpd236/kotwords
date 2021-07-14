@@ -1,16 +1,19 @@
 package com.jeffpdavidson.kotwords.web
 
+import com.jeffpdavidson.kotwords.formats.PdfFonts
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.TwistsAndTurns
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.promise
 import kotlinx.html.InputType
 import kotlinx.html.div
 import kotlin.js.Promise
 
-/** Form to convert Twists and Turns puzzles into JPZ files. */
+/** Form to convert Twists and Turns puzzles into digital files. */
 internal class TwistsAndTurnsForm {
-    private val jpzForm = JpzForm(::createPuzzle)
+    private val puzzleFileForm = PuzzleFileForm(::createPuzzle, createPdfFn = ::createPdf)
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val creator: FormFields.InputField = FormFields.InputField("creator")
     private val copyright: FormFields.InputField = FormFields.InputField("copyright")
@@ -21,12 +24,13 @@ internal class TwistsAndTurnsForm {
     private val turnsAnswers: FormFields.TextBoxField = FormFields.TextBoxField("turns-answers")
     private val turnsClues: FormFields.TextBoxField = FormFields.TextBoxField("turns-clues")
     private val twistsClues: FormFields.TextBoxField = FormFields.TextBoxField("twists-clues")
+    private val alphabetizeTwistsClues: FormFields.CheckBoxField = FormFields.CheckBoxField("alphabetize-twists-clues")
     private val lightTwistsColor: FormFields.InputField = FormFields.InputField("light-twists-color")
     private val darkTwistsColor: FormFields.InputField = FormFields.InputField("dark-twists-color")
 
     init {
         renderPage {
-            jpzForm.render(this, bodyBlock = {
+            puzzleFileForm.render(this, bodyBlock = {
                 this@TwistsAndTurnsForm.title.render(this, "Title")
                 creator.render(this, "Creator (optional)")
                 copyright.render(this, "Copyright (optional)")
@@ -58,6 +62,7 @@ internal class TwistsAndTurnsForm {
                     rows = "10"
                 }
             }, advancedOptionsBlock = {
+                alphabetizeTwistsClues.render(this, "Alphabetize twists clues (for PDFs)")
                 div(classes = "form-row") {
                     lightTwistsColor.render(this, "Light twists color", flexCols = 6) {
                         type = InputType.color
@@ -72,8 +77,23 @@ internal class TwistsAndTurnsForm {
         }
     }
 
-    private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
-        val twistsAndTurns = TwistsAndTurns(
+    private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> =
+        Promise.resolve(createTwistsAndTurns(crosswordSolverSettings).asPuzzle())
+
+    private fun createPdf(
+        crosswordSolverSettings: Puzzle.CrosswordSolverSettings,
+        blackSquareLightnessAdjustment: Float
+    ): Promise<ByteArray> =
+        GlobalScope.promise {
+            createTwistsAndTurns(crosswordSolverSettings).asPdf(
+                fontFamily = PdfFonts.getNotoFontFamily(),
+                blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
+                sortTwists = alphabetizeTwistsClues.getValue()
+            )
+        }
+
+    private fun createTwistsAndTurns(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): TwistsAndTurns {
+        return TwistsAndTurns(
             title = title.getValue(),
             creator = creator.getValue(),
             copyright = copyright.getValue(),
@@ -89,6 +109,5 @@ internal class TwistsAndTurnsForm {
             darkTwistsColor = darkTwistsColor.getValue(),
             crosswordSolverSettings = crosswordSolverSettings
         )
-        return Promise.resolve(twistsAndTurns.asPuzzle())
     }
 }

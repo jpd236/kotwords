@@ -2,21 +2,29 @@ package com.jeffpdavidson.kotwords.web.html
 
 import kotlinx.dom.addClass
 import kotlinx.dom.removeClass
+import kotlinx.html.BUTTON
+import kotlinx.html.ButtonType
 import kotlinx.html.DIV
 import kotlinx.html.FlowContent
 import kotlinx.html.INPUT
 import kotlinx.html.InputType
 import kotlinx.html.TEXTAREA
+import kotlinx.html.button
 import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.id
 import kotlinx.html.input
+import kotlinx.html.js.onInputFunction
 import kotlinx.html.label
 import kotlinx.html.role
 import kotlinx.html.small
+import kotlinx.html.span
+import kotlinx.html.style
 import kotlinx.html.textArea
+import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.HTMLSpanElement
 import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.files.File
 import org.w3c.files.get
@@ -199,6 +207,96 @@ internal object FormFields {
         fun getValue(trim: Boolean = true): String {
             val value = input.value
             return if (trim) value.trim() else value
+        }
+    }
+
+    /**
+     * Create an <input> field for a color range slider.
+     *
+     * @param htmlId the ID to be used for the input field (and as an ID prefix for associated tags)
+     * @param colorGetter function returning the HTML color value for the given value in the range (from 0 to 100).
+     */
+    class ColorRangeSlider(
+        private val htmlId: String,
+        private val colorGetter: (Int) -> String,
+    ) {
+        private val input: HTMLInputElement by Html.getElementById(htmlId)
+        private val square: HTMLDivElement by Html.getElementById("$htmlId-square")
+        private val text: HTMLSpanElement by Html.getElementById("$htmlId-text")
+
+        /**
+         * Render the field into the given [FlowContent].
+         *
+         * @param parent the parent [FlowContent] to render into
+         * @param label the label for the input field
+         * @param help optional help text used to describe the field in more detail
+         * @param block optional block run in the scope of the [INPUT] tag for further customization.
+         */
+        fun render(parent: FlowContent, label: String, help: String = "", block: INPUT.() -> Unit = {}) {
+            with(parent) {
+                label {
+                    htmlFor = htmlId
+                    +label
+                }
+                div("d-flex align-items-center") {
+                    input(type = InputType.range, classes = "custom-range") {
+                        this.id = htmlId
+                        style = "max-width: 300px;"
+                        value = "0"
+                        onInputFunction = {
+                            onColorChange()
+                        }
+                        if (help.isNotBlank()) {
+                            attributes["aria-describedby"] = "$htmlId-help"
+                        }
+                        block()
+                    }
+                    div("ml-2 border d-block") {
+                        this.id = "$htmlId-square"
+                        style = "width: 1.5em; height: 1.5em; border-color: black !important; " +
+                                "background-color: ${colorGetter(0)}"
+                    }
+                    span("ml-2") {
+                        this.id = "$htmlId-text"
+                        +"0%"
+                    }
+                }
+
+                if (help.isNotBlank()) {
+                    help(htmlId, help)
+                }
+            }
+        }
+
+        private fun onColorChange() {
+            square.style.backgroundColor = colorGetter(getValue())
+            text.innerText = "${getValue()}%"
+        }
+
+        fun getValue(): Int {
+            return input.value.toInt()
+        }
+    }
+
+    class Button(private val htmlId: String) {
+        val button: HTMLButtonElement by Html.getElementById(htmlId)
+
+        /**
+         * Render the field into the given [FlowContent].
+         *
+         * @param parent the parent [FlowContent] to render into
+         * @param label the label for the button
+         * @param block optional block run in the scope of the [BUTTON] tag for further customization.
+         */
+        fun render(parent: FlowContent, label: String, block: BUTTON.() -> Unit = {}) {
+            with(parent) {
+                button(classes = "btn") {
+                    type = ButtonType.submit
+                    this.id = htmlId
+                    +label
+                    block()
+                }
+            }
         }
     }
 

@@ -18,24 +18,10 @@ class PdfTest {
 
     @Test
     fun asPdf_customFonts() = runTest {
-        val notoSerifFontFamily = PdfFontFamily(
-            PdfFont.TtfFont(
-                "NotoSerif", "normal", readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-Regular.ttf")
-            ),
-            PdfFont.TtfFont(
-                "NotoSerif", "bold", readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-Bold.ttf")
-            ),
-            PdfFont.TtfFont(
-                "NotoSerif", "italic", readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-Italic.ttf")
-            ),
-            PdfFont.TtfFont(
-                "NotoSerif", "bolditalic", readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-BoldItalic.ttf")
-            ),
-        )
         PdfComparator.assertPdfEquals(
             readBinaryResource(PdfComparator::class, "pdf/test-customFonts.pdf"),
             AcrossLite(readBinaryResource(PdfTest::class, "puz/test.puz"))
-                .asCrossword().asPdf(blackSquareLightnessAdjustment = 0.75f, fontFamily = notoSerifFontFamily)
+                .asCrossword().asPdf(blackSquareLightnessAdjustment = 0.75f, fontFamily = getNotoSerifFontFamily())
         )
     }
 

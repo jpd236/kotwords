@@ -19,7 +19,7 @@ import kotlin.js.Promise
 
 /** Form to convert Rows Garden puzzles into JPZ files. */
 internal class RowsGardenForm {
-    private val manualEntryForm = JpzForm(::createPuzzleFromManualEntry, id = "manual-entry")
+    private val manualEntryForm = PuzzleFileForm(::createPuzzleFromManualEntry, id = "manual-entry")
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val author: FormFields.InputField = FormFields.InputField("author")
     private val copyright: FormFields.InputField = FormFields.InputField("copyright")
@@ -34,7 +34,7 @@ internal class RowsGardenForm {
     private val darkAnswers: FormFields.TextBoxField = FormFields.TextBoxField("dark-answers")
     private val manualEntryAdvancedOptions = AdvancedOptions("manual-entry")
 
-    private val rgzFileForm = JpzForm(::createPuzzleFromRgzFile, { getRgzFileName() }, id = "rgz-file")
+    private val rgzFileForm = PuzzleFileForm(::createPuzzleFromRgzFile, { getRgzFileName() }, id = "rgz-file")
     private val file: FormFields.FileField = FormFields.FileField("file")
     private val rgzFileAdvancedOptions = AdvancedOptions("rgz-file")
 
@@ -183,6 +183,6 @@ internal class RowsGardenForm {
     }
 
     private fun getRgzFileName(): String {
-        return file.getValue().name.replace(".rgz", ".jpz").replace(".rg", ".jpz")
+        return file.getValue().name.removeSuffix(".rgz").removeSuffix(".rg")
     }
 }
