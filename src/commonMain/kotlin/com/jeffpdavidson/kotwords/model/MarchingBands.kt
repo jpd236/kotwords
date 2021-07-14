@@ -62,8 +62,8 @@ data class MarchingBands(
             (i + 1 until puzzleGrid.size - i).forEach { y ->
                 cells.add(puzzleGrid[y][puzzleGrid[y].size - i - 1])
             }
-            cells.addAll(puzzleGrid[puzzleGrid.size - i - 1].subList(i, puzzleGrid[i].size - i).reversed())
-            (puzzleGrid.size - i - 1 downTo i + 1).forEach { y ->
+            cells.addAll(puzzleGrid[puzzleGrid.size - i - 1].subList(i, puzzleGrid[i].size - i - 1).reversed())
+            (puzzleGrid.size - i - 2 downTo i + 1).forEach { y ->
                 cells.add(puzzleGrid[y][i])
             }
             Puzzle.Clue(1000 + i + 1, "${'A' + i}", clues.joinToString(" / ")) to Puzzle.Word(1000 + i + 1, cells)
