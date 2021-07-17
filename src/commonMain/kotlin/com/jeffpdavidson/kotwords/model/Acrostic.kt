@@ -43,7 +43,7 @@ data class Acrostic(
         }
     }
 
-    fun asPuzzle(): Puzzle {
+    fun asPuzzle(includeAttribution: Boolean = false): Puzzle {
         // Determine the width of the puzzle and both clue columns.
         val answerColumnSize = (gridKey.size + 1) / 2
         val gridKeyColumns = gridKey.chunked(answerColumnSize)
@@ -101,15 +101,40 @@ data class Acrostic(
             }
         }
 
-        // Fill the rest of the current row with white squares.
-        if (x > 1) {
-            row.addAll(generateWhiteCells(x..width, y))
+        fun endSection() {
+            // Fill the rest of the current row with white squares.
+            if (x > 1) {
+                row.addAll(generateWhiteCells(x..width, y))
+                nextRow()
+            }
+
+            // Add a spacer row of white squares.
+            row.addAll(generateWhiteCells(1..width, y))
             nextRow()
         }
+        endSection()
 
-        // Add a spacer row of white squares.
-        row.addAll(generateWhiteCells(1..width, y))
-        nextRow()
+        // Add the attribution (first letters of each clue).
+        val attributionWord: MutableList<Puzzle.Cell>?
+        if (includeAttribution) {
+            attributionWord = mutableListOf()
+            gridKey.forEachIndexed { answerIndex, answer ->
+                val cell = Puzzle.Cell(
+                    x, y,
+                    solution = "${solutionChars[answer[0]]}", number = "${answer[0]}",
+                    topRightNumber = "${'A' + answerIndex}"
+                )
+                attributionWord.add(cell)
+                row.add(cell)
+                x++
+                if (x > width) {
+                    nextRow()
+                }
+            }
+            endSection()
+        } else {
+            attributionWord = null
+        }
 
         // Generate the clue/answer portion of the grid.
         val answerWordMap = mutableMapOf<Int, List<Puzzle.Cell>>()
@@ -149,8 +174,16 @@ data class Acrostic(
             val word = Puzzle.Word(index + 1, answerWord)
             Puzzle.Clue(index + 1, "${'A' + index}", clue) to word
         }.unzip()
-        val words = answerWords + listOf(Puzzle.Word(1000, quoteWord))
-        val clueList = Puzzle.ClueList("Clues", answerClues + Puzzle.Clue(1000, "", "[QUOTE]"))
+        val words =
+            answerWords +
+                    (attributionWord?.let { listOf(Puzzle.Word(900, it)) } ?: listOf()) +
+                    listOf(Puzzle.Word(1000, quoteWord))
+        val clueList = Puzzle.ClueList(
+            "Clues",
+            answerClues +
+                    (if (attributionWord != null) listOf(Puzzle.Clue(900, "", "[ATTRIBUTION]")) else listOf()) +
+                    Puzzle.Clue(1000, "", "[QUOTE]")
+        )
 
         return Puzzle(
             title,

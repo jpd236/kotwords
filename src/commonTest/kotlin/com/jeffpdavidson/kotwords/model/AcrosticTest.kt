@@ -9,19 +9,6 @@ import kotlin.test.fail
 class AcrosticTest {
     @Test
     fun asJpz() = runTest {
-        val acrostic = Acrostic(
-            title = "Test title",
-            creator = "Test creator",
-            copyright = "Test copyright",
-            description = "Test description",
-            suggestedWidth = 0,
-            solution = "ACRO-ST IC",
-            gridKey = listOf(listOf(2, 1, 3), listOf(5, 6, 4, 7, 8)),
-            clues = listOf("Clue 1", "Clue 2"),
-            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
-                "#00b100", "#80ff80", "All done!"
-            )
-        )
         assertEquals(
             readStringResource(AcrosticTest::class, "acrostic/acrostic.jpz"),
             acrostic.asPuzzle().asJpzFile().toXmlString()
@@ -29,40 +16,24 @@ class AcrosticTest {
     }
 
     @Test
-    fun createWithAnswerValidation() {
-        Acrostic(
-            title = "Test title",
-            creator = "Test creator",
-            copyright = "Test copyright",
-            description = "Test description",
-            suggestedWidth = 0,
-            solution = "ACRO-ST IC",
-            gridKey = listOf(listOf(2, 1, 3), listOf(5, 6, 4, 7, 8)),
-            clues = listOf("Clue 1", "Clue 2"),
-            answers = listOf("CAR", "STOIC"),
-            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
-                "#00b100", "#80ff80", "All done!"
-            )
+    fun asJpz_withAttribution() = runTest {
+        assertEquals(
+            readStringResource(AcrosticTest::class, "acrostic/acrostic-attribution.jpz"),
+            acrostic.asPuzzle(includeAttribution = true).asJpzFile().toXmlString()
         )
     }
 
+    @Suppress("UnusedDataClassCopyResult")
+    @Test
+    fun createWithAnswerValidation() {
+        acrostic.copy(answers = listOf("CAR", "STOIC"))
+    }
+
+    @Suppress("UnusedDataClassCopyResult")
     @Test
     fun createWithBadAnswersFailsValidation() {
         try {
-            Acrostic(
-                title = "Test title",
-                creator = "Test creator",
-                copyright = "Test copyright",
-                description = "Test description",
-                suggestedWidth = 0,
-                solution = "ACRO-ST IC",
-                gridKey = listOf(listOf(2, 1, 3), listOf(5, 6, 4, 7, 8)),
-                clues = listOf("Clue 1", "Clue 2"),
-                answers = listOf("CRA", "STOIC"),
-                crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
-                    "#00b100", "#80ff80", "All done!"
-                )
-            )
+            acrostic.copy(answers = listOf("CRA", "STOIC"))
             fail("Should have thrown IllegalArgumentException due to bad answers")
         } catch (e: IllegalArgumentException) {
             // expected
@@ -96,6 +67,22 @@ class AcrosticTest {
         assertEquals(
             15 to 14,
             Acrostic.getAnswerColumnWidths(splitAnswers, 30)
+        )
+    }
+
+    companion object {
+        private val acrostic = Acrostic(
+            title = "Test title",
+            creator = "Test creator",
+            copyright = "Test copyright",
+            description = "Test description",
+            suggestedWidth = 0,
+            solution = "ACRO-ST IC",
+            gridKey = listOf(listOf(2, 1, 3), listOf(5, 6, 4, 7, 8)),
+            clues = listOf("Clue 1", "Clue 2"),
+            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
+                "#00b100", "#80ff80", "All done!"
+            )
         )
     }
 }

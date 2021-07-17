@@ -35,6 +35,7 @@ internal class AcrosticForm {
     private val clues: FormFields.TextBoxField = FormFields.TextBoxField("clues")
     private val answers: FormFields.TextBoxField = FormFields.TextBoxField("answers")
     private val completionMessage: FormFields.TextBoxField = FormFields.TextBoxField("completion-message")
+    private val includeAttribution: FormFields.CheckBoxField = FormFields.CheckBoxField("include-attribution")
 
     private val apzFileForm = PuzzleFileForm(
         ::createPuzzleFromApzFile,
@@ -44,6 +45,8 @@ internal class AcrosticForm {
         completionMessageHelpText = "If blank, will be generated from the quote and source."
     )
     private val file: FormFields.FileField = FormFields.FileField("file")
+    private val apzFileIncludeAttribution: FormFields.CheckBoxField =
+        FormFields.CheckBoxField("apz-file-include-attribution")
 
     init {
         renderPage {
@@ -106,10 +109,14 @@ internal class AcrosticForm {
                         rows = "3"
                         +"Congratulations! The puzzle is solved correctly."
                     }
+                }, advancedOptionsBlock = {
+                    includeAttribution.render(this, INCLUDE_ATTRIBUTION_DESCRIPTION)
                 })
             }, Tabs.Tab("apz-file-tab", "APZ file") {
                 apzFileForm.render(this, bodyBlock = {
                     file.render(this, "APZ file")
+                }, advancedOptionsBlock = {
+                    apzFileIncludeAttribution.render(this, INCLUDE_ATTRIBUTION_DESCRIPTION)
                 })
             })
         }
@@ -117,7 +124,9 @@ internal class AcrosticForm {
 
     private fun createPuzzleFromApzFile(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
         return Interop.readFile(file.getValue()).then {
-            ApzFile.parse(String(it, charset = Charsets.UTF_8)).toAcrostic(crosswordSolverSettings).asPuzzle()
+            ApzFile.parse(String(it, charset = Charsets.UTF_8)).toAcrostic(crosswordSolverSettings).asPuzzle(
+                includeAttribution = apzFileIncludeAttribution.getValue()
+            )
         }
     }
 
@@ -136,10 +145,14 @@ internal class AcrosticForm {
                 completionMessage = completionMessage.getValue()
             )
         )
-        return Promise.resolve(acrostic.asPuzzle())
+        return Promise.resolve(acrostic.asPuzzle(includeAttribution.getValue()))
     }
 
     private fun getApzFileName(): String {
         return file.getValue().name.removeSuffix(".apz")
+    }
+
+    companion object {
+        const val INCLUDE_ATTRIBUTION_DESCRIPTION = "Include attribution as a separate entry"
     }
 }
