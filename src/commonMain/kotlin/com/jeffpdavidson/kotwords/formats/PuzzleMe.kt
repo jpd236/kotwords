@@ -171,13 +171,13 @@ class PuzzleMe(private val json: String) : Crosswordable {
          * Convert a PuzzleMe JSON string to HTML.
          *
          * PuzzleMe mixes unescaped special XML characters (&, <) with HTML tags. This method escapes the special
-         * characters while leaving the HTML tags untouched.
+         * characters while leaving supported HTML tags untouched.
          */
-        private fun toHtml(clue: String): String {
+        internal fun toHtml(clue: String): String {
             return clue
                 .replace("&", "&amp;")
                 .replace("<", "&lt;")
-                .replace("&lt;(/?[^>]+)>".toRegex(), "<$1>")
+                .replace("&lt;(/?(?:b|i|sup|sub|span))>".toRegex(RegexOption.IGNORE_CASE), "<$1>")
         }
     }
 }

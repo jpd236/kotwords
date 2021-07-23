@@ -105,4 +105,17 @@ class PuzzleMeTest {
             )
         )
     }
+
+    @Test
+    fun toHtml_regularString() = assertEquals("regular", PuzzleMe.toHtml("regular"))
+
+    @Test
+    fun toHtml_italicString() = assertEquals("<i>italic</i>", PuzzleMe.toHtml("<i>italic</i>"))
+
+    @Test
+    fun toHtml_unsupportedTag() = assertEquals("&lt;div>div&lt;/div>", PuzzleMe.toHtml("<div>div</div>"))
+
+    @Test
+    fun toHtml_mixedTags() =
+        assertEquals("&lt;div>div&lt;/div><SUP>super</SUP>", PuzzleMe.toHtml("<div>div</div><SUP>super</SUP>"))
 }
