@@ -121,7 +121,7 @@ data class Acrostic(
             gridKey.forEachIndexed { answerIndex, answer ->
                 val cell = Puzzle.Cell(
                     x, y,
-                    solution = "${solutionChars[answer[0]]}", number = "${answer[0]}",
+                    solution = "${solutionChars[answer[0] - 1]}", number = "${answer[0]}",
                     topRightNumber = "${'A' + answerIndex}"
                 )
                 attributionWord.add(cell)
