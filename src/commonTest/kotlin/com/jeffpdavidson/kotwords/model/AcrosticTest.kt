@@ -70,6 +70,15 @@ class AcrosticTest {
         )
     }
 
+    @Test
+    fun getClueLetters() {
+        assertEquals("A", Acrostic.getClueLetters(0))
+        assertEquals("Z", Acrostic.getClueLetters(25))
+        assertEquals("AA", Acrostic.getClueLetters(26))
+        assertEquals("ZZ", Acrostic.getClueLetters(51))
+        assertEquals("AAA", Acrostic.getClueLetters(52))
+    }
+
     companion object {
         private val acrostic = Acrostic(
             title = "Test title",

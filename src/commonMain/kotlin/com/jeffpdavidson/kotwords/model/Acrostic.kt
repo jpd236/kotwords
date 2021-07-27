@@ -55,7 +55,7 @@ data class Acrostic(
 
         // Map from number in the grid key to the letter of the clue whose answer has that number.
         val solutionIndexToClueLetterMap =
-            gridKey.mapIndexed { i, nums -> nums.map { it to "${'A' + i}" } }.flatten().toMap()
+            gridKey.mapIndexed { i, nums -> nums.map { it to getClueLetters(i) } }.flatten().toMap()
 
         // Generate the quote portion of the grid.
         val solutionChars = mutableListOf<Char>()
@@ -122,7 +122,7 @@ data class Acrostic(
                 val cell = Puzzle.Cell(
                     x, y,
                     solution = "${solutionChars[answer[0] - 1]}", number = "${answer[0]}",
-                    topRightNumber = "${'A' + answerIndex}"
+                    topRightNumber = getClueLetters(answerIndex)
                 )
                 attributionWord.add(cell)
                 row.add(cell)
@@ -142,7 +142,7 @@ data class Acrostic(
             row.add(
                 Puzzle.Cell(
                     x++, y,
-                    cellType = Puzzle.CellType.CLUE, solution = "${'A' + clueIndex}"
+                    cellType = Puzzle.CellType.CLUE, solution = getClueLetters(clueIndex)
                 )
             )
             val word = answer.mapIndexed { i, num ->
@@ -172,7 +172,7 @@ data class Acrostic(
         val (answerClues, answerWords) = clues.mapIndexed { index, clue ->
             val answerWord = answerWordMap[index] ?: error("Impossible")
             val word = Puzzle.Word(index + 1, answerWord)
-            Puzzle.Clue(index + 1, "${'A' + index}", clue) to word
+            Puzzle.Clue(index + 1, getClueLetters(index), clue) to word
         }.unzip()
         val words =
             answerWords +
@@ -243,6 +243,8 @@ data class Acrostic(
             val leftWidth = widths[0] + (totalWidth - widths[0] - widths[1] - 1) / 2
             return leftWidth to (totalWidth - leftWidth - 1)
         }
+
+        internal fun getClueLetters(clueIndex: Int): String = "${'A' + (clueIndex % 26)}".repeat(clueIndex / 26 + 1)
 
         private fun generateWhiteCells(xRange: IntRange, y: Int): List<Puzzle.Cell> {
             return xRange.map {
