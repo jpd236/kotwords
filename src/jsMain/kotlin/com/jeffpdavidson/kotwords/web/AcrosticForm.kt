@@ -21,6 +21,7 @@ import kotlin.js.Promise
 /** Form to convert Acrostic puzzles into JPZ files. */
 internal class AcrosticForm {
     private val manualEntryForm = PuzzleFileForm(
+        "acrostic",
         ::createPuzzleFromManualEntry,
         id = "manual-entry",
         includeCompletionMessage = false
@@ -38,11 +39,13 @@ internal class AcrosticForm {
     private val includeAttribution: FormFields.CheckBoxField = FormFields.CheckBoxField("include-attribution")
 
     private val apzFileForm = PuzzleFileForm(
+        "acrostic",
         ::createPuzzleFromApzFile,
         { getApzFileName() },
         id = "apz-file",
         completionMessageDefaultValue = "",
-        completionMessageHelpText = "If blank, will be generated from the quote and source."
+        completionMessageHelpText = "If blank, will be generated from the quote and source.",
+        enableSaveData = false,
     )
     private val file: FormFields.FileField = FormFields.FileField("file")
     private val apzFileIncludeAttribution: FormFields.CheckBoxField =

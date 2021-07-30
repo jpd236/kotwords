@@ -13,7 +13,7 @@ import kotlin.js.Promise
 
 /** Form to convert Twists and Turns puzzles into digital files. */
 internal class TwistsAndTurnsForm {
-    private val puzzleFileForm = PuzzleFileForm(::createPuzzle, createPdfFn = ::createPdf)
+    private val puzzleFileForm = PuzzleFileForm("twists-and-turns", ::createPuzzle, createPdfFn = ::createPdf)
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val creator: FormFields.InputField = FormFields.InputField("creator")
     private val copyright: FormFields.InputField = FormFields.InputField("copyright")

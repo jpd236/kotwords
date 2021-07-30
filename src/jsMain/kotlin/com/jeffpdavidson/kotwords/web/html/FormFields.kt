@@ -123,7 +123,7 @@ internal object FormFields {
      * @param htmlId the ID to be used for the input field (and as an ID prefix for associated tags)
      */
     class FileField(private val htmlId: String) {
-        private val input: HTMLInputElement by Html.getElementById(htmlId)
+        val input: HTMLInputElement by Html.getElementById(htmlId)
 
         /**
          * Render the file selector into the given [FlowContent].
@@ -133,12 +133,14 @@ internal object FormFields {
          * @param help optional help text used to describe the field in more detail
          * @param block optional block run in the scope of the [INPUT] tag for further customization.
          */
-        fun render(parent: FlowContent, label: String, help: String = "", block: INPUT.() -> Unit = {}) {
+        fun render(parent: FlowContent, label: String = "", help: String = "", block: INPUT.() -> Unit = {}) {
             with(parent) {
                 formGroup {
-                    label {
-                        htmlFor = htmlId
-                        +label
+                    if (label.isNotBlank()) {
+                        label {
+                            htmlFor = htmlId
+                            +label
+                        }
                     }
                     input(classes = "form-control-file") {
                         this.id = htmlId

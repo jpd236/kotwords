@@ -7,7 +7,7 @@ import com.jeffpdavidson.kotwords.web.html.Html
 import kotlin.js.Promise
 
 internal class AroundTheBendForm {
-    private val jpzForm = PuzzleFileForm(::createPuzzle)
+    private val jpzForm = PuzzleFileForm("around-the-bend", ::createPuzzle)
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val creator: FormFields.InputField = FormFields.InputField("creator")
     private val copyright: FormFields.InputField = FormFields.InputField("copyright")

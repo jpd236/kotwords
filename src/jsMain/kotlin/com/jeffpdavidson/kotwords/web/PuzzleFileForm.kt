@@ -2,10 +2,14 @@ package com.jeffpdavidson.kotwords.web
 
 import com.github.ajalt.colormath.RGB
 import com.jeffpdavidson.kotwords.formats.Pdf
+import com.jeffpdavidson.kotwords.js.Interop
 import com.jeffpdavidson.kotwords.js.Interop.toArrayBuffer
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
+import com.soywiz.klock.DateFormat
+import com.soywiz.klock.DateTime
+import kotlinx.browser.document
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
@@ -17,13 +21,20 @@ import kotlinx.html.div
 import kotlinx.html.dom.append
 import kotlinx.html.form
 import kotlinx.html.id
+import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onSubmitFunction
 import kotlinx.html.p
 import kotlinx.html.role
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.HTMLTextAreaElement
+import org.w3c.dom.asList
 import org.w3c.dom.events.Event
 import org.w3c.files.Blob
+import org.w3c.files.get
+import kotlin.js.Json
 import kotlin.js.Promise
+import kotlin.js.json
 
 /**
  * Container for an HTML form for creating digital files for a particular puzzle input.
@@ -43,6 +54,7 @@ import kotlin.js.Promise
  *                    Given the [Puzzle.CrosswordSolverSettings] from advanced settings as input.
  */
 internal class PuzzleFileForm(
+    private val puzzleType: String,
     private val createPuzzleFn: (Puzzle.CrosswordSolverSettings) -> Promise<Puzzle>,
     private val getFileNameFn: (Puzzle) -> String = ::getDefaultFileName,
     private val id: String = "",
@@ -53,6 +65,7 @@ internal class PuzzleFileForm(
         crosswordSolverSettings: Puzzle.CrosswordSolverSettings,
         blackSquareLightnessAdjustment: Float
     ) -> Promise<ByteArray>)? = null,
+    enableSaveData: Boolean = true,
 ) {
     private val cursorColor: FormFields.InputField = FormFields.InputField(elementId("cursor-color"))
     private val selectionColor: FormFields.InputField = FormFields.InputField(elementId("selection-color"))
@@ -67,6 +80,12 @@ internal class PuzzleFileForm(
     private val jpzButton: FormFields.Button = FormFields.Button(elementId("generate-jpz"))
     private val pdfButton: FormFields.Button? =
         if (createPdfFn != null) FormFields.Button(elementId("generate-pdf")) else null
+    private val saveDataButton: FormFields.Button? =
+        if (enableSaveData) FormFields.Button(elementId("save-data")) else null
+    private val loadDataButton: FormFields.Button? =
+        if (enableSaveData) FormFields.Button(elementId("load-data")) else null
+    private val loadDataFile: FormFields.FileField? =
+        if (enableSaveData) FormFields.FileField(elementId("load-data-file")) else null
     private val errorMessage: FormFields.ErrorMessage = FormFields.ErrorMessage(elementId("error-message"))
 
     /**
@@ -97,6 +116,8 @@ internal class PuzzleFileForm(
         advancedOptionsBlock: FlowContent.() -> Unit = {}
     ) {
         parent.form {
+            id = elementId("form")
+
             onSubmitFunction = ::onSubmit
 
             bodyBlock()
@@ -147,9 +168,30 @@ internal class PuzzleFileForm(
                 jpzButton.render(this, "Generate JPZ") {
                     classes = classes + "btn-primary"
                 }
-
                 pdfButton?.render(this, "Generate PDF") {
                     classes = classes + "btn-primary ml-3"
+                }
+
+                saveDataButton?.render(this, "Save data") {
+                    classes = classes + "btn-secondary ml-3"
+                }
+                loadDataButton?.render(this, "Load data") {
+                    classes = classes + "btn-secondary ml-3"
+                }
+                loadDataFile?.render(this) {
+                    classes = classes + "d-none"
+                    accept = ".json"
+                    onChangeFunction = {
+                        val files = loadDataFile.input.files
+                        if (files != null && files.length > 0 && files[0] != null) {
+                            GlobalScope.launch {
+                                val saveDataJson = Interop.readFile(files[0]!!).await().decodeToString()
+                                // Clear the input value in case the user makes an edit and retries the same file.
+                                loadDataFile.input.value = ""
+                                loadSaveDataJson(saveDataJson)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -157,20 +199,87 @@ internal class PuzzleFileForm(
 
     private fun onSubmit(event: Event) {
         val submitter = event.asDynamic().submitter as HTMLElement?
-        GlobalScope.launch {
-            try {
-                val puzzle = createPuzzleFn(createCrosswordSolverSettings()).await()
-                if (pdfButton != null && submitter == pdfButton.button) {
-                    // TODO: Avoid this unnecessary Puzzle generation just to get the title/filename.
-                    downloadPdf(puzzle)
-                } else {
-                    downloadJpz(puzzle)
+        if (saveDataButton != null && submitter == saveDataButton.button) {
+            // Since the form may not be complete, we can't generate the Puzzle to obtain the title. Look for it
+            // directly from the form, or else just use the puzzle type and date.
+            val title = (document.getElementById("title") as HTMLInputElement?)?.value
+            val fileName = if (title == null || title.isBlank()) {
+                "$puzzleType-${DateTime.nowLocal().format(DateFormat.FORMAT_DATE)}"
+            } else {
+                getDefaultFileName(title)
+            }
+            download("$fileName.json", createSaveDataJson().encodeToByteArray())
+        } else if (loadDataButton != null && loadDataFile != null && submitter == loadDataButton.button) {
+            loadDataFile.input.click()
+        } else if (submitter == jpzButton.button || (pdfButton != null && submitter == pdfButton.button)) {
+            GlobalScope.launch {
+                try {
+                    val puzzle = createPuzzleFn(createCrosswordSolverSettings()).await()
+                    if (pdfButton != null && submitter == pdfButton.button) {
+                        // TODO: Avoid this unnecessary Puzzle generation just to get the title/filename.
+                        downloadPdf(puzzle)
+                    } else {
+                        downloadJpz(puzzle)
+                    }
+                } catch (t: Throwable) {
+                    errorMessage.setMessage("Error generating puzzle file: ${t.message}")
                 }
-            } catch (t: Throwable) {
-                errorMessage.setMessage("Error generating puzzle file: ${t.message}")
             }
         }
         event.preventDefault()
+    }
+
+    internal fun createSaveDataJson(): String {
+        val formElement = document.getElementById(elementId("form"))!!
+        val formFields = formElement.querySelectorAll("input,select,textarea")
+        val saveData = json(KEY_PUZZLE_TYPE to puzzleType)
+        formFields.asList().forEach {
+            val element = it as HTMLElement
+            if (element.classList.contains("d-none")) {
+                return@forEach
+            }
+            val id = element.id
+            val value = when (it) {
+                is HTMLInputElement -> {
+                    when (it.type) {
+                        InputType.checkBox.realValue -> it.checked
+                        else -> it.value
+                    }
+                }
+                is HTMLTextAreaElement -> it.value
+                else -> throw IllegalStateException("")
+            }
+            saveData[id] = value
+        }
+        return JSON.stringify(saveData, space = 2)
+    }
+
+    internal fun loadSaveDataJson(saveDataJson: String) {
+        val saveData: Json = JSON.parse(saveDataJson)
+        val savedPuzzleType = saveData[KEY_PUZZLE_TYPE]
+        if (puzzleType != savedPuzzleType) {
+            errorMessage.setMessage("Invalid save data - unknown puzzle type $savedPuzzleType")
+            return
+        }
+        errorMessage.setMessage("")
+        val ids = (js("Object").keys(saveData) as Array<String>).filterNot { it == KEY_PUZZLE_TYPE }
+        ids.forEach { id ->
+            val value = saveData[id]
+            val element = document.getElementById(id) ?: return@forEach
+            when (element) {
+                is HTMLInputElement -> {
+                    when (element.type) {
+                        InputType.checkBox.realValue -> element.checked = value as Boolean
+                        else -> element.value = value as String
+                    }
+                    // Invoke the oninput listener, if any, to emulate the user entering the value.
+                    val event = document.createEvent("Event")
+                    event.initEvent("input", bubbles = true, cancelable = true)
+                    element.dispatchEvent(event)
+                }
+                is HTMLTextAreaElement -> element.value = value as String
+            }
+        }
     }
 
     private suspend fun downloadPdf(puzzle: Puzzle) {
@@ -203,8 +312,9 @@ internal class PuzzleFileForm(
     private fun getInkSaverColor(value: Int): String = Pdf.getAdjustedColor(RGB("#000000"), value / 100f).toHex()
 
     companion object {
-        private fun getDefaultFileName(puzzle: Puzzle): String {
-            return puzzle.title.replace("[^A-Za-z0-9]".toRegex(), "")
-        }
+        private const val KEY_PUZZLE_TYPE = "puzzle-type"
+
+        private fun getDefaultFileName(puzzle: Puzzle): String = getDefaultFileName(puzzle.title)
+        private fun getDefaultFileName(title: String): String = title.replace("[^A-Za-z0-9]".toRegex(), "")
     }
 }
