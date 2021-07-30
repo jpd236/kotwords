@@ -89,11 +89,12 @@ internal class AcrosticForm {
                             "The quote of the acrostic. Use spaces for word breaks. Any non-alphabetical " +
                                     "characters will be prefilled and uneditable in the quote grid."
                     }
-                    gridKey.render(this, "Grid key") {
+                    gridKey.render(this, "Grid key (optional)") {
                         rows = "10"
                         placeholder =
                             "The numeric positions in the quote of each letter in the clue answers. One " +
-                                    "clue per row, with numbers separated by spaces. Omit clue letters."
+                                    "clue per row, with numbers separated by spaces. Omit clue letters. " +
+                                    "Leave this blank and provide the answers to generate a random grid key."
                     }
                     clues.render(this, "Clues") {
                         rows = "10"
@@ -102,8 +103,8 @@ internal class AcrosticForm {
                     answers.render(this, "Answers (optional)") {
                         rows = "10"
                         placeholder =
-                            "One answer per row. Only use alphabetical characters. Only used to validate " +
-                                    "that the quote and grid key are consistent with the intended answers."
+                            "One answer per row. Only use alphabetical characters. Either a grid key or answers must " +
+                                    "must be provided."
                     }
                     completionMessage.render(
                         this, label = "Completion message",
@@ -134,6 +135,20 @@ internal class AcrosticForm {
     }
 
     private fun createPuzzleFromManualEntry(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
+        if (gridKey.getValue().isBlank() && answers.getValue().isBlank()) {
+            return Promise.reject(IllegalArgumentException("Must provide either grid key or answers"))
+        }
+        if (gridKey.getValue().isBlank()) {
+            // While fromRawInput will generate and use a grid key if the provided one is blank, we proactively generate
+            // it here so we can update the form with the result, ensuring the exact same output can be reproduced.
+            val answersList = if (answers.getValue().isEmpty()) {
+                listOf()
+            } else {
+                answers.getValue().split("\n").map { it.trim() }
+            }
+            val generatedGridKey = Acrostic.generateGridKey(solution.getValue(), answersList)
+            gridKey.setValue(generatedGridKey.joinToString("\n") { it.joinToString(" ") })
+        }
         val acrostic = Acrostic.fromRawInput(
             title = title.getValue(),
             creator = creator.getValue(),

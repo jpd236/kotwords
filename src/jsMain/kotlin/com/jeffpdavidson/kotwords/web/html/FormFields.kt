@@ -206,6 +206,10 @@ internal object FormFields {
             }
         }
 
+        fun setValue(value: String) {
+            input.value = value
+        }
+
         fun getValue(trim: Boolean = true): String {
             val value = input.value
             return if (trim) value.trim() else value

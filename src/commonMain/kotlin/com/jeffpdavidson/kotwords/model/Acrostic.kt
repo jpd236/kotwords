@@ -212,15 +212,19 @@ data class Acrostic(
             crosswordSolverSettings: Puzzle.CrosswordSolverSettings
         ): Acrostic {
             val suggestedWidthInt = if (suggestedWidth.isEmpty()) null else suggestedWidth.toInt()
-            val gridKeyList = gridKey.trim().split("\n").map { row ->
-                row.trim().split(" +".toRegex()).map { it.trim().toInt() }
-            }
             val answersList =
                 if (answers.trim().isEmpty()) {
                     listOf()
                 } else {
                     answers.trim().split("\n").map { it.trim() }
                 }
+            val gridKeyList = if (gridKey.isBlank()) {
+                generateGridKey(solution, answersList)
+            } else {
+                gridKey.trim().split("\n").map { row ->
+                    row.trim().split(" +".toRegex()).map { it.trim().toInt() }
+                }
+            }
             return Acrostic(
                 title.trim(),
                 creator.trim(),
@@ -233,6 +237,41 @@ data class Acrostic(
                 answersList,
                 crosswordSolverSettings
             )
+        }
+
+        fun generateGridKey(solution: String, answers: List<String>): List<List<Int>> {
+            var wordIndex = 0
+            // Ordered list of solution characters paired with their word index.
+            val solutionWords = mutableListOf<Pair<Char, Int>>()
+            solution.forEach { ch ->
+                when (ch) {
+                    in 'A'..'Z' -> {
+                        solutionWords.add(ch to wordIndex)
+                    }
+                    ' ' -> wordIndex++
+                }
+            }
+            val remainingSolutionCharacters = solutionWords.withIndex().toMutableSet()
+            return answers.withIndex().shuffled().map { (answerIndex, answer) ->
+                val solutionWordsUsedInAnswer = mutableSetOf<Int>()
+                answerIndex to answer.withIndex().shuffled().map { (answerCharIndex, ch) ->
+                    val matchingSolutionCharacters = remainingSolutionCharacters.filter { (_, charAndIndex) ->
+                        ch == charAndIndex.first
+                    }
+                    val solutionCharactersInUnusedWords = matchingSolutionCharacters.filterNot { (_, charAndIndex) ->
+                        solutionWordsUsedInAnswer.contains(charAndIndex.second)
+                    }
+                    // Prefer to use words in the solution that we haven't used yet, but accept any word if there's no
+                    // unused words left.
+                    val candidateSolutionCharacters = solutionCharactersInUnusedWords.ifEmpty {
+                        matchingSolutionCharacters
+                    }
+                    val selectedSolutionCharacter = candidateSolutionCharacters.random()
+                    remainingSolutionCharacters.remove(selectedSolutionCharacter)
+                    solutionWordsUsedInAnswer.add(selectedSolutionCharacter.value.second)
+                    answerCharIndex to (selectedSolutionCharacter.index + 1)
+                }.sortedBy { it.first }.map { it.second }
+            }.sortedBy { it.first }.map { it.second }
         }
 
         internal fun getAnswerColumnWidths(
