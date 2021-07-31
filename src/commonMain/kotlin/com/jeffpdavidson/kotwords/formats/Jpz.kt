@@ -267,6 +267,21 @@ interface Jpz : Crosswordable {
             return Puzzle.fromCrossword(this).asJpzFile(solved = solved)
         }
 
+        /**
+         * Parse the given JPZ file.
+         *
+         * Supports either zip-compressed files or the underlying XML.
+         */
+        suspend fun fromJpzFile(jpz: ByteArray): Jpz {
+            val xml = try {
+                Zip.unzip(jpz)
+            } catch (e: InvalidZipException) {
+                // Assume the file is already unzipped.
+                jpz
+            }
+            return fromXmlString(xml.decodeToString())
+        }
+
         fun fromXmlString(xml: String): Jpz {
             // Try to parse as a <crossword-compiler-applet>; if it fails, fall back to <crossword-compiler>.
             return try {
