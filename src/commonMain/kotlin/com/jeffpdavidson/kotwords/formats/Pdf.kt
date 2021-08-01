@@ -671,6 +671,12 @@ object Pdf {
             getTextWidth("${it.number.ifBlank { "•" }} ", fontFamily.baseFont, clueTextSize)
         }
 
+        val clueHeaderSize = clueTextSize + 1.0f
+        val title = (if (isHtml) clues.title else "<b>${clues.title}</b>").uppercase()
+        val titleElements =
+            splitTextToLines(this, title, fontFamily, clueHeaderSize, columnWidth - maxPrefixWidth, isHtml = true)
+        val titleLineCount = titleElements.count { it == ClueTextElement.NewLine }
+
         clues.clues.forEachIndexed { index, clue ->
             // Count the number of lines needed for the entire clue, plus the section header if
             // this is the first clue in a section, as we do not want to split a clue apart or
@@ -678,10 +684,9 @@ object Pdf {
             val clueElements =
                 splitTextToLines(this, clue.text, fontFamily, clueTextSize, columnWidth - maxPrefixWidth, isHtml)
             val lineCount = clueElements.count { it == ClueTextElement.NewLine }
-            val clueHeaderSize = clueTextSize + 1.0f
             val clueHeight = clueTextSize * (1 + LINE_SPACING * (lineCount - 1)) +
                     if (index == 0) {
-                        clueHeaderSize + (LINE_SPACING - 1) * clueTextSize
+                        clueHeaderSize * (1 + LINE_SPACING * (titleLineCount - 1)) + (LINE_SPACING - 1) * clueTextSize
                     } else {
                         0f
                     }
@@ -699,17 +704,67 @@ object Pdf {
                 columnBottomY = gridY + gridHeight + clueTextSize
             }
 
-            if (index == 0) {
-                val offset = clueTextSize * LINE_SPACING
-                if (render) {
-                    newLineAtOffset(maxPrefixWidth, 0f)
-                    setFont(fontFamily.boldFont, clueHeaderSize)
-                    drawText(clues.title.uppercase())
-                    newLineAtOffset(-maxPrefixWidth, -offset)
+            fun drawClueElements(clueElements: List<ClueTextElement>, textSize: Float, nextTextSize: Float = textSize) {
+                var currentFont = fontFamily.baseFont
+                var currentFontSize = textSize
+                var currentScript = Script.REGULAR
+                var currentLinePosition = 0f
+                var lastLineXOffset = 0f
+                var lastLineYOffset = 0f
 
-                    setFont(fontFamily.baseFont, clueTextSize)
+                val lastNewLineIndex = clueElements.lastIndexOf(ClueTextElement.NewLine)
+
+                clueElements.forEachIndexed { i, clueElement ->
+                    when (clueElement) {
+                        is ClueTextElement.Text -> {
+                            if (render) {
+                                drawText(clueElement.text)
+                                currentLinePosition += getTextWidth(clueElement.text, currentFont, currentFontSize)
+                            }
+                        }
+                        is ClueTextElement.NewLine -> {
+                            val offset = (if (i == lastNewLineIndex) nextTextSize else textSize) * LINE_SPACING
+                            if (render) {
+                                newLineAtOffset(-lastLineXOffset, -offset)
+                                currentLinePosition = 0f
+                                lastLineXOffset = 0f
+                            }
+                            positionY -= offset
+                        }
+                        is ClueTextElement.SetFormat -> {
+                            if (render) {
+                                val newFont = clueElement.format.font
+                                val newFontSize = clueElement.format.script.getScaledFontSize(textSize)
+                                if (newFont != currentFont || newFontSize != currentFontSize) {
+                                    setFont(newFont, newFontSize)
+                                    currentFont = newFont
+                                    currentFontSize = newFontSize
+                                }
+                                if (currentScript != clueElement.format.script) {
+                                    val yOffset =
+                                        when (clueElement.format.script) {
+                                            Script.SUPERSCRIPT -> clueTextSize * SUPER_SCRIPT_OFFSET_PERCENTAGE
+                                            Script.SUBSCRIPT -> -clueTextSize * SUB_SCRIPT_OFFSET_PERCENTAGE
+                                            Script.REGULAR -> 0f
+                                        }
+                                    newLineAtOffset(currentLinePosition - lastLineXOffset, yOffset - lastLineYOffset)
+                                    lastLineXOffset = currentLinePosition
+                                    lastLineYOffset = yOffset
+                                    currentScript = clueElement.format.script
+                                }
+                            }
+                        }
+                    }
                 }
-                positionY -= offset
+            }
+
+            if (index == 0) {
+                setFont(fontFamily.baseFont, clueHeaderSize)
+                newLineAtOffset(maxPrefixWidth, 0f)
+                drawClueElements(titleElements, textSize = clueHeaderSize, nextTextSize = clueTextSize)
+                newLineAtOffset(-maxPrefixWidth, 0f)
+
+                setFont(fontFamily.baseFont, clueTextSize)
             }
 
             if (render) {
@@ -719,54 +774,9 @@ object Pdf {
                 drawText(prefix)
                 newLineAtOffset(prefixWidth, 0f)
             }
-            var currentFont = fontFamily.baseFont
-            var currentFontSize = clueTextSize
-            var currentScript = Script.REGULAR
-            var currentLinePosition = 0f
-            var lastLineXOffset = 0f
-            var lastLineYOffset = 0f
-            clueElements.forEach { clueElement ->
-                when (clueElement) {
-                    is ClueTextElement.Text -> {
-                        if (render) {
-                            drawText(clueElement.text)
-                            currentLinePosition += getTextWidth(clueElement.text, currentFont, currentFontSize)
-                        }
-                    }
-                    is ClueTextElement.NewLine -> {
-                        val offset = clueTextSize * LINE_SPACING
-                        if (render) {
-                            newLineAtOffset(-lastLineXOffset, -offset)
-                            currentLinePosition = 0f
-                            lastLineXOffset = 0f
-                        }
-                        positionY -= offset
-                    }
-                    is ClueTextElement.SetFormat -> {
-                        if (render) {
-                            val newFont = clueElement.format.font
-                            val newFontSize = clueElement.format.script.getScaledFontSize(clueTextSize)
-                            if (newFont != currentFont || newFontSize != currentFontSize) {
-                                setFont(newFont, newFontSize)
-                                currentFont = newFont
-                                currentFontSize = newFontSize
-                            }
-                            if (currentScript != clueElement.format.script) {
-                                val yOffset =
-                                    when (clueElement.format.script) {
-                                        Script.SUPERSCRIPT -> clueTextSize * SUPER_SCRIPT_OFFSET_PERCENTAGE
-                                        Script.SUBSCRIPT -> -clueTextSize * SUB_SCRIPT_OFFSET_PERCENTAGE
-                                        Script.REGULAR -> 0f
-                                    }
-                                newLineAtOffset(currentLinePosition - lastLineXOffset, yOffset - lastLineYOffset)
-                                lastLineXOffset = currentLinePosition
-                                lastLineYOffset = yOffset
-                                currentScript = clueElement.format.script
-                            }
-                        }
-                    }
-                }
-            }
+
+            drawClueElements(clueElements, textSize = clueTextSize)
+
             if (render) {
                 newLineAtOffset(-maxPrefixWidth, 0f)
             }

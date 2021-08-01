@@ -134,8 +134,9 @@ data class Puzzle(
         }
 
         val jpzClues = clues.map { clueList ->
+            val title = if (hasHtmlClues) Jpz.htmlToSnippet(clueList.title) else listOf(Jpz.B(listOf(clueList.title)))
             Jpz.RectangularPuzzle.Crossword.Clues(
-                title = Jpz.RectangularPuzzle.Crossword.Clues.Title(listOf(Jpz.B(listOf(clueList.title)))),
+                title = Jpz.RectangularPuzzle.Crossword.Clues.Title(title),
                 clues = clueList.clues.map { clue ->
                     val htmlClues = if (hasHtmlClues) clue.text else formatClue(clue.text)
                     Jpz.RectangularPuzzle.Crossword.Clues.Clue(
@@ -303,13 +304,15 @@ data class Puzzle(
                 }
             }
 
+            val acrossTitle = if (crossword.hasHtmlClues) "<b>Across</b>" else "Across"
+            val downTitle = if (crossword.hasHtmlClues) "<b>Down</b>" else "Down"
             return Puzzle(
                 crossword.title,
                 crossword.author,
                 crossword.copyright,
                 crossword.notes,
                 grid,
-                listOf(ClueList("Across", acrossClues), ClueList("Down", downClues)),
+                listOf(ClueList(acrossTitle, acrossClues), ClueList(downTitle, downClues)),
                 words.sortedBy { it.id },
                 crosswordSolverSettings = crosswordSolverSettings,
                 hasHtmlClues = crossword.hasHtmlClues,

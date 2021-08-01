@@ -33,7 +33,7 @@ private val XmlSerializer = XML(Jpz.module()) {
 }
 
 /** Container for a puzzle in the JPZ file format. */
-interface Jpz : Crosswordable {
+sealed interface Jpz : Crosswordable {
     val rectangularPuzzle: RectangularPuzzle
 
     fun toXmlString(): String
@@ -146,6 +146,88 @@ interface Jpz : Crosswordable {
         return Zip.zip(filename, toXmlString().toByteArray(Charsets.UTF_8))
     }
 
+    fun asPuzzle(): Puzzle {
+        val crossword: RectangularPuzzle.Crossword
+        val puzzleType: Puzzle.PuzzleType
+        if (rectangularPuzzle.acrostic != null) {
+            crossword = rectangularPuzzle.acrostic!!
+            puzzleType = Puzzle.PuzzleType.ACROSTIC
+        } else {
+            crossword = rectangularPuzzle.crossword!!
+            puzzleType = Puzzle.PuzzleType.CROSSWORD
+        }
+        val width = crossword.grid.width
+        val height = crossword.grid.height
+        val gridMap: MutableMap<Pair<Int, Int>, Puzzle.Cell> = mutableMapOf()
+        crossword.grid.cell.forEach {
+            val position = Pair(it.x - 1, it.y - 1)
+            val cellType = when (it.type) {
+                "block" -> Puzzle.CellType.BLOCK
+                "clue" -> Puzzle.CellType.CLUE
+                "void" -> Puzzle.CellType.VOID
+                else -> Puzzle.CellType.REGULAR
+            }
+            val backgroundShape =
+                if (it.backgroundShape == "circle") {
+                    Puzzle.BackgroundShape.CIRCLE
+                } else {
+                    Puzzle.BackgroundShape.NONE
+                }
+            gridMap[position] = Puzzle.Cell(
+                x = it.x,
+                y = it.y,
+                solution = it.solution ?: "",
+                foregroundColor = it.foregroundColor ?: "",
+                backgroundColor = it.backgroundColor ?: "",
+                number = it.number ?: "",
+                topRightNumber = it.topRightNumber ?: "",
+                cellType = cellType,
+                backgroundShape = backgroundShape,
+                borderDirections = setOfNotNull(
+                    if (it.topBar == true) Puzzle.BorderDirection.TOP else null,
+                    if (it.bottomBar == true) Puzzle.BorderDirection.BOTTOM else null,
+                    if (it.leftBar == true) Puzzle.BorderDirection.LEFT else null,
+                    if (it.rightBar == true) Puzzle.BorderDirection.RIGHT else null,
+                )
+            )
+        }
+        val grid: MutableList<MutableList<Puzzle.Cell>> = mutableListOf()
+        for (y in 0 until height) {
+            val row = mutableListOf<Puzzle.Cell>()
+            for (x in 0 until width) {
+                row.add(gridMap[Pair(x, y)]!!)
+            }
+            grid.add(row)
+        }
+        val crosswordSolverSettings = if (this is CrosswordCompilerApplet && appletSettings != null) {
+            Puzzle.CrosswordSolverSettings(
+                cursorColor = appletSettings.cursorColor,
+                selectedCellsColor = appletSettings.selectedCellsColor,
+                completionMessage = appletSettings.completion.message
+            )
+        } else {
+            null
+        }
+        return Puzzle(
+            title = rectangularPuzzle.metadata.title ?: "",
+            creator = rectangularPuzzle.metadata.creator ?: "",
+            copyright = rectangularPuzzle.metadata.copyright ?: "",
+            description = rectangularPuzzle.metadata.description ?: "",
+            grid = grid,
+            clues = crossword.clues.map { clues ->
+                Puzzle.ClueList(title = clues.title.data.toHtml(), clues = clues.clues.map { clue ->
+                    Puzzle.Clue(wordId = clue.word, number = clue.number, text = clue.text.toHtml())
+                })
+            },
+            words = crossword.words.map { word ->
+                Puzzle.Word(id = word.id, cells = word.cells.map { cell -> grid[cell.y - 1][cell.x - 1] })
+            },
+            hasHtmlClues = true,
+            crosswordSolverSettings = crosswordSolverSettings,
+            puzzleType = puzzleType,
+        )
+    }
+
     override fun asCrossword(): Crossword {
         // Extract the grid by first building a map from point to square and then converting it to a list-of-lists.
         require(rectangularPuzzle.crossword != null) {
@@ -229,32 +311,34 @@ interface Jpz : Crosswordable {
         return acrossClues to downClues
     }
 
-    private fun Snippet.toHtml(): String {
-        return joinToString("") {
+    private fun Snippet.toHtml(trim: Boolean = true): String {
+        val result = joinToString("") {
             when (it) {
                 is String -> it.replace("&", "&amp;").replace("<", "&lt;")
-                is B -> "<b>${it.data.toHtml()}</b>"
-                is I -> "<i>${it.data.toHtml()}</i>"
-                is Sub -> "<sub>${it.data.toHtml()}</sub>"
-                is Sup -> "<sup>${it.data.toHtml()}</sup>"
-                is Span -> "<span>${it.data.toHtml()}</span>"
+                is B -> "<b>${it.data.toHtml(trim = false)}</b>"
+                is I -> "<i>${it.data.toHtml(trim = false)}</i>"
+                is Sub -> "<sub>${it.data.toHtml(trim = false)}</sub>"
+                is Sup -> "<sup>${it.data.toHtml(trim = false)}</sup>"
+                is Span -> "<span>${it.data.toHtml(trim = false)}</span>"
                 else -> throw IllegalStateException("Unknown data type: $it")
             }
-        }.trim()
+        }
+        return if (trim) result.trim() else result
     }
 
-    private fun Snippet.toText(): String {
-        return joinToString("") {
+    private fun Snippet.toText(trim: Boolean = true): String {
+        val result = joinToString("") {
             when (it) {
                 is String -> it.replace("&", "&amp;").replace("<", "&lt;")
-                is B -> it.data.toText()
-                is I -> it.data.toText()
-                is Sub -> it.data.toText()
-                is Sup -> it.data.toText()
-                is Span -> it.data.toText()
+                is B -> it.data.toText(trim = false)
+                is I -> it.data.toText(trim = false)
+                is Sub -> it.data.toText(trim = false)
+                is Sup -> it.data.toText(trim = false)
+                is Span -> it.data.toText(trim = false)
                 else -> throw IllegalStateException("Unknown data type: $it")
             }
-        }.trim()
+        }
+        return if (trim) result.trim() else result
     }
 
     companion object {
