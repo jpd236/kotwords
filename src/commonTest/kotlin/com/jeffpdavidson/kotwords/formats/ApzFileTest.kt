@@ -11,7 +11,9 @@ class ApzFileTest {
     @Test
     fun parseApz() = runTest {
         val acrostic = ApzFile.parse(readStringResource(ApzFileTest::class, "acrostic/acrostic.apz")).toAcrostic(
-            Puzzle.CrosswordSolverSettings("#00b100", "#80ff80", "")
+            Puzzle.CrosswordSolverSettings(
+                cursorColor = "#00b100", selectedCellsColor = "#80ff80", completionMessage = ""
+            )
         )
         val expected = Acrostic(
             title = "Test title",
@@ -24,7 +26,9 @@ class ApzFileTest {
             clues = listOf("Clue 1", "Clue 2"),
             answers = listOf("CAR", "STOIC"),
             crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
-                "#00b100", "#80ff80", "MADE UP QUOTE\n\nAcrostic!"
+                cursorColor = "#00b100",
+                selectedCellsColor = "#80ff80",
+                completionMessage = "MADE UP QUOTE\n\nAcrostic!"
             )
         )
         assertEquals(expected, acrostic)

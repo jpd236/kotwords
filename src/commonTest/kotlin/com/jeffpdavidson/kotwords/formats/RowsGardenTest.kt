@@ -29,7 +29,9 @@ class RowsGardenTest {
             darkBloomColor = "#5765F7",
             addWordCount = true,
             addHyphenated = true,
-            crosswordSolverSettings = Puzzle.CrosswordSolverSettings("#00b100", "#80ff80", "All done!")
+            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
+                cursorColor = "#00b100", selectedCellsColor = "#80ff80", completionMessage = "All done!"
+            )
         )
 
         val expected = readStringResource(RowsGardenTest::class, "rows-garden/rows-garden.jpz")
@@ -45,7 +47,9 @@ class RowsGardenTest {
             darkBloomColor = "#5765F7",
             addWordCount = true,
             addHyphenated = true,
-            crosswordSolverSettings = Puzzle.CrosswordSolverSettings("#00b100", "#80ff80", "All done!")
+            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
+                cursorColor = "#00b100", selectedCellsColor = "#80ff80", completionMessage = "All done!"
+            )
         )
 
         val expected = readStringResource(RowsGardenTest::class, "rows-garden/rows-garden-mini.jpz")

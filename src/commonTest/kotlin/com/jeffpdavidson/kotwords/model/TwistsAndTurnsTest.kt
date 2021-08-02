@@ -54,7 +54,9 @@ class TwistsAndTurnsTest {
             twistsClues = listOf("D Twist 1", "C Twist 2", "B Twist 3", "A Twist 4"),
             lightTwistsColor = "#FFFFFF",
             darkTwistsColor = "#999999",
-            crosswordSolverSettings = Puzzle.CrosswordSolverSettings("#00b100", "#80ff80", "All done!"),
+            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
+                cursorColor = "#00b100", selectedCellsColor = "#80ff80", completionMessage = "All done!"
+            ),
         )
     }
 }

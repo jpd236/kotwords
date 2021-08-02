@@ -39,9 +39,9 @@ data class ApzFile(
                     .filter { it.isNotEmpty() }.joinToString("\n\n")
             }
         val settings = Puzzle.CrosswordSolverSettings(
-            crosswordSolverSettings.cursorColor,
-            crosswordSolverSettings.selectedCellsColor,
-            completionMessage
+            cursorColor = crosswordSolverSettings.cursorColor,
+            selectedCellsColor = crosswordSolverSettings.selectedCellsColor,
+            completionMessage = completionMessage
         )
         return Acrostic.fromRawInput(
             title = metadata.title ?: "",

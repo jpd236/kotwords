@@ -90,7 +90,7 @@ class AcrosticTest {
             gridKey = listOf(listOf(2, 1, 3), listOf(5, 6, 4, 7, 8)),
             clues = listOf("Clue 1", "Clue 2"),
             crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
-                "#00b100", "#80ff80", "All done!"
+                cursorColor = "#00b100", selectedCellsColor = "#80ff80", completionMessage = "All done!"
             )
         )
     }
