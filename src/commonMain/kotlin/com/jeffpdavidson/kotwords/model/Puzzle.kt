@@ -19,9 +19,9 @@ data class Puzzle(
 ) {
 
     data class CrosswordSolverSettings(
-        val cursorColor: String,
-        val selectedCellsColor: String,
-        val completionMessage: String
+        val completionMessage: String,
+        val cursorColor: String = "#00B100",
+        val selectedCellsColor: String = "#80FF80"
     )
 
     enum class CellType {

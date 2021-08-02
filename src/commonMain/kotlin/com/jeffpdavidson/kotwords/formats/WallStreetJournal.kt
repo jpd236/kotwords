@@ -17,7 +17,7 @@ class WallStreetJournal(
 ) : Crosswordable {
 
     override fun asCrossword(): Crossword {
-        val response = JsonSerializer.fromJson<WallStreetJournalJson.Response>(json)
+        val response = JsonSerializer.fromJson<WallStreetJournalJson.CrosswordJson>(json)
         val grid = response.data.grid.map { row ->
             row.map { square ->
                 if (square.letter == "") {
@@ -51,11 +51,10 @@ class WallStreetJournal(
         )
     }
 
-    private fun getClueMap(response: WallStreetJournalJson.Response, direction: String):
+    private fun getClueMap(response: WallStreetJournalJson.CrosswordJson, direction: String):
             Map<Int, String> {
-        // TODO(#2): Generalize and centralize accented character replacement.
         return response.data.copy.clues.first { it.title.unescapeEntities() == direction }
-            .clues.associate { it.number to it.clue.unescapeEntities().replace('⁄', '/') }
+            .clues.associate { it.number to it.clue.unescapeEntities() }
     }
 
     companion object {

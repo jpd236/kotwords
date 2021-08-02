@@ -1,0 +1,28 @@
+{
+  "copy": {
+    "title": "Test title",
+    "description": "Quote author, &ldquo;Quote&rdquo;",
+    "publisher": "Test publisher",
+    "byline": "Test byline",
+    "date-publish": "Saturday, 31 July 2021",
+    "gridsize": {
+      "cols": "20",
+      "rows": "0"
+    }
+  },
+  "settings": {
+    "solution": "ACRO-ST IC",
+    "clues": [
+      {
+        "id": "A",
+        "clue": "Clue 1"
+      },
+      {
+        "id": "B",
+        "clue": "Clue 2"
+      }
+    ]
+  },
+  "celldata": "AAAB-BB BB",
+  "cluedata": "BACC-AB DE"
+}
