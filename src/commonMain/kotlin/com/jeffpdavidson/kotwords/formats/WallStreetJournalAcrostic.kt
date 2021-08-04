@@ -17,7 +17,7 @@ class WallStreetJournalAcrostic(private val json: String) {
         val gridKey = mutableMapOf<Char, MutableMap<Char, Int>>()
         response.celldata
             .filter { it in 'A'..'Z' }
-            .zip(response.cluedata.filter { it in 'A'..'Z'})
+            .zip(response.cluedata.filter { it in 'A'..'Z' })
             .forEachIndexed { gridIndex, (cellId, clueId) ->
                 val wordKey = gridKey.getOrPut(cellId) { mutableMapOf() }
                 wordKey[clueId] = gridIndex + 1
