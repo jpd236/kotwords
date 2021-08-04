@@ -31,7 +31,8 @@ class NewYorkTimes(private val json: String) : Crosswordable {
     fun asPuzzle(): Puzzle {
         val data = JsonSerializer.fromJson<NewYorkTimesJson.Data>(json).gamePageData
         val publicationDate = PUBLICATION_DATE_FORMAT.parseDate(data.meta.publicationDate)
-        val baseTitle = "NY Times, ${TITLE_DATE_FORMAT.format(publicationDate)}"
+        val puzzleName = if (data.meta.publishStream == "mini") "NY Times Mini Crossword" else "NY Times"
+        val baseTitle = "$puzzleName, ${TITLE_DATE_FORMAT.format(publicationDate)}"
 
         val grid = (0 until data.dimensions.rowCount).map { y ->
             (0 until data.dimensions.columnCount).map { x ->
@@ -86,7 +87,7 @@ class NewYorkTimes(private val json: String) : Crosswordable {
             2 -> "${constructors[0]} and ${constructors[1]}"
             else -> "${constructors.subList(0, constructors.size - 1).joinToString(", ")} and ${constructors.last()}"
         }
-        return listOfNotNull(joinedConstructors, editor).joinToString(" / ")
+        return listOfNotNull(joinedConstructors, editor.ifEmpty { null }).joinToString(" / ")
     }
 
     companion object {

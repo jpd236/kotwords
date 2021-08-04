@@ -24,10 +24,11 @@ internal object NewYorkTimesJson {
     data class Meta(
         val constructors: List<String>,
         val copyright: String,
-        val editor: String,
+        val editor: String = "",
         val publicationDate: String,
         val notes: List<Note>? = listOf(),
         val title: String = "",
+        val publishStream: String = "",
     )
 
     @Serializable
