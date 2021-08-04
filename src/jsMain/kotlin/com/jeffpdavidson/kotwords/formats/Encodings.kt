@@ -42,4 +42,9 @@ internal actual object Encodings {
         textarea.innerHTML = string
         return textarea.value
     }
+
+    actual fun unescape(string: String): String = jsunescape(string)
 }
+
+@JsName("unescape")
+private external fun jsunescape(string: String): String

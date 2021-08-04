@@ -7,4 +7,6 @@ internal expect object Encodings {
     fun decodeUrl(url: String): String
 
     fun decodeHtmlEntities(string: String): String
+
+    fun unescape(string: String): String
 }

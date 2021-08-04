@@ -19,7 +19,7 @@ data class Puzzle(
 ) {
 
     data class CrosswordSolverSettings(
-        val completionMessage: String,
+        val completionMessage: String = "Congratulations! The puzzle is solved correctly.",
         val cursorColor: String = "#00B100",
         val selectedCellsColor: String = "#80FF80"
     )

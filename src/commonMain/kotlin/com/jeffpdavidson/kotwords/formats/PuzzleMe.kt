@@ -5,7 +5,6 @@ import com.jeffpdavidson.kotwords.formats.json.PuzzleMeJson
 import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Square
-import io.ktor.utils.io.core.String
 
 private val PUZZLE_DATA_REGEX = """\bwindow\.rawc\s*=\s*'([^']+)'""".toRegex()
 
@@ -133,7 +132,7 @@ class PuzzleMe(private val json: String) : Crosswordable {
     companion object {
         fun fromHtml(html: String): PuzzleMe = PuzzleMe(extractPuzzleJson(html))
 
-        fun fromRawc(rawc: String): PuzzleMe = PuzzleMe(String(Encodings.decodeBase64(rawc)))
+        fun fromRawc(rawc: String): PuzzleMe = PuzzleMe(decodeRawc(rawc))
 
         internal fun extractPuzzleJson(html: String): String {
             // Look for "window.rawc = '[data]'" inside <script> tags; this is JSON puzzle data
@@ -141,11 +140,13 @@ class PuzzleMe(private val json: String) : Crosswordable {
             Xml.parse(html, format = DocumentFormat.HTML).select("script").forEach {
                 val matchResult = PUZZLE_DATA_REGEX.find(it.data)
                 if (matchResult != null) {
-                    return String(Encodings.decodeBase64(matchResult.groupValues[1]))
+                    return decodeRawc(matchResult.groupValues[1])
                 }
             }
             throw InvalidFormatException("Could not find puzzle data in PuzzleMe HTML")
         }
+
+        private fun decodeRawc(rawc: String) = Encodings.decodeBase64(rawc).decodeToString()
 
         private fun buildClueMap(clueList: List<PuzzleMeJson.PlacedWord>): Map<Int, String> =
             clueList.associate { it.clueNum to toHtml(it.clue.clue) }
