@@ -73,7 +73,7 @@ class NewYorkTimes(private val json: String) : Crosswordable {
             },
             words = data.clues.mapIndexed { clueIndex, clue ->
                 Puzzle.Word(id = clueIndex, cells = clue.cells.map {
-                    grid[it / data.dimensions.columnCount][it % data.dimensions.rowCount]
+                    grid[it / data.dimensions.columnCount][it % data.dimensions.columnCount]
                 })
             },
             hasHtmlClues = true,
