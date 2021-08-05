@@ -21,7 +21,6 @@ private val PUBLICATION_DATE_FORMAT = DateFormat("YYYY-MM-dd")
  * should still work most of the time but may omit key information.
  *
  * Known, potentially fixable issues:
- * - Older NYT puzzles may use "&" instead of "&amp;" (example: 2013/05/08, 7-Down).
  * - 2020/07/08 42-Across uses <s> for strike-through, which is technically unsupported in JPZ.
  */
 class NewYorkTimes(private val json: String) : Crosswordable {
@@ -49,7 +48,7 @@ class NewYorkTimes(private val json: String) : Crosswordable {
                 Puzzle.Cell(
                     x = x + 1,
                     y = y + 1,
-                    solution = cell.answer,
+                    solution = cell.answer.normalizeEntities(),
                     backgroundColor = backgroundColor,
                     number = cell.label,
                     cellType = cellType,
@@ -58,16 +57,18 @@ class NewYorkTimes(private val json: String) : Crosswordable {
             }
         }
 
+        val webNotes = data.meta.notes?.filter { it.platforms.web }
+
         return Puzzle(
-            title = listOfNotNull(baseTitle, data.meta.title.ifEmpty { null }).joinToString(" "),
+            title = listOfNotNull(baseTitle, data.meta.title.normalizeEntities().ifEmpty { null }).joinToString(" "),
             creator = renderByline(constructors = data.meta.constructors, editor = data.meta.editor),
             copyright = "© ${data.meta.copyright}, The New York Times",
-            description = data.meta.notes?.filter { it.platforms.web }?.map { it.text }?.firstOrNull() ?: "",
+            description = webNotes?.map { it.text.normalizeEntities() }?.firstOrNull() ?: "",
             grid = grid,
             clues = data.clueLists.map { clueList ->
                 Puzzle.ClueList(title = "<b>${clueList.name}</b>", clues = clueList.clues.map { clueIndex ->
                     val clue = data.clues[clueIndex]
-                    Puzzle.Clue(wordId = clueIndex, number = clue.label, text = clue.text)
+                    Puzzle.Clue(wordId = clueIndex, number = clue.label, text = clue.text.normalizeEntities())
                 })
             },
             words = data.clues.mapIndexed { clueIndex, clue ->
@@ -107,6 +108,13 @@ class NewYorkTimes(private val json: String) : Crosswordable {
             throw InvalidFormatException("Could not find puzzle data in New York Times HTML")
         }
 
-        private fun decodePluribus(pluribus: String): String = LzString.decompress(Encodings.unescape(pluribus))
+        internal fun decodePluribus(pluribus: String): String = LzString.decompress(Encodings.unescape(pluribus))
+
+        private fun String.normalizeEntities(): String {
+            // Text uses a mix of valid HTML entities and standalone "&" characters, which are invalid HTML/XML.
+            // First, decode the valid HTML entities to get a regular string.
+            // Then, encode & and < to get valid XML.
+            return Encodings.decodeHtmlEntities(this).replace("&", "&amp;").replace("<", "&lt;")
+        }
     }
 }
