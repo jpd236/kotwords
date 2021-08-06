@@ -19,13 +19,10 @@ private val PUBLICATION_DATE_FORMAT = DateFormat("YYYY-MM-dd")
  * Prefer [asPuzzle] where possible - New York Times puzzles occasionally make use of alternative word lists that cannot
  * be encoded with the [Crossword] interface, but can be encoded as a [Puzzle] (and saved as a JPZ file). [asCrossword]
  * should still work most of the time but may omit key information.
- *
- * Known, potentially fixable issues:
- * - 2020/07/08 42-Across uses <s> for strike-through, which is technically unsupported in JPZ.
  */
 class NewYorkTimes(private val json: String) : Crosswordable {
 
-    override fun asCrossword(): Crossword = asPuzzle().asJpzFile().asCrossword()
+    override fun asCrossword(): Crossword = asPuzzle().asCrossword()
 
     fun asPuzzle(): Puzzle {
         val data = JsonSerializer.fromJson<NewYorkTimesJson.Data>(json).gamePageData
@@ -36,11 +33,14 @@ class NewYorkTimes(private val json: String) : Crosswordable {
         val grid = (0 until data.dimensions.rowCount).map { y ->
             (0 until data.dimensions.columnCount).map { x ->
                 val cell = data.cells[y * data.dimensions.columnCount + x]
-                val cellType = if (cell.type == 0) Puzzle.CellType.BLOCK else Puzzle.CellType.REGULAR
+                val cellType = when (cell.type) {
+                    0 -> Puzzle.CellType.BLOCK
+                    4 -> Puzzle.CellType.VOID
+                    else -> Puzzle.CellType.REGULAR
+                }
                 val backgroundColor = if (cell.type == 3) "#dcdcdc" else ""
-                // Circle "external" squares as well, since these are puzzle-dependent and vary.
                 val backgroundShape =
-                    if (cell.type == 2 || cell.type == 4) {
+                    if (cell.type == 2) {
                         Puzzle.BackgroundShape.CIRCLE
                     } else {
                         Puzzle.BackgroundShape.NONE
@@ -48,11 +48,12 @@ class NewYorkTimes(private val json: String) : Crosswordable {
                 Puzzle.Cell(
                     x = x + 1,
                     y = y + 1,
-                    solution = cell.answer.normalizeEntities(),
+                    solution = Encodings.decodeHtmlEntities(cell.answer),
                     backgroundColor = backgroundColor,
                     number = cell.label,
                     cellType = cellType,
                     backgroundShape = backgroundShape,
+                    moreAnswers = cell.moreAnswers.valid,
                 )
             }
         }
@@ -114,7 +115,13 @@ class NewYorkTimes(private val json: String) : Crosswordable {
             // Text uses a mix of valid HTML entities and standalone "&" characters, which are invalid HTML/XML.
             // First, decode the valid HTML entities to get a regular string.
             // Then, encode & and < to get valid XML.
-            return Encodings.decodeHtmlEntities(this).replace("&", "&amp;").replace("<", "&lt;")
+            // Finally, re-decode known valid HTML tags, with substitutions for unsupported tags.
+            return Encodings.decodeHtmlEntities(this)
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace("&lt;(/?(?:b|i|sup|sub|span|strong|s))( [^>]*)?>".toRegex(RegexOption.IGNORE_CASE), "<$1>")
+                .replace("<(/?)strong>".toRegex(RegexOption.IGNORE_CASE), "<$1b>")
+                .replace("</?s>".toRegex(RegexOption.IGNORE_CASE), "---")
         }
     }
 }

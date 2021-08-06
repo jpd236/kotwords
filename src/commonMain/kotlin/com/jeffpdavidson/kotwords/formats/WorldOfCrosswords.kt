@@ -40,7 +40,7 @@ class WorldOfCrosswords(
             val row = mutableListOf<Square>()
             for (x in 0 until size) {
                 if (whiteSquareCoordinates.contains(x to y)) {
-                    row.add(Square(answerLetters[answerLetterIndex++]))
+                    row.add(Square("${answerLetters[answerLetterIndex++]}"))
                 } else {
                     row.add(BLACK_SQUARE)
                 }

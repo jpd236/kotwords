@@ -20,8 +20,8 @@ class AcrossLiteSanitizerTest {
             row.split(" ").map { square ->
                 when (square) {
                     "." -> BLACK_SQUARE
-                    "X" -> Square('X')
-                    else -> Square('X', number = square.toInt())
+                    "X" -> Square("X")
+                    else -> Square("X", number = square.toInt())
                 }
             }
         }

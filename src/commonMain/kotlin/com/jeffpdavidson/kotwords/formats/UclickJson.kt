@@ -24,7 +24,7 @@ class UclickJson(
         val date = JSON_DATE_FORMAT.parseDate(response.date)
         val copyright = if (response.copyright.isNotEmpty()) decode(response.copyright) else copyright
         val grid = response.allAnswer.chunked(response.width).map { row ->
-            row.map { square -> if (square == '-') BLACK_SQUARE else Square(square) }
+            row.map { square -> if (square == '-') BLACK_SQUARE else Square("$square") }
         }
         val rawTitle = decode(response.title)
         val title = if (addDateToTitle) {

@@ -26,8 +26,7 @@ class Crosshare(private val json: String) : Crosswordable {
                         BLACK_SQUARE
                     } else {
                         Square(
-                            solution = ch[0],
-                            solutionRebus = if (ch.length > 1) ch else "",
+                            solution = ch,
                             isCircled = data.highlighted.contains(i),
                         )
                     }

@@ -34,12 +34,7 @@ class BostonGlobe(private val html: String) : Crosswordable {
             (1..width).map { x ->
                 val solution = squareMap[x to y]
                 if (solution != null) {
-                    val solutionRebus = if (solution.length > 1) {
-                        solution
-                    } else {
-                        ""
-                    }
-                    Square(solution = solution[0], solutionRebus = solutionRebus)
+                    Square(solution = solution)
                 } else {
                     BLACK_SQUARE
                 }

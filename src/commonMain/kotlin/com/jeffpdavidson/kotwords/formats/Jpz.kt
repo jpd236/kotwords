@@ -1,9 +1,7 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Puzzle
-import com.jeffpdavidson.kotwords.model.Square
 import io.ktor.utils.io.charsets.Charsets
 import io.ktor.utils.io.core.toByteArray
 import kotlinx.serialization.Polymorphic
@@ -229,86 +227,7 @@ sealed interface Jpz : Crosswordable {
     }
 
     override fun asCrossword(): Crossword {
-        // Extract the grid by first building a map from point to square and then converting it to a list-of-lists.
-        require(rectangularPuzzle.crossword != null) {
-            "JPZ file does not contain a <crossword> element"
-        }
-        val width = rectangularPuzzle.crossword!!.grid.width
-        val height = rectangularPuzzle.crossword!!.grid.height
-        val gridMap: MutableMap<Pair<Int, Int>, Square> = mutableMapOf()
-        rectangularPuzzle.crossword!!.grid.cell.forEach {
-            val position = Pair(it.x - 1, it.y - 1)
-            if (it.type == "block") {
-                gridMap[position] = BLACK_SQUARE.copy(backgroundColor = it.backgroundColor)
-            } else {
-                val solution = it.solution ?: ""
-                val solutionRebus = if (solution.length > 1) solution else ""
-                val isCircled = "circle".equals(it.backgroundShape, ignoreCase = true)
-                gridMap[position] = Square(
-                    solution = solution[0],
-                    solutionRebus = solutionRebus,
-                    isCircled = isCircled,
-                    number = if (it.number?.isNotEmpty() == true) it.number.toInt() else null,
-                    foregroundColor = it.foregroundColor,
-                    backgroundColor = it.backgroundColor,
-                    borderDirections = setOfNotNull(
-                        if (it.topBar == true) Square.BorderDirection.TOP else null,
-                        if (it.bottomBar == true) Square.BorderDirection.BOTTOM else null,
-                        if (it.leftBar == true) Square.BorderDirection.LEFT else null,
-                        if (it.rightBar == true) Square.BorderDirection.RIGHT else null,
-                    )
-                )
-            }
-        }
-        val grid: MutableList<MutableList<Square>> = mutableListOf()
-        for (y in 0 until height) {
-            val row = mutableListOf<Square>()
-            for (x in 0 until width) {
-                row.add(gridMap[Pair(x, y)]!!)
-            }
-            grid.add(row)
-        }
-
-        val (acrossClues, downClues) = buildClueMaps(rectangularPuzzle.crossword!!.clues)
-
-        val (acrossWords, downWords) = rectangularPuzzle.crossword!!.words.map {
-            Crossword.Word(it.id, it.cells.map { cell -> cell.x - 1 to cell.y - 1 })
-        }.partition { word ->
-            // Across clues have the same y coordinate for all squares in the word.
-            word.squares.all { square -> square.second == word.squares[0].second }
-        }
-
-        return Crossword(
-            title = rectangularPuzzle.metadata.title ?: "",
-            author = rectangularPuzzle.metadata.creator ?: "",
-            copyright = rectangularPuzzle.metadata.copyright ?: "",
-            notes = rectangularPuzzle.metadata.description ?: "",
-            grid = grid,
-            acrossClues = acrossClues,
-            downClues = downClues,
-            hasHtmlClues = true,
-            acrossWords = acrossWords,
-            downWords = downWords,
-        )
-    }
-
-    /** Convert the given list of <clues> elements into across and down clues lists. */
-    private fun buildClueMaps(clues: List<RectangularPuzzle.Crossword.Clues>):
-            Pair<Map<Int, String>, Map<Int, String>> {
-        // Create a map from clue list title to the list of <clue> elements under that title.
-        val clueGroups = clues.filter { it.title.data.isNotEmpty() }.associate {
-            val clueListTitle = it.title.data.toText().lowercase()
-            val clueList = it.clues
-            clueListTitle to clueList
-        }
-
-        // Convert the <clue> element lists for across/down clues into the expected map format.
-        val acrossClues =
-            (clueGroups["across"] ?: error("No Across clues")).associate { it.number.toInt() to it.text.toHtml() }
-        val downClues =
-            (clueGroups["down"] ?: error("No Down clues")).associate { it.number.toInt() to it.text.toHtml() }
-
-        return acrossClues to downClues
+        return asPuzzle().asCrossword()
     }
 
     private fun Snippet.toHtml(trim: Boolean = true): String {

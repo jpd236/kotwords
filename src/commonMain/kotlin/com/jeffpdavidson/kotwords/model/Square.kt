@@ -3,13 +3,11 @@ package com.jeffpdavidson.kotwords.model
 /**
  * A square in the grid of a [Crossword].
  *
- * Black squares will have [isBlack] set to true. White squares will have a valid solution character.
+ * Black squares will have [isBlack] set to true. White squares will have a non-null [solution].
  *
  * @constructor Create a new white Square. (For black squares, use [BLACK_SQUARE]).
  * @param isBlack Whether the square is black.
- * @param solution The solution as a single character.
- * @param solutionRebus An optional alternative solution representing a full rebus entry (multiple
- *                      letters in a single square).
+ * @param solution The solution.
  * @param isCircled Whether the square contains a circle.
  * @param entry Optional field denoting the user's entry for the square.
  * @param entryRebus Optional field denoting the user's rebus entry for the square.
@@ -22,28 +20,27 @@ package com.jeffpdavidson.kotwords.model
  * @param borderDirections Optional field indicating the directions of any barred borders (walls).
  */
 data class Square(
-    val solution: Char?,
+    val solution: String?,
     val isBlack: Boolean = false,
-    val solutionRebus: String = "",
     val isCircled: Boolean = false,
-    val entry: Char? = null,
-    val entryRebus: String? = null,
+    val entry: String? = null,
     val isGiven: Boolean = false,
     val number: Int? = null,
     val foregroundColor: String? = null,
     val backgroundColor: String? = null,
     val borderDirections: Set<BorderDirection> = setOf(),
+    val moreAnswers: List<String> = listOf(),
 ) {
     init {
         if (isBlack) {
             require(
                 solution == null &&
-                        solutionRebus == "" &&
                         !isCircled &&
                         entry == null &&
                         !isGiven &&
                         number == null &&
-                        borderDirections.isEmpty()
+                        borderDirections.isEmpty() &&
+                        moreAnswers.isEmpty()
             ) {
                 // Note: OK for black squares to have different background colors.
                 "Black squares must not set other properties"

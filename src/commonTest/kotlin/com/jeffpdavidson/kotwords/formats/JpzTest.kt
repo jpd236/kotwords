@@ -23,8 +23,7 @@ class JpzTest {
     fun crosswordWithClueGaps() = runTest {
         assertTrue(
             readBinaryResource(JpzTest::class, "puz/gaps.puz").contentEquals(
-                Jpz.fromXmlString(readStringResource(JpzTest::class, "jpz/gaps.jpz"))
-                    .asCrossword().toAcrossLiteBinary()
+                Jpz.fromXmlString(readStringResource(JpzTest::class, "jpz/gaps.jpz")).asCrossword().toAcrossLiteBinary()
             )
         )
     }

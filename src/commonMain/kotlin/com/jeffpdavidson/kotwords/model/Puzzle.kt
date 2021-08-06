@@ -53,7 +53,8 @@ data class Puzzle(
         val topRightNumber: String = "",
         val cellType: CellType = CellType.REGULAR,
         val backgroundShape: BackgroundShape = BackgroundShape.NONE,
-        val borderDirections: Set<BorderDirection> = setOf()
+        val borderDirections: Set<BorderDirection> = setOf(),
+        val moreAnswers: List<String> = listOf(),
     )
 
     data class Word(
@@ -75,6 +76,64 @@ data class Puzzle(
     enum class PuzzleType {
         CROSSWORD,
         ACROSTIC
+    }
+
+    fun asCrossword(): Crossword {
+        require(puzzleType == PuzzleType.CROSSWORD) {
+            "Cannot convert $puzzleType puzzle to a Crossword."
+        }
+
+        val acrossClues = clues.find { it.title.contains("Across".toRegex(RegexOption.IGNORE_CASE)) }
+        val downClues = clues.find { it.title.contains("Down".toRegex(RegexOption.IGNORE_CASE)) }
+        require(acrossClues != null && downClues != null) {
+            "Cannot convert puzzle without Across and Down clues to a Crossword."
+        }
+
+        val (acrossWords, downWords) = words.map {
+            Crossword.Word(it.id, it.cells.map { cell -> cell.x - 1 to cell.y - 1 })
+        }.partition { word ->
+            // Across clues have the same y coordinate for all squares in the word.
+            word.squares.all { square -> square.second == word.squares[0].second }
+        }
+
+        return Crossword(
+            title = title,
+            author = creator,
+            copyright = copyright,
+            notes = description,
+            grid = grid.map { row ->
+                row.map { cell ->
+                    // TODO: Push down void cell -> Crossword handling from PuzzleMe to here.
+                    if (cell.cellType == CellType.BLOCK || cell.cellType == CellType.VOID) {
+                        BLACK_SQUARE.copy(backgroundColor = cell.backgroundColor)
+                    } else {
+                        val isCircled = cell.backgroundShape == BackgroundShape.CIRCLE
+                        val borderDirections = cell.borderDirections.map {
+                            when (it) {
+                                BorderDirection.TOP -> Square.BorderDirection.TOP
+                                BorderDirection.BOTTOM -> Square.BorderDirection.BOTTOM
+                                BorderDirection.LEFT -> Square.BorderDirection.LEFT
+                                BorderDirection.RIGHT -> Square.BorderDirection.RIGHT
+                            }
+                        }.toSet()
+                        Square(
+                            solution = cell.solution,
+                            isCircled = isCircled,
+                            number = if (cell.number.isNotEmpty()) cell.number.toInt() else null,
+                            foregroundColor = cell.foregroundColor.ifEmpty { null },
+                            backgroundColor = cell.backgroundColor.ifEmpty { null },
+                            borderDirections = borderDirections,
+                            moreAnswers = cell.moreAnswers,
+                        )
+                    }
+                }
+            },
+            acrossClues = acrossClues.clues.associate { clue -> clue.number.toInt() to clue.text },
+            downClues = downClues.clues.associate { clue -> clue.number.toInt() to clue.text },
+            hasHtmlClues = hasHtmlClues,
+            acrossWords = acrossWords,
+            downWords = downWords,
+        )
     }
 
     /**
@@ -191,7 +250,7 @@ data class Puzzle(
                         backgroundColor = square.backgroundColor ?: ""
                     )
                 } else {
-                    val solution = square.solutionRebus.ifEmpty { "${square.solution}" }
+                    val solution = square.solution!!
                     val number =
                         "${
                             if (hasCustomNumbering) {

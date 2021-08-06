@@ -38,11 +38,17 @@ internal object NewYorkTimesJson {
     )
 
     @Serializable
+    data class MoreAnswers(
+        val valid: List<String> = listOf()
+    )
+
+    @Serializable
     data class Cell(
-        /** Cell type. 1 == regular, 2 == circled, 3 == shaded, 4 == external, 0/default == block. */
+        /** Cell type. 1 == regular, 2 == circled, 3 == shaded, 4 == external (void), 0/default == block. */
         val type: Int,
         val answer: String = "",
         val label: String = "",
+        val moreAnswers: MoreAnswers = MoreAnswers(),
     )
 
     @Serializable

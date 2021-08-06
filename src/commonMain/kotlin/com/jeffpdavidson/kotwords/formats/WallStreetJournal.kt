@@ -25,9 +25,9 @@ class WallStreetJournal(
                 } else {
                     // Treat any kind of special square style as circled, since that's all Across
                     // Lite can render.
+                    // TODO: Propagate square.style.highlight for JPZ purposes.
                     Square(
-                        solution = square.letter[0],
-                        solutionRebus = if (square.letter.length > 1) square.letter else "",
+                        solution = square.letter,
                         isCircled = square.style.highlight || square.style.shapebg.isNotEmpty()
                     )
                 }

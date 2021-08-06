@@ -55,7 +55,6 @@ class PuzzleMe(private val json: String) : Crosswordable {
                         }
                     row.add(BLACK_SQUARE.copy(backgroundColor = backgroundColor))
                 } else {
-                    val solutionRebus = if (box.length > 1) box else ""
                     val isCircled = circledCells.contains(x to y)
                     val isPrefilled = data.preRevealIdxs.isNotEmpty() && data.preRevealIdxs[x][y]
                     val number =
@@ -66,10 +65,9 @@ class PuzzleMe(private val json: String) : Crosswordable {
                         }
                     row.add(
                         Square(
-                            solution = box[0],
-                            solutionRebus = solutionRebus,
+                            solution = box,
                             isCircled = isCircled,
-                            entry = if (isPrefilled) box[0] else null,
+                            entry = if (isPrefilled) box else null,
                             isGiven = isPrefilled,
                             number = number,
                             foregroundColor = cellInfoMap[x to y]?.fgColor?.ifEmpty { null },

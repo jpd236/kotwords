@@ -36,7 +36,7 @@ class UclickXml(
                 if (square == '-') {
                     BLACK_SQUARE
                 } else {
-                    Square(square)
+                    Square("$square")
                 }
             }
         }
