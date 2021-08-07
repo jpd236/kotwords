@@ -194,6 +194,8 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
             solved: Boolean = false,
             writeUtf8: Boolean = true,
         ): ByteArray {
+            var unsupportedFeatures = hasUnsupportedFeatures
+
             // Validate that the solution and entry grids only contains supported characters.
             val cleanedGrid = grid.map { row ->
                 row.map { square ->
@@ -207,8 +209,14 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                             square
                         } else {
                             val sanitizedSolution = getValidSolutionRebus(this)
-                            // TODO: Add warning to puzzle notes if sanitizedSolution is null.
-                            val validSolution = sanitizedSolution ?: "X"
+                            val validSolution =
+                                if (sanitizedSolution != null) {
+                                    sanitizedSolution
+                                } else {
+                                    // Show a warning about unsupported features, and fall back to "X".
+                                    unsupportedFeatures = true
+                                    "X"
+                                }
                             require(entry == null || isValidGridString(entry)) {
                                 "Unsupported entry character: $entry"
                             }
@@ -321,8 +329,12 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                     }
                 }
 
+                val combinedNotes = listOfNotNull(
+                    notes.ifEmpty { null },
+                    if (unsupportedFeatures) UNSUPPORTED_FEATURES_WARNING else null
+                ).joinToString("\n\n")
                 writeNullTerminatedString(
-                    AcrossLiteSanitizer.substituteUnsupportedText(notes, sanitizeCharacters = !useUtf8), charset
+                    AcrossLiteSanitizer.substituteUnsupportedText(combinedNotes, sanitizeCharacters = !useUtf8), charset
                 )
 
                 // GRBS/RUSR/RTBL sections for rebus squares.

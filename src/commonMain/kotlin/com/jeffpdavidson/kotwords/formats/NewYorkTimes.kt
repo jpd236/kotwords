@@ -60,6 +60,11 @@ class NewYorkTimes(private val json: String) : Crosswordable {
 
         val webNotes = data.meta.notes?.filter { it.platforms.web }
 
+        // Background pictures are unsupported and may be instrumental to the puzzle (e.g. 2021-02-14).
+        val hasUnsupportedFeatures =
+            data.overlays.beforeStart is NewYorkTimesJson.UrlValue.StringValue &&
+                    data.overlays.beforeStart.value.isNotEmpty()
+
         return Puzzle(
             title = listOfNotNull(baseTitle, data.meta.title.normalizeEntities().ifEmpty { null }).joinToString(" "),
             creator = renderByline(constructors = data.meta.constructors, editor = data.meta.editor),
@@ -78,7 +83,8 @@ class NewYorkTimes(private val json: String) : Crosswordable {
                 })
             },
             hasHtmlClues = true,
-            crosswordSolverSettings = Puzzle.CrosswordSolverSettings()
+            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(),
+            hasUnsupportedFeatures = hasUnsupportedFeatures,
         )
     }
 

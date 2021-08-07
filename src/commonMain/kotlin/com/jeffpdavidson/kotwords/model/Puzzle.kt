@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.model
 import com.jeffpdavidson.kotwords.formats.CrosswordCompiler
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.formats.Jpz
+import com.jeffpdavidson.kotwords.formats.UNSUPPORTED_FEATURES_WARNING
 
 // TODO: Validate data structures.
 data class Puzzle(
@@ -15,7 +16,8 @@ data class Puzzle(
     val words: List<Word>,
     val hasHtmlClues: Boolean = false,
     val crosswordSolverSettings: CrosswordSolverSettings? = null,
-    val puzzleType: PuzzleType = PuzzleType.CROSSWORD
+    val puzzleType: PuzzleType = PuzzleType.CROSSWORD,
+    val hasUnsupportedFeatures: Boolean = false,
 ) {
 
     data class CrosswordSolverSettings(
@@ -133,6 +135,7 @@ data class Puzzle(
             hasHtmlClues = hasHtmlClues,
             acrossWords = acrossWords,
             downWords = downWords,
+            hasUnsupportedFeatures = hasUnsupportedFeatures || clues.size > 2,
         )
     }
 
@@ -208,12 +211,17 @@ data class Puzzle(
 
         val crossword = Jpz.RectangularPuzzle.Crossword(jpzGrid, jpzWords, jpzClues)
 
+        val combinedDescription = listOfNotNull(
+            description.ifBlank { null },
+            if (hasUnsupportedFeatures) UNSUPPORTED_FEATURES_WARNING else null
+        ).joinToString("\n\n")
+
         val rectangularPuzzle = Jpz.RectangularPuzzle(
             metadata = Jpz.RectangularPuzzle.Metadata(
                 title = title.ifBlank { null },
                 creator = creator.ifBlank { null },
                 copyright = copyright.ifBlank { null },
-                description = description.ifBlank { null }
+                description = combinedDescription.ifBlank { null },
             ),
             crossword = if (puzzleType == PuzzleType.CROSSWORD) crossword else null,
             acrostic = if (puzzleType == PuzzleType.ACROSTIC) crossword else null

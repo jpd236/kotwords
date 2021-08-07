@@ -21,6 +21,8 @@ import com.jeffpdavidson.kotwords.formats.PdfFontFamily
  *                    cluing schemes.
  * @param downWords Optional specification of all words in the Down direction. Only needed for irregular numbering/
  *                  cluing schemes.
+ * @param hasUnsupportedFeatures Whether this crossword may contain features that cannot be captured by this interface.
+ *                               Used to show a warning to solvers.
  */
 data class Crossword(
     val title: String,
@@ -33,6 +35,7 @@ data class Crossword(
     val hasHtmlClues: Boolean = false,
     val acrossWords: List<Word> = listOf(),
     val downWords: List<Word> = listOf(),
+    val hasUnsupportedFeatures: Boolean = false,
 ) {
     init {
         // Validate that grid is a rectangle.
