@@ -6,10 +6,10 @@ import com.jeffpdavidson.kotwords.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ApzFileTest {
+class ApzTest {
     @Test
     fun parseApz() = runTest {
-        val acrostic = Apz.fromXmlString(readStringResource(ApzFileTest::class, "acrostic/acrostic.apz")).toAcrostic(
+        val acrostic = Apz.fromXmlString(readStringResource(ApzTest::class, "acrostic/acrostic.apz")).toAcrostic(
             completionMessage = "",
             includeAttribution = true,
         )
