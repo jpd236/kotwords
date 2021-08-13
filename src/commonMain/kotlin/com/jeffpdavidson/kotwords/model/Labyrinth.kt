@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.Puzzleable
 import kotlin.math.abs
 
 data class Labyrinth(
@@ -10,8 +11,9 @@ data class Labyrinth(
     val grid: List<List<Char>>,
     val gridKey: List<List<Int>>,
     val rowClues: List<List<String>>,
-    val windingClues: List<String>
-) {
+    val windingClues: List<String>,
+    val alphabetizeWindingClues: Boolean,
+) : Puzzleable {
 
     init {
         val allNumbers = gridKey.flatten().sorted()
@@ -23,10 +25,7 @@ data class Labyrinth(
         }
     }
 
-    fun asPuzzle(
-        alphabetizeWindingClues: Boolean,
-        crosswordSolverSettings: Puzzle.CrosswordSolverSettings
-    ): Puzzle {
+    override fun asPuzzle(): Puzzle {
         val puzzleGrid = grid.mapIndexed { y, row ->
             row.mapIndexed { x, ch ->
                 // Calculate the borders. We remove borders from the outer edges of the grid as well as between any two
@@ -50,8 +49,6 @@ data class Labyrinth(
                     borderDirections -= Puzzle.BorderDirection.RIGHT
                 }
                 Puzzle.Cell(
-                    x = x + 1,
-                    y = y + 1,
                     solution = "$ch",
                     borderDirections = borderDirections,
                     number = if (x == 0) "${y + 1}" else ""
@@ -61,7 +58,7 @@ data class Labyrinth(
 
         val windingPath = gridKey.mapIndexed { y, row ->
             row.mapIndexed { x, i ->
-                i to puzzleGrid[y][x]
+                i to Puzzle.Coordinate(x = x, y = y)
             }
         }.flatten().sortedBy { it.first }.map { it.second }
         val windingClueList = if (alphabetizeWindingClues) windingClues.sorted() else windingClues
@@ -69,7 +66,9 @@ data class Labyrinth(
         val windingClue = Puzzle.Clue(101, "1", windingClueList.joinToString(" / "))
 
         val (rowPuzzleClues, rowPuzzleWords) = puzzleGrid.mapIndexed { y, row ->
-            Puzzle.Clue(y + 1, "${y + 1}", rowClues[y].joinToString(" / ")) to Puzzle.Word(y + 1, row)
+            val clue = Puzzle.Clue(y + 1, "${y + 1}", rowClues[y].joinToString(" / "))
+            val word = Puzzle.Word(y + 1, row.indices.map { x -> Puzzle.Coordinate(x = x, y = y) })
+            clue to word
         }.unzip()
 
         return Puzzle(
@@ -83,7 +82,6 @@ data class Labyrinth(
                 Puzzle.ClueList("Winding", listOf(windingClue))
             ),
             words = rowPuzzleWords + windingWord,
-            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 }

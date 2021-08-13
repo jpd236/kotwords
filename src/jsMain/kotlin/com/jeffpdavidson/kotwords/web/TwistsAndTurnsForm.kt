@@ -77,22 +77,32 @@ internal class TwistsAndTurnsForm {
         }
     }
 
-    private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> =
-        Promise.resolve(createTwistsAndTurns(crosswordSolverSettings).asPuzzle())
+    private fun createPuzzle(): Promise<Puzzle> =
+        Promise.resolve(
+            createTwistsAndTurns(
+                separateLightAndDarkTwists = false,
+                numberTwists = true,
+                sortTwists = false,
+            ).asPuzzle()
+        )
 
-    private fun createPdf(
-        crosswordSolverSettings: Puzzle.CrosswordSolverSettings,
-        blackSquareLightnessAdjustment: Float
-    ): Promise<ByteArray> =
+    private fun createPdf(blackSquareLightnessAdjustment: Float): Promise<ByteArray> =
         GlobalScope.promise {
-            createTwistsAndTurns(crosswordSolverSettings).asPdf(
+            createTwistsAndTurns(
+                separateLightAndDarkTwists = true,
+                numberTwists = false,
+                sortTwists = alphabetizeTwistsClues.getValue(),
+            ).asPdf(
                 fontFamily = PdfFonts.getNotoFontFamily(),
                 blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
-                sortTwists = alphabetizeTwistsClues.getValue()
             )
         }
 
-    private fun createTwistsAndTurns(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): TwistsAndTurns {
+    private fun createTwistsAndTurns(
+        separateLightAndDarkTwists: Boolean,
+        numberTwists: Boolean,
+        sortTwists: Boolean
+    ): TwistsAndTurns {
         return TwistsAndTurns(
             title = title.getValue(),
             creator = creator.getValue(),
@@ -107,7 +117,9 @@ internal class TwistsAndTurnsForm {
             twistsClues = twistsClues.getValue().split("\n").map { it.trim() },
             lightTwistsColor = lightTwistsColor.getValue(),
             darkTwistsColor = darkTwistsColor.getValue(),
-            crosswordSolverSettings = crosswordSolverSettings
+            separateLightAndDarkTwists = separateLightAndDarkTwists,
+            numberTwists = numberTwists,
+            sortTwists = sortTwists,
         )
     }
 }

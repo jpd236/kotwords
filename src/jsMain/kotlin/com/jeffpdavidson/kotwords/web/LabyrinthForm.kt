@@ -52,7 +52,7 @@ internal class LabyrinthForm {
         }
     }
 
-    private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
+    private fun createPuzzle(): Promise<Puzzle> {
         val labyrinth = Labyrinth(
             title = title.getValue(),
             creator = creator.getValue(),
@@ -67,12 +67,9 @@ internal class LabyrinthForm {
             rowClues = rowClues.getValue().split("\n").map { clues ->
                 clues.trim().split("/").map { it.trim() }
             },
-            windingClues = windingClues.getValue().split("/").map { it.trim() })
-        return Promise.resolve(
-            labyrinth.asPuzzle(
-                alphabetizeWindingClues = alphabetizeWindingClues.getValue(),
-                crosswordSolverSettings = crosswordSolverSettings
-            )
+            windingClues = windingClues.getValue().split("/").map { it.trim() },
+            alphabetizeWindingClues = alphabetizeWindingClues.getValue(),
         )
+        return Promise.resolve(labyrinth.asPuzzle())
     }
 }

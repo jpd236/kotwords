@@ -1,10 +1,7 @@
-package com.jeffpdavidson.kotwords.formats
+package com.jeffpdavidson.kotwords.model
 
-import com.jeffpdavidson.kotwords.model.Puzzle
-import io.ktor.utils.io.charsets.Charsets
-import io.ktor.utils.io.core.String
+import com.jeffpdavidson.kotwords.formats.Puzzleable
 import kotlinx.serialization.Serializable
-import net.mamoe.yamlkt.Yaml
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
@@ -17,19 +14,17 @@ data class RowsGarden(
     val rows: List<List<Entry>>,
     val light: List<Entry>,
     val medium: List<Entry>,
-    val dark: List<Entry>
-) {
+    val dark: List<Entry>,
+    val lightBloomColor: String = "#FFFFFF",
+    val mediumBloomColor: String = "#C3C8FA",
+    val darkBloomColor: String = "#5765F7",
+    val addWordCount: Boolean = true,
+    val addHyphenated: Boolean = true,
+) : Puzzleable {
     @Serializable
     data class Entry(val clue: String, val answer: String)
 
-    fun asPuzzle(
-        lightBloomColor: String,
-        mediumBloomColor: String,
-        darkBloomColor: String,
-        addWordCount: Boolean,
-        addHyphenated: Boolean,
-        crosswordSolverSettings: Puzzle.CrosswordSolverSettings
-    ): Puzzle {
+    override fun asPuzzle(): Puzzle {
         require(rows.size > 2) {
             "Must have at least 3 rows"
         }
@@ -89,7 +84,7 @@ data class RowsGarden(
 
             cellMap[x to y] =
                 if (solutionGrid[y][x] == '.') {
-                    Puzzle.Cell(x + 1, y + 1, cellType = Puzzle.CellType.BLOCK)
+                    Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                 } else {
                     var bloomIndex = 0
                     val yOffset = if (hasShortFirstRow) 0 else 1
@@ -106,7 +101,6 @@ data class RowsGarden(
                         else -> ""
                     }
                     val cell = Puzzle.Cell(
-                        x + 1, y + 1,
                         number = number,
                         solution = "${solutionGrid[y][x]}",
                         backgroundColor = blooms.getValue(bloomType).color
@@ -116,12 +110,12 @@ data class RowsGarden(
                         bloomsWords.add(
                             Puzzle.Word(
                                 wordId, listOf(
-                                    getOrCreateCell(x - 2, y),
-                                    getOrCreateCell(x - 1, y),
-                                    cell,
-                                    getOrCreateCell(x, y + 1),
-                                    getOrCreateCell(x - 1, y + 1),
-                                    getOrCreateCell(x - 2, y + 1)
+                                    Puzzle.Coordinate(x = x - 2, y = y),
+                                    Puzzle.Coordinate(x = x - 1, y),
+                                    Puzzle.Coordinate(x = x, y = y),
+                                    Puzzle.Coordinate(x = x, y = y + 1),
+                                    Puzzle.Coordinate(x = x - 1, y = y + 1),
+                                    Puzzle.Coordinate(x = x - 2, y = y + 1),
                                 )
                             )
                         )
@@ -148,7 +142,9 @@ data class RowsGarden(
         }
 
         val (rowClues, rowsWords) = grid.mapIndexed { y, row ->
-            val letters = row.filter { it.cellType != Puzzle.CellType.BLOCK }
+            val letters = row.mapIndexedNotNull { x, cell ->
+                if (cell.cellType == Puzzle.CellType.BLOCK) null else Puzzle.Coordinate(x = x, y = y)
+            }
             Puzzle.Clue(y + 1, "${y + 1}", rows[y].joinToString(" / ") {
                 formatClue(it, addWordCount, addHyphenated)
             }) to Puzzle.Word(y + 1, letters)
@@ -169,7 +165,6 @@ data class RowsGarden(
             grid = grid,
             clues = listOf(Puzzle.ClueList("Rows", rowClues), Puzzle.ClueList("Blooms", bloomClues)),
             words = rowsWords + bloomsWords.sortedBy { it.id },
-            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 
@@ -207,56 +202,6 @@ data class RowsGarden(
                     0 -> MEDIUM
                     1 -> DARK
                     else -> LIGHT
-                }
-            }
-        }
-    }
-
-    companion object {
-        suspend fun parse(rgz: ByteArray): RowsGarden {
-            val rg =
-                try {
-                    Zip.unzip(rgz)
-                } catch (e: InvalidZipException) {
-                    // Try as a plain-text file.
-                    rgz
-                }
-            var rgString = String(rg, charset = Charsets.UTF_8)
-            // Strip off BOM from beginning if present.
-            // Workaround for https://github.com/Kotlin/kotlinx-io/issues/112
-            if (rgString.startsWith('\uFEFF')) {
-                rgString = rgString.substring(1)
-            }
-            return parseRg(rgString)
-        }
-
-        private fun parseRg(rg: String): RowsGarden {
-            return Yaml.Default.decodeFromString(serializer(), fixInvalidYamlValues(rg))
-        }
-
-        /**
-         * Fix invalid values in the provided YAML text.
-         *
-         * .rg files often contain invalid YAML due to values containing reserved characters. This
-         * method attempts to adds quotes around any value, escaping existing quotes as needed.
-         */
-        private fun fixInvalidYamlValues(yaml: String): String {
-            return yaml.lines().joinToString("\n") { line ->
-                // Find a value on this line - anything following a ":", ignoring any whitespace at
-                // the beginning and end.
-                val valuePattern = ":\\s*([^\\s].+[^\\s])\\s*".toRegex()
-                val result = valuePattern.find(line)
-                if (result == null) {
-                    // Nothing found; insert the line as is.
-                    line
-                } else {
-                    // Insert the line with the value surrounded by quotes and any existing quotes
-                    // escaped.
-                    val escapedValue = result.groupValues[1].replace("\"", "\\\"")
-                    line.replace(
-                        ":\\s*.+".toRegex(),
-                        Regex.escapeReplacement(": \"$escapedValue\"")
-                    )
                 }
             }
         }

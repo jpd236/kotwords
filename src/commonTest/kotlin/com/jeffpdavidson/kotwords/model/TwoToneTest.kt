@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
+import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.runTest
 import kotlin.test.Test
@@ -18,20 +20,22 @@ class TwoToneTest {
             oddSquaresAnswers = listOf("ACE", "GI"),
             oddSquaresClues = listOf("Odd clue 1", "Odd clue 2"),
             evenSquaresAnswers = listOf("BD", "FH"),
-            evenSquaresClues = listOf("Even clue 1", "Even clue 2")
-        )
-        val puzzle = twoTone.asPuzzle(
+            evenSquaresClues = listOf("Even clue 1", "Even clue 2"),
             oddSquareBackgroundColor = "#C0C0C0",
             evenSquareBackgroundColor = "#FFFFFF",
-            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
-                cursorColor = "#00b100",
-                selectedCellsColor = "#80ff80",
-                completionMessage = "All done!"
-            )
         )
+        val puzzle = twoTone.asPuzzle()
 
         val expected = readStringResource(TwoToneTest::class, "two-tone/two-tone.jpz")
-        assertEquals(expected, puzzle.asJpzFile().toXmlString())
+        assertEquals(
+            expected, puzzle.asJpzFile(
+                appletSettings = CrosswordCompilerApplet.AppletSettings(
+                    cursorColor = "#00b100",
+                    selectedCellsColor = "#80ff80",
+                    completion = CrosswordCompilerApplet.AppletSettings.Completion(message = "All done!"),
+                )
+            ).toXmlString()
+        )
     }
 
     @Test
@@ -46,19 +50,21 @@ class TwoToneTest {
             oddSquaresAnswers = listOf("ACE", "G"),
             oddSquaresClues = listOf("Odd clue 1", "Odd clue 2"),
             evenSquaresAnswers = listOf("BD", "FH"),
-            evenSquaresClues = listOf("Even clue 1", "Even clue 2")
-        )
-        val puzzle = twoTone.asPuzzle(
+            evenSquaresClues = listOf("Even clue 1", "Even clue 2"),
             oddSquareBackgroundColor = "#C0C0C0",
             evenSquareBackgroundColor = "#FFFFFF",
-            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
-                cursorColor = "#00b100",
-                selectedCellsColor = "#80ff80",
-                completionMessage = "All done!"
-            )
         )
+        val puzzle = twoTone.asPuzzle()
 
         val expected = readStringResource(TwoToneTest::class, "two-tone/two-tone-nonsquare.jpz")
-        assertEquals(expected, puzzle.asJpzFile().toXmlString())
+        assertEquals(
+            expected, puzzle.asJpzFile(
+                appletSettings = CrosswordCompilerApplet.AppletSettings(
+                    cursorColor = "#00b100",
+                    selectedCellsColor = "#80ff80",
+                    completion = CrosswordCompilerApplet.AppletSettings.Completion(message = "All done!"),
+                )
+            ).toXmlString()
+        )
     }
 }

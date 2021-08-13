@@ -2,7 +2,6 @@ package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.formats.json.NewYorkTimesJson
-import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.format
@@ -15,16 +14,10 @@ private val PUBLICATION_DATE_FORMAT = DateFormat("YYYY-MM-dd")
 
 /**
  * Container for a puzzle in the New York Times embedded web format.
- *
- * Prefer [asPuzzle] where possible - New York Times puzzles occasionally make use of alternative word lists that cannot
- * be encoded with the [Crossword] interface, but can be encoded as a [Puzzle] (and saved as a JPZ file). [asCrossword]
- * should still work most of the time but may omit key information.
  */
-class NewYorkTimes(private val json: String) : Crosswordable {
+class NewYorkTimes(private val json: String) : Puzzleable {
 
-    override fun asCrossword(): Crossword = asPuzzle().asCrossword()
-
-    fun asPuzzle(): Puzzle {
+    override fun asPuzzle(): Puzzle {
         val data = JsonSerializer.fromJson<NewYorkTimesJson.Data>(json).gamePageData
         val publicationDate = PUBLICATION_DATE_FORMAT.parseDate(data.meta.publicationDate)
         val puzzleName = if (data.meta.publishStream == "mini") "NY Times Mini Crossword" else "NY Times"
@@ -46,8 +39,6 @@ class NewYorkTimes(private val json: String) : Crosswordable {
                         Puzzle.BackgroundShape.NONE
                     }
                 Puzzle.Cell(
-                    x = x + 1,
-                    y = y + 1,
                     solution = Encodings.decodeHtmlEntities(cell.answer),
                     backgroundColor = backgroundColor,
                     number = cell.label,
@@ -79,11 +70,10 @@ class NewYorkTimes(private val json: String) : Crosswordable {
             },
             words = data.clues.mapIndexed { clueIndex, clue ->
                 Puzzle.Word(id = clueIndex, cells = clue.cells.map {
-                    grid[it / data.dimensions.columnCount][it % data.dimensions.columnCount]
+                    Puzzle.Coordinate(x = it % data.dimensions.columnCount, y = it / data.dimensions.columnCount)
                 })
             },
             hasHtmlClues = true,
-            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(),
             hasUnsupportedFeatures = hasUnsupportedFeatures,
         )
     }

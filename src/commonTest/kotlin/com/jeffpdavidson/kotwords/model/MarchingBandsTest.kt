@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
+import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.runTest
 import kotlin.test.Test
@@ -8,36 +10,32 @@ import kotlin.test.assertEquals
 class MarchingBandsTest {
     @Test
     fun jpzGeneration() = runTest {
-        val puzzle = MARCHING_BANDS.asPuzzle(
-            includeRowNumbers = true,
-            lightBandColor = "#FFFFFF",
-            darkBandColor = "#C0C0C0",
-            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
-                cursorColor = "#00b100",
-                selectedCellsColor = "#80ff80",
-                completionMessage = "All done!"
-            )
-        )
-
+        val puzzle = MARCHING_BANDS.asPuzzle()
         val expected = readStringResource(MarchingBandsTest::class, "marching-bands/marching-bands.jpz")
-        assertEquals(expected, puzzle.asJpzFile().toXmlString())
+        assertEquals(
+            expected, puzzle.asJpzFile(
+                appletSettings = CrosswordCompilerApplet.AppletSettings(
+                    cursorColor = "#00b100",
+                    selectedCellsColor = "#80ff80",
+                    completion = CrosswordCompilerApplet.AppletSettings.Completion(message = "All done!"),
+                )
+            ).toXmlString()
+        )
     }
 
     @Test
     fun jpzGeneration_withoutRowNumbers() = runTest {
-        val puzzle = MARCHING_BANDS.asPuzzle(
-            includeRowNumbers = false,
-            lightBandColor = "#FFFFFF",
-            darkBandColor = "#C0C0C0",
-            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
-                cursorColor = "#00b100",
-                selectedCellsColor = "#80ff80",
-                completionMessage = "All done!"
-            )
-        )
-
+        val puzzle = MARCHING_BANDS.copy(includeRowNumbers = false).asPuzzle()
         val expected = readStringResource(MarchingBandsTest::class, "marching-bands/marching-bands-without-rows.jpz")
-        assertEquals(expected, puzzle.asJpzFile().toXmlString())
+        assertEquals(
+            expected, puzzle.asJpzFile(
+                appletSettings = CrosswordCompilerApplet.AppletSettings(
+                    cursorColor = "#00b100",
+                    selectedCellsColor = "#80ff80",
+                    completion = CrosswordCompilerApplet.AppletSettings.Completion(message = "All done!"),
+                )
+            ).toXmlString()
+        )
     }
 
     companion object {
@@ -63,7 +61,10 @@ class MarchingBandsTest {
                 listOf("Row 3A", "Row 3B"),
                 listOf("Row 4A", "Row 4B"),
                 listOf("Row 5A", "Row 5B")
-            )
+            ),
+            includeRowNumbers = true,
+            lightBandColor = "#FFFFFF",
+            darkBandColor = "#C0C0C0",
         )
     }
 }

@@ -3,7 +3,7 @@ package com.jeffpdavidson.kotwords.model
 /** Extension functions to make crosswords downs-only. */
 object DownsOnly {
     /**
-     * Return a copy of this crossword with only the down clues (usually).
+     * Return a copy of this puzzle with only the down clues (usually).
      *
      * Solving with down clues generally works because all the theme answers, which are typically
      * the longest answers in the grid, run across the grid. Thus, it's generally possible to infer
@@ -17,25 +17,24 @@ object DownsOnly {
      * If there are an equal number of max-length words in both directions, we return the puzzle
      * with only the down clues.
      */
-    fun Crossword.withDownsOnly(): Crossword {
+    fun Puzzle.withDownsOnly(): Puzzle {
+        val acrossClues = getClues("Across")
+        val downClues = getClues("Down")
+        require(acrossClues != downClues && acrossClues != null && downClues != null && clues.size == 2) {
+            "Cannot convert puzzle with non-standard clue lists to Downs Only"
+        }
         val directionToClear = getDirectionToClearForDownsOnly()
         return copy(
-            acrossClues = if (directionToClear == ClueDirection.ACROSS) {
-                clearClues(acrossClues)
-            } else {
-                acrossClues
-            },
-            downClues = if (directionToClear == ClueDirection.DOWN) {
-                clearClues(downClues)
-            } else {
-                downClues
+            clues = when (directionToClear) {
+                ClueDirection.ACROSS -> listOf(clearClues(acrossClues), downClues)
+                ClueDirection.DOWN -> listOf(acrossClues, clearClues(downClues))
             }
         )
     }
 
     internal enum class ClueDirection { ACROSS, DOWN }
 
-    internal fun Crossword.getDirectionToClearForDownsOnly(): ClueDirection {
+    internal fun Puzzle.getDirectionToClearForDownsOnly(): ClueDirection {
         data class WordStats(
             var maxWordLength: Int = 0,
             var wordsAtMaxLength: Int = 0
@@ -57,7 +56,7 @@ object DownsOnly {
 
         for (y in grid.indices) {
             for (x in grid[y].indices) {
-                if (grid[y][x].isBlack) {
+                if (grid[y][x].cellType.isBlack()) {
                     if (curWordLength > 0) {
                         acrossWordStats.onWordFinished()
                     }
@@ -72,7 +71,7 @@ object DownsOnly {
 
         for (x in grid[0].indices) {
             for (y in grid.indices) {
-                if (grid[y][x].isBlack) {
+                if (grid[y][x].cellType.isBlack()) {
                     if (curWordLength > 0) {
                         downWordStats.onWordFinished()
                     }
@@ -96,7 +95,6 @@ object DownsOnly {
         return ClueDirection.ACROSS
     }
 
-    private fun clearClues(clueMap: Map<Int, String>): Map<Int, String> {
-        return clueMap.map { (key, _) -> key to "-" }.toMap()
-    }
+    private fun clearClues(clueList: Puzzle.ClueList): Puzzle.ClueList =
+        clueList.copy(clues = clueList.clues.map { clue -> clue.copy(text = "-") })
 }

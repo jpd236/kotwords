@@ -1,6 +1,7 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.toAcrossLiteBinary
+import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.asAcrossLiteBinary
+import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.runTest
@@ -13,8 +14,7 @@ class JpzTest {
     fun crossword() = runTest {
         assertTrue(
             readBinaryResource(JpzTest::class, "puz/test.puz").contentEquals(
-                Jpz.fromXmlString(readStringResource(JpzTest::class, "jpz/test.jpz"))
-                    .asCrossword().toAcrossLiteBinary()
+                Jpz.fromXmlString(readStringResource(JpzTest::class, "jpz/test.jpz")).asPuzzle().asAcrossLiteBinary()
             )
         )
     }
@@ -23,7 +23,7 @@ class JpzTest {
     fun crosswordWithClueGaps() = runTest {
         assertTrue(
             readBinaryResource(JpzTest::class, "puz/gaps.puz").contentEquals(
-                Jpz.fromXmlString(readStringResource(JpzTest::class, "jpz/gaps.jpz")).asCrossword().toAcrossLiteBinary()
+                Jpz.fromXmlString(readStringResource(JpzTest::class, "jpz/gaps.jpz")).asPuzzle().asAcrossLiteBinary()
             )
         )
     }
@@ -72,6 +72,10 @@ class JpzTest {
 
     private suspend fun assertConversionIsEqual(jpzPath: String) {
         val jpz = Jpz.fromXmlString(readStringResource(JpzTest::class, jpzPath))
-        assertEquals(jpz, jpz.asPuzzle().asJpzFile())
+        val convertedJpz = when (jpz) {
+            is CrosswordCompiler -> jpz.asPuzzle().asJpzFile(appletSettings = null)
+            is CrosswordCompilerApplet -> jpz.asPuzzle().asJpzFile(appletSettings = jpz.appletSettings)
+        }
+        assertEquals(jpz, convertedJpz)
     }
 }

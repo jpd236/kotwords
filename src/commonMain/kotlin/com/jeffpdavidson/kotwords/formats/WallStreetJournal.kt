@@ -2,9 +2,8 @@ package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.formats.json.WallStreetJournalJson
-import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
-import com.jeffpdavidson.kotwords.model.Square
+import com.jeffpdavidson.kotwords.model.Puzzle
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.parse
 
@@ -14,21 +13,27 @@ private val PUBLISH_DATE_FORMAT = DateFormat("EEEE, dd MMMM yyyy")
 class WallStreetJournal(
     private val json: String,
     private val includeDateInTitle: Boolean = true
-) : Crosswordable {
+) : Puzzleable {
 
-    override fun asCrossword(): Crossword {
+    override fun asPuzzle(): Puzzle {
         val response = JsonSerializer.fromJson<WallStreetJournalJson.CrosswordJson>(json)
         val grid = response.data.grid.map { row ->
             row.map { square ->
                 if (square.letter == "") {
-                    BLACK_SQUARE
+                    Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                 } else {
                     // Treat any kind of special square style as circled, since that's all Across
                     // Lite can render.
-                    // TODO: Propagate square.style.highlight for JPZ purposes.
-                    Square(
+                    // TODO: Propagate square.style.highlight for JPZ purposes if an example of it exists.
+                    val backgroundShape =
+                        if (square.style.highlight || square.style.shapebg.isNotEmpty()) {
+                            Puzzle.BackgroundShape.CIRCLE
+                        } else {
+                            Puzzle.BackgroundShape.NONE
+                        }
+                    Puzzle.Cell(
                         solution = square.letter,
-                        isCircled = square.style.highlight || square.style.shapebg.isNotEmpty()
+                        backgroundShape = backgroundShape,
                     )
                 }
             }
@@ -42,13 +47,13 @@ class WallStreetJournal(
         val date = PUBLISH_DATE_FORMAT.parse(publishDate)
         return Crossword(
             title = title,
-            author = response.data.copy.byline.unescapeEntities(),
+            creator = response.data.copy.byline.unescapeEntities(),
             copyright = "\u00a9 ${date.yearInt} ${response.data.copy.publisher.unescapeEntities()}",
-            notes = response.data.copy.description.unescapeEntities(),
+            description = response.data.copy.description.unescapeEntities(),
             grid = grid,
             acrossClues = getClueMap(response, "Across"),
             downClues = getClueMap(response, "Down")
-        )
+        ).asPuzzle()
     }
 
     private fun getClueMap(response: WallStreetJournalJson.CrosswordJson, direction: String):

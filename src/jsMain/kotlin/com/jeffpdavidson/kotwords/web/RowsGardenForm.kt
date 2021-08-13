@@ -1,8 +1,9 @@
 package com.jeffpdavidson.kotwords.web
 
-import com.jeffpdavidson.kotwords.formats.RowsGarden
+import com.jeffpdavidson.kotwords.formats.Rgz
 import com.jeffpdavidson.kotwords.js.Interop
 import com.jeffpdavidson.kotwords.model.Puzzle
+import com.jeffpdavidson.kotwords.model.RowsGarden
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 import com.jeffpdavidson.kotwords.web.html.Tabs
@@ -146,14 +147,20 @@ internal class RowsGardenForm {
         private fun elementId(elementId: String) = if (id.isNotEmpty()) "$id-$elementId" else elementId
     }
 
-    private fun createPuzzleFromRgzFile(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
+    private fun createPuzzleFromRgzFile(): Promise<Puzzle> {
         return GlobalScope.promise {
             val rgz = Interop.readFile(file.getValue()).await()
-            asPuzzle(RowsGarden.parse(rgz), rgzFileAdvancedOptions, crosswordSolverSettings)
+            Rgz.fromRgzFile(rgz).asRowsGarden(
+                lightBloomColor = rgzFileAdvancedOptions.lightBloomColor.getValue(),
+                mediumBloomColor = rgzFileAdvancedOptions.mediumBloomColor.getValue(),
+                darkBloomColor = rgzFileAdvancedOptions.darkBloomColor.getValue(),
+                addHyphenated = rgzFileAdvancedOptions.addAnnotations.getValue(),
+                addWordCount = rgzFileAdvancedOptions.addAnnotations.getValue(),
+            ).asPuzzle()
         }
     }
 
-    private fun createPuzzleFromManualEntry(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
+    private fun createPuzzleFromManualEntry(): Promise<Puzzle> {
         val rowsGarden = RowsGarden(
             title = title.getValue(),
             author = author.getValue(),
@@ -170,22 +177,14 @@ internal class RowsGardenForm {
             medium = mediumClues.getValue().split("\n").zip(mediumAnswers.getValue().split("\n"))
                 .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) },
             dark = darkClues.getValue().split("\n").zip(darkAnswers.getValue().split("\n"))
-                .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) })
-        return Promise.resolve(asPuzzle(rowsGarden, manualEntryAdvancedOptions, crosswordSolverSettings))
-    }
-
-    private fun asPuzzle(
-        rowsGarden: RowsGarden, advancedOptions: AdvancedOptions,
-        crosswordSolverSettings: Puzzle.CrosswordSolverSettings
-    ): Puzzle {
-        return rowsGarden.asPuzzle(
-            lightBloomColor = advancedOptions.lightBloomColor.getValue(),
-            mediumBloomColor = advancedOptions.mediumBloomColor.getValue(),
-            darkBloomColor = advancedOptions.darkBloomColor.getValue(),
-            addHyphenated = advancedOptions.addAnnotations.getValue(),
-            addWordCount = advancedOptions.addAnnotations.getValue(),
-            crosswordSolverSettings = crosswordSolverSettings
+                .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) },
+            lightBloomColor = manualEntryAdvancedOptions.lightBloomColor.getValue(),
+            mediumBloomColor = manualEntryAdvancedOptions.mediumBloomColor.getValue(),
+            darkBloomColor = manualEntryAdvancedOptions.darkBloomColor.getValue(),
+            addHyphenated = manualEntryAdvancedOptions.addAnnotations.getValue(),
+            addWordCount = manualEntryAdvancedOptions.addAnnotations.getValue(),
         )
+        return Promise.resolve(rowsGarden.asPuzzle())
     }
 
     private fun getRgzFileName(): String {

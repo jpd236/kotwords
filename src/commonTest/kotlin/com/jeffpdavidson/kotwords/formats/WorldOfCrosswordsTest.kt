@@ -1,6 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.toAcrossLiteBinary
+import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.asAcrossLiteBinary
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.runTest
@@ -20,7 +20,7 @@ class WorldOfCrosswordsTest {
                     year = 2018,
                     author = "Jeff Davidson",
                     copyright = "Jeff Davidson"
-                ).asCrossword().toAcrossLiteBinary()
+                ).asPuzzle().asAcrossLiteBinary()
             )
         )
     }

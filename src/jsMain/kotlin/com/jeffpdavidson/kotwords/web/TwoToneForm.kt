@@ -74,7 +74,7 @@ internal class TwoToneForm {
         }
     }
 
-    private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
+    private fun createPuzzle(): Promise<Puzzle> {
         val twoTone = TwoTone(
             title = title.getValue(),
             creator = creator.getValue(),
@@ -85,13 +85,10 @@ internal class TwoToneForm {
             oddSquaresAnswers = oddSquaresAnswers.getValue().split("\\s+".toRegex()),
             oddSquaresClues = oddSquaresClues.getValue().split("\n").map { it.trim() },
             evenSquaresAnswers = evenSquaresAnswers.getValue().split("\\s+".toRegex()),
-            evenSquaresClues = evenSquaresClues.getValue().split("\n").map { it.trim() })
-        return Promise.resolve(
-            twoTone.asPuzzle(
-                oddSquareBackgroundColor = oddSquaresColor.getValue(),
-                evenSquareBackgroundColor = evenSquaresColor.getValue(),
-                crosswordSolverSettings = crosswordSolverSettings
-            )
+            evenSquaresClues = evenSquaresClues.getValue().split("\n").map { it.trim() },
+            oddSquareBackgroundColor = oddSquaresColor.getValue(),
+            evenSquareBackgroundColor = evenSquaresColor.getValue(),
         )
+        return Promise.resolve(twoTone.asPuzzle())
     }
 }

@@ -1,6 +1,5 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Puzzle
 import io.ktor.utils.io.charsets.Charsets
 import io.ktor.utils.io.core.toByteArray
@@ -31,7 +30,7 @@ private val XmlSerializer = XML(Jpz.module()) {
 }
 
 /** Container for a puzzle in the JPZ file format. */
-sealed interface Jpz : Crosswordable {
+sealed interface Jpz : Puzzleable {
     val rectangularPuzzle: RectangularPuzzle
 
     fun toXmlString(): String
@@ -144,7 +143,7 @@ sealed interface Jpz : Crosswordable {
         return Zip.zip(filename, toXmlString().toByteArray(Charsets.UTF_8))
     }
 
-    fun asPuzzle(): Puzzle {
+    override fun asPuzzle(): Puzzle {
         val crossword: RectangularPuzzle.Crossword
         val puzzleType: Puzzle.PuzzleType
         if (rectangularPuzzle.acrostic != null) {
@@ -172,8 +171,6 @@ sealed interface Jpz : Crosswordable {
                     Puzzle.BackgroundShape.NONE
                 }
             gridMap[position] = Puzzle.Cell(
-                x = it.x,
-                y = it.y,
                 solution = it.solution ?: "",
                 foregroundColor = it.foregroundColor ?: "",
                 backgroundColor = it.backgroundColor ?: "",
@@ -197,14 +194,10 @@ sealed interface Jpz : Crosswordable {
             }
             grid.add(row)
         }
-        val crosswordSolverSettings = if (this is CrosswordCompilerApplet && appletSettings != null) {
-            Puzzle.CrosswordSolverSettings(
-                cursorColor = appletSettings.cursorColor,
-                selectedCellsColor = appletSettings.selectedCellsColor,
-                completionMessage = appletSettings.completion.message
-            )
+        val completionMessage = if (this is CrosswordCompilerApplet) {
+            appletSettings.completion.message
         } else {
-            null
+            ""
         }
         return Puzzle(
             title = rectangularPuzzle.metadata.title ?: "",
@@ -218,16 +211,13 @@ sealed interface Jpz : Crosswordable {
                 })
             },
             words = crossword.words.map { word ->
-                Puzzle.Word(id = word.id, cells = word.cells.map { cell -> grid[cell.y - 1][cell.x - 1] })
+                val cells = word.cells.map { cell -> Puzzle.Coordinate(x = cell.x - 1, y = cell.y - 1) }
+                Puzzle.Word(id = word.id, cells = cells)
             },
             hasHtmlClues = true,
-            crosswordSolverSettings = crosswordSolverSettings,
+            completionMessage = completionMessage,
             puzzleType = puzzleType,
         )
-    }
-
-    override fun asCrossword(): Crossword {
-        return asPuzzle().asCrossword()
     }
 
     private fun Snippet.toHtml(trim: Boolean = true): String {
@@ -245,31 +235,7 @@ sealed interface Jpz : Crosswordable {
         return if (trim) result.trim() else result
     }
 
-    private fun Snippet.toText(trim: Boolean = true): String {
-        val result = joinToString("") {
-            when (it) {
-                is String -> it.replace("&", "&amp;").replace("<", "&lt;")
-                is B -> it.data.toText(trim = false)
-                is I -> it.data.toText(trim = false)
-                is Sub -> it.data.toText(trim = false)
-                is Sup -> it.data.toText(trim = false)
-                is Span -> it.data.toText(trim = false)
-                else -> throw IllegalStateException("Unknown data type: $it")
-            }
-        }
-        return if (trim) result.trim() else result
-    }
-
     companion object {
-        /**
-         * Serialize this crossword into a JPZ document.
-         *
-         * @param solved If true, the grid will be filled in with the correct solution.
-         */
-        fun Crossword.toJpz(solved: Boolean = false): Jpz {
-            return Puzzle.fromCrossword(this).asJpzFile(solved = solved)
-        }
-
         /**
          * Parse the given JPZ file.
          *
@@ -291,6 +257,132 @@ sealed interface Jpz : Crosswordable {
                 XmlSerializer.decodeFromString(CrosswordCompilerApplet.serializer(), xml)
             } catch (e: XmlException) {
                 XmlSerializer.decodeFromString(CrosswordCompiler.serializer(), xml)
+            }
+        }
+
+        /**
+         * Returns this puzzle as a JPZ file.
+         *
+         * @param solved If true, the grid will be filled in with the correct solution.
+         */
+        fun Puzzle.asJpzFile(
+            solved: Boolean = false,
+            appletSettings: CrosswordCompilerApplet.AppletSettings? = CrosswordCompilerApplet.AppletSettings()
+        ): Jpz {
+            val jpzGrid = RectangularPuzzle.Crossword.Grid(
+                width = grid[0].size,
+                height = grid.size,
+                cell = grid.mapIndexed { y, row ->
+                    row.mapIndexed { x, cell ->
+                        val type = when (cell.cellType) {
+                            Puzzle.CellType.BLOCK -> "block"
+                            Puzzle.CellType.CLUE -> "clue"
+                            Puzzle.CellType.VOID -> "void"
+                            else -> null
+                        }
+                        val backgroundShape =
+                            if (cell.backgroundShape == Puzzle.BackgroundShape.CIRCLE) "circle" else null
+                        // Crossword Solver only renders top and left borders, so if we have a right border, apply it
+                        // as a left border on the square to the right (if we're not at the right edge), and if we have
+                        // a bottom border, apply it as a top border on the square to the bottom (if we're not at the
+                        // bottom edge).
+                        val topBorder = cell.borderDirections.contains(Puzzle.BorderDirection.TOP)
+                                || (y > 0 && grid[y - 1][x].borderDirections.contains(Puzzle.BorderDirection.BOTTOM))
+                        val bottomBorder =
+                            cell.borderDirections.contains(Puzzle.BorderDirection.BOTTOM) && y == grid.size - 1
+                        val leftBorder = cell.borderDirections.contains(Puzzle.BorderDirection.LEFT)
+                                || (x > 0 && grid[y][x - 1].borderDirections.contains(Puzzle.BorderDirection.RIGHT))
+                        val rightBorder =
+                            cell.borderDirections.contains(Puzzle.BorderDirection.RIGHT) && x == grid[y].size - 1
+                        RectangularPuzzle.Crossword.Grid.Cell(
+                            x = x + 1,
+                            y = y + 1,
+                            solution = cell.solution.ifEmpty { null },
+                            backgroundColor = cell.backgroundColor.ifEmpty { null },
+                            number = cell.number.ifEmpty { null },
+                            type = type,
+                            solveState = if (cell.cellType == Puzzle.CellType.CLUE || solved) cell.solution else null,
+                            topRightNumber = cell.topRightNumber.ifEmpty { null },
+                            backgroundShape = backgroundShape,
+                            topBar = if (topBorder) true else null,
+                            bottomBar = if (bottomBorder) true else null,
+                            leftBar = if (leftBorder) true else null,
+                            rightBar = if (rightBorder) true else null,
+                        )
+                    }
+                }.flatten()
+            )
+
+            val jpzWords = words.map { word ->
+                RectangularPuzzle.Crossword.Word(
+                    id = word.id,
+                    cells = word.cells.map { cell ->
+                        RectangularPuzzle.Crossword.Word.Cells(cell.x + 1, cell.y + 1)
+                    }
+                )
+            }
+
+            val jpzClues = clues.map { clueList ->
+                val title = if (hasHtmlClues) htmlToSnippet(clueList.title) else listOf(B(listOf(clueList.title)))
+                RectangularPuzzle.Crossword.Clues(
+                    title = RectangularPuzzle.Crossword.Clues.Title(title),
+                    clues = clueList.clues.map { clue ->
+                        val htmlClues = if (hasHtmlClues) clue.text else formatClue(clue.text)
+                        RectangularPuzzle.Crossword.Clues.Clue(
+                            word = clue.wordId,
+                            number = clue.number,
+                            text = htmlToSnippet(htmlClues)
+                        )
+                    })
+            }
+
+            val crossword = RectangularPuzzle.Crossword(jpzGrid, jpzWords, jpzClues)
+
+            val combinedDescription = listOfNotNull(
+                description.ifBlank { null },
+                if (hasUnsupportedFeatures) UNSUPPORTED_FEATURES_WARNING else null
+            ).joinToString("\n\n")
+
+            val rectangularPuzzle = RectangularPuzzle(
+                metadata = RectangularPuzzle.Metadata(
+                    title = title.ifBlank { null },
+                    creator = creator.ifBlank { null },
+                    copyright = copyright.ifBlank { null },
+                    description = combinedDescription.ifBlank { null },
+                ),
+                crossword = if (puzzleType == Puzzle.PuzzleType.CROSSWORD) crossword else null,
+                acrostic = if (puzzleType == Puzzle.PuzzleType.ACROSTIC) crossword else null
+            )
+
+            return if (completionMessage.isNotEmpty() || appletSettings != null) {
+                var settings = appletSettings ?: CrosswordCompilerApplet.AppletSettings()
+                if (completionMessage.isNotEmpty()) {
+                    settings = settings.copy(completion = settings.completion.copy(message = completionMessage))
+                }
+                CrosswordCompilerApplet(
+                    appletSettings = settings,
+                    rectangularPuzzle = rectangularPuzzle
+                )
+            } else {
+                CrosswordCompiler(rectangularPuzzle = rectangularPuzzle)
+            }
+        }
+
+        /**
+         * Format a raw clue as valid inner HTML for a JPZ file.
+         *
+         * <p>Invalid XML characters are escaped, and text surrounded by asterisks is italicized.
+         */
+        private fun formatClue(rawClue: String): String {
+            val escapedClue = rawClue.replace("&", "&amp;").replace("<", "&lt;")
+            // Only italicize text if there are an even number of asterisks to try to avoid false positives on text like
+            // "M*A*S*H". If this proves to trigger in other unintended circumstances, it may need to be removed from
+            // here and applied instead at a higher level where the intent is clearer.
+            val asteriskCount = escapedClue.count { it == '*' }
+            return if (asteriskCount > 0 && asteriskCount % 2 == 0) {
+                escapedClue.replace("\\*([^*]+)\\*".toRegex(), "<i>$1</i>")
+            } else {
+                escapedClue
             }
         }
 
@@ -346,7 +438,7 @@ data class CrosswordCompiler(
 @Serializable
 @XmlSerialName("crossword-compiler-applet", CCA_NS, "")
 data class CrosswordCompilerApplet(
-    val appletSettings: AppletSettings? = null,
+    val appletSettings: AppletSettings = AppletSettings(),
     override val rectangularPuzzle: Jpz.RectangularPuzzle
 ) : Jpz {
 
@@ -355,14 +447,14 @@ data class CrosswordCompilerApplet(
     data class AppletSettings(
         @SerialName("cursor-color") val cursorColor: String = "#00B100",
         @SerialName("selected-cells-color") val selectedCellsColor: String = "#80FF80",
-        val completion: Completion,
+        val completion: Completion = Completion(),
         val actions: Actions = Actions()
     ) {
 
         @Serializable
         @SerialName("completion")
         data class Completion(
-            @XmlValue(true) val message: String,
+            @XmlValue(true) val message: String = "Congratulations! The puzzle is solved correctly.",
             @SerialName("only-if-correct") val onlyIfCorrect: Boolean = true
         )
 

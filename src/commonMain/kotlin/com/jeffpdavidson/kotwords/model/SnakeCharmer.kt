@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.Puzzleable
+
 data class SnakeCharmer(
     val title: String,
     val creator: String,
@@ -8,7 +10,7 @@ data class SnakeCharmer(
     val answers: List<String>,
     val clues: List<String>,
     val gridCoordinates: List<Pair<Int, Int>>
-) {
+) : Puzzleable {
 
     init {
         require(gridCoordinates.isNotEmpty()) {
@@ -19,7 +21,7 @@ data class SnakeCharmer(
         }
     }
 
-    fun asPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Puzzle {
+    override fun asPuzzle(): Puzzle {
         val cellNumbersMap = mutableMapOf<Pair<Int, Int>, MutableList<Int>>()
         val solutionMap = mutableMapOf<Pair<Int, Int>, Char>()
         val words = mutableListOf<MutableList<Pair<Int, Int>>>()
@@ -43,12 +45,10 @@ data class SnakeCharmer(
         val grid = (0 until height).map { y ->
             (0 until width).map { x ->
                 if (!solutionMap.containsKey(x to y)) {
-                    Puzzle.Cell(x = x + 1, y = y + 1, cellType = Puzzle.CellType.BLOCK)
+                    Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                 } else {
                     val cellNumbers: List<Int> = cellNumbersMap[x to y] ?: listOf()
                     Puzzle.Cell(
-                        x = x + 1,
-                        y = y + 1,
                         solution = "${solutionMap[x to y]!!}",
                         number = if (cellNumbers.isEmpty()) "" else "${cellNumbers[0]}",
                         topRightNumber = if (cellNumbers.size <= 1) "" else "${cellNumbers[1]}"
@@ -56,8 +56,10 @@ data class SnakeCharmer(
                 }
             }
         }
-        val (jpzClues, jpzWords) = clues.mapIndexed { i, clue ->
-            Puzzle.Clue(i + 1, "${i + 1}", clue) to Puzzle.Word(i + 1, words[i].map { (x, y) -> grid[y][x] })
+        val (puzzleClues, puzzleWords) = clues.mapIndexed { i, clue ->
+            val puzzleClue = Puzzle.Clue(i + 1, "${i + 1}", clue)
+            val puzzleWord = Puzzle.Word(i + 1, words[i].map { (x, y) -> Puzzle.Coordinate(x = x, y = y) })
+            puzzleClue to puzzleWord
         }.unzip()
         return Puzzle(
             title = title,
@@ -65,9 +67,8 @@ data class SnakeCharmer(
             copyright = copyright,
             description = description,
             grid = grid,
-            clues = listOf(Puzzle.ClueList("Clues", jpzClues)),
-            words = jpzWords,
-            crosswordSolverSettings = crosswordSolverSettings
+            clues = listOf(Puzzle.ClueList("Clues", puzzleClues)),
+            words = puzzleWords,
         )
     }
 }

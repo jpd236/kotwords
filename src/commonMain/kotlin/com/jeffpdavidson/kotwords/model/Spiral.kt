@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.Puzzleable
+
 data class Spiral(
     val title: String,
     val creator: String,
@@ -9,7 +11,7 @@ data class Spiral(
     val inwardClues: List<String>,
     val outwardAnswers: List<String>,
     val outwardClues: List<String>
-) {
+) : Puzzleable {
 
     init {
         require(inwardAnswers.joinToString("") == outwardAnswers.joinToString("").reversed()) {
@@ -17,7 +19,7 @@ data class Spiral(
         }
     }
 
-    fun asPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Puzzle {
+    override fun asPuzzle(): Puzzle {
         val sideLength = SpiralGrid.getSideLength(inwardAnswers.sumOf { it.length })
         val squareList = SpiralGrid.createSquareList(sideLength)
         val inwardLetters = inwardAnswers.joinToString("")
@@ -25,18 +27,12 @@ data class Spiral(
             (x to y) to
                     if (i < inwardLetters.length) {
                         Puzzle.Cell(
-                            x = x + 1,
-                            y = y + 1,
                             number = "${i + 1}",
                             solution = "${inwardLetters[i]}",
                             borderDirections = listOfNotNull(squareList[i].borderDirection).toSet()
                         )
                     } else {
-                        Puzzle.Cell(
-                            x = x + 1,
-                            y = y + 1,
-                            cellType = Puzzle.CellType.BLOCK
-                        )
+                        Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                     }
         }.toMap()
         val grid = (0 until sideLength).map { y ->
@@ -51,7 +47,7 @@ data class Spiral(
         inwardAnswers.foldIndexed(0) { wordNumber, i, answer ->
             words += Puzzle.Word(
                 wordNumber + 1,
-                squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }
+                squareList.slice(i until i + answer.length).map { (x, y) -> Puzzle.Coordinate(x = x, y = y) }
             )
             inwardJpzClues += Puzzle.Clue(
                 wordNumber + 1,
@@ -65,7 +61,7 @@ data class Spiral(
         outwardAnswers.foldIndexed(inwardLetters.length) { wordNumber, i, answer ->
             words += Puzzle.Word(
                 wordNumber + 101,
-                squareList.slice(i - answer.length until i).reversed().map { (x, y) -> grid[y][x] }
+                squareList.slice(i - answer.length until i).reversed().map { (x, y) -> Puzzle.Coordinate(x = x, y = y) }
             )
             outwardJpzClues += Puzzle.Clue(
                 wordNumber + 101,
@@ -83,7 +79,6 @@ data class Spiral(
             grid = grid,
             clues = listOf(Puzzle.ClueList("Inward", inwardJpzClues), Puzzle.ClueList("Outward", outwardJpzClues)),
             words = words,
-            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 }

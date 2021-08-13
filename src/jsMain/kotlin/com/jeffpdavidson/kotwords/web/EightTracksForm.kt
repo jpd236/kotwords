@@ -68,7 +68,7 @@ internal class EightTracksForm {
         }
     }
 
-    private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
+    private fun createPuzzle(): Promise<Puzzle> {
         val eightTracks = EightTracks(
             title = title.getValue(),
             creator = creator.getValue(),
@@ -83,14 +83,11 @@ internal class EightTracksForm {
             },
             trackClues = trackClues.getValue().split("\n").map { clues ->
                 clues.trim().split("/").map { it.trim() }
-            })
-        return Promise.resolve(
-            eightTracks.asPuzzle(
-                includeEnumerationsAndDirections = includeEnumerationsAndDirection.getValue(),
-                lightTrackColor = lightTrackColor.getValue(),
-                darkTrackColor = darkTrackColor.getValue(),
-                crosswordSolverSettings = crosswordSolverSettings
-            )
+            },
+            includeEnumerationsAndDirections = includeEnumerationsAndDirection.getValue(),
+            lightTrackColor = lightTrackColor.getValue(),
+            darkTrackColor = darkTrackColor.getValue(),
         )
+        return Promise.resolve(eightTracks.asPuzzle())
     }
 }

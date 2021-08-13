@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
+import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.runTest
 import kotlin.test.Test
@@ -24,18 +26,20 @@ class LabyrinthTest {
                 listOf(11, 10, 9, 8)
             ),
             rowClues = listOf(listOf("R1"), listOf("R2C1", "R2C2"), listOf("R3")),
-            windingClues = listOf("This puzzle", "Your reaction to this puzzle")
-        )
-        val puzzle = labyrinth.asPuzzle(
+            windingClues = listOf("This puzzle", "Your reaction to this puzzle"),
             alphabetizeWindingClues = false,
-            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
-                cursorColor = "#00b100",
-                selectedCellsColor = "#80ff80",
-                completionMessage = "All done!"
-            )
         )
+        val puzzle = labyrinth.asPuzzle()
 
         val expected = readStringResource(LabyrinthTest::class, "labyrinth.jpz")
-        assertEquals(expected, puzzle.asJpzFile().toXmlString())
+        assertEquals(
+            expected, puzzle.asJpzFile(
+                appletSettings = CrosswordCompilerApplet.AppletSettings(
+                    cursorColor = "#00b100",
+                    selectedCellsColor = "#80ff80",
+                    completion = CrosswordCompilerApplet.AppletSettings.Completion(message = "All done!"),
+                )
+            ).toXmlString()
+        )
     }
 }

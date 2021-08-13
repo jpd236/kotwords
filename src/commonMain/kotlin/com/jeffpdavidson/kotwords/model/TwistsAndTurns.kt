@@ -5,6 +5,7 @@ import com.jeffpdavidson.kotwords.formats.Pdf
 import com.jeffpdavidson.kotwords.formats.Pdf.asPdf
 import com.jeffpdavidson.kotwords.formats.PdfDocument
 import com.jeffpdavidson.kotwords.formats.PdfFontFamily
+import com.jeffpdavidson.kotwords.formats.Puzzleable
 
 data class TwistsAndTurns(
     val title: String,
@@ -19,8 +20,10 @@ data class TwistsAndTurns(
     val twistsClues: List<String>,
     val lightTwistsColor: String,
     val darkTwistsColor: String,
-    val crosswordSolverSettings: Puzzle.CrosswordSolverSettings,
-) {
+    val separateLightAndDarkTwists: Boolean = false,
+    val numberTwists: Boolean = true,
+    val sortTwists: Boolean = false,
+) : Puzzleable {
     init {
         require(width % twistBoxSize == 0 && height % twistBoxSize == 0) {
             "Width $width and height $height must evenly divide twist box size $twistBoxSize"
@@ -38,18 +41,14 @@ data class TwistsAndTurns(
         }
     }
 
-    fun asPuzzle(
-        separateLightAndDarkTwists: Boolean = false,
-        numberTwists: Boolean = true,
-        sortTwists: Boolean = false,
-    ): Puzzle {
+    override fun asPuzzle(): Puzzle {
         var x = 1
         var y = 1
         val turnsCluesList = mutableListOf<Puzzle.Clue>()
         val turnsWordsList = mutableListOf<Puzzle.Word>()
         val cellMap = mutableMapOf<Pair<Int, Int>, Puzzle.Cell>()
         turnsAnswers.forEachIndexed { answerIndex, answer ->
-            val word = mutableListOf<Puzzle.Cell>()
+            val word = mutableListOf<Puzzle.Coordinate>()
             val clueNumber = answerIndex + 1
             answer.forEachIndexed { chIndex, ch ->
                 val number = if (chIndex == 0) {
@@ -64,15 +63,13 @@ data class TwistsAndTurns(
                         darkTwistsColor
                     }
                 val cell = Puzzle.Cell(
-                    x,
-                    y,
                     solution = "$ch",
                     backgroundColor = backgroundColor,
                     number = if (y % 2 == 1) number else "",
                     topRightNumber = if (y % 2 == 0) number else "",
                 )
                 cellMap[x to y] = cell
-                word.add(cell)
+                word.add(Puzzle.Coordinate(x = x - 1, y = y - 1))
 
                 // Move to the next cell
                 if ((y - 1) % 2 == 0) {
@@ -93,8 +90,7 @@ data class TwistsAndTurns(
             turnsCluesList.add(Puzzle.Clue(clueNumber, "$clueNumber", turnsClues[answerIndex]))
         }
 
-        val grid = generateGrid(cellMap)
-        val twistsClues = generateTwistsClues(grid, numberTwists)
+        val twistsClues = generateTwistsClues(numberTwists)
         val transformClues = { cluesList: List<Puzzle.Clue> ->
             if (sortTwists) cluesList.sortedBy { it.text } else cluesList
         }
@@ -113,19 +109,17 @@ data class TwistsAndTurns(
             creator,
             copyright,
             description,
-            grid,
+            generateGrid(cellMap),
             listOf(Puzzle.ClueList("Turns", turnsCluesList)) + twistsClueLists,
             turnsWordsList + twistsClues.twistsWords,
-            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 
     fun asPdf(
-        sortTwists: Boolean,
         fontFamily: PdfFontFamily = FONT_FAMILY_TIMES_ROMAN,
         blackSquareLightnessAdjustment: Float = 0f,
     ): ByteArray {
-        val puzzle = asPuzzle(separateLightAndDarkTwists = true, numberTwists = false, sortTwists = sortTwists)
+        val puzzle = asPuzzle()
         return puzzle.asPdf(fontFamily, blackSquareLightnessAdjustment, ::drawGrid)
     }
 
@@ -225,17 +219,17 @@ data class TwistsAndTurns(
         val twistsWords: List<Puzzle.Word>,
     )
 
-    private fun generateTwistsClues(grid: List<List<Puzzle.Cell>>, numberTwists: Boolean): TwistsClues {
+    private fun generateTwistsClues(numberTwists: Boolean): TwistsClues {
         val lightTwistsCluesList = mutableListOf<Puzzle.Clue>()
         val darkTwistsCluesList = mutableListOf<Puzzle.Clue>()
         val twistsWordsList = mutableListOf<Puzzle.Word>()
         var twistNumber = 0
         for (j in 0 until (height / twistBoxSize)) {
             for (i in 0 until (width / twistBoxSize)) {
-                val cells = mutableListOf<Puzzle.Cell>()
+                val cells = mutableListOf<Puzzle.Coordinate>()
                 for (y in (j * twistBoxSize + 1)..((j + 1) * twistBoxSize)) {
                     for (x in (i * twistBoxSize + 1)..((i + 1) * twistBoxSize)) {
-                        cells.add(grid[y - 1][x - 1])
+                        cells.add(Puzzle.Coordinate(x = x - 1, y = y - 1))
                     }
                 }
                 val wordId = (1001 + (j * (width / twistBoxSize)) + i)

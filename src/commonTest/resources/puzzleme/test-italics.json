@@ -20,28 +20,50 @@
       "clueNum": 1,
       "clue": {
         "clue": "First <i>across</i> clue"
-      }
+      },
+      "nBoxes": 2,
+      "x": 0,
+      "y": 0
     },
     {
       "acrossNotDown": true,
       "clueNum": 3,
       "clue": {
         "clue": "Second <i>across</i> clue"
-      }
+      },
+      "nBoxes": 2,
+      "x": 0,
+      "y": 1
     },
     {
       "acrossNotDown": false,
       "clueNum": 1,
       "clue": {
         "clue": "First <i>down</i> clue"
-      }
+      },
+      "nBoxes": 2,
+      "x": 0,
+      "y": 0
     },
     {
       "acrossNotDown": false,
       "clueNum": 2,
       "clue": {
         "clue": "Second <i>down</i> clue"
-      }
+      },
+      "nBoxes": 2,
+      "x": 1,
+      "y": 0
     }
+  ],
+  "clueNums": [
+    [
+      1,
+      3
+    ],
+    [
+      2,
+      0
+    ]
   ]
 }

@@ -76,7 +76,7 @@ internal class JellyRollForm {
         }
     }
 
-    private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
+    private fun createPuzzle(): Promise<Puzzle> {
         val jellyRoll = JellyRoll(
             title = title.getValue(),
             creator = creator.getValue(),
@@ -87,14 +87,11 @@ internal class JellyRollForm {
             lightSquaresAnswers = lightSquaresAnswers.getValue().split("\\s+".toRegex()),
             lightSquaresClues = lightSquaresClues.getValue().split("\n").map { it.trim() },
             darkSquaresAnswers = darkSquaresAnswers.getValue().split("\\s+".toRegex()),
-            darkSquaresClues = darkSquaresClues.getValue().split("\n").map { it.trim() })
-        return Promise.resolve(
-            jellyRoll.asPuzzle(
-                lightSquareBackgroundColor = lightSquaresColor.getValue(),
-                darkSquareBackgroundColor = darkSquaresColor.getValue(),
-                combineJellyRollClues = combineJellyRollClues.getValue(),
-                crosswordSolverSettings = crosswordSolverSettings
-            )
+            darkSquaresClues = darkSquaresClues.getValue().split("\n").map { it.trim() },
+            lightSquareBackgroundColor = lightSquaresColor.getValue(),
+            darkSquareBackgroundColor = darkSquaresColor.getValue(),
+            combineJellyRollClues = combineJellyRollClues.getValue(),
         )
+        return Promise.resolve(jellyRoll.asPuzzle())
     }
 }

@@ -20,10 +20,9 @@ internal class AcrossLiteForm {
         }
     }
 
-    private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
+    private fun createPuzzle(): Promise<Puzzle> {
         return Interop.readFile(file.getValue()).then {
-            val crossword = AcrossLite(it).asCrossword()
-            Puzzle.fromCrossword(crossword, crosswordSolverSettings)
+            AcrossLite(it).asPuzzle()
         }
     }
 

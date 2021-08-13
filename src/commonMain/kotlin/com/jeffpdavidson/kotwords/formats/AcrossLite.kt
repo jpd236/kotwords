@@ -1,8 +1,7 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
-import com.jeffpdavidson.kotwords.model.Square
+import com.jeffpdavidson.kotwords.model.Puzzle
 import io.ktor.utils.io.charsets.Charset
 import io.ktor.utils.io.charsets.Charsets
 import io.ktor.utils.io.core.BytePacketBuilder
@@ -27,13 +26,13 @@ private val validSymbolRegex = "[@#$%&+?A-Z0-9]".toRegex()
 /**
  * Container for a puzzle in the Across Lite binary file format.
  *
- * This implements [Crosswordable] and as such can create a [Crossword] structure for the puzzle it
- * represents with [asCrossword]. However, in the common case that the puzzle is just being
+ * This implements [Puzzleable] and as such can create a [Puzzle] structure for the puzzle it
+ * represents with [asPuzzle]. However, in the common case that the puzzle is just being
  * serialized to disk in this format, prefer [binaryData] which is already in the correct format.
  *
  * @param binaryData The raw binary data in Across Lite format.
  */
-class AcrossLite(val binaryData: ByteArray) : Crosswordable {
+class AcrossLite(val binaryData: ByteArray) : Puzzleable {
 
     init {
         // Verify file magic to catch any unexpected file contents.
@@ -46,7 +45,9 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
         }
     }
 
-    override fun asCrossword(): Crossword {
+    override fun asPuzzle(): Puzzle = asCrossword().asPuzzle()
+
+    fun asCrossword(): Crossword {
         with(ByteReadPacket(binaryData)) {
             discardExact(0x18)
             val version = readTextExactCharacters(4, Charsets.ISO_8859_1)
@@ -58,24 +59,9 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
             val height = readByte()
 
             discardExact(6)
-            val grid = mutableListOf<List<Square>>()
-            for (y in 0 until height) {
-                val row = mutableListOf<Square>()
-                for (x in 0 until width) {
-                    val solution = readTextExactCharacters(1, Charsets.ISO_8859_1)
-                    row.add(
-                        if (solution == ".") {
-                            BLACK_SQUARE
-                        } else {
-                            Square(solution)
-                        }
-                    )
-                }
-                grid.add(row)
-            }
 
-            // Skip the response grid.
-            discardExact(width * height)
+            val solutions = readTextExactCharacters(width * height, Charsets.ISO_8859_1)
+            val entries = readTextExactCharacters(width * height, Charsets.ISO_8859_1)
 
             val title = readNullTerminatedString(charset)
             val author = readNullTerminatedString(charset)
@@ -83,7 +69,12 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
 
             val acrossClues = mutableMapOf<Int, String>()
             val downClues = mutableMapOf<Int, String>()
-            Crossword.forEachNumberedSquare(grid) { _, _, clueNumber, isAcross, isDown ->
+            val initialGrid = solutions.chunked(width.toInt()).map { row ->
+                row.map { solutionChar ->
+                    if (solutionChar == '.') Puzzle.Cell(cellType = Puzzle.CellType.BLOCK) else Puzzle.Cell()
+                }
+            }
+            Crossword.forEachNumberedCell(initialGrid) { _, _, clueNumber, isAcross, isDown ->
                 if (isAcross) {
                     acrossClues[clueNumber] = readNullTerminatedString(charset)
                 }
@@ -155,34 +146,55 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 }
             }
 
-            return Crossword(
-                title = title,
-                author = author,
-                copyright = copyright,
-                notes = notes,
-                acrossClues = acrossClues,
-                downClues = downClues,
-                grid = grid.mapIndexed { y, row ->
-                    row.mapIndexed { x, square ->
-                        if (square.isBlack) {
-                            square
-                        } else {
-                            val solution = rebusMap[x to y]?.let { rebusTable[it] } ?: square.solution
-                            Square(
-                                solution = solution,
-                                isCircled = circles.contains(x to y),
-                                entry = rebusEntries.getOrElse(x to y) { square.entry },
-                            )
-                        }
+            val grid = initialGrid.mapIndexed { y, row ->
+                row.mapIndexed { x, cell ->
+                    if (cell.cellType.isBlack()) {
+                        cell
+                    } else {
+                        val solution = rebusMap[x to y]?.let { rebusTable[it] } ?: solutions[y * width + x].toString()
+                        val entry = rebusEntries.getOrElse(x to y) { entries[y * width + x].toString() }
+                        val backgroundShape =
+                            if (circles.contains(x to y)) {
+                                Puzzle.BackgroundShape.CIRCLE
+                            } else {
+                                Puzzle.BackgroundShape.NONE
+                            }
+                        Puzzle.Cell(
+                            solution = solution,
+                            backgroundShape = backgroundShape,
+                            entry = if (entry == "-") "" else entry,
+                        )
                     }
                 }
+            }
+
+            return Crossword(
+                title = title,
+                creator = author,
+                copyright = copyright,
+                description = notes,
+                acrossClues = acrossClues,
+                downClues = downClues,
+                grid = grid,
             )
         }
     }
 
     companion object {
         /**
-         * Serialize this crossword into Across Lite binary format.
+         * Return whether this puzzle can be encoded as an Across Lite file.
+         */
+        fun Puzzle.supportsAcrossLite(): Boolean {
+            if (puzzleType != Puzzle.PuzzleType.CROSSWORD) {
+                return false
+            }
+            val acrossClues = getClues("Across")
+            val downClues = getClues("Down")
+            return acrossClues != null && downClues != null && acrossClues != downClues
+        }
+
+        /**
+         * Serialize this puzzle into Across Lite binary format.
          *
          * @param solved If true, the grid will be filled in with the correct solution.
          * @param writeUtf8 If true, clues and metadata will be written directly as UTF-8 characters, if needed. This
@@ -190,42 +202,38 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
          *                  applications. If false, clues and metadata will be written as ISO-8859-1 characters, and
          *                  unsupported characters will be substituted or dropped.
          */
-        fun Crossword.toAcrossLiteBinary(
+        fun Puzzle.asAcrossLiteBinary(
             solved: Boolean = false,
             writeUtf8: Boolean = true,
         ): ByteArray {
-            var unsupportedFeatures = hasUnsupportedFeatures
+            require(supportsAcrossLite()) { "Cannot save puzzle as an Across Lite file." }
+
+            var unsupportedFeatures = hasUnsupportedFeatures || clues.size > 2
 
             // Validate that the solution and entry grids only contains supported characters.
             val cleanedGrid = grid.map { row ->
-                row.map { square ->
-                    square.run {
-                        if (isBlack) {
-                            require(
-                                solution == null && !isCircled && entry == null && !isGiven
-                            ) {
-                                "Black squares must not set other properties"
+                row.map { cell ->
+                    if (cell.cellType.isBlack()) {
+                        cell
+                    } else {
+                        val sanitizedSolution = getValidSolutionRebus(cell)
+                        val validSolution =
+                            if (sanitizedSolution != null) {
+                                sanitizedSolution
+                            } else {
+                                // Show a warning about unsupported features, and fall back to "X".
+                                unsupportedFeatures = true
+                                "X"
                             }
-                            square
+                        require(cell.entry.isEmpty() || isValidGridString(cell.entry)) {
+                            "Unsupported entry: ${cell.entry}"
+                        }
+                        if (validSolution == cell.solution) {
+                            cell
                         } else {
-                            val sanitizedSolution = getValidSolutionRebus(this)
-                            val validSolution =
-                                if (sanitizedSolution != null) {
-                                    sanitizedSolution
-                                } else {
-                                    // Show a warning about unsupported features, and fall back to "X".
-                                    unsupportedFeatures = true
-                                    "X"
-                                }
-                            require(entry == null || isValidGridString(entry)) {
-                                "Unsupported entry character: $entry"
-                            }
-                            this.copy(
-                                solution = validSolution,
-                            )
+                            cell.copy(solution = validSolution)
                         }
                     }
-
                 }
             }
 
@@ -246,7 +254,10 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 writeByte(0)
             }
 
-            val useUtf8 = writeUtf8 && needsUtf8()
+            val acrossClues = getClues("Across") ?: error("No Across clues")
+            val downClues = getClues("Down") ?: error("No Down clues")
+
+            val useUtf8 = writeUtf8 && needsUtf8(this, acrossClues, downClues)
             val charset = if (useUtf8) Charsets.UTF_8 else Charsets.ISO_8859_1
 
             // Sanitize the clue numbers/clues to be Across Lite compatible.
@@ -296,14 +307,14 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
 
                 // Board solution, reading left to right, top to bottom
                 writeGrid(cleanedGrid, '.') {
-                    it.solution!![0]
+                    it.solution[0]
                 }
 
                 // Player state, reading left to right, top to bottom
                 writeGrid(cleanedGrid, '.') {
                     when {
-                        solved || it.isGiven -> it.solution!![0]
-                        it.entry != null -> it.entry[0]
+                        solved || it.cellType == Puzzle.CellType.CLUE -> it.solution[0]
+                        it.entry.isNotEmpty() -> it.entry[0]
                         else -> '-'
                     }
                 }
@@ -313,7 +324,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                     AcrossLiteSanitizer.substituteUnsupportedText(title, sanitizeCharacters = !useUtf8), charset
                 )
                 writeNullTerminatedString(
-                    AcrossLiteSanitizer.substituteUnsupportedText(author, sanitizeCharacters = !useUtf8), charset
+                    AcrossLiteSanitizer.substituteUnsupportedText(creator, sanitizeCharacters = !useUtf8), charset
                 )
                 writeNullTerminatedString(
                     AcrossLiteSanitizer.substituteUnsupportedText(copyright, sanitizeCharacters = !useUtf8), charset
@@ -330,7 +341,7 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 }
 
                 val combinedNotes = listOfNotNull(
-                    notes.ifEmpty { null },
+                    description.ifEmpty { null },
                     if (unsupportedFeatures) UNSUPPORTED_FEATURES_WARNING else null
                 ).joinToString("\n\n")
                 writeNullTerminatedString(
@@ -338,11 +349,11 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 )
 
                 // GRBS/RUSR/RTBL sections for rebus squares.
-                if (cleanedGrid.flatAny { (it.solution?.length ?: 0) > 1 || (it.entry?.length ?: 0) > 1 }) {
+                if (cleanedGrid.flatAny { it.solution.length > 1 || it.entry.length > 1 }) {
                     // Create map from solution rebus to a unique index for that rebus, starting at 1.
                     val rebusTable = cleanedGrid.flatMap { row ->
-                        row.mapNotNull { square ->
-                            square.solution
+                        row.map { cell ->
+                            cell.solution
                         }
                     }.filter { it.length > 1 }.distinct().mapIndexed { index, it -> it to index + 1 }.toMap()
 
@@ -367,15 +378,15 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                     }
 
                     // RUSR section: user rebus entries.
-                    if (solved || cleanedGrid.flatAny { it.isGiven || (it.entry?.length ?: 0) > 1 }) {
-                        fun getRusr(square: Square): String {
+                    if (solved || cleanedGrid.flatAny { it.cellType == Puzzle.CellType.CLUE || it.entry.length > 1 }) {
+                        fun getRusr(cell: Puzzle.Cell): String {
                             val entry =
-                                if (solved || square.isGiven) {
-                                    square.solution
+                                if (solved || cell.cellType == Puzzle.CellType.CLUE) {
+                                    cell.solution
                                 } else {
-                                    square.entry
+                                    cell.entry
                                 }
-                            return if ((entry?.length ?: 0) > 1) entry!! else ""
+                            return if (entry.length > 1) entry else ""
                         }
 
                         val length = cleanedGrid.flatten().sumOf { getRusr(it).length + 1 }
@@ -390,18 +401,21 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
                 }
 
                 // GEXT section for circled/given squares.
-                if (cleanedGrid.flatAny { it.isCircled || it.isGiven || (!it.isBlack && it.backgroundColor != null) }) {
-                    val hasCircledSquare = cleanedGrid.flatAny { it.isCircled }
+                fun Puzzle.Cell.isCircled() = backgroundShape == Puzzle.BackgroundShape.CIRCLE
+                fun Puzzle.Cell.isGiven() = cellType == Puzzle.CellType.CLUE
+                fun Puzzle.Cell.hasColor() = !cellType.isBlack() && backgroundColor.isNotEmpty()
+                if (cleanedGrid.flatAny { it.isCircled() || it.isGiven() || it.hasColor() }) {
+                    val hasCircledSquare = cleanedGrid.flatAny { it.isCircled() }
                     writeExtraSection("GEXT", squareCount) { packetBuilder ->
                         packetBuilder.writeGrid(cleanedGrid, 0) {
                             var status = 0
                             // If at least one square is circled, respect the isCircled bit and ignore all background
                             // colors. If no squares are circled, then circle any square with an explicit background
                             // color.
-                            if (it.isCircled || (!hasCircledSquare && !it.isBlack && it.backgroundColor != null)) {
+                            if (it.isCircled() || (!hasCircledSquare && it.hasColor())) {
                                 status = status or 0x80
                             }
-                            if (it.isGiven) status = status or 0x40
+                            if (it.isGiven()) status = status or 0x40
                             status.toByte()
                         }
                     }
@@ -433,13 +447,13 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
             return checksumPacketBuilder.build().readBytes()
         }
 
-        private fun Crossword.needsUtf8(): Boolean {
-            return title.needsUtf8()
-                    || author.needsUtf8()
-                    || copyright.needsUtf8()
-                    || notes.needsUtf8()
-                    || acrossClues.values.any { it.needsUtf8() }
-                    || downClues.values.any { it.needsUtf8() }
+        private fun needsUtf8(puzzle: Puzzle, acrossClues: Puzzle.ClueList, downClues: Puzzle.ClueList): Boolean {
+            return puzzle.title.needsUtf8()
+                    || puzzle.creator.needsUtf8()
+                    || puzzle.copyright.needsUtf8()
+                    || puzzle.description.needsUtf8()
+                    || acrossClues.clues.any { it.text.needsUtf8() }
+                    || downClues.clues.any { it.text.needsUtf8() }
         }
 
         private fun String.needsUtf8(): Boolean = any { it.code >= 256 }
@@ -447,18 +461,18 @@ class AcrossLite(val binaryData: ByteArray) : Crosswordable {
 }
 
 private inline fun BytePacketBuilder.writeGrid(
-    grid: List<List<Square>>, blackSquareValue: Byte, crossinline whiteSquareFn: (Square) -> Byte
+    grid: List<List<Puzzle.Cell>>, blackCellValue: Byte, crossinline whiteCellFn: (Puzzle.Cell) -> Byte
 ) {
-    Crossword.forEachSquare(grid) { _, _, _, _, _, square ->
-        writeByte(if (square.isBlack) blackSquareValue else whiteSquareFn(square))
+    Crossword.forEachCell(grid) { _, _, _, _, _, cell ->
+        writeByte(if (cell.cellType.isBlack()) blackCellValue else whiteCellFn(cell))
     }
 }
 
 private inline fun BytePacketBuilder.writeGrid(
-    grid: List<List<Square>>, blackSquareValue: Char, crossinline whiteSquareFn: (Square) -> Char
+    grid: List<List<Puzzle.Cell>>, blackCellValue: Char, crossinline whiteCellFn: (Puzzle.Cell) -> Char
 ) {
-    Crossword.forEachSquare(grid) { _, _, _, _, _, square ->
-        val char = if (square.isBlack) blackSquareValue else whiteSquareFn(square)
+    Crossword.forEachCell(grid) { _, _, _, _, _, cell ->
+        val char = if (cell.cellType.isBlack()) blackCellValue else whiteCellFn(cell)
         writeText(char.toString(), charset = Charsets.ISO_8859_1)
     }
 }
@@ -568,20 +582,20 @@ private fun isValidGridCharacter(character: Char): Boolean {
 private fun isValidGridString(string: String): Boolean =
     string.length in 1..8 && !string.any { !isValidGridCharacter(it) }
 
-private fun getValidSolutionRebus(square: Square): String? {
-    if (isValidGridString(square.solution!!)) {
-        return square.solution
+private fun getValidSolutionRebus(cell: Puzzle.Cell): String? {
+    if (isValidGridString(cell.solution)) {
+        return cell.solution
     }
 
     val solutionCandidates = mutableListOf<String>()
-    if (square.solution.isEmpty()) {
+    if (cell.solution.isEmpty()) {
         // Across Lite doesn't support empty solutions. If we have a valid alternate, just use that.
-        square.moreAnswers.firstOrNull { isValidGridString(it) }?.let { return it }
+        cell.moreAnswers.firstOrNull { isValidGridString(it) }?.let { return it }
     } else {
-        solutionCandidates += square.solution
+        solutionCandidates += cell.solution
     }
 
-    solutionCandidates += square.moreAnswers
+    solutionCandidates += cell.moreAnswers
 
     // solutionCandidates has the target invalid solution (if non-empty), as well as all alternate answers, which may
     // or may not be valid. Now, try sanitizing each alternate to see if we can find a valid solution.

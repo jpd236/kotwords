@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
+import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.formats.PdfComparator.assertPdfEquals
 import com.jeffpdavidson.kotwords.formats.getNotoSerifFontFamily
 import com.jeffpdavidson.kotwords.readBinaryResource
@@ -13,17 +15,28 @@ class TwistsAndTurnsTest {
     @Test
     fun jpzGeneration() = runTest {
         val expected = readStringResource(TwistsAndTurnsTest::class, "twists-and-turns.jpz")
-        assertEquals(expected, puzzle.asPuzzle().asJpzFile().toXmlString())
+        assertEquals(
+            expected, puzzle.asPuzzle().asJpzFile(
+                appletSettings = CrosswordCompilerApplet.AppletSettings(
+                    cursorColor = "#00b100",
+                    selectedCellsColor = "#80ff80",
+                    completion = CrosswordCompilerApplet.AppletSettings.Completion(message = "All done!"),
+                )
+            ).toXmlString()
+        )
     }
 
     @Test
     fun pdfGeneration_unsortedTwists() = runTest {
         val expected = readBinaryResource(TwistsAndTurnsTest::class, "twists-and-turns/unsorted-twists.pdf")
         assertPdfEquals(
-            expected, puzzle.asPdf(
+            expected, puzzle.copy(
+                separateLightAndDarkTwists = true,
+                numberTwists = false,
+                sortTwists = false,
+            ).asPdf(
                 blackSquareLightnessAdjustment = 0.5f,
                 fontFamily = getNotoSerifFontFamily(),
-                sortTwists = false
             )
         )
     }
@@ -32,10 +45,13 @@ class TwistsAndTurnsTest {
     fun pdfGeneration_sortedTwists() = runTest {
         val expected = readBinaryResource(TwistsAndTurnsTest::class, "twists-and-turns/sorted-twists.pdf")
         assertPdfEquals(
-            expected, puzzle.asPdf(
+            expected, puzzle.copy(
+                separateLightAndDarkTwists = true,
+                numberTwists = false,
+                sortTwists = true
+            ).asPdf(
                 blackSquareLightnessAdjustment = 0.5f,
                 fontFamily = getNotoSerifFontFamily(),
-                sortTwists = true
             )
         )
     }
@@ -54,9 +70,6 @@ class TwistsAndTurnsTest {
             twistsClues = listOf("D Twist 1", "C Twist 2", "B Twist 3", "A Twist 4"),
             lightTwistsColor = "#FFFFFF",
             darkTwistsColor = "#999999",
-            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
-                cursorColor = "#00b100", selectedCellsColor = "#80ff80", completionMessage = "All done!"
-            ),
         )
     }
 }

@@ -1,6 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.toAcrossLiteBinary
+import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.asAcrossLiteBinary
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.runTest
 import kotlin.test.Test
@@ -10,14 +10,13 @@ class AcrossLiteTest {
     @Test
     fun readAndWrite_basic() = runTest {
         val data = readBinaryResource(AcrossLiteTest::class, "puz/test-simple.puz")
-        val result = AcrossLite(data).asCrossword()
-        assertTrue(data.contentEquals(result.toAcrossLiteBinary()))
+        assertTrue(data.contentEquals(AcrossLite(data).asPuzzle().asAcrossLiteBinary()))
     }
 
     @Test
     fun readAndWrite_notesCirclesRebusUtf8() = runTest {
         val data = readBinaryResource(AcrossLiteTest::class, "puz/test.puz")
-        assertTrue(data.contentEquals(AcrossLite(data).asCrossword().toAcrossLiteBinary()))
+        assertTrue(data.contentEquals(AcrossLite(data).asPuzzle().asAcrossLiteBinary()))
     }
 
     @Test
@@ -25,7 +24,7 @@ class AcrossLiteTest {
         val data = readBinaryResource(AcrossLiteTest::class, "puz/test.puz")
         assertTrue(
             readBinaryResource(AcrossLiteTest::class, "puz/test-iso-8859-1.puz").contentEquals(
-                AcrossLite(data).asCrossword().toAcrossLiteBinary(writeUtf8 = false)
+                AcrossLite(data).asPuzzle().asAcrossLiteBinary(writeUtf8 = false)
             )
         )
     }
@@ -35,7 +34,7 @@ class AcrossLiteTest {
         val data = readBinaryResource(AcrossLiteTest::class, "puz/test.puz")
         assertTrue(
             readBinaryResource(AcrossLiteTest::class, "puz/test-solved.puz").contentEquals(
-                AcrossLite(data).asCrossword().toAcrossLiteBinary(solved = true)
+                AcrossLite(data).asPuzzle().asAcrossLiteBinary(solved = true)
             )
         )
     }

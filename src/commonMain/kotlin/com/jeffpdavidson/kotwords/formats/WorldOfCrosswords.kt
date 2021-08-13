@@ -2,9 +2,8 @@ package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.formats.json.WorldOfCrosswordsJson
-import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
-import com.jeffpdavidson.kotwords.model.Square
+import com.jeffpdavidson.kotwords.model.Puzzle
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
@@ -16,8 +15,9 @@ class WorldOfCrosswords(
     private val year: Int,
     private val author: String,
     private val copyright: String
-) : Crosswordable {
-    override fun asCrossword(): Crossword {
+) : Puzzleable {
+
+    override fun asPuzzle(): Puzzle {
         val data = JsonSerializer.fromJson<WorldOfCrosswordsJson>(json)
         if (!data.success) {
             throw InvalidFormatException("API failure")
@@ -32,17 +32,17 @@ class WorldOfCrosswords(
             val square = it.jsonArray
             square[0].jsonPrimitive.int to (size - 1 - square[1].jsonPrimitive.int)
         }.toSet()
-        val grid = mutableListOf<List<Square>>()
+        val grid = mutableListOf<List<Puzzle.Cell>>()
         val answerLetters =
             clueData.first.joinToString("") { it[1].jsonPrimitive.content }.uppercase()
         var answerLetterIndex = 0
         for (y in 0 until size) {
-            val row = mutableListOf<Square>()
+            val row = mutableListOf<Puzzle.Cell>()
             for (x in 0 until size) {
                 if (whiteSquareCoordinates.contains(x to y)) {
-                    row.add(Square("${answerLetters[answerLetterIndex++]}"))
+                    row.add(Puzzle.Cell(solution = "${answerLetters[answerLetterIndex++]}"))
                 } else {
-                    row.add(BLACK_SQUARE)
+                    row.add(Puzzle.Cell(cellType = Puzzle.CellType.BLOCK))
                 }
             }
             grid.add(row)
@@ -50,13 +50,13 @@ class WorldOfCrosswords(
 
         return Crossword(
             title = title,
-            author = author,
+            creator = author,
             copyright = "\u00a9 $year $copyright",
             grid = grid,
             acrossClues = buildClueMap(clueData.first),
             downClues = buildClueMap(clueData.second),
             hasHtmlClues = true,
-        )
+        ).asPuzzle()
     }
 
     private fun buildClueMap(clueData: List<JsonArray>): Map<Int, String> {

@@ -3,40 +3,34 @@ package com.jeffpdavidson.kotwords.model
 import com.jeffpdavidson.kotwords.formats.FONT_FAMILY_TIMES_ROMAN
 import com.jeffpdavidson.kotwords.formats.Pdf.asPdf
 import com.jeffpdavidson.kotwords.formats.PdfFontFamily
+import com.jeffpdavidson.kotwords.formats.Puzzleable
 
 /**
- * A representation of a crossword puzzle.
+ * A representation of a crossword puzzle with standard numbering.
+ *
+ * For non-standard words/numbering, use [Puzzle] directly.
  *
  * @constructor Construct a new puzzle.
  * @param title The title of the puzzle.
- * @param author The author of the puzzle.
+ * @param creator The author of the puzzle.
  * @param copyright The copyright of the puzzle.
- * @param notes Optional notes about the puzzle.
- * @param grid The grid of [Square]s in the form of a list of rows going from top to bottom, with
+ * @param description Optional notes about the puzzle.
+ * @param grid The grid of [Puzzle.Cell]s in the form of a list of rows going from top to bottom, with
  *             each row going from left to right.
  * @param acrossClues Mapping from across clue number to the clue for that number.
  * @param downClues Mapping from down clue number to the clue for that number.
  * @param hasHtmlClues Whether clue contents are in HTML.
- * @param acrossWords Optional specification of all words in the Across direction. Only needed for irregular numbering/
- *                    cluing schemes.
- * @param downWords Optional specification of all words in the Down direction. Only needed for irregular numbering/
- *                  cluing schemes.
- * @param hasUnsupportedFeatures Whether this crossword may contain features that cannot be captured by this interface.
- *                               Used to show a warning to solvers.
  */
 data class Crossword(
     val title: String,
-    val author: String,
+    val creator: String,
     val copyright: String,
-    val notes: String = "",
-    val grid: List<List<Square>>,
+    val description: String = "",
+    val grid: List<List<Puzzle.Cell>>,
     val acrossClues: Map<Int, String>,
     val downClues: Map<Int, String>,
     val hasHtmlClues: Boolean = false,
-    val acrossWords: List<Word> = listOf(),
-    val downWords: List<Word> = listOf(),
-    val hasUnsupportedFeatures: Boolean = false,
-) {
+) : Puzzleable {
     init {
         // Validate that grid is a rectangle.
         val width = grid[0].size
@@ -48,34 +42,100 @@ data class Crossword(
         // TODO: Validate standard grid numbering / clues.
     }
 
+    override fun asPuzzle(): Puzzle {
+        val acrossPuzzleClues = mutableListOf<Puzzle.Clue>()
+        val downPuzzleClues = mutableListOf<Puzzle.Clue>()
+        val words = mutableListOf<Puzzle.Word>()
+
+        // Generate numbers and words based on standard crossword numbering.
+        val gridNumbers = mutableMapOf<Pair<Int, Int>, Int>()
+        forEachCell(grid) { x, y, clueNumber, isAcross, isDown, _ ->
+            if (clueNumber != null) {
+                gridNumbers[x to y] = clueNumber
+            }
+            if (isAcross) {
+                val word = mutableListOf<Puzzle.Coordinate>()
+                var i = x
+                while (i < grid[y].size && !grid[y][i].cellType.isBlack()) {
+                    word.add(Puzzle.Coordinate(x = i, y = y))
+                    i++
+                }
+                if (clueNumber != null && acrossClues.containsKey(clueNumber)) {
+                    acrossPuzzleClues.add(
+                        Puzzle.Clue(clueNumber, "$clueNumber", acrossClues[clueNumber]!!)
+                    )
+                    words.add(Puzzle.Word(clueNumber, word))
+                }
+            }
+            if (isDown) {
+                val word = mutableListOf<Puzzle.Coordinate>()
+                var j = y
+                while (j < grid.size && !grid[j][x].cellType.isBlack()) {
+                    word.add(Puzzle.Coordinate(x = x, y = j))
+                    j++
+                }
+                if (clueNumber != null && downClues.containsKey(clueNumber)) {
+                    downPuzzleClues.add(
+                        Puzzle.Clue(1000 + clueNumber, "$clueNumber", downClues[clueNumber]!!)
+                    )
+                    words.add(Puzzle.Word(1000 + clueNumber, word))
+                }
+            }
+        }
+
+        val acrossTitle = if (hasHtmlClues) "<b>Across</b>" else "Across"
+        val downTitle = if (hasHtmlClues) "<b>Down</b>" else "Down"
+        return Puzzle(
+            title,
+            creator,
+            copyright,
+            description,
+            grid.mapIndexed { y, row ->
+                row.mapIndexed { x, cell ->
+                    val number = gridNumbers[x to y]
+                    if (number == null) {
+                        cell
+                    } else {
+                        cell.copy(number = number.toString())
+                    }
+                }
+            },
+            listOf(Puzzle.ClueList(acrossTitle, acrossPuzzleClues), Puzzle.ClueList(downTitle, downPuzzleClues)),
+            words.sortedBy { it.id },
+            hasHtmlClues = hasHtmlClues,
+        )
+    }
+
     /**
-     * A word in the crossword grid.
+     * Render this crossword as a PDF document.
      *
-     * @param id Unique identifier for the word.
-     * @param squares List of (x, y) coordinates for each square in the word.
+     * @param fontFamily Font family to use for the PDF.
+     * @param blackSquareLightnessAdjustment Percentage (from 0 to 1) indicating how much to brighten black/colored
+     *                                       squares (i.e. to save ink). 0 indicates no adjustment; 1 would be fully
+     *                                       white.
      */
-    data class Word(
-        val id: Int,
-        val squares: List<Pair<Int, Int>>,
-    )
+    fun asPdf(
+        fontFamily: PdfFontFamily = FONT_FAMILY_TIMES_ROMAN,
+        blackSquareLightnessAdjustment: Float = 0f
+    ): ByteArray = asPuzzle().asPdf(fontFamily, blackSquareLightnessAdjustment)
 
     companion object {
-        /** Execute the given function for each square in the grid. */
-        fun forEachSquare(
-            grid: List<List<Square>>,
+        /** Execute the given function for each cell in the grid. */
+        fun forEachCell(
+            grid: List<List<Puzzle.Cell>>,
             fn: (
                 x: Int,
                 y: Int,
                 clueNumber: Int?,
                 isAcross: Boolean,
                 isDown: Boolean,
-                square: Square
+                cell: Puzzle.Cell
             ) -> Unit
         ) {
             var currentClueNumber = 1
             for (y in grid.indices) {
                 for (x in grid[y].indices) {
-                    if (grid[y][x].isBlack) {
+                    if (grid[y][x].cellType == Puzzle.CellType.BLOCK) {
                         fn(
                             x, y, /* clueNumber= */ null, /* isAcross= */ false, /* isDown= */ false,
                             grid[y][x]
@@ -95,9 +155,9 @@ data class Crossword(
             }
         }
 
-        /** Execute the given function for each numbered square in the given grid. */
-        fun forEachNumberedSquare(
-            grid: List<List<Square>>,
+        /** Execute the given function for each numbered cell in the given grid. */
+        fun forEachNumberedCell(
+            grid: List<List<Puzzle.Cell>>,
             fn: (
                 x: Int,
                 y: Int,
@@ -106,44 +166,21 @@ data class Crossword(
                 isDown: Boolean
             ) -> Unit
         ) {
-            forEachSquare(grid) { x, y, clueNumber, isAcross, isDown, _ ->
+            forEachCell(grid) { x, y, clueNumber, isAcross, isDown, _ ->
                 if (isAcross || isDown) {
                     fn(x, y, clueNumber!!, isAcross, isDown)
                 }
             }
         }
 
-        /**
-         * Whether the given grid uses a custom numbering scheme.
-         *
-         * If at least one square is numbered, we apply renumbering logic. Otherwise, we assume that the puzzle uses
-         * normal crossword numbering and avoid any numbering adjustment to the clues.
-         */
-        fun hasCustomNumbering(grid: List<List<Square>>): Boolean =
-            grid.find { row -> row.find { square -> square.number != null } != null } != null
-
-        private fun needsAcrossNumber(grid: List<List<Square>>, x: Int, y: Int): Boolean {
-            return !grid[y][x].isBlack && (x == 0 || grid[y][x - 1].isBlack)
-                    && (x + 1 < grid[0].size && !grid[y][x + 1].isBlack)
+        private fun needsAcrossNumber(grid: List<List<Puzzle.Cell>>, x: Int, y: Int): Boolean {
+            return !grid[y][x].cellType.isBlack() && (x == 0 || grid[y][x - 1].cellType.isBlack())
+                    && (x + 1 < grid[0].size && !grid[y][x + 1].cellType.isBlack())
         }
 
-        private fun needsDownNumber(grid: List<List<Square>>, x: Int, y: Int): Boolean {
-            return !grid[y][x].isBlack && (y == 0 || grid[y - 1][x].isBlack)
-                    && (y + 1 < grid.size && !grid[y + 1][x].isBlack)
+        private fun needsDownNumber(grid: List<List<Puzzle.Cell>>, x: Int, y: Int): Boolean {
+            return !grid[y][x].cellType.isBlack() && (y == 0 || grid[y - 1][x].cellType.isBlack())
+                    && (y + 1 < grid.size && !grid[y + 1][x].cellType.isBlack())
         }
     }
-
-
-    /**
-     * Render this crossword as a PDF document.
-     *
-     * @param fontFamily Font family to use for the PDF.
-     * @param blackSquareLightnessAdjustment Percentage (from 0 to 1) indicating how much to brighten black/colored
-     *                                       squares (i.e. to save ink). 0 indicates no adjustment; 1 would be fully
-     *                                       white.
-     */
-    fun asPdf(
-        fontFamily: PdfFontFamily = FONT_FAMILY_TIMES_ROMAN,
-        blackSquareLightnessAdjustment: Float = 0f
-    ): ByteArray = Puzzle.fromCrossword(this).asPdf(fontFamily, blackSquareLightnessAdjustment)
 }

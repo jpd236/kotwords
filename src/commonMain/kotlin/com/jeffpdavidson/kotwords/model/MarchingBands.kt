@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.Puzzleable
+
 data class MarchingBands(
     val title: String,
     val creator: String,
@@ -7,8 +9,11 @@ data class MarchingBands(
     val description: String,
     val grid: List<List<Char?>>,
     val bandClues: List<List<String>>,
-    val rowClues: List<List<String>>
-) {
+    val rowClues: List<List<String>>,
+    val includeRowNumbers: Boolean,
+    val lightBandColor: String,
+    val darkBandColor: String,
+) : Puzzleable {
     init {
         val height = grid.size
         require(grid.count { it.size == height } == height) {
@@ -23,16 +28,11 @@ data class MarchingBands(
         }
     }
 
-    fun asPuzzle(
-        includeRowNumbers: Boolean,
-        lightBandColor: String,
-        darkBandColor: String,
-        crosswordSolverSettings: Puzzle.CrosswordSolverSettings
-    ): Puzzle {
+    override fun asPuzzle(): Puzzle {
         val puzzleGrid = grid.mapIndexed { y, row ->
             row.mapIndexed { x, ch ->
                 if (ch == null) {
-                    Puzzle.Cell(x = x + 1, y = y + 1, cellType = Puzzle.CellType.BLOCK)
+                    Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                 } else {
                     val rowNumber = if (x == 0) "${y + 1}" else ""
                     val bandLetter = if (x == y && x < grid.size / 2) "${'A' + x}" else ""
@@ -43,7 +43,6 @@ data class MarchingBands(
                             darkBandColor
                         }
                     Puzzle.Cell(
-                        x = x + 1, y = y + 1,
                         solution = "$ch",
                         number = if (includeRowNumbers) rowNumber else bandLetter,
                         topRightNumber = if (includeRowNumbers) bandLetter else "",
@@ -53,19 +52,19 @@ data class MarchingBands(
             }
         }
         val (rowClueList, rowWordList) = rowClues.mapIndexed { y, clues ->
-            val cells = puzzleGrid[y].filterNot { it.cellType == Puzzle.CellType.BLOCK }
+            val cells = puzzleGrid[y].mapIndexedNotNull { x, cell ->
+                if (cell.cellType == Puzzle.CellType.BLOCK) null else Puzzle.Coordinate(x = x, y = y)
+            }
             Puzzle.Clue(y + 1, "${y + 1}", clues.joinToString(" / ")) to Puzzle.Word(y + 1, cells)
         }.unzip()
         val (bandClueList, bandWordList) = bandClues.mapIndexed { i, clues ->
-            val cells = mutableListOf<Puzzle.Cell>()
-            cells.addAll(puzzleGrid[i].subList(i, puzzleGrid[i].size - i))
-            (i + 1 until puzzleGrid.size - i).forEach { y ->
-                cells.add(puzzleGrid[y][puzzleGrid[y].size - i - 1])
-            }
-            cells.addAll(puzzleGrid[puzzleGrid.size - i - 1].subList(i, puzzleGrid[i].size - i - 1).reversed())
-            (puzzleGrid.size - i - 2 downTo i + 1).forEach { y ->
-                cells.add(puzzleGrid[y][i])
-            }
+            val cells =
+                (i until puzzleGrid[i].size - i).map { x -> Puzzle.Coordinate(x = x, y = i) } +
+                        (i + 1 until puzzleGrid.size - i)
+                            .map { y -> Puzzle.Coordinate(x = puzzleGrid[y].size - i - 1, y = y) } +
+                        (i until puzzleGrid[i].size - i - 1)
+                            .map { x -> Puzzle.Coordinate(x = x, y = puzzleGrid.size - i - 1) }.reversed() +
+                        (i + 1 until puzzleGrid.size - i - 1).map { y -> Puzzle.Coordinate(x = i, y = y) }.reversed()
             Puzzle.Clue(1000 + i + 1, "${'A' + i}", clues.joinToString(" / ")) to Puzzle.Word(1000 + i + 1, cells)
         }.unzip()
         return Puzzle(
@@ -76,7 +75,6 @@ data class MarchingBands(
             grid = puzzleGrid,
             clues = listOf(Puzzle.ClueList("Bands", bandClueList), Puzzle.ClueList("Rows", rowClueList)),
             words = bandWordList + rowWordList,
-            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 }

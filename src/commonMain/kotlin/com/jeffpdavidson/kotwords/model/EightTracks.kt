@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.Puzzleable
+
 data class EightTracks(
     val title: String,
     val creator: String,
@@ -8,20 +10,18 @@ data class EightTracks(
     val trackDirections: List<Direction>,
     val trackStartingOffsets: List<Int>,
     val trackAnswers: List<List<String>>,
-    val trackClues: List<List<String>>
-) {
+    val trackClues: List<List<String>>,
+    val includeEnumerationsAndDirections: Boolean,
+    val lightTrackColor: String,
+    val darkTrackColor: String,
+) : Puzzleable {
 
     enum class Direction {
         CLOCKWISE,
         COUNTERCLOCKWISE
     }
 
-    fun asPuzzle(
-        includeEnumerationsAndDirections: Boolean,
-        lightTrackColor: String,
-        darkTrackColor: String,
-        crosswordSolverSettings: Puzzle.CrosswordSolverSettings
-    ): Puzzle {
+    override fun asPuzzle(): Puzzle {
         val gridMap = mutableMapOf<Pair<Int, Int>, Puzzle.Cell>()
         val gridWidth = trackAnswers.size * 2 + 1
         val clueLists = mutableListOf<Puzzle.ClueList>()
@@ -36,23 +36,24 @@ data class EightTracks(
                         (trackIndex + trackWidth - 2 downTo trackIndex + 1).map { trackIndex to it }
             val startingOffset = trackStartingOffsets[trackIndex]
             val direction = trackDirections[trackIndex]
-            val wordsCells = mutableListOf<List<Puzzle.Cell>>()
+            val wordsCells = mutableListOf<List<Puzzle.Coordinate>>()
             answers.foldIndexed(0) { answerId, answerIndex, answer ->
-                val word = mutableListOf<Puzzle.Cell>()
+                val word = mutableListOf<Puzzle.Coordinate>()
                 answer.forEachIndexed { i, ch ->
                     val mult = if (direction == Direction.CLOCKWISE) 1 else -1
                     val coordinateIndex = (mult * (answerIndex + i) + startingOffset - 1) mod trackCoordinates.size
                     val coordinates = trackCoordinates[coordinateIndex]
                     val cell = Puzzle.Cell(
-                        x = coordinates.first + 1,
-                        y = coordinates.second + 1,
                         solution = "$ch",
                         number = if (trackIndex == 0 && i == 0) "${answerId + 1}" else "",
                         backgroundColor = if (trackIndex % 2 == 0) darkTrackColor else lightTrackColor,
                         borderDirections = getBorderDirections(coordinateIndex, trackCoordinates.size)
                     )
                     gridMap[coordinates] = cell
-                    word += cell
+                    word += Puzzle.Coordinate(
+                        x = coordinates.first,
+                        y = coordinates.second,
+                    )
                 }
                 wordsCells += word
                 answerIndex + answer.length
@@ -90,7 +91,7 @@ data class EightTracks(
         }
         val grid = (0 until gridWidth).map { y ->
             (0 until gridWidth).map { x ->
-                gridMap.getOrElse(x to y) { Puzzle.Cell(x = x + 1, y = y + 1, cellType = Puzzle.CellType.BLOCK) }
+                gridMap.getOrElse(x to y) { Puzzle.Cell(cellType = Puzzle.CellType.BLOCK) }
             }
         }
         clueLists.add(Puzzle.ClueList("Other tracks", otherTracks))
@@ -103,7 +104,6 @@ data class EightTracks(
             grid = grid,
             clues = clueLists,
             words = words,
-            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 

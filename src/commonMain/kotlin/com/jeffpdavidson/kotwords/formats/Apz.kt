@@ -1,7 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.model.Acrostic
-import com.jeffpdavidson.kotwords.model.Puzzle
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XML
@@ -9,7 +8,7 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 
 @Serializable
 @SerialName("puzzle")
-data class ApzFile(
+data class Apz(
     val metadata: Metadata,
     @XmlElement(true) val solution: String? = null,
     @XmlElement(true) val source: String? = null,
@@ -29,20 +28,14 @@ data class ApzFile(
         @XmlElement(true) val description: String? = null
     )
 
-
-    fun toAcrostic(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Acrostic {
-        val completionMessage =
-            crosswordSolverSettings.completionMessage.ifEmpty {
+    fun toAcrostic(completionMessage: String = "", includeAttribution: Boolean = true): Acrostic {
+        val generatedCompletionMessage =
+            completionMessage.ifEmpty {
                 val source = source ?: ""
                 val quote = quote ?: ""
                 listOf(source.trim(), quote.trim())
                     .filter { it.isNotEmpty() }.joinToString("\n\n")
             }
-        val settings = Puzzle.CrosswordSolverSettings(
-            cursorColor = crosswordSolverSettings.cursorColor,
-            selectedCellsColor = crosswordSolverSettings.selectedCellsColor,
-            completionMessage = completionMessage
-        )
         return Acrostic.fromRawInput(
             title = metadata.title ?: "",
             creator = metadata.creator ?: "",
@@ -53,12 +46,13 @@ data class ApzFile(
             gridKey = gridkey ?: "",
             clues = clues ?: "",
             answers = answers ?: "",
-            crosswordSolverSettings = settings
+            completionMessage = generatedCompletionMessage,
+            includeAttribution = includeAttribution,
         )
     }
 
     companion object {
-        fun parse(apzContents: String): ApzFile {
+        fun fromXmlString(apzContents: String): Apz {
             return XML {
                 // Ignore unknown elements
                 unknownChildHandler = { _, _, _, _ -> }

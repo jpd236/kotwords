@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
+import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.runTest
 import kotlin.test.Test
@@ -11,7 +13,13 @@ class AcrosticTest {
     fun asJpz() = runTest {
         assertEquals(
             readStringResource(AcrosticTest::class, "acrostic/acrostic.jpz"),
-            acrostic.asPuzzle().asJpzFile().toXmlString()
+            acrostic.asPuzzle().asJpzFile(
+                appletSettings = CrosswordCompilerApplet.AppletSettings(
+                    cursorColor = "#00b100",
+                    selectedCellsColor = "#80ff80",
+                    completion = CrosswordCompilerApplet.AppletSettings.Completion(message = "All done!"),
+                )
+            ).toXmlString()
         )
     }
 
@@ -19,7 +27,13 @@ class AcrosticTest {
     fun asJpz_withAttribution() = runTest {
         assertEquals(
             readStringResource(AcrosticTest::class, "acrostic/acrostic-attribution.jpz"),
-            acrostic.asPuzzle(includeAttribution = true).asJpzFile().toXmlString()
+            acrostic.copy(includeAttribution = true).asPuzzle().asJpzFile(
+                appletSettings = CrosswordCompilerApplet.AppletSettings(
+                    cursorColor = "#00b100",
+                    selectedCellsColor = "#80ff80",
+                    completion = CrosswordCompilerApplet.AppletSettings.Completion(message = "All done!"),
+                )
+            ).toXmlString()
         )
     }
 
@@ -89,9 +103,7 @@ class AcrosticTest {
             solution = "ACRO-ST IC",
             gridKey = listOf(listOf(2, 1, 3), listOf(5, 6, 4, 7, 8)),
             clues = listOf("Clue 1", "Clue 2"),
-            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
-                cursorColor = "#00b100", selectedCellsColor = "#80ff80", completionMessage = "All done!"
-            )
+            includeAttribution = false,
         )
     }
 }

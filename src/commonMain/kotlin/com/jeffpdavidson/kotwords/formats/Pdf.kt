@@ -218,7 +218,7 @@ object Pdf {
         val gridBlackColor = getAdjustedColor(RGB("#000000"), blackSquareLightnessAdjustment)
 
         grid.forEachIndexed { y, row ->
-            row.forEachIndexed { x, square ->
+            row.forEachIndexed eachSquare@{ x, square ->
                 val squareX = gridX + x * gridSquareSize
                 val squareY = gridY + gridHeight - (y + 1) * gridSquareSize
 
@@ -231,11 +231,15 @@ object Pdf {
                     square.cellType == Puzzle.CellType.BLOCK -> gridBlackColor
                     else -> RGB("#ffffff")
                 }
-                setStrokeColor(gridBlackColor.r / 255f, gridBlackColor.g / 255f, gridBlackColor.b / 255f)
                 setFillColor(backgroundColor.r / 255f, backgroundColor.g / 255f, backgroundColor.b / 255f)
-                fillAndStroke()
+                if (square.cellType == Puzzle.CellType.VOID) {
+                    fill()
+                } else {
+                    setStrokeColor(gridBlackColor.r / 255f, gridBlackColor.g / 255f, gridBlackColor.b / 255f)
+                    fillAndStroke()
+                }
 
-                if (square.cellType != Puzzle.CellType.BLOCK) {
+                if (!square.cellType.isBlack()) {
                     if (square.backgroundShape == Puzzle.BackgroundShape.CIRCLE) {
                         addCircle(squareX, squareY, gridSquareSize / 2)
                         stroke()

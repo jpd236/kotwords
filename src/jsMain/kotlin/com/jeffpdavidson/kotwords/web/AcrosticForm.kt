@@ -1,6 +1,6 @@
 package com.jeffpdavidson.kotwords.web
 
-import com.jeffpdavidson.kotwords.formats.ApzFile
+import com.jeffpdavidson.kotwords.formats.Apz
 import com.jeffpdavidson.kotwords.js.Interop
 import com.jeffpdavidson.kotwords.model.Acrostic
 import com.jeffpdavidson.kotwords.model.Puzzle
@@ -126,15 +126,16 @@ internal class AcrosticForm {
         }
     }
 
-    private fun createPuzzleFromApzFile(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
+    private fun createPuzzleFromApzFile(): Promise<Puzzle> {
         return Interop.readFile(file.getValue()).then {
-            ApzFile.parse(String(it, charset = Charsets.UTF_8)).toAcrostic(crosswordSolverSettings).asPuzzle(
-                includeAttribution = apzFileIncludeAttribution.getValue()
-            )
+            Apz.fromXmlString(String(it, charset = Charsets.UTF_8)).toAcrostic(
+                completionMessage = completionMessage.getValue(),
+                includeAttribution = includeAttribution.getValue(),
+            ).asPuzzle()
         }
     }
 
-    private fun createPuzzleFromManualEntry(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
+    private fun createPuzzleFromManualEntry(): Promise<Puzzle> {
         if (gridKey.getValue().isBlank() && answers.getValue().isBlank()) {
             return Promise.reject(IllegalArgumentException("Must provide either grid key or answers"))
         }
@@ -159,11 +160,10 @@ internal class AcrosticForm {
             gridKey = gridKey.getValue(),
             clues = clues.getValue(),
             answers = answers.getValue(),
-            crosswordSolverSettings = crosswordSolverSettings.copy(
-                completionMessage = completionMessage.getValue()
-            )
+            completionMessage = completionMessage.getValue(),
+            includeAttribution = includeAttribution.getValue(),
         )
-        return Promise.resolve(acrostic.asPuzzle(includeAttribution.getValue()))
+        return Promise.resolve(acrostic.asPuzzle())
     }
 
     private fun getApzFileName(): String {

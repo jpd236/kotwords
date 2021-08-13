@@ -1,6 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.toAcrossLiteBinary
+import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.asAcrossLiteBinary
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.runTest
@@ -13,7 +13,7 @@ class CrosshareTest {
         assertTrue(
             readBinaryResource(CrosshareTest::class, "puz/test.puz").contentEquals(
                 Crosshare(readStringResource(CrosshareTest::class, "crosshare.json"))
-                    .asCrossword().toAcrossLiteBinary()
+                    .asPuzzle().asAcrossLiteBinary()
             )
         )
     }

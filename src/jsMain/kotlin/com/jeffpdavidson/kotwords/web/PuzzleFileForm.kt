@@ -1,6 +1,8 @@
 package com.jeffpdavidson.kotwords.web
 
 import com.github.ajalt.colormath.RGB
+import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
+import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.formats.Pdf
 import com.jeffpdavidson.kotwords.js.Interop
 import com.jeffpdavidson.kotwords.js.Interop.toArrayBuffer
@@ -39,8 +41,7 @@ import kotlin.js.json
 /**
  * Container for an HTML form for creating digital files for a particular puzzle input.
  *
- * @param createPuzzleFn function to return a [Promise] of the created [Puzzle] from the form input. Given the
- *                       [Puzzle.CrosswordSolverSettings] from advanced settings as input.
+ * @param createPuzzleFn function to return a [Promise] of the created [Puzzle] from the form input.
  * @param getFileNameFn optional function to return the base filename that should be used when downloading the puzzle.
  *                      Defaults to the alphanumerical characters of the title. Omit any extension.
  * @param id optional ID to use for form elements in case there are multiple forms on a single page.
@@ -51,20 +52,16 @@ import kotlin.js.json
  * @param completionMessageDefaultValue optional default value to use for the completion message.
  * @param completionMessageHelpText optional help text to use for the completion message.
  * @param createPdfFn optional function to return a [Promise] of the created PDF (as a byte array) from the form input.
- *                    Given the [Puzzle.CrosswordSolverSettings] from advanced settings as input.
  */
 internal class PuzzleFileForm(
     private val puzzleType: String,
-    private val createPuzzleFn: (Puzzle.CrosswordSolverSettings) -> Promise<Puzzle>,
+    private val createPuzzleFn: () -> Promise<Puzzle>,
     private val getFileNameFn: (Puzzle) -> String = ::getDefaultFileName,
     private val id: String = "",
     includeCompletionMessage: Boolean = true,
     private val completionMessageDefaultValue: String = "Congratulations! The puzzle is solved correctly.",
     private val completionMessageHelpText: String = "",
-    private val createPdfFn: ((
-        crosswordSolverSettings: Puzzle.CrosswordSolverSettings,
-        blackSquareLightnessAdjustment: Float
-    ) -> Promise<ByteArray>)? = null,
+    private val createPdfFn: ((blackSquareLightnessAdjustment: Float) -> Promise<ByteArray>)? = null,
     enableSaveData: Boolean = true,
 ) {
     private val cursorColor: FormFields.InputField = FormFields.InputField(elementId("cursor-color"))
@@ -214,7 +211,7 @@ internal class PuzzleFileForm(
         } else if (submitter == jpzButton.button || (pdfButton != null && submitter == pdfButton.button)) {
             GlobalScope.launch {
                 try {
-                    val puzzle = createPuzzleFn(createCrosswordSolverSettings()).await()
+                    val puzzle = createPuzzleFn().await()
                     if (pdfButton != null && submitter == pdfButton.button) {
                         // TODO: Avoid this unnecessary Puzzle generation just to get the title/filename.
                         downloadPdf(puzzle)
@@ -283,13 +280,13 @@ internal class PuzzleFileForm(
     }
 
     private suspend fun downloadPdf(puzzle: Puzzle) {
-        val data = createPdfFn!!(createCrosswordSolverSettings(), inkSaverPercentage!!.getValue() / 100f).await()
+        val data = createPdfFn!!(inkSaverPercentage!!.getValue() / 100f).await()
         download("${getFileNameFn(puzzle)}.pdf", data)
     }
 
     private suspend fun downloadJpz(puzzle: Puzzle) {
         val fileName = "${puzzle.title.replace("[^A-Za-z0-9]".toRegex(), "")}.xml"
-        val data = puzzle.asJpzFile().toCompressedFile(fileName)
+        val data = puzzle.asJpzFile(appletSettings = createAppletSettings()).toCompressedFile(fileName)
         download("${getFileNameFn(puzzle)}.jpz", data)
     }
 
@@ -299,11 +296,13 @@ internal class PuzzleFileForm(
         Html.downloadBlob(fileName, blob)
     }
 
-    private fun createCrosswordSolverSettings(): Puzzle.CrosswordSolverSettings {
-        return Puzzle.CrosswordSolverSettings(
+    private fun createAppletSettings(): CrosswordCompilerApplet.AppletSettings {
+        return CrosswordCompilerApplet.AppletSettings(
             cursorColor = cursorColor.getValue(),
             selectedCellsColor = selectionColor.getValue(),
-            completionMessage = completionMessage?.getValue() ?: ""
+            completion = CrosswordCompilerApplet.AppletSettings.Completion(
+                message = completionMessage?.getValue() ?: ""
+            )
         )
     }
 

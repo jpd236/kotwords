@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.Puzzleable
+
 data class AroundTheBend(
     val title: String,
     val creator: String,
@@ -7,31 +9,33 @@ data class AroundTheBend(
     val description: String,
     var rows: List<String>,
     val clues: List<String>
-) {
-    fun asPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Puzzle {
+) : Puzzleable {
+    override fun asPuzzle(): Puzzle {
         val maxWidth = rows.maxByOrNull { it.length }!!.length
         val grid = rows.mapIndexed { y, row ->
             val padding = maxWidth - row.length
-            (0 until padding).map { x ->
-                Puzzle.Cell(x = x + 1, y = y + 1, cellType = Puzzle.CellType.BLOCK)
+            (0 until padding).map {
+                Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
             } + row.mapIndexed { i, ch ->
                 Puzzle.Cell(
-                    x = padding + i + 1,
-                    y = y + 1,
                     solution = "$ch",
                     number = if (i == 0) "${y + 1}" else ""
                 )
             }
         }
         val (puzzleClues, puzzleWords) = clues.mapIndexed { y, clue ->
+            val nextY = (y + 1) % grid.size
             Puzzle.Clue(
                 y,
                 "${y + 1}",
                 clue
             ) to Puzzle.Word(
                 y,
-                grid[y].filterNot { it.cellType == Puzzle.CellType.BLOCK } +
-                        grid[(y + 1) % grid.size].filterNot { it.cellType == Puzzle.CellType.BLOCK }.reversed()
+                grid[y].mapIndexedNotNull { x, cell ->
+                    if (cell.cellType == Puzzle.CellType.BLOCK) null else Puzzle.Coordinate(x = x, y = y)
+                } + grid[nextY].mapIndexedNotNull { x, cell ->
+                    if (cell.cellType == Puzzle.CellType.BLOCK) null else Puzzle.Coordinate(x = x, y = nextY)
+                }.reversed()
             )
         }.unzip()
         return Puzzle(
@@ -42,7 +46,6 @@ data class AroundTheBend(
             grid = grid,
             clues = listOf(Puzzle.ClueList("Clues", puzzleClues)),
             words = puzzleWords,
-            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 }

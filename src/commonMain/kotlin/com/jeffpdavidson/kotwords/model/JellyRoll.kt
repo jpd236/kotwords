@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.Puzzleable
+
 // TODO: Can more logic be shared with TwoTone?
 data class JellyRoll(
     val title: String,
@@ -11,8 +13,11 @@ data class JellyRoll(
     val lightSquaresAnswers: List<String>,
     val lightSquaresClues: List<String>,
     val darkSquaresAnswers: List<String>,
-    val darkSquaresClues: List<String>
-) {
+    val darkSquaresClues: List<String>,
+    val lightSquareBackgroundColor: String,
+    val darkSquareBackgroundColor: String,
+    val combineJellyRollClues: Boolean,
+) : Puzzleable {
 
     init {
         val splitAnswers =
@@ -29,12 +34,7 @@ data class JellyRoll(
         }
     }
 
-    fun asPuzzle(
-        lightSquareBackgroundColor: String,
-        darkSquareBackgroundColor: String,
-        combineJellyRollClues: Boolean,
-        crosswordSolverSettings: Puzzle.CrosswordSolverSettings
-    ): Puzzle {
+    override fun asPuzzle(): Puzzle {
         val numberedSquares = mutableSetOf<Int>()
         fun addNumberedSquares(answers: List<String>, startIndex: Int, includedModulos: List<Int>) {
             answers.fold(startIndex) { i, answer ->
@@ -64,8 +64,6 @@ data class JellyRoll(
             (x to y) to
                     if (i < letters.length) {
                         Puzzle.Cell(
-                            x = x + 1,
-                            y = y + 1,
                             number = if (numberedSquares.contains(i)) "${currentNumber++}" else "",
                             solution = "${letters[i]}",
                             backgroundColor =
@@ -77,11 +75,7 @@ data class JellyRoll(
                             borderDirections = listOfNotNull(squareList[i].borderDirection).toSet()
                         )
                     } else {
-                        Puzzle.Cell(
-                            x = x + 1,
-                            y = y + 1,
-                            cellType = Puzzle.CellType.BLOCK
-                        )
+                        Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                     }
         }.toMap()
         val grid = (0 until sideLength).map { y ->
@@ -96,25 +90,25 @@ data class JellyRoll(
             squareList: List<SpiralGrid.Square>,
             firstWordId: Int
         ): Pair<List<Puzzle.Clue>, List<Puzzle.Word>> {
-            val jpzClues = mutableListOf<Puzzle.Clue>()
-            val jpzWords = mutableListOf<Puzzle.Word>()
+            val puzzleClues = mutableListOf<Puzzle.Clue>()
+            val puzzleWords = mutableListOf<Puzzle.Word>()
             answers.foldIndexed(0) { wordNumber, i, answer ->
                 val firstCell = squareList[i]
-                jpzWords += Puzzle.Word(
+                puzzleWords += Puzzle.Word(
                     firstWordId + wordNumber,
-                    squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }
+                    squareList.slice(i until i + answer.length).map { (x, y) -> Puzzle.Coordinate(x = x, y = y) }
                 )
-                jpzClues += Puzzle.Clue(
+                puzzleClues += Puzzle.Clue(
                     firstWordId + wordNumber,
                     grid[firstCell.y][firstCell.x].number,
                     clues[wordNumber]
                 )
                 i + answer.length
             }
-            return jpzClues to jpzWords
+            return puzzleClues to puzzleWords
         }
 
-        val (allSquaresJpzClues, allSquaresJpzWords) =
+        val (allSquaresPuzzleClues, allSquaresPuzzleWords) =
             if (combineJellyRollClues) {
                 createClues(
                     listOf(jellyRollAnswers.joinToString("")),
@@ -131,9 +125,9 @@ data class JellyRoll(
             .toList()
             .map { it.map { (_, square) -> square } }
 
-        val (lightSquaresJpzClues, lightSquaresJpzWords) =
+        val (lightSquaresPuzzleClues, lightSquaresPuzzleWords) =
             createClues(lightSquaresAnswers, lightSquaresClues, partitionedSquares[0], 101)
-        val (darkSquaresJpzClues, darkSquaresJpzWords) =
+        val (darkSquaresPuzzleClues, darkSquaresPuzzleWords) =
             createClues(darkSquaresAnswers, darkSquaresClues, partitionedSquares[1], 201)
 
         return Puzzle(
@@ -143,11 +137,10 @@ data class JellyRoll(
             description = description,
             grid = grid,
             clues = listOf(
-                Puzzle.ClueList("Jelly Rolls", allSquaresJpzClues),
-                Puzzle.ClueList("Colored Paths", lightSquaresJpzClues + darkSquaresJpzClues)
+                Puzzle.ClueList("Jelly Rolls", allSquaresPuzzleClues),
+                Puzzle.ClueList("Colored Paths", lightSquaresPuzzleClues + darkSquaresPuzzleClues)
             ),
-            words = allSquaresJpzWords + lightSquaresJpzWords + darkSquaresJpzWords,
-            crosswordSolverSettings = crosswordSolverSettings
+            words = allSquaresPuzzleWords + lightSquaresPuzzleWords + darkSquaresPuzzleWords,
         )
     }
 

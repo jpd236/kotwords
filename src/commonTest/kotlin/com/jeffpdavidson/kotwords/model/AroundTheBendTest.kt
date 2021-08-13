@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
+import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.runTest
 import kotlin.test.Test
@@ -26,15 +28,17 @@ class AroundTheBendTest {
                 "Clue 4 - JKLDCBA"
             )
         )
-        val puzzle = aroundTheBend.asPuzzle(
-            crosswordSolverSettings = Puzzle.CrosswordSolverSettings(
-                cursorColor = "#00b100",
-                selectedCellsColor = "#80ff80",
-                completionMessage = "All done!"
-            )
-        )
+        val puzzle = aroundTheBend.asPuzzle()
 
         val expected = readStringResource(AroundTheBendTest::class, "around-the-bend.jpz")
-        assertEquals(expected, puzzle.asJpzFile().toXmlString())
+        assertEquals(
+            expected, puzzle.asJpzFile(
+                appletSettings = CrosswordCompilerApplet.AppletSettings(
+                    cursorColor = "#00b100",
+                    selectedCellsColor = "#80ff80",
+                    completion = CrosswordCompilerApplet.AppletSettings.Completion(message = "All done!"),
+                )
+            ).toXmlString()
+        )
     }
 }

@@ -1,8 +1,7 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
-import com.jeffpdavidson.kotwords.model.Square
+import com.jeffpdavidson.kotwords.model.Puzzle
 import com.soywiz.klock.Date
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.format
@@ -14,9 +13,9 @@ class UclickXml(
     private val xml: String,
     private val date: Date,
     private val addDateToTitle: Boolean = true
-) : Crosswordable {
+) : Puzzleable {
 
-    override fun asCrossword(): Crossword {
+    override fun asPuzzle(): Puzzle {
         val document = Xml.parse(xml)
 
         val rawTitle = document.selectFirst("Title")?.attr("v") ?: ""
@@ -34,9 +33,9 @@ class UclickXml(
         val grid = allAnswer.chunked(width).map { row ->
             row.map { square ->
                 if (square == '-') {
-                    BLACK_SQUARE
+                    Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                 } else {
-                    Square("$square")
+                    Puzzle.Cell(solution = "$square")
                 }
             }
         }
@@ -46,12 +45,12 @@ class UclickXml(
 
         return Crossword(
             title = title,
-            author = author,
+            creator = author,
             copyright = "\u00a9 ${date.year} $copyright",
             grid = grid,
             acrossClues = toClueMap(acrossClues),
             downClues = toClueMap(downClues)
-        )
+        ).asPuzzle()
     }
 
     private fun toClueMap(clues: Iterable<Element>): Map<Int, String> {

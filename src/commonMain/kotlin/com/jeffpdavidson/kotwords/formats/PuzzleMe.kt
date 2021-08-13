@@ -2,18 +2,16 @@ package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.formats.json.PuzzleMeJson
-import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
-import com.jeffpdavidson.kotwords.model.Crossword
-import com.jeffpdavidson.kotwords.model.Square
+import com.jeffpdavidson.kotwords.model.Puzzle
 
 private val PUZZLE_DATA_REGEX = """\bwindow\.rawc\s*=\s*'([^']+)'""".toRegex()
 
 /** Container for a puzzle in the PuzzleMe (Amuse Labs) format. */
-class PuzzleMe(private val json: String) : Crosswordable {
+class PuzzleMe(private val json: String) : Puzzleable {
 
-    override fun asCrossword(): Crossword {
+    override fun asPuzzle(): Puzzle {
         val data = JsonSerializer.fromJson<PuzzleMeJson.Data>(json)
-        val grid: MutableList<MutableList<Square>> = mutableListOf()
+        val grid: MutableList<MutableList<Puzzle.Cell>> = mutableListOf()
 
         val cellInfoMap = data.cellInfos.associateBy { it.x to it.y }
 
@@ -30,58 +28,67 @@ class PuzzleMe(private val json: String) : Crosswordable {
                 }
             }
 
-        // If bgColor == fgColor, assume the square is meant to be hidden/black and revealed after solving.
-        val voidCells = data.cellInfos
-            .filter { it.isVoid || (it.bgColor.isNotEmpty() && it.bgColor == it.fgColor) }.map { it.x to it.y }
-
         for (y in 0 until data.box[0].size) {
-            val row: MutableList<Square> = mutableListOf()
+            val row: MutableList<Puzzle.Cell> = mutableListOf()
             for (x in 0 until data.box.size) {
                 // Treat black squares, void squares, and squares with no intersecting words that aren't pre-filled
                 // (which likely means they're meant to be revealed after solving) as black squares.
                 val box = data.box[x][y]
-                if (box == null ||
-                    box == "\u0000" ||
-                    voidCells.contains(x to y) ||
-                    (data.boxToPlacedWordsIdxs.isNotEmpty() && data.boxToPlacedWordsIdxs[x][y] == null &&
-                            (data.preRevealIdxs.isEmpty() || !data.preRevealIdxs[x][y]))
-                ) {
+                val cellInfo = cellInfoMap[x to y]
+                val isBlack = box == null || box == "\u0000"
+                val isVoid = cellInfo?.isVoid == true
+                // If bgColor == fgColor, assume the square is meant to be hidden/black and revealed after solving.
+                val isInvisible = cellInfo?.bgColor?.isNotEmpty() == true && cellInfo.bgColor == cellInfo.fgColor
+                // If the square has no intersecting words that aren't pre-filled, assume the square is likely meant to
+                // be revealed after solving.
+                val hasNoIntersectingWords =
+                    data.boxToPlacedWordsIdxs.isNotEmpty() &&
+                            (!data.boxToPlacedWordsIdxs.indices.contains(x) ||
+                                    !data.boxToPlacedWordsIdxs[x].indices.contains(y) ||
+                                    data.boxToPlacedWordsIdxs[x][y] == null)
+                val isPrefilled = data.preRevealIdxs.isNotEmpty() && data.preRevealIdxs[x][y]
+
+                if (isBlack || isVoid || isInvisible || (hasNoIntersectingWords && !isPrefilled)) {
                     // Black square, though it may have a custom background color.
                     val backgroundColor =
                         if (box == "\u0000") {
-                            cellInfoMap[x to y]?.bgColor?.ifEmpty { null }
+                            cellInfoMap[x to y]?.bgColor ?: ""
                         } else {
-                            null
-                        }
-                    row.add(BLACK_SQUARE.copy(backgroundColor = backgroundColor))
-                } else {
-                    val isCircled = circledCells.contains(x to y)
-                    val isPrefilled = data.preRevealIdxs.isNotEmpty() && data.preRevealIdxs[x][y]
-                    val number =
-                        if (data.clueNums.isNotEmpty() && data.clueNums[x][y] != 0) {
-                            data.clueNums[x][y]
-                        } else {
-                            null
+                            ""
                         }
                     row.add(
-                        Square(
-                            solution = box,
-                            isCircled = isCircled,
-                            entry = if (isPrefilled) box else null,
-                            isGiven = isPrefilled,
+                        Puzzle.Cell(
+                            cellType = if (isVoid) Puzzle.CellType.VOID else Puzzle.CellType.BLOCK,
+                            backgroundColor = backgroundColor,
+                        )
+                    )
+                } else {
+                    val backgroundShape =
+                        if (circledCells.contains(x to y)) {
+                            Puzzle.BackgroundShape.CIRCLE
+                        } else {
+                            Puzzle.BackgroundShape.NONE
+                        }
+                    val number =
+                        if (data.clueNums.isNotEmpty() && data.clueNums[x][y] != 0) {
+                            data.clueNums[x][y].toString()
+                        } else {
+                            ""
+                        }
+                    row.add(
+                        Puzzle.Cell(
+                            solution = box!!,
+                            cellType = if (isPrefilled) Puzzle.CellType.CLUE else Puzzle.CellType.REGULAR,
+                            backgroundShape = backgroundShape,
                             number = number,
-                            foregroundColor = cellInfoMap[x to y]?.fgColor?.ifEmpty { null },
-                            backgroundColor = cellInfoMap[x to y]?.bgColor?.ifEmpty { null },
+                            foregroundColor = cellInfo?.fgColor ?: "",
+                            backgroundColor = cellInfo?.bgColor ?: "",
                             borderDirections =
                             setOfNotNull(
-                                if (cellInfoMap[x to y]?.topWall == true) Square.BorderDirection.TOP else null,
-                                if (cellInfoMap[x to y]?.bottomWall == true) {
-                                    Square.BorderDirection.BOTTOM
-                                } else {
-                                    null
-                                },
-                                if (cellInfoMap[x to y]?.leftWall == true) Square.BorderDirection.LEFT else null,
-                                if (cellInfoMap[x to y]?.rightWall == true) Square.BorderDirection.RIGHT else null,
+                                if (cellInfo?.topWall == true) Puzzle.BorderDirection.TOP else null,
+                                if (cellInfo?.bottomWall == true) Puzzle.BorderDirection.BOTTOM else null,
+                                if (cellInfo?.leftWall == true) Puzzle.BorderDirection.LEFT else null,
+                                if (cellInfo?.rightWall == true) Puzzle.BorderDirection.RIGHT else null,
                             )
                         )
                     )
@@ -93,14 +100,14 @@ class PuzzleMe(private val json: String) : Crosswordable {
             grid.add(row)
         }
 
-        // Void cells can lead to entirely black rows/columns on the outer edges. Delete these.
-        val anyNonBlackSquare = { row: List<Square> -> row.any { !it.isBlack } }
+        // Post-solve revealed squares can lead to entirely black rows/columns on the outer edges. Delete these.
+        val anyNonBlackSquare = { row: List<Puzzle.Cell> -> row.any { !it.cellType.isBlack() } }
         val topRowsToDelete = grid.indexOfFirst(anyNonBlackSquare)
         val bottomRowsToDelete = grid.size - grid.indexOfLast(anyNonBlackSquare) - 1
         val leftRowsToDelete =
-            grid.filter(anyNonBlackSquare).minOf { row -> row.indexOfFirst { !it.isBlack } }
+            grid.filter(anyNonBlackSquare).minOf { row -> row.indexOfFirst { !it.cellType.isBlack() } }
         val rightRowsToDelete = grid[0].size -
-                grid.filter(anyNonBlackSquare).maxOf { row -> row.indexOfLast { !it.isBlack } } - 1
+                grid.filter(anyNonBlackSquare).maxOf { row -> row.indexOfLast { !it.cellType.isBlack() } } - 1
         val filteredGrid = grid.drop(topRowsToDelete).dropLast(bottomRowsToDelete)
             .map { row -> row.drop(leftRowsToDelete).dropLast(rightRowsToDelete) }
 
@@ -113,17 +120,18 @@ class PuzzleMe(private val json: String) : Crosswordable {
             .filter { it.x >= leftRowsToDelete && it.x <= grid[0].size - rightRowsToDelete }
             .map { it.copy(x = it.x - leftRowsToDelete, y = it.y - topRowsToDelete) }
 
-        return Crossword(
+        return Puzzle(
             title = data.title.trim(),
-            author = data.author.trim(),
+            creator = data.author.trim(),
             copyright = data.copyright.trim(),
-            notes = data.description.ifBlank { data.help?.ifBlank { "" } ?: "" }.trim(),
+            description = data.description.ifBlank { data.help?.ifBlank { "" } ?: "" }.trim(),
             grid = filteredGrid,
-            acrossClues = buildClueMap(acrossWords),
-            downClues = buildClueMap(downWords),
+            clues = listOf(
+                Puzzle.ClueList("<b>Across</b>", buildClueMap(isAcross = true, clueList = acrossWords)),
+                Puzzle.ClueList("<b>Down</b>", buildClueMap(isAcross = false, clueList = downWords))
+            ),
             hasHtmlClues = true,
-            acrossWords = buildWordList(acrossWords),
-            downWords = buildWordList(downWords),
+            words = buildWordList(acrossWords + downWords),
         )
     }
 
@@ -146,25 +154,33 @@ class PuzzleMe(private val json: String) : Crosswordable {
 
         private fun decodeRawc(rawc: String) = Encodings.decodeBase64(rawc).decodeToString()
 
-        private fun buildClueMap(clueList: List<PuzzleMeJson.PlacedWord>): Map<Int, String> =
-            clueList.associate { it.clueNum to toHtml(it.clue.clue) }
+        private fun buildClueMap(isAcross: Boolean, clueList: List<PuzzleMeJson.PlacedWord>): List<Puzzle.Clue> =
+            clueList.map {
+                Puzzle.Clue(
+                    wordId = getWordId(isAcross, it.clueNum),
+                    number = it.clueNum.toString(),
+                    text = toHtml(it.clue.clue)
+                )
+            }
 
-        private fun buildWordList(words: List<PuzzleMeJson.PlacedWord>): List<Crossword.Word> {
+        private fun buildWordList(words: List<PuzzleMeJson.PlacedWord>): List<Puzzle.Word> {
             return words.map { word ->
                 var x = word.x
                 var y = word.y
-                val squares = mutableListOf<Pair<Int, Int>>()
+                val cells = mutableListOf<Puzzle.Coordinate>()
                 repeat(word.nBoxes) {
-                    squares.add(x to y)
+                    cells.add(Puzzle.Coordinate(x = x, y = y))
                     if (word.acrossNotDown) {
                         x++
                     } else {
                         y++
                     }
                 }
-                Crossword.Word(id = (if (word.acrossNotDown) 0 else 1000) + word.clueNum, squares = squares)
+                Puzzle.Word(id = getWordId(isAcross = word.acrossNotDown, clueNum = word.clueNum), cells = cells)
             }
         }
+
+        private fun getWordId(isAcross: Boolean, clueNum: Int): Int = (if (isAcross) 0 else 1000) + clueNum
 
         /**
          * Convert a PuzzleMe JSON string to HTML.

@@ -1,15 +1,14 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.model.BLACK_SQUARE
 import com.jeffpdavidson.kotwords.model.Crossword
-import com.jeffpdavidson.kotwords.model.Square
+import com.jeffpdavidson.kotwords.model.Puzzle
 
 // Matches "TITLE Author, Copyright"
 private val SUB_HEADER_REGEX = "([^a-z]+(?![a-z])) ([^,]+), (.+)".toRegex()
 
 /** Container for a puzzle in the Boston Globe HTML format. */
-class BostonGlobe(private val html: String) : Crosswordable {
-    override fun asCrossword(): Crossword {
+class BostonGlobe(private val html: String) : Puzzleable {
+    override fun asPuzzle(): Puzzle {
         val document = Xml.parse(html, format = DocumentFormat.HTML)
 
         val subHeader = document.selectFirst("p.subhed")?.text
@@ -34,9 +33,9 @@ class BostonGlobe(private val html: String) : Crosswordable {
             (1..width).map { x ->
                 val solution = squareMap[x to y]
                 if (solution != null) {
-                    Square(solution = solution)
+                    Puzzle.Cell(solution = solution)
                 } else {
-                    BLACK_SQUARE
+                    Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                 }
             }.toList()
         }.toList()
@@ -46,12 +45,12 @@ class BostonGlobe(private val html: String) : Crosswordable {
 
         return Crossword(
             title = title,
-            author = author,
+            creator = author,
             copyright = copyright,
             grid = grid,
             acrossClues = acrossClues,
             downClues = downClues
-        )
+        ).asPuzzle()
     }
 
     private fun toClueMap(clueElements: Iterable<Element>): Map<Int, String> {

@@ -10,9 +10,7 @@ import kotlin.test.assertEquals
 class DownsOnlyTest {
     @Test
     fun getDirectionToClearForDownsOnly() = runTest {
-        val crossword = AcrossLite(
-            readBinaryResource(DownsOnlyTest::class, "puz/test.puz")
-        ).asCrossword()
-        assertEquals(DownsOnly.ClueDirection.DOWN, crossword.getDirectionToClearForDownsOnly())
+        val puzzle = AcrossLite(readBinaryResource(DownsOnlyTest::class, "puz/test.puz")).asPuzzle()
+        assertEquals(DownsOnly.ClueDirection.DOWN, puzzle.getDirectionToClearForDownsOnly())
     }
 }

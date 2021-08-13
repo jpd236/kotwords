@@ -1,6 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.toAcrossLiteBinary
+import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.asAcrossLiteBinary
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.runTest
@@ -17,7 +17,7 @@ class UclickXmlTest {
                     readStringResource(UclickXmlTest::class, "uclick/test-simple.xml"),
                     date = Date.invoke(2018, 1, 1),
                     addDateToTitle = false
-                ).asCrossword().toAcrossLiteBinary()
+                ).asPuzzle().asAcrossLiteBinary()
             )
         )
     }

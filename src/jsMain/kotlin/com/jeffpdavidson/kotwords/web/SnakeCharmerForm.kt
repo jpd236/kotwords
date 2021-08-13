@@ -65,7 +65,7 @@ internal class SnakeCharmerForm {
         }
     }
 
-    private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
+    private fun createPuzzle(): Promise<Puzzle> {
         val grid = gridShape.getValue(trim = false).lines()
         require(grid.isNotEmpty()) {
             "Grid shape is required"
@@ -94,6 +94,6 @@ internal class SnakeCharmerForm {
             clues = clues.getValue().split("\n").map { it.trim() },
             gridCoordinates = gridCoordinates.toList()
         )
-        return Promise.resolve(snakeCharmer.asPuzzle(crosswordSolverSettings = crosswordSolverSettings))
+        return Promise.resolve(snakeCharmer.asPuzzle())
     }
 }

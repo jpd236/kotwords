@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.Puzzleable
 import kotlin.math.sqrt
 
 data class SpellWeaving(
@@ -9,9 +10,9 @@ data class SpellWeaving(
     val description: String,
     val answers: List<String>,
     val clues: List<String>
-) {
+) : Puzzleable {
 
-    fun asPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Puzzle {
+    override fun asPuzzle(): Puzzle {
         val filteredAnswers = answers.map { answer -> answer.uppercase().filter { it in 'A'..'Z' } }
         val length = filteredAnswers.sumOf { it.length }
         val middleRowLengthDouble = (1 + sqrt(4 * length - 3.0)) / 2
@@ -55,13 +56,12 @@ data class SpellWeaving(
             (0 until middleRowLength).map { x ->
                 val cell = gridMap[x to y]
                 if (cell == null) {
-                    Puzzle.Cell(x = x + 1, y = y + 1, cellType = Puzzle.CellType.VOID)
+                    Puzzle.Cell(cellType = Puzzle.CellType.VOID)
                 } else {
                     require(cell.numbers.size <= 2) {
                         "More than 2 entries start at position ($x, $y) which is not supported by JPZ files."
                     }
                     Puzzle.Cell(
-                        x = x + 1, y = y + 1,
                         solution = cell.solution,
                         number = if (cell.numbers.isNotEmpty()) cell.numbers[0] else "",
                         topRightNumber = if (cell.numbers.size > 1) cell.numbers[1] else "",
@@ -71,8 +71,10 @@ data class SpellWeaving(
             }
         }
 
-        val (jpzClues, jpzWords) = clues.mapIndexed { i, clue ->
-            Puzzle.Clue(i + 1, "${i + 1}", clue) to Puzzle.Word(i + 1, words[i].map { (x, y) -> grid[y][x] })
+        val (puzzleClues, puzzleWords) = clues.mapIndexed { i, clue ->
+            val puzzleClue = Puzzle.Clue(i + 1, "${i + 1}", clue)
+            val puzzleWord = Puzzle.Word(i + 1, words[i].map { (x, y) -> Puzzle.Coordinate(x = x, y = y) })
+            puzzleClue to puzzleWord
         }.unzip()
 
         return Puzzle(
@@ -81,9 +83,8 @@ data class SpellWeaving(
             copyright = copyright,
             description = description,
             grid = grid,
-            clues = listOf(Puzzle.ClueList("Clues", jpzClues)),
-            words = jpzWords,
-            crosswordSolverSettings = crosswordSolverSettings
+            clues = listOf(Puzzle.ClueList("Clues", puzzleClues)),
+            words = puzzleWords,
         )
     }
 

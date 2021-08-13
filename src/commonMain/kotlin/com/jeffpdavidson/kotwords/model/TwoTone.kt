@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.Puzzleable
+
 data class TwoTone(
     val title: String,
     val creator: String,
@@ -10,8 +12,10 @@ data class TwoTone(
     val oddSquaresAnswers: List<String>,
     val oddSquaresClues: List<String>,
     val evenSquaresAnswers: List<String>,
-    val evenSquaresClues: List<String>
-) {
+    val evenSquaresClues: List<String>,
+    val oddSquareBackgroundColor: String,
+    val evenSquareBackgroundColor: String,
+) : Puzzleable {
 
     init {
         val splitAnswers =
@@ -28,11 +32,7 @@ data class TwoTone(
         }
     }
 
-    fun asPuzzle(
-        oddSquareBackgroundColor: String,
-        evenSquareBackgroundColor: String,
-        crosswordSolverSettings: Puzzle.CrosswordSolverSettings
-    ): Puzzle {
+    override fun asPuzzle(): Puzzle {
         val numberedSquares = mutableSetOf<Int>()
         fun addNumberedSquares(answers: List<String>, startIndex: Int, isEveryOther: Boolean) {
             answers.fold(startIndex) { i, answer ->
@@ -52,19 +52,13 @@ data class TwoTone(
             (x to y) to
                     if (i < letters.length) {
                         Puzzle.Cell(
-                            x = x + 1,
-                            y = y + 1,
                             number = if (numberedSquares.contains(i)) "${currentNumber++}" else "",
                             solution = "${letters[i]}",
                             backgroundColor = if (i % 2 == 0) oddSquareBackgroundColor else evenSquareBackgroundColor,
                             borderDirections = listOfNotNull(squareList[i].borderDirection).toSet()
                         )
                     } else {
-                        Puzzle.Cell(
-                            x = x + 1,
-                            y = y + 1,
-                            cellType = Puzzle.CellType.BLOCK
-                        )
+                        Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                     }
         }.toMap()
         val grid = (0 until sideLength).map { y ->
@@ -85,7 +79,7 @@ data class TwoTone(
                 val firstCell = squareList[i]
                 jpzWords += Puzzle.Word(
                     firstWordId + wordNumber,
-                    squareList.slice(i until i + answer.length).map { (x, y) -> grid[y][x] }
+                    squareList.slice(i until i + answer.length).map { (x, y) -> Puzzle.Coordinate(x = x, y = y) }
                 )
                 jpzClues += Puzzle.Clue(
                     firstWordId + wordNumber,
@@ -119,7 +113,6 @@ data class TwoTone(
                 Puzzle.ClueList("Every Other", oddSquaresJpzClues + evenSquaresJpzClues)
             ),
             words = allSquaresJpzWords + oddSquaresJpzWords + evenSquaresJpzWords,
-            crosswordSolverSettings = crosswordSolverSettings
         )
     }
 }

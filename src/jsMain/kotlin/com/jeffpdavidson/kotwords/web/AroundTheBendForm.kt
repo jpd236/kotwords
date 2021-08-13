@@ -36,7 +36,7 @@ internal class AroundTheBendForm {
         }
     }
 
-    private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
+    private fun createPuzzle(): Promise<Puzzle> {
         val aroundTheBend = AroundTheBend(
             title = title.getValue(),
             creator = creator.getValue(),
@@ -44,6 +44,6 @@ internal class AroundTheBendForm {
             description = description.getValue(),
             rows = rows.getValue().split("\n").map { it.trim() },
             clues = clues.getValue().split("\n").map { it.trim() })
-        return Promise.resolve(aroundTheBend.asPuzzle(crosswordSolverSettings = crosswordSolverSettings))
+        return Promise.resolve(aroundTheBend.asPuzzle())
     }
 }

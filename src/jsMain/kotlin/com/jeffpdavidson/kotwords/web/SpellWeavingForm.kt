@@ -37,14 +37,15 @@ internal class SpellWeavingForm {
         }
     }
 
-    private fun createPuzzle(crosswordSolverSettings: Puzzle.CrosswordSolverSettings): Promise<Puzzle> {
+    private fun createPuzzle(): Promise<Puzzle> {
         val spellWeaving = SpellWeaving(
             title = title.getValue(),
             creator = creator.getValue(),
             copyright = copyright.getValue(),
             description = description.getValue(),
             answers = answers.getValue().split("\\s+".toRegex()),
-            clues = clues.getValue().split("\n").map { it.trim() })
-        return Promise.resolve(spellWeaving.asPuzzle(crosswordSolverSettings = crosswordSolverSettings))
+            clues = clues.getValue().split("\n").map { it.trim() },
+        )
+        return Promise.resolve(spellWeaving.asPuzzle())
     }
 }

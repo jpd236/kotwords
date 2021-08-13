@@ -1,7 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.model.Acrostic
-import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.runTest
 import kotlin.test.Test
@@ -23,7 +22,8 @@ class WallStreetJournalAcrosticTest {
                 solution = "ACRO-ST IC",
                 gridKey = listOf(listOf(2, 1, 3), listOf(5, 6, 4, 7, 8)),
                 clues = listOf("Clue 1", "Clue 2"),
-                crosswordSolverSettings = Puzzle.CrosswordSolverSettings(completionMessage = "Quote author, “Quote”")
+                completionMessage = "Quote author, “Quote”",
+                includeAttribution = true,
             ), acrostic.asAcrostic()
         )
     }

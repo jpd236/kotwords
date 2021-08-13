@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.Puzzleable
+
 data class Acrostic(
     val title: String,
     val creator: String,
@@ -10,8 +12,9 @@ data class Acrostic(
     val gridKey: List<List<Int>>,
     val clues: List<String>,
     val answers: List<String> = listOf(),
-    val crosswordSolverSettings: Puzzle.CrosswordSolverSettings
-) {
+    val completionMessage: String = "",
+    val includeAttribution: Boolean = true,
+) : Puzzleable {
     init {
         require(clues.size > 1) { "Must have at least 2 clues." }
         require(clues.size == gridKey.size) {
@@ -43,7 +46,7 @@ data class Acrostic(
         }
     }
 
-    fun asPuzzle(includeAttribution: Boolean = false): Puzzle {
+    override fun asPuzzle(): Puzzle {
         // Determine the width of the puzzle and both clue columns.
         val answerColumnSize = (gridKey.size + 1) / 2
         val gridKeyColumns = gridKey.chunked(answerColumnSize)
@@ -61,13 +64,13 @@ data class Acrostic(
         val solutionChars = mutableListOf<Char>()
         val grid = mutableListOf<List<Puzzle.Cell>>()
         var row = mutableListOf<Puzzle.Cell>()
-        var x = 1
-        var y = 1
-        val quoteWord = mutableListOf<Puzzle.Cell>()
+        var x = 0
+        var y = 0
+        val quoteWord = mutableListOf<Puzzle.Coordinate>()
         fun nextRow() {
             grid.add(row)
             row = mutableListOf()
-            x = 1
+            x = 0
             y++
         }
         solution.forEach { ch ->
@@ -79,55 +82,54 @@ data class Acrostic(
                         val clueLetter =
                             solutionIndexToClueLetterMap[cellNumber] ?: error("Impossible")
                         val cell = Puzzle.Cell(
-                            x, y,
                             solution = "$ch", number = "$cellNumber", topRightNumber = clueLetter
                         )
-                        quoteWord.add(cell)
+                        quoteWord.add(Puzzle.Coordinate(x = x, y = y))
                         cell
                     }
-                    ' ' -> Puzzle.Cell(x, y, cellType = Puzzle.CellType.BLOCK)
+                    ' ' -> Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                     else -> {
                         // Replace hyphen with en-dash for aesthetics.
                         val clue = "$ch".replace('-', '–')
-                        Puzzle.Cell(x, y, cellType = Puzzle.CellType.CLUE, solution = clue)
+                        Puzzle.Cell(cellType = Puzzle.CellType.CLUE, solution = clue)
                     }
                 }
             )
 
             // Go to the next square, moving down a row if needed.
             x++
-            if (x > width) {
+            if (x >= width) {
                 nextRow()
             }
         }
 
         fun endSection() {
             // Fill the rest of the current row with white squares.
-            if (x > 1) {
-                row.addAll(generateWhiteCells(x..width, y))
+            if (x > 0) {
+                row.addAll(generateWhiteCells(width - x))
                 nextRow()
             }
 
             // Add a spacer row of white squares.
-            row.addAll(generateWhiteCells(1..width, y))
+            row.addAll(generateWhiteCells(width))
             nextRow()
         }
         endSection()
 
         // Add the attribution (first letters of each clue).
-        val attributionWord: MutableList<Puzzle.Cell>?
+        val attributionWord: MutableList<Puzzle.Coordinate>?
         if (includeAttribution) {
             attributionWord = mutableListOf()
             gridKey.forEachIndexed { answerIndex, answer ->
                 val cell = Puzzle.Cell(
-                    x, y,
-                    solution = "${solutionChars[answer[0] - 1]}", number = "${answer[0]}",
-                    topRightNumber = getClueLetters(answerIndex)
+                    solution = "${solutionChars[answer[0] - 1]}",
+                    number = "${answer[0]}",
+                    topRightNumber = getClueLetters(answerIndex),
                 )
-                attributionWord.add(cell)
+                attributionWord.add(Puzzle.Coordinate(x = x, y = y))
                 row.add(cell)
                 x++
-                if (x > width) {
+                if (x >= width) {
                     nextRow()
                 }
             }
@@ -137,23 +139,26 @@ data class Acrostic(
         }
 
         // Generate the clue/answer portion of the grid.
-        val answerWordMap = mutableMapOf<Int, List<Puzzle.Cell>>()
+        val answerWordMap = mutableMapOf<Int, List<Puzzle.Coordinate>>()
         fun addClue(clueIndex: Int, columnEndIndex: Int, answer: List<Int>) {
+            x++
             row.add(
                 Puzzle.Cell(
-                    x++, y,
                     cellType = Puzzle.CellType.CLUE, solution = getClueLetters(clueIndex)
                 )
             )
-            val word = answer.mapIndexed { i, num ->
+            val cells = mutableListOf<Puzzle.Cell>()
+            val word = mutableListOf<Puzzle.Coordinate>()
+            answer.forEachIndexed { i, num ->
                 val solutionLetter = "${solutionChars[num - 1]}"
                 val solutionNumber = "${gridKey[clueIndex][i]}"
-                Puzzle.Cell(x++, y, solution = solutionLetter, number = solutionNumber)
+                cells += Puzzle.Cell(solution = solutionLetter, number = solutionNumber)
+                word += Puzzle.Coordinate(x++, y)
             }
             answerWordMap[clueIndex] = word
-            row.addAll(word)
-            row.addAll(generateWhiteCells(x..columnEndIndex, y))
-            x = columnEndIndex + 1
+            row.addAll(cells)
+            row.addAll(generateWhiteCells(columnEndIndex - x))
+            x = columnEndIndex
         }
 
         gridKeyColumns[0].forEachIndexed { answerRow, leftAnswer ->
@@ -163,7 +168,7 @@ data class Acrostic(
             if (answerRow < gridKeyColumns[1].size) {
                 addClue(gridKeyColumns[0].size + answerRow, width, gridKeyColumns[1][answerRow])
             } else {
-                row.addAll(generateWhiteCells(x..width, y))
+                row.addAll(generateWhiteCells(width - x))
             }
             nextRow()
         }
@@ -186,15 +191,15 @@ data class Acrostic(
         )
 
         return Puzzle(
-            title,
-            creator,
-            copyright,
-            description,
-            grid,
-            listOf(clueList),
-            words,
-            crosswordSolverSettings = crosswordSolverSettings,
-            puzzleType = Puzzle.PuzzleType.ACROSTIC
+            title = title,
+            creator = creator,
+            copyright = copyright,
+            description = description,
+            grid = grid,
+            clues = listOf(clueList),
+            words = words,
+            completionMessage = completionMessage,
+            puzzleType = Puzzle.PuzzleType.ACROSTIC,
         )
     }
 
@@ -209,7 +214,8 @@ data class Acrostic(
             gridKey: String,
             clues: String,
             answers: String,
-            crosswordSolverSettings: Puzzle.CrosswordSolverSettings
+            completionMessage: String,
+            includeAttribution: Boolean,
         ): Acrostic {
             val suggestedWidthInt = if (suggestedWidth.isEmpty()) null else suggestedWidth.toInt()
             val answersList =
@@ -226,16 +232,17 @@ data class Acrostic(
                 }
             }
             return Acrostic(
-                title.trim(),
-                creator.trim(),
-                copyright.trim(),
-                description.trim(),
-                suggestedWidthInt,
-                solution.trim().uppercase(),
-                gridKeyList,
-                clues.trim().split("\n").map { it.trim() },
-                answersList,
-                crosswordSolverSettings
+                title = title.trim(),
+                creator = creator.trim(),
+                copyright = copyright.trim(),
+                description = description.trim(),
+                suggestedWidth = suggestedWidthInt,
+                solution = solution.trim().uppercase(),
+                gridKey = gridKeyList,
+                clues = clues.trim().split("\n").map { it.trim() },
+                answers = answersList,
+                completionMessage = completionMessage,
+                includeAttribution = includeAttribution,
             )
         }
 
@@ -285,9 +292,9 @@ data class Acrostic(
 
         internal fun getClueLetters(clueIndex: Int): String = "${'A' + (clueIndex % 26)}".repeat(clueIndex / 26 + 1)
 
-        private fun generateWhiteCells(xRange: IntRange, y: Int): List<Puzzle.Cell> {
-            return xRange.map {
-                Puzzle.Cell(x = it, y = y, cellType = Puzzle.CellType.BLOCK, backgroundColor = "#FFFFFF")
+        private fun generateWhiteCells(count: Int): List<Puzzle.Cell> {
+            return (0 until count).map {
+                Puzzle.Cell(cellType = Puzzle.CellType.BLOCK, backgroundColor = "#FFFFFF")
             }
         }
     }

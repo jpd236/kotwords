@@ -1,7 +1,7 @@
 package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.model.Crossword
-import com.jeffpdavidson.kotwords.model.Square
+import com.jeffpdavidson.kotwords.model.Puzzle
 
 private val CROSS_REFERENCE_PATTERN = "([1-9][0-9]*)-(?:(?!Across|Down).)*(Across|Down)".toRegex()
 
@@ -22,26 +22,31 @@ internal object AcrossLiteSanitizer {
      * with equivalents which are.
      */
     fun sanitizeClues(
-        grid: List<List<Square>>,
-        acrossClues: Map<Int, String>,
-        downClues: Map<Int, String>,
+        grid: List<List<Puzzle.Cell>>,
+        acrossClues: Puzzle.ClueList,
+        downClues: Puzzle.ClueList,
         sanitizeCharacters: Boolean,
     ): Pair<Map<Int, String>, Map<Int, String>> {
-        val hasCustomNumbering = Crossword.hasCustomNumbering(grid)
+        var hasCustomNumbering = false
+        Crossword.forEachCell(grid) { x, y, clueNumber, _, _, _ ->
+            hasCustomNumbering = hasCustomNumbering || grid[y][x].number != (clueNumber?.toString() ?: "")
+        }
         val givenToSanitizedClueNumberMap = if (hasCustomNumbering) mapGivenToSanitizedClueNumbers(grid) else null
 
+        val acrossCluesByClueNumber = acrossClues.clues.associate { it.number to it.text }
+        val downCluesByClueNumber = downClues.clues.associate { it.number to it.text }
         val sanitizedAcrossClues: MutableMap<Int, String> = mutableMapOf()
         val sanitizedDownClues: MutableMap<Int, String> = mutableMapOf()
-        Crossword.forEachNumberedSquare(grid) { x, y, clueNumber, isAcross, isDown ->
-            val givenSquareNumber = grid[y][x].number ?: if (hasCustomNumbering) -1 else clueNumber
+        Crossword.forEachNumberedCell(grid) { x, y, clueNumber, isAcross, isDown ->
+            val givenSquareNumber = grid[y][x].number.ifEmpty { if (hasCustomNumbering) "" else clueNumber.toString() }
             if (isAcross) {
                 sanitizedAcrossClues[clueNumber] = sanitizeClue(
-                    acrossClues[givenSquareNumber], givenToSanitizedClueNumberMap, sanitizeCharacters
+                    acrossCluesByClueNumber[givenSquareNumber], givenToSanitizedClueNumberMap, sanitizeCharacters
                 )
             }
             if (isDown) {
                 sanitizedDownClues[clueNumber] = sanitizeClue(
-                    downClues[givenSquareNumber], givenToSanitizedClueNumberMap, sanitizeCharacters
+                    downCluesByClueNumber[givenSquareNumber], givenToSanitizedClueNumberMap, sanitizeCharacters
                 )
             }
         }
@@ -49,12 +54,12 @@ internal object AcrossLiteSanitizer {
     }
 
     /** Generate a map from given clue numbers to clue numbers in the sanitized grid. */
-    internal fun mapGivenToSanitizedClueNumbers(grid: List<List<Square>>): Map<Int, Int> {
-        val givenToSanitizedClueNumberMap: MutableMap<Int, Int> = mutableMapOf()
-        Crossword.forEachNumberedSquare(grid) { x, y, clueNumber, _, _ ->
-            val givenSquareNumber = grid[y][x].number ?: -1
-            if (givenSquareNumber != -1) {
-                givenToSanitizedClueNumberMap[givenSquareNumber] = clueNumber
+    internal fun mapGivenToSanitizedClueNumbers(grid: List<List<Puzzle.Cell>>): Map<String, String> {
+        val givenToSanitizedClueNumberMap: MutableMap<String, String> = mutableMapOf()
+        Crossword.forEachNumberedCell(grid) { x, y, clueNumber, _, _ ->
+            val givenSquareNumber = grid[y][x].number
+            if (givenSquareNumber.isNotEmpty()) {
+                givenToSanitizedClueNumberMap[givenSquareNumber] = clueNumber.toString()
             }
         }
         return givenToSanitizedClueNumberMap
@@ -69,7 +74,7 @@ internal object AcrossLiteSanitizer {
      */
     internal fun sanitizeClue(
         givenClue: String?,
-        givenToSanitizedClueNumberMap: Map<Int, Int>?,
+        givenToSanitizedClueNumberMap: Map<String, String>?,
         sanitizeCharacters: Boolean,
     ): String {
         if (givenClue == null) {
@@ -86,7 +91,7 @@ internal object AcrossLiteSanitizer {
                     matchResult = CROSS_REFERENCE_PATTERN.find(givenClue, startIndex)
                     if (matchResult != null) {
                         sanitizedClue.append(givenClue.substring(startIndex, matchResult.range.first))
-                        sanitizedClue.append(givenToSanitizedClueNumberMap[matchResult.groupValues[1].toInt()])
+                        sanitizedClue.append(givenToSanitizedClueNumberMap[matchResult.groupValues[1]])
                         startIndex = matchResult.range.first + matchResult.groupValues[1].length
                     }
                 } while (matchResult != null)
