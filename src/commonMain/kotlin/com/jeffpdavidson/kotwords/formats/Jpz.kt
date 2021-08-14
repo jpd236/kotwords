@@ -405,11 +405,14 @@ sealed interface Jpz : Puzzleable {
         /** Parse the given HTML string as a [Snippet] (i.e. for use in clues). */
         internal fun htmlToSnippet(html: String): Snippet {
             val dummyXml = "<dummy>$html</dummy>"
-            val snippet = XML(module()) {
+            var snippet = XML(module()) {
                 autoPolymorphic = true
             }.decodeFromString(Dummy.serializer(), dummyXml).data
-            // For better compatibility with Crossword Solver, wrap plain text in spans whenever a snippet has HTML
-            // children.
+            // For better compatibility with Crossword Solver, we need to avoid mixed content. Unwrap any outer spans,
+            // and then wrap plain text in spans whenever a snippet has HTML children.
+            while (snippet.size == 1 && snippet[0] is Span) {
+                snippet = (snippet[0] as Span).data
+            }
             if (snippet.filterNot { it is String }.isEmpty()) {
                 return snippet
             }

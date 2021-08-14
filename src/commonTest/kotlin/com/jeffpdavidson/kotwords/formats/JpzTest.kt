@@ -29,6 +29,22 @@ class JpzTest {
     }
 
     @Test
+    fun htmlToSnippet_plainText() = runTest {
+        assertEquals(
+            listOf("This is a plain text clue"),
+            Jpz.htmlToSnippet("This is a plain text clue")
+        )
+    }
+
+    @Test
+    fun htmlToSnippet_mixedContent() = runTest {
+        assertEquals(
+            listOf(Jpz.Span(listOf("This is a mixed ")), Jpz.I(listOf("clue"))),
+            Jpz.htmlToSnippet("<span>This is a mixed <i>clue</i></span>")
+        )
+    }
+
+    @Test
     fun puzzleConversion_acrostic() = runTest { assertConversionIsEqual("acrostic/acrostic-attribution.jpz") }
 
     @Test
