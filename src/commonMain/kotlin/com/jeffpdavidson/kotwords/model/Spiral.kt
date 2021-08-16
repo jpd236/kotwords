@@ -10,25 +10,37 @@ data class Spiral(
     val inwardAnswers: List<String>,
     val inwardClues: List<String>,
     val outwardAnswers: List<String>,
-    val outwardClues: List<String>
+    val outwardClues: List<String>,
+    val inwardCellsInput: List<String> = listOf(),
 ) : Puzzleable {
 
+    private val inwardCells = inwardCellsInput.ifEmpty { inwardAnswers.joinToString("").chunked(1) }
+    private val outwardCells = inwardCells.reversed()
+
     init {
-        require(inwardAnswers.joinToString("") == outwardAnswers.joinToString("").reversed()) {
-            "Inward answer letters must be the outward answer letters in reverse"
+        require(inwardAnswers.joinToString("") == inwardCells.joinToString("")) {
+            "Inward cells do not match the inward answers"
+        }
+        require(outwardAnswers.joinToString("") == outwardCells.joinToString("")) {
+            "Inward and outward answers/cells do not match"
+        }
+        require(inwardClues.size == inwardAnswers.size) {
+            "Different number of inward clues (${inwardClues.size}) than answers (${inwardAnswers.size})"
+        }
+        require(outwardClues.size == outwardAnswers.size) {
+            "Different number of outward clues (${outwardClues.size}) than answers (${outwardAnswers.size})"
         }
     }
 
     override fun asPuzzle(): Puzzle {
-        val sideLength = SpiralGrid.getSideLength(inwardAnswers.sumOf { it.length })
+        val sideLength = SpiralGrid.getSideLength(inwardCells.size)
         val squareList = SpiralGrid.createSquareList(sideLength)
-        val inwardLetters = inwardAnswers.joinToString("")
         val gridMap = squareList.mapIndexed { i, (x, y) ->
             (x to y) to
-                    if (i < inwardLetters.length) {
+                    if (i < inwardCells.size) {
                         Puzzle.Cell(
                             number = "${i + 1}",
-                            solution = "${inwardLetters[i]}",
+                            solution = inwardCells[i],
                             borderDirections = listOfNotNull(squareList[i].borderDirection).toSet()
                         )
                     } else {
@@ -45,30 +57,48 @@ data class Spiral(
 
         val inwardJpzClues = mutableListOf<Puzzle.Clue>()
         inwardAnswers.foldIndexed(0) { wordNumber, i, answer ->
+            var cells = 0
+            var partialAnswer = ""
+            while (partialAnswer.length < answer.length) {
+                partialAnswer += inwardCells[i + cells++]
+            }
+            require(partialAnswer.length == answer.length) {
+                "Answers must be split cleanly across answer chunks"
+            }
+            val endCell = i + cells
             words += Puzzle.Word(
                 wordNumber + 1,
-                squareList.slice(i until i + answer.length).map { (x, y) -> Puzzle.Coordinate(x = x, y = y) }
+                squareList.slice(i until endCell).map { (x, y) -> Puzzle.Coordinate(x = x, y = y) }
             )
             inwardJpzClues += Puzzle.Clue(
                 wordNumber + 1,
-                "${i + 1}-${i + answer.length}",
+                "${i + 1}-${endCell}",
                 inwardClues[wordNumber]
             )
-            i + answer.length
+            endCell
         }
 
         val outwardJpzClues = mutableListOf<Puzzle.Clue>()
-        outwardAnswers.foldIndexed(inwardLetters.length) { wordNumber, i, answer ->
+        outwardAnswers.foldIndexed(outwardCells.size) { wordNumber, i, answer ->
+            var cells = 0
+            var partialAnswer = ""
+            while (partialAnswer.length < answer.length) {
+                partialAnswer += inwardCells[i - cells++ - 1]
+            }
+            require(partialAnswer.length == answer.length) {
+                "Answers must be split cleanly across answer chunks"
+            }
+            val endCell = i - cells
             words += Puzzle.Word(
                 wordNumber + 101,
-                squareList.slice(i - answer.length until i).reversed().map { (x, y) -> Puzzle.Coordinate(x = x, y = y) }
+                squareList.slice(endCell until i).reversed().map { (x, y) -> Puzzle.Coordinate(x = x, y = y) }
             )
             outwardJpzClues += Puzzle.Clue(
                 wordNumber + 101,
-                "$i-${i - answer.length + 1}",
+                "$i-${endCell + 1}",
                 outwardClues[wordNumber]
             )
-            i - answer.length
+            endCell
         }
 
         return Puzzle(

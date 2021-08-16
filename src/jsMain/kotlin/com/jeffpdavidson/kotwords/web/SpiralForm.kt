@@ -16,6 +16,7 @@ internal class SpiralForm {
     private val inwardClues: FormFields.TextBoxField = FormFields.TextBoxField("inward-clues")
     private val outwardAnswers: FormFields.TextBoxField = FormFields.TextBoxField("outward-answers")
     private val outwardClues: FormFields.TextBoxField = FormFields.TextBoxField("outward-clues")
+    private val inwardCells: FormFields.TextBoxField = FormFields.TextBoxField("inward-cells")
 
     init {
         Html.renderPage {
@@ -44,6 +45,14 @@ internal class SpiralForm {
                     placeholder = "One clue per row. Omit clue numbers."
                     rows = "10"
                 }
+                inwardCells.render(this, "Inward cells (optional)") {
+                    placeholder = "Each cell of the spiral, in sequential order, separated by whitespace. " +
+                            "Non-alphabetical characters are ignored. " +
+                            "Defaults to each letter of the inward answers. " +
+                            "May be used to place more than one letter in some or all cells, " +
+                            "e.g. for a Crushword Spiral."
+                    rows = "5"
+                }
             })
         }
     }
@@ -58,6 +67,7 @@ internal class SpiralForm {
             inwardClues = inwardClues.getValue().split("\n").map { it.trim() },
             outwardAnswers = outwardAnswers.getValue().split("\\s+".toRegex()),
             outwardClues = outwardClues.getValue().split("\n").map { it.trim() },
+            inwardCellsInput = inwardCells.getValue().split("\\s+".toRegex()),
         )
         return Promise.resolve(spiral.asPuzzle())
     }

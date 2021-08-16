@@ -59,4 +59,23 @@ class SpiralTest {
             ).toXmlString()
         )
     }
+
+    @Test
+    fun jpzGeneration_chunked() = runTest {
+        val spiral = Spiral(
+            title = "Test title",
+            creator = "Test creator",
+            copyright = "Test copyright",
+            description = "Test description",
+            inwardAnswers = listOf("ABCDEFGHI", "JKLMNOP", "QRSTUVWXYZ"),
+            inwardClues = listOf("Clue 1", "Clue 2", "Clue 3"),
+            outwardAnswers = listOf("VWXYZTU", "QRSNOPJKLM", "FGHIDEABC"),
+            outwardClues = listOf("Clue 1", "Clue 2", "Clue 3"),
+            inwardCellsInput = listOf("ABC", "DE", "FGHI", "JKLM", "NOP", "QRS", "TU", "VWXYZ"),
+        )
+        val puzzle = spiral.asPuzzle()
+
+        val expected = readStringResource(SpiralTest::class, "spiral/spiral-nonsquare.jpz")
+        assertEquals(expected, puzzle.asJpzFile().toXmlString())
+    }
 }
