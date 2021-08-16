@@ -75,7 +75,7 @@ class SpiralTest {
         )
         val puzzle = spiral.asPuzzle()
 
-        val expected = readStringResource(SpiralTest::class, "spiral/spiral-nonsquare.jpz")
+        val expected = readStringResource(SpiralTest::class, "spiral/spiral-chunked.jpz")
         assertEquals(expected, puzzle.asJpzFile().toXmlString())
     }
 }
