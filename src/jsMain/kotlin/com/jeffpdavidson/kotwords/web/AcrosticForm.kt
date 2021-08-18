@@ -130,7 +130,7 @@ internal class AcrosticForm {
         return Interop.readFile(file.getValue()).then {
             Apz.fromXmlString(String(it, charset = Charsets.UTF_8)).toAcrostic(
                 completionMessage = completionMessage.getValue(),
-                includeAttribution = includeAttribution.getValue(),
+                includeAttribution = apzFileIncludeAttribution.getValue(),
             ).asPuzzle()
         }
     }
