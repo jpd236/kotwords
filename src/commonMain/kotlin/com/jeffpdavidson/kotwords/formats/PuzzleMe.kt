@@ -51,7 +51,7 @@ class PuzzleMe(private val json: String) : Puzzleable {
                 if (isBlack || isVoid || isInvisible || (hasNoIntersectingWords && !isPrefilled)) {
                     // Black square, though it may have a custom background color.
                     val backgroundColor =
-                        if (box == "\u0000") {
+                        if (isBlack) {
                             cellInfoMap[x to y]?.bgColor ?: ""
                         } else {
                             ""
