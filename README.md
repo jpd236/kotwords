@@ -21,7 +21,7 @@ In your `build.gradle`:
 
 ```groovy
 dependencies {
-  implementation "com.jeffpdavidson.kotwords:kotwords:1.2.1"
+  implementation "com.jeffpdavidson.kotwords:kotwords:1.2.2"
 }
 ```
 
@@ -29,7 +29,7 @@ Sample code for parsing a JPZ file and converting it to a PDF with only Down clu
 
 ```kotlin
   val jpzXml = "..."
-  val pdf = Jpz.fromXmlString(jpzXml).asCrossword().withDownsOnly().asPdf();
+  val pdf = Jpz.fromXmlString(jpzXml).asPuzzle().withDownsOnly().asPdf();
 ```
 
 See the [Javadoc](https://javadoc.io/doc/com.jeffpdavidson.kotwords/kotwords) for full API details.
