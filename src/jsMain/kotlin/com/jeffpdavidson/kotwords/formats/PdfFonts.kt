@@ -4,7 +4,7 @@ import com.jeffpdavidson.kotwords.js.Http
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-object PdfFonts {
+internal object PdfFonts {
     private val initMutex = Mutex()
     private var NOTO_FONT_FAMILY: PdfFontFamily? = null
 

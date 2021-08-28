@@ -10,7 +10,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-object Http {
+internal object Http {
     suspend fun getBinary(path: String): ByteArray {
         return get(path, XMLHttpRequestResponseType.ARRAYBUFFER) {
             Int8Array(it.response as ArrayBuffer).asDynamic() as ByteArray
