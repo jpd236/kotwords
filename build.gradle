@@ -1,13 +1,13 @@
 buildscript {
-    ext.junit_version = '5.1.0'
-    ext.kotlin_version = '1.5.20'
+    ext.junit_version = '5.7.2'
+    ext.kotlin_version = '1.5.30'
 }
 
 plugins {
     id 'maven-publish'
     id 'signing'
     id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
-    id 'org.jetbrains.dokka' version '1.4.32'
+    id 'org.jetbrains.dokka' version '1.5.0'
     id 'org.jetbrains.kotlin.multiplatform' version "$kotlin_version"
     id 'org.jetbrains.kotlin.kapt' version "$kotlin_version"
     id 'org.jetbrains.kotlin.plugin.serialization' version "$kotlin_version"
@@ -43,34 +43,33 @@ kotlin {
 }
 
 dependencies {
-    commonMainImplementation "io.ktor:ktor-io:1.6.1"
-    commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-core:1.2.1"
-    commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1"
-    commonMainImplementation "net.mamoe.yamlkt:yamlkt:0.10.0"
+    commonMainImplementation "io.ktor:ktor-io:1.6.2"
+    commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-core:1.2.2"
+    commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2"
+    commonMainImplementation "net.mamoe.yamlkt:yamlkt:0.10.2"
     commonMainImplementation "io.github.pdvrieze.xmlutil:serialization:0.82.0"
     commonMainImplementation "com.github.ajalt.colormath:colormath:2.1.0"
 
     // TODO: Migrate to kotlinx-datetime if parsing/formatting support is added.
-    commonMainImplementation "com.soywiz.korlibs.klock:klock:2.2.0"
+    commonMainImplementation "com.soywiz.korlibs.klock:klock:2.2.2"
 
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common"
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-common"
 
     jvmMainImplementation "org.apache.pdfbox:pdfbox:2.0.24"
-    jvmMainImplementation "org.glassfish:javax.json:1.1.2"
-    jvmMainImplementation "org.jsoup:jsoup:1.11.2"
+    jvmMainImplementation "org.glassfish:javax.json:1.1.4"
+    jvmMainImplementation "org.jsoup:jsoup:1.14.2"
 
-    jvmTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0"
+    jvmTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1"
     jvmTestImplementation "org.jetbrains.kotlin:kotlin-test-junit"
 
-    jsMainImplementation(npm("jszip", "3.6.0"))
-    jsMainImplementation(npm("text-encoding", "0.7.0"))
+    jsMainImplementation(npm("jszip", "3.7.1"))
     jsMainImplementation(npm("jspdf", "2.3.1"))
-    jsMainImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.5.0"
+    jsMainImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.5.1"
     jsMainImplementation "org.jetbrains.kotlinx:kotlinx-html-js:0.7.3"
 
     jsTestImplementation "org.jetbrains.kotlin:kotlin-test-js"
-    jsTestImplementation(npm("pdfjs-dist", "2.8.335"))
+    jsTestImplementation(npm("pdfjs-dist", "2.9.359"))
 }
 
 task dokkaJar(type: Jar) {
