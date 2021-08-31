@@ -16,7 +16,6 @@ import io.ktor.utils.io.core.toByteArray
 import io.ktor.utils.io.core.writeFully
 import io.ktor.utils.io.core.writeLongLittleEndian
 import io.ktor.utils.io.core.writeShortLittleEndian
-import io.ktor.utils.io.core.writeText
 
 private const val FILE_MAGIC = "ACROSS&DOWN"
 private const val FORMAT_VERSION = "1.4"
@@ -241,7 +240,7 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                 name: String, length: Int,
                 writeDataFn: (BytePacketBuilder) -> Unit
             ) {
-                writeText(name, charset = Charsets.ISO_8859_1)
+                writeString(name, Charsets.ISO_8859_1, nullTerminated = false)
                 writeShortLittleEndian(length.toShort())
 
                 // Write the data to a separate packet so we can calculate the checksum.
@@ -273,13 +272,14 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                 writeShortLittleEndian(0)
 
                 // 0x02-0x0D: file magic
-                writeNullTerminatedString(FILE_MAGIC, Charsets.ISO_8859_1)
+                writeString(FILE_MAGIC, Charsets.ISO_8859_1, nullTerminated = true)
 
                 // 0x0E-0x17: checksum placeholders
                 fill(10, 0)
 
                 // 0x18-0x1B: format version
-                writeNullTerminatedString(if (useUtf8) UTF8_FORMAT_VERSION else FORMAT_VERSION, Charsets.ISO_8859_1)
+                val formatVersion = if (useUtf8) UTF8_FORMAT_VERSION else FORMAT_VERSION
+                writeString(formatVersion, Charsets.ISO_8859_1, nullTerminated = true)
 
                 // 0x1C-0x1D: unknown
                 writeShortLittleEndian(0)
@@ -320,23 +320,29 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                 }
 
                 // Strings
-                writeNullTerminatedString(
-                    AcrossLiteSanitizer.substituteUnsupportedText(title, sanitizeCharacters = !useUtf8), charset
+                writeString(
+                    AcrossLiteSanitizer.substituteUnsupportedText(title, sanitizeCharacters = !useUtf8),
+                    charset,
+                    nullTerminated = true,
                 )
-                writeNullTerminatedString(
-                    AcrossLiteSanitizer.substituteUnsupportedText(creator, sanitizeCharacters = !useUtf8), charset
+                writeString(
+                    AcrossLiteSanitizer.substituteUnsupportedText(creator, sanitizeCharacters = !useUtf8),
+                    charset,
+                    nullTerminated = true,
                 )
-                writeNullTerminatedString(
-                    AcrossLiteSanitizer.substituteUnsupportedText(copyright, sanitizeCharacters = !useUtf8), charset
+                writeString(
+                    AcrossLiteSanitizer.substituteUnsupportedText(copyright, sanitizeCharacters = !useUtf8),
+                    charset,
+                    nullTerminated = true,
                 )
 
                 // Clues in numerical order. If two clues have the same number, across comes before down.
                 adjustedAcrossClues.keys.plus(adjustedDownClues.keys).sorted().forEach { clueNum ->
                     if (clueNum in adjustedAcrossClues) {
-                        writeNullTerminatedString(adjustedAcrossClues[clueNum]!!, charset)
+                        writeString(adjustedAcrossClues[clueNum]!!, charset, nullTerminated = true)
                     }
                     if (clueNum in adjustedDownClues) {
-                        writeNullTerminatedString(adjustedDownClues[clueNum]!!, charset)
+                        writeString(adjustedDownClues[clueNum]!!, charset, nullTerminated = true)
                     }
                 }
 
@@ -344,8 +350,10 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                     description.ifEmpty { null },
                     if (unsupportedFeatures) UNSUPPORTED_FEATURES_WARNING else null
                 ).joinToString("\n\n")
-                writeNullTerminatedString(
-                    AcrossLiteSanitizer.substituteUnsupportedText(combinedNotes, sanitizeCharacters = !useUtf8), charset
+                writeString(
+                    AcrossLiteSanitizer.substituteUnsupportedText(combinedNotes, sanitizeCharacters = !useUtf8),
+                    charset,
+                    nullTerminated = true,
                 )
 
                 // GRBS/RUSR/RTBL sections for rebus squares.
@@ -374,7 +382,7 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                         "${if (it.value < 10) " " else ""}${it.value}:${it.key}"
                     }
                     writeExtraSection("RTBL", rtblData.length) { packetBuilder ->
-                        packetBuilder.writeText(rtblData, charset = Charsets.UTF_8)
+                        packetBuilder.writeString(rtblData, charset = Charsets.UTF_8, nullTerminated = false)
                     }
 
                     // RUSR section: user rebus entries.
@@ -393,7 +401,11 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                         writeExtraSection("RUSR", length) { packetBuilder ->
                             cleanedGrid.forEach { row ->
                                 row.forEach { square ->
-                                    packetBuilder.writeNullTerminatedString(getRusr(square), Charsets.ISO_8859_1)
+                                    packetBuilder.writeString(
+                                        getRusr(square),
+                                        Charsets.ISO_8859_1,
+                                        nullTerminated = true,
+                                    )
                                 }
                             }
                         }
@@ -424,7 +436,7 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                 if (solved) {
                     // LTIM section: timer (stopped at 0).
                     writeExtraSection("LTIM", 3) { packetBuilder ->
-                        packetBuilder.writeText("0,1", charset = Charsets.ISO_8859_1)
+                        packetBuilder.writeString("0,1", Charsets.ISO_8859_1, nullTerminated = false)
                     }
                 }
 
@@ -473,7 +485,7 @@ private inline fun BytePacketBuilder.writeGrid(
 ) {
     Crossword.forEachCell(grid) { _, _, _, _, _, cell ->
         val char = if (cell.cellType.isBlack()) blackCellValue else whiteCellFn(cell)
-        writeText(char.toString(), charset = Charsets.ISO_8859_1)
+        writeString(char.toString(), Charsets.ISO_8859_1, nullTerminated = false)
     }
 }
 
@@ -490,10 +502,12 @@ private fun ByteReadPacket.readNullTerminatedString(charset: Charset): String {
     return String(data.build().readBytes(), charset = charset)
 }
 
-private fun BytePacketBuilder.writeNullTerminatedString(string: String, charset: Charset) {
+private fun BytePacketBuilder.writeString(string: String, charset: Charset, nullTerminated: Boolean) {
     val stringBytes = string.toByteArray(charset)
     writeFully(stringBytes)
-    writeByte(0)
+    if (nullTerminated) {
+        writeByte(0)
+    }
 }
 
 private fun checksumRegion(data: ByteArray, offset: Int, length: Int, currentChecksum: Int): Int {
