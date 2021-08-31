@@ -28,4 +28,12 @@ class PuzzleTest {
         val convertedJpz = parsedJpz.asPuzzle().asJpzFile(solved = true, appletSettings = null)
         assertEquals(readStringResource(PuzzleTest::class, "jpz/test-solved.jpz"), convertedJpz.toXmlString())
     }
+
+    @Test
+    fun jpzReadAndWrite_inlineCells() = runTest {
+        val parsedJpz = Jpz.fromXmlString(readStringResource(PuzzleTest::class, "jpz/test.jpz"))
+        val parsedInlineCellJpz = Jpz.fromXmlString(readStringResource(PuzzleTest::class, "jpz/test-inline-cells.jpz"))
+        val convertedInlineCellJpz = parsedInlineCellJpz.asPuzzle().asJpzFile(appletSettings = null)
+        assertEquals(parsedJpz, convertedInlineCellJpz)
+    }
 }

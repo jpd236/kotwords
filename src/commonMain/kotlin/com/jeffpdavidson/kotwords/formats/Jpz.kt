@@ -92,7 +92,9 @@ sealed interface Jpz : Puzzleable {
             @SerialName("word")
             data class Word(
                 @SerialName("id") val id: Int,
-                val cells: List<Cells>
+                val cells: List<Cells>,
+                val x: String? = null,
+                val y: String? = null,
             ) {
 
                 @Serializable
@@ -211,13 +213,24 @@ sealed interface Jpz : Puzzleable {
                 })
             },
             words = crossword.words.map { word ->
-                val cells = word.cells.map { cell -> Puzzle.Coordinate(x = cell.x - 1, y = cell.y - 1) }
-                Puzzle.Word(id = word.id, cells = cells)
+                Puzzle.Word(id = word.id, cells = word.getCoordinates())
             },
             hasHtmlClues = true,
             completionMessage = completionMessage,
             puzzleType = puzzleType,
         )
+    }
+
+    private fun RectangularPuzzle.Crossword.Word.getCoordinates(): List<Puzzle.Coordinate> {
+        val innerCells = cells.map { cell -> Puzzle.Coordinate(x = cell.x - 1, y = cell.y - 1) }
+        if (x == null || x.isEmpty() || y == null || y.isEmpty()) {
+            return innerCells
+        }
+        val xParts = x.split("-")
+        val yParts = y.split("-")
+        val xRange = xParts.first().toInt()..xParts.last().toInt()
+        val yRange = yParts.first().toInt()..yParts.last().toInt()
+        return innerCells + xRange.flatMap { x -> yRange.map { y -> Puzzle.Coordinate(x = x - 1, y = y - 1) } }
     }
 
     private fun Snippet.toHtml(trim: Boolean = true): String {
