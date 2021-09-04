@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.web
 
+import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.model.EightTracks
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.web.html.FormFields
@@ -8,7 +9,9 @@ import kotlinx.html.InputType
 import kotlinx.html.div
 import kotlin.js.Promise
 
-internal class EightTracksForm {
+@JsExport
+@KotwordsInternal
+class EightTracksForm {
     private val jpzForm = PuzzleFileForm("eight-tracks", ::createPuzzle)
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val creator: FormFields.InputField = FormFields.InputField("creator")

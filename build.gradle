@@ -33,10 +33,17 @@ kotlin {
         }
     }
 
-    js {
-        browser {
-            dceTask {
-                keep 'kotwords'
+    js(IR) {
+        browser {}
+        binaries.executable()
+    }
+
+    sourceSets {
+        all {
+            languageSettings {
+                optIn('kotlin.RequiresOptIn')
+                optIn('kotlin.js.ExperimentalJsExport')
+                optIn('com.jeffpdavidson.kotwords.KotwordsInternal')
             }
         }
     }
@@ -51,7 +58,7 @@ dependencies {
     commonMainImplementation "com.github.ajalt.colormath:colormath:2.1.0"
 
     // TODO: Migrate to kotlinx-datetime if parsing/formatting support is added.
-    commonMainImplementation "com.soywiz.korlibs.klock:klock:2.2.2"
+    commonMainImplementation "com.soywiz.korlibs.klock:klock:2.4.0"
 
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common"
     commonTestImplementation "org.jetbrains.kotlin:kotlin-test-common"
@@ -70,6 +77,18 @@ dependencies {
 
     jsTestImplementation "org.jetbrains.kotlin:kotlin-test-js"
     jsTestImplementation(npm("pdfjs-dist", "2.9.359"))
+}
+
+// Omit .web package from documentation
+dokkaHtml {
+    dokkaSourceSets {
+        configureEach {
+            perPackageOption {
+                matchingRegex.set(/com\.jeffpdavidson\.kotwords\.web.*/)
+                suppress.set(true)
+            }
+        }
+    }
 }
 
 task dokkaJar(type: Jar) {

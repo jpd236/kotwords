@@ -1,6 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
-class InvalidZipException : Exception {
+internal class InvalidZipException : Exception {
     constructor(message: String, ex: Throwable) : super(message, ex)
     constructor(message: String) : super(message)
 }

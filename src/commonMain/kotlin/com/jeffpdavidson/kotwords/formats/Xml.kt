@@ -11,7 +11,7 @@ internal interface Element : Node {
     fun selectFirst(selector: String): Element?
 }
 
-data class TextNode(val text: String) : Node
+internal data class TextNode(val text: String) : Node
 
 internal interface Node
 

@@ -1,12 +1,15 @@
 package com.jeffpdavidson.kotwords.web
 
+import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.model.AroundTheBend
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 import kotlin.js.Promise
 
-internal class AroundTheBendForm {
+@JsExport
+@KotwordsInternal
+class AroundTheBendForm {
     private val jpzForm = PuzzleFileForm("around-the-bend", ::createPuzzle)
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val creator: FormFields.InputField = FormFields.InputField("creator")

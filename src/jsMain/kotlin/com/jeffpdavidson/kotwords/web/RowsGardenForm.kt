@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.web
 
+import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.formats.Rgz
 import com.jeffpdavidson.kotwords.js.Interop
 import com.jeffpdavidson.kotwords.model.Puzzle
@@ -19,7 +20,9 @@ import kotlinx.html.p
 import kotlin.js.Promise
 
 /** Form to convert Rows Garden puzzles into JPZ files. */
-internal class RowsGardenForm {
+@JsExport
+@KotwordsInternal
+class RowsGardenForm {
     private val manualEntryForm = PuzzleFileForm("rows-garden", ::createPuzzleFromManualEntry, id = "manual-entry")
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val author: FormFields.InputField = FormFields.InputField("author")
@@ -33,7 +36,7 @@ internal class RowsGardenForm {
     private val mediumAnswers: FormFields.TextBoxField = FormFields.TextBoxField("medium-answers")
     private val darkClues: FormFields.TextBoxField = FormFields.TextBoxField("dark-clues")
     private val darkAnswers: FormFields.TextBoxField = FormFields.TextBoxField("dark-answers")
-    private val manualEntryAdvancedOptions = AdvancedOptions("manual-entry")
+    private val manualEntryAdvancedOptions = RowsGardenAdvancedOptions("manual-entry")
 
     private val rgzFileForm = PuzzleFileForm(
         "rows-garden",
@@ -43,7 +46,7 @@ internal class RowsGardenForm {
         enableSaveData = false
     )
     private val file: FormFields.FileField = FormFields.FileField("file")
-    private val rgzFileAdvancedOptions = AdvancedOptions("rgz-file")
+    private val rgzFileAdvancedOptions = RowsGardenAdvancedOptions("rgz-file")
 
     init {
         renderPage {
@@ -118,35 +121,6 @@ internal class RowsGardenForm {
         }
     }
 
-    private class AdvancedOptions(val id: String) {
-        val addAnnotations: FormFields.CheckBoxField = FormFields.CheckBoxField(elementId("add-annotations"))
-        val lightBloomColor: FormFields.InputField = FormFields.InputField(elementId("light-bloom-color"))
-        val mediumBloomColor: FormFields.InputField = FormFields.InputField(elementId("medium-bloom-color"))
-        val darkBloomColor: FormFields.InputField = FormFields.InputField(elementId("dark-bloom-color"))
-
-        val block: FlowContent.() -> Unit = {
-            addAnnotations.render(this, "Add clue annotations (e.g. \"hyph.\", \"2 wds.\")") {
-                checked = true
-            }
-            div(classes = "form-row") {
-                lightBloomColor.render(this, "Light bloom color", flexCols = 4) {
-                    type = InputType.color
-                    value = "#FFFFFF"
-                }
-                mediumBloomColor.render(this, "Medium bloom color", flexCols = 4) {
-                    type = InputType.color
-                    value = "#C3C8FA"
-                }
-                darkBloomColor.render(this, "Dark bloom color", flexCols = 4) {
-                    type = InputType.color
-                    value = "#5765F7"
-                }
-            }
-        }
-
-        private fun elementId(elementId: String) = if (id.isNotEmpty()) "$id-$elementId" else elementId
-    }
-
     private fun createPuzzleFromRgzFile(): Promise<Puzzle> {
         return GlobalScope.promise {
             val rgz = Interop.readFile(file.getValue()).await()
@@ -190,4 +164,33 @@ internal class RowsGardenForm {
     private fun getRgzFileName(): String {
         return file.getValue().name.removeSuffix(".rgz").removeSuffix(".rg")
     }
+}
+
+private class RowsGardenAdvancedOptions(val id: String) {
+    val addAnnotations: FormFields.CheckBoxField = FormFields.CheckBoxField(elementId("add-annotations"))
+    val lightBloomColor: FormFields.InputField = FormFields.InputField(elementId("light-bloom-color"))
+    val mediumBloomColor: FormFields.InputField = FormFields.InputField(elementId("medium-bloom-color"))
+    val darkBloomColor: FormFields.InputField = FormFields.InputField(elementId("dark-bloom-color"))
+
+    val block: FlowContent.() -> Unit = {
+        addAnnotations.render(this, "Add clue annotations (e.g. \"hyph.\", \"2 wds.\")") {
+            checked = true
+        }
+        div(classes = "form-row") {
+            lightBloomColor.render(this, "Light bloom color", flexCols = 4) {
+                type = InputType.color
+                value = "#FFFFFF"
+            }
+            mediumBloomColor.render(this, "Medium bloom color", flexCols = 4) {
+                type = InputType.color
+                value = "#C3C8FA"
+            }
+            darkBloomColor.render(this, "Dark bloom color", flexCols = 4) {
+                type = InputType.color
+                value = "#5765F7"
+            }
+        }
+    }
+
+    private fun elementId(elementId: String) = if (id.isNotEmpty()) "$id-$elementId" else elementId
 }

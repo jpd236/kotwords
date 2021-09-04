@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.web
 
+import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.formats.PdfFonts
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.TwistsAndTurns
@@ -12,7 +13,9 @@ import kotlinx.html.div
 import kotlin.js.Promise
 
 /** Form to convert Twists and Turns puzzles into digital files. */
-internal class TwistsAndTurnsForm {
+@JsExport
+@KotwordsInternal
+class TwistsAndTurnsForm {
     private val puzzleFileForm = PuzzleFileForm("twists-and-turns", ::createPuzzle, createPdfFn = ::createPdf)
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val creator: FormFields.InputField = FormFields.InputField("creator")

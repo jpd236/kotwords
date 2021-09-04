@@ -9,7 +9,8 @@ import kotlinx.html.hr
 import kotlinx.html.img
 import kotlinx.html.p
 
-internal object Index {
+@JsExport
+object Index {
     private val GENERATORS = listOf(
         "Across Lite",
         "Acrostic",

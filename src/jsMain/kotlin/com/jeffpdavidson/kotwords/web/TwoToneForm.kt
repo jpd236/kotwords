@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.web
 
+import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.TwoTone
 import com.jeffpdavidson.kotwords.web.html.FormFields
@@ -8,7 +9,9 @@ import kotlinx.html.InputType
 import kotlinx.html.div
 import kotlin.js.Promise
 
-internal class TwoToneForm {
+@JsExport
+@KotwordsInternal
+class TwoToneForm {
     private val jpzForm = PuzzleFileForm("two-tone", ::createPuzzle)
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val creator: FormFields.InputField = FormFields.InputField("creator")

@@ -1,12 +1,15 @@
 package com.jeffpdavidson.kotwords.web
 
+import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.SpellWeaving
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 import kotlin.js.Promise
 
-internal class SpellWeavingForm {
+@JsExport
+@KotwordsInternal
+class SpellWeavingForm {
     private val jpzForm = PuzzleFileForm("spell-weaving", ::createPuzzle)
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val creator: FormFields.InputField = FormFields.InputField("creator")

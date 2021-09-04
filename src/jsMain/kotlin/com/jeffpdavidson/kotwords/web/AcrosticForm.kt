@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.web
 
+import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.formats.Apz
 import com.jeffpdavidson.kotwords.js.Interop
 import com.jeffpdavidson.kotwords.model.Acrostic
@@ -19,7 +20,9 @@ import kotlinx.html.strong
 import kotlin.js.Promise
 
 /** Form to convert Acrostic puzzles into JPZ files. */
-internal class AcrosticForm {
+@JsExport
+@KotwordsInternal
+class AcrosticForm {
     private val manualEntryForm = PuzzleFileForm(
         "acrostic",
         ::createPuzzleFromManualEntry,
