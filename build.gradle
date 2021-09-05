@@ -50,7 +50,7 @@ kotlin {
 }
 
 dependencies {
-    commonMainImplementation "io.ktor:ktor-io:1.6.2"
+    commonMainImplementation "com.squareup.okio:okio-multiplatform:3.0.0-alpha.9"
     commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-core:1.2.2"
     commonMainImplementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2"
     commonMainImplementation "net.mamoe.yamlkt:yamlkt:0.10.2"

@@ -2,20 +2,10 @@ package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Puzzle
-import io.ktor.utils.io.charsets.Charset
-import io.ktor.utils.io.charsets.Charsets
-import io.ktor.utils.io.core.BytePacketBuilder
-import io.ktor.utils.io.core.ByteReadPacket
-import io.ktor.utils.io.core.String
-import io.ktor.utils.io.core.buildPacket
-import io.ktor.utils.io.core.fill
-import io.ktor.utils.io.core.readBytes
-import io.ktor.utils.io.core.readShortLittleEndian
-import io.ktor.utils.io.core.readTextExactCharacters
-import io.ktor.utils.io.core.toByteArray
-import io.ktor.utils.io.core.writeFully
-import io.ktor.utils.io.core.writeLongLittleEndian
-import io.ktor.utils.io.core.writeShortLittleEndian
+import okio.Buffer
+import okio.BufferedSink
+import okio.BufferedSource
+import okio.use
 
 private const val FILE_MAGIC = "ACROSS&DOWN"
 private const val FORMAT_VERSION = "1.4"
@@ -38,7 +28,7 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
         if (binaryData.size < 0xD) {
             throw InvalidFormatException("Invalid file: length too short: ${binaryData.size}")
         }
-        val magic = String(binaryData, 0x02, 0xB, Charsets.ISO_8859_1)
+        val magic = binaryData.decodeToString(0x02, 0xD)
         if (FILE_MAGIC != magic) {
             throw InvalidFormatException("Invalid file: incorrect file magic: $magic")
         }
@@ -47,20 +37,20 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
     override fun asPuzzle(): Puzzle = asCrossword().asPuzzle()
 
     fun asCrossword(): Crossword {
-        with(ByteReadPacket(binaryData)) {
-            discardExact(0x18)
-            val version = readTextExactCharacters(4, Charsets.ISO_8859_1)
+        return withBinaryDataBuffer {
+            skip(0x18)
+            val version = readString(length = 4, charset = Charset.CP_1252)
             // 2.0 uses UTF-8; earlier versions use ISO-8859-1.
-            val charset = if (version[0].digitToInt() > 1) Charsets.UTF_8 else Charsets.ISO_8859_1
+            val charset = if (version[0].digitToInt() > 1) Charset.UTF_8 else Charset.CP_1252
 
-            discardExact(0x10)
+            skip(0x10)
             val width = readByte()
             val height = readByte()
 
-            discardExact(6)
+            skip(6)
 
-            val solutions = readTextExactCharacters(width * height, Charsets.ISO_8859_1)
-            val entries = readTextExactCharacters(width * height, Charsets.ISO_8859_1)
+            val solutions = readString(length = width * height, charset = Charset.CP_1252)
+            val entries = readString(length = width * height, charset = Charset.CP_1252)
 
             val title = readNullTerminatedString(charset)
             val author = readNullTerminatedString(charset)
@@ -89,12 +79,11 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
             val rebusTable = mutableMapOf<Int, String>()
             val rebusEntries = mutableMapOf<Pair<Int, Int>, String>()
             val circles = mutableSetOf<Pair<Int, Int>>()
-            while (canRead()) {
-                val sectionTitleBytes = readBytes(4)
-                val sectionTitle = String(sectionTitleBytes, charset = Charsets.ISO_8859_1)
-                val sectionLength = readShortLittleEndian()
+            while (!exhausted()) {
+                val sectionTitle = readString(length = 4, charset = Charset.CP_1252)
+                val sectionLength = readShortLe()
                 // Skip the checksum
-                discardExact(2)
+                skip(2)
 
                 when (sectionTitle) {
                     "GRBS" -> {
@@ -107,10 +96,10 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                             }
                         }
                         // Skip the null terminator.
-                        discardExact(1)
+                        skip(1)
                     }
                     "RTBL" -> {
-                        val data = readNullTerminatedString(Charsets.ISO_8859_1)
+                        val data = readNullTerminatedString(Charset.CP_1252)
                         data.substringBeforeLast(';').split(';').forEach {
                             val parts = it.split(':')
                             rebusTable[parts[0].trim().toInt()] = parts[1]
@@ -119,7 +108,7 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                     "RUSR" -> {
                         for (y in 0 until height) {
                             for (x in 0 until width) {
-                                val entryRebus = readNullTerminatedString(Charsets.ISO_8859_1)
+                                val entryRebus = readNullTerminatedString(Charset.CP_1252)
                                 if (entryRebus.isNotEmpty()) {
                                     rebusEntries[x to y] = entryRebus
                                 }
@@ -136,11 +125,11 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                             }
                         }
                         // Skip the null terminator.
-                        discardExact(1)
+                        skip(1)
                     }
                     else -> {
                         // Skip section + null terminator.
-                        discardExact(sectionLength + 1)
+                        skip(sectionLength + 1L)
                     }
                 }
             }
@@ -167,7 +156,7 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                 }
             }
 
-            return Crossword(
+            Crossword(
                 title = title,
                 creator = author,
                 copyright = copyright,
@@ -178,6 +167,8 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
             )
         }
     }
+
+    private fun <T> withBinaryDataBuffer(fn: Buffer.() -> T): T = Buffer().write(binaryData).use { it.fn() }
 
     companion object {
         /**
@@ -236,20 +227,18 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                 }
             }
 
-            fun BytePacketBuilder.writeExtraSection(
-                name: String, length: Int,
-                writeDataFn: (BytePacketBuilder) -> Unit
-            ) {
-                writeString(name, Charsets.ISO_8859_1, nullTerminated = false)
-                writeShortLittleEndian(length.toShort())
+            fun BufferedSink.writeExtraSection(name: String, length: Int, writeDataFn: (BufferedSink) -> Unit) {
+                writeString(name, Charset.CP_1252, nullTerminated = false)
+                writeShortLe(length)
 
-                // Write the data to a separate packet so we can calculate the checksum.
-                val dataPacket = BytePacketBuilder()
-                writeDataFn(dataPacket)
-                val dataBytes = dataPacket.build().readBytes()
+                // Write the data to a separate buffer so we can calculate the checksum.
+                val dataBytes = Buffer().use {
+                    writeDataFn(it)
+                    it.readByteArray()
+                }
 
-                writeShortLittleEndian(checksumRegion(dataBytes, 0, dataBytes.size, 0).toShort())
-                writeFully(dataBytes)
+                writeShortLe(checksumRegion(dataBytes, 0, dataBytes.size, 0))
+                write(dataBytes)
                 writeByte(0)
             }
 
@@ -257,7 +246,7 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
             val downClues = getClues("Down") ?: error("No Down clues")
 
             val useUtf8 = writeUtf8 && needsUtf8(this, acrossClues, downClues)
-            val charset = if (useUtf8) Charsets.UTF_8 else Charsets.ISO_8859_1
+            val charset = if (useUtf8) Charset.UTF_8 else Charset.CP_1252
 
             // Sanitize the clue numbers/clues to be Across Lite compatible.
             val (adjustedAcrossClues, adjustedDownClues) =
@@ -267,43 +256,43 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
             val squareCount = cleanedGrid.size * cleanedGrid[0].size
 
             // Construct the puzzle data, leaving placeholders for each checksum.
-            val output = buildPacket {
+            val puzBytes = writeData {
                 // 0x00-0x01: file checksum placeholder
-                writeShortLittleEndian(0)
+                writeShortLe(0)
 
                 // 0x02-0x0D: file magic
-                writeString(FILE_MAGIC, Charsets.ISO_8859_1, nullTerminated = true)
+                writeString(FILE_MAGIC, Charset.CP_1252, nullTerminated = true)
 
                 // 0x0E-0x17: checksum placeholders
-                fill(10, 0)
+                repeat (10) { writeByte(0) }
 
                 // 0x18-0x1B: format version
                 val formatVersion = if (useUtf8) UTF8_FORMAT_VERSION else FORMAT_VERSION
-                writeString(formatVersion, Charsets.ISO_8859_1, nullTerminated = true)
+                writeString(formatVersion, Charset.CP_1252, nullTerminated = true)
 
                 // 0x1C-0x1D: unknown
-                writeShortLittleEndian(0)
+                writeShortLe(0)
 
                 // 0x1E-0x1F: solution checksum for scrambled puzzles
-                writeShortLittleEndian(0)
+                writeShortLe(0)
 
                 // 0x20-0x2B: unknown
-                fill(12, 0)
+                repeat (12) { writeByte(0) }
 
                 // 0x2C: width
-                writeByte(cleanedGrid[0].size.toByte())
+                writeByte(cleanedGrid[0].size)
 
                 // 0x2D: height
-                writeByte(cleanedGrid.size.toByte())
+                writeByte(cleanedGrid.size)
 
                 // 0x2E-0x2F: number of clues
-                writeShortLittleEndian(clueCount.toShort())
+                writeShortLe(clueCount)
 
                 // 0x30-0x31: puzzle type (normal vs. diagramless)
-                writeShortLittleEndian(1)
+                writeShortLe(1)
 
                 // 0x32-0x33: scrambled tag (unscrambled vs. scrambled vs. no solution)
-                writeShortLittleEndian(0)
+                writeShortLe(0)
 
                 // Board solution, reading left to right, top to bottom
                 writeGrid(cleanedGrid, '.') {
@@ -382,7 +371,7 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                         "${if (it.value < 10) " " else ""}${it.value}:${it.key}"
                     }
                     writeExtraSection("RTBL", rtblData.length) { packetBuilder ->
-                        packetBuilder.writeString(rtblData, charset = Charsets.UTF_8, nullTerminated = false)
+                        packetBuilder.writeString(rtblData, charset = Charset.UTF_8, nullTerminated = false)
                     }
 
                     // RUSR section: user rebus entries.
@@ -403,7 +392,7 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                                 row.forEach { square ->
                                     packetBuilder.writeString(
                                         getRusr(square),
-                                        Charsets.ISO_8859_1,
+                                        Charset.CP_1252,
                                         nullTerminated = true,
                                     )
                                 }
@@ -436,28 +425,25 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                 if (solved) {
                     // LTIM section: timer (stopped at 0).
                     writeExtraSection("LTIM", 3) { packetBuilder ->
-                        packetBuilder.writeString("0,1", Charsets.ISO_8859_1, nullTerminated = false)
+                        packetBuilder.writeString("0,1", Charset.CP_1252, nullTerminated = false)
                     }
                 }
 
+                readByteArray()
             }
-            val puzBytes = output.readBytes()
 
-            val checksumPacketBuilder = BytePacketBuilder()
-
-            // Calculate puzzle checksums.
-            checksumPacketBuilder.writeShortLittleEndian(
-                checksumPrimaryBoard(puzBytes, squareCount, clueCount).toShort()
-            )
-            checksumPacketBuilder.writeFully(puzBytes, 0x2, 0xC)
-            checksumPacketBuilder.writeShortLittleEndian(checksumCib(puzBytes).toShort())
-            checksumPacketBuilder.writeLongLittleEndian(
-                checksumPrimaryBoardMasked(puzBytes, squareCount, clueCount)
-            )
-            checksumPacketBuilder.writeFully(puzBytes, 0x18)
-
-            return checksumPacketBuilder.build().readBytes()
+            return Buffer().use {
+                // Calculate puzzle checksums.
+                it.writeShortLe(checksumPrimaryBoard(puzBytes, squareCount, clueCount))
+                it.write(puzBytes, 0x2, 0xC)
+                it.writeShortLe(checksumCib(puzBytes))
+                it.writeLongLe(checksumPrimaryBoardMasked(puzBytes, squareCount, clueCount))
+                it.write(puzBytes, 0x18, puzBytes.size - 0x18)
+                it.readByteArray()
+            }
         }
+
+        private fun <T> writeData(fn: Buffer.() -> T): T = Buffer().use { it.fn() }
 
         private fun needsUtf8(puzzle: Puzzle, acrossClues: Puzzle.ClueList, downClues: Puzzle.ClueList): Boolean {
             return puzzle.title.needsUtf8()
@@ -468,24 +454,37 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                     || downClues.clues.any { it.text.needsUtf8() }
         }
 
-        private fun String.needsUtf8(): Boolean = any { it.code >= 256 }
+        private fun String.needsUtf8(): Boolean = any {
+            // Safe characters are valid ISO-8859-1 characters.
+            // Cp-1252 characters aren't guaranteed to be visible (e.g. on Mac).
+            // Also, to be safe, avoid encoding anything in the Cp-1252 reserved range to prevent these from being
+            // interpreted incorrectly as Cp-1252 characters, although these characters should be unused.
+            it.code in 0x80..0x9F || it.code > 0xFF
+        }
     }
 }
 
-private inline fun BytePacketBuilder.writeGrid(
+private enum class Charset(val encodeFn: (String) -> ByteArray, val decodeFn: (ByteArray) -> String) {
+    // Note that Mac Across Lite doesn't actually support the extra characters in CP-1252. For simplicity, we support
+    // them here, but we should avoid using them when writing files (by substituting replacements or using UTF-8).
+    CP_1252(Encodings::encodeCp1252, Encodings::decodeCp1252),
+    UTF_8(String::encodeToByteArray, ByteArray::decodeToString),
+}
+
+private inline fun BufferedSink.writeGrid(
     grid: List<List<Puzzle.Cell>>, blackCellValue: Byte, crossinline whiteCellFn: (Puzzle.Cell) -> Byte
 ) {
     Crossword.forEachCell(grid) { _, _, _, _, _, cell ->
-        writeByte(if (cell.cellType.isBlack()) blackCellValue else whiteCellFn(cell))
+        writeByte((if (cell.cellType.isBlack()) blackCellValue else whiteCellFn(cell)).toInt())
     }
 }
 
-private inline fun BytePacketBuilder.writeGrid(
+private inline fun BufferedSink.writeGrid(
     grid: List<List<Puzzle.Cell>>, blackCellValue: Char, crossinline whiteCellFn: (Puzzle.Cell) -> Char
 ) {
     Crossword.forEachCell(grid) { _, _, _, _, _, cell ->
         val char = if (cell.cellType.isBlack()) blackCellValue else whiteCellFn(cell)
-        writeString(char.toString(), Charsets.ISO_8859_1, nullTerminated = false)
+        writeString(char.toString(), Charset.CP_1252, nullTerminated = false)
     }
 }
 
@@ -493,18 +492,22 @@ private inline fun <T> List<List<T>>.flatAny(predicate: (T) -> Boolean): Boolean
     return any { row -> row.any { predicate(it) } }
 }
 
-private fun ByteReadPacket.readNullTerminatedString(charset: Charset): String {
-    val data = BytePacketBuilder()
+private fun BufferedSource.readNullTerminatedString(charset: Charset): String {
+    val data = Buffer()
     var byte: Byte
     while (run { byte = readByte(); byte } != 0.toByte()) {
-        data.writeByte(byte)
+        data.writeByte(byte.toInt())
     }
-    return String(data.build().readBytes(), charset = charset)
+    return charset.decodeFn(data.readByteArray())
 }
 
-private fun BytePacketBuilder.writeString(string: String, charset: Charset, nullTerminated: Boolean) {
-    val stringBytes = string.toByteArray(charset)
-    writeFully(stringBytes)
+private fun BufferedSource.readString(length: Int, charset: Charset): String {
+    return charset.decodeFn(readByteArray(length.toLong()))
+}
+
+private fun BufferedSink.writeString(string: String, charset: Charset, nullTerminated: Boolean) {
+    val stringBytes = charset.encodeFn(string)
+    write(stringBytes)
     if (nullTerminated) {
         writeByte(0)
     }

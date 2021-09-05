@@ -154,7 +154,7 @@ internal object AcrossLiteSanitizer {
         "[Χχ]" to "[Chi]",
         "[Ψψ]" to "[Psi]",
         "[Ωω]" to "[Omega]",
-        // Replace fancy quotes (which don't render in Across Lite on Mac) with normal ones.
+        // Replace CP-1252 characters (which don't render in Across Lite on Mac) with ISO-8859-1 approximations.
         // Ref: http://www.i18nqa.com/debug/table-iso8859-1-vs-windows-1252.html
         "‘" to "'",
         "’" to "'",

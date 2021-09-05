@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.formats
 import com.jeffpdavidson.kotwords.js.Interop.toByteArray
 import com.jeffpdavidson.kotwords.js.JsPDF
 import com.jeffpdavidson.kotwords.js.newJsPdfOptions
+import okio.ByteString.Companion.toByteString
 import org.khronos.webgl.ArrayBuffer
 
 /**
@@ -68,7 +69,7 @@ actual class PdfDocument {
             is PdfFont.TtfFont -> {
                 if (!loadedTtfFonts.contains(font.fontName to font.fontStyle)) {
                     val fileName = "${font.fontName}-${font.fontStyle}.ttf"
-                    pdf.addFileToVFS(fileName, Encodings.encodeBase64(font.fontData))
+                    pdf.addFileToVFS(fileName, font.fontData.toByteString().base64())
                     pdf.addFont(fileName, font.fontName, font.fontStyle)
                     loadedTtfFonts.add(font.fontName to font.fontStyle)
                 }

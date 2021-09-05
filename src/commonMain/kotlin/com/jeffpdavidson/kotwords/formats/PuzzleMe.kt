@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.formats
 import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.formats.json.PuzzleMeJson
 import com.jeffpdavidson.kotwords.model.Puzzle
+import okio.ByteString.Companion.decodeBase64
 
 private val PUZZLE_DATA_REGEX = """\bwindow\.rawc\s*=\s*'([^']+)'""".toRegex()
 
@@ -152,7 +153,8 @@ class PuzzleMe(private val json: String) : Puzzleable {
             throw InvalidFormatException("Could not find puzzle data in PuzzleMe HTML")
         }
 
-        private fun decodeRawc(rawc: String) = Encodings.decodeBase64(rawc).decodeToString()
+        private fun decodeRawc(rawc: String) =
+            rawc.decodeBase64()?.utf8() ?: throw InvalidFormatException("Rawc is invalid base64")
 
         private fun buildClueMap(isAcross: Boolean, clueList: List<PuzzleMeJson.PlacedWord>): List<Puzzle.Clue> =
             clueList.map {

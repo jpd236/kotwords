@@ -1,8 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.model.Puzzle
-import io.ktor.utils.io.charsets.Charsets
-import io.ktor.utils.io.core.toByteArray
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -142,7 +140,7 @@ sealed interface Jpz : Puzzleable {
     data class Span(@XmlValue(true) val data: Snippet)
 
     suspend fun toCompressedFile(filename: String): ByteArray {
-        return Zip.zip(filename, toXmlString().toByteArray(Charsets.UTF_8))
+        return Zip.zip(filename, toXmlString().encodeToByteArray())
     }
 
     override fun asPuzzle(): Puzzle {

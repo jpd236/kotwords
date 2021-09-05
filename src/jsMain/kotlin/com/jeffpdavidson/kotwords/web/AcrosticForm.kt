@@ -9,8 +9,6 @@ import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 import com.jeffpdavidson.kotwords.web.html.Tabs
 import com.jeffpdavidson.kotwords.web.html.Tabs.tabs
-import io.ktor.utils.io.charsets.Charsets
-import io.ktor.utils.io.core.String
 import kotlinx.html.InputType
 import kotlinx.html.a
 import kotlinx.html.div
@@ -131,7 +129,7 @@ class AcrosticForm {
 
     private fun createPuzzleFromApzFile(): Promise<Puzzle> {
         return Interop.readFile(file.getValue()).then {
-            Apz.fromXmlString(String(it, charset = Charsets.UTF_8)).toAcrostic(
+            Apz.fromXmlString(it.decodeToString()).toAcrostic(
                 completionMessage = completionMessage.getValue(),
                 includeAttribution = apzFileIncludeAttribution.getValue(),
             ).asPuzzle()

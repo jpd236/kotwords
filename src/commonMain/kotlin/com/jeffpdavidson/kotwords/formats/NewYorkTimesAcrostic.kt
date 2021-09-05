@@ -4,6 +4,7 @@ import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.formats.json.NewYorkTimesAcrosticJson
 import com.jeffpdavidson.kotwords.model.Acrostic
 import com.jeffpdavidson.kotwords.model.Puzzle
+import okio.ByteString.Companion.decodeBase64
 
 private val PUZZLE_DATA_REGEX = """\bgameData\s*=\s*"([^']+)"""".toRegex()
 
@@ -77,7 +78,8 @@ class NewYorkTimesAcrostic(val json: String): Puzzleable {
             throw InvalidFormatException("Could not find puzzle data in New York Times HTML")
         }
 
-        internal fun decodeGameData(gameData: String): String =
-            Encodings.unescape(Encodings.decodeBase64(gameData).decodeToString())
+        private fun decodeGameData(gameData: String): String =
+            Encodings.unescape(gameData.decodeBase64()?.utf8()
+                ?: throw InvalidFormatException("gameData is invalid base64"))
     }
 }

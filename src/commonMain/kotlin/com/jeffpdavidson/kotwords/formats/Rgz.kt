@@ -2,8 +2,6 @@ package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.RowsGarden
-import io.ktor.utils.io.charsets.Charsets
-import io.ktor.utils.io.core.String
 import net.mamoe.yamlkt.Yaml
 
 /** Container for a Rows Garden puzzle in the .rgz format. */
@@ -34,9 +32,8 @@ class Rgz(val rg: String) : Puzzleable {
                     // Try as a plain-text file.
                     rgz
                 }
-            var rgString = String(rg, charset = Charsets.UTF_8)
+            var rgString = rg.decodeToString()
             // Strip off BOM from beginning if present.
-            // Workaround for https://github.com/Kotlin/kotlinx-io/issues/112
             if (rgString.startsWith('\uFEFF')) {
                 rgString = rgString.substring(1)
             }
