@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.formats.unidecode.Unidecode
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Puzzle
 
@@ -112,66 +113,15 @@ internal object AcrossLiteSanitizer {
         "&lt;" to "<",
     )
 
-    private val utf8ClueReplacements = mapOf(
-        "ł" to "l",
-        "[ăāạ]" to "a",
-        "Ō" to "O",
-        "[ęệ]" to "e",
-        "Đ" to "D",
-        "₀" to "0",
-        "₁" to "1",
-        "₂" to "2",
-        "₃" to "3",
-        "₄" to "4",
-        "₅" to "5",
-        "₆" to "6",
-        "₇" to "7",
-        "₈" to "8",
-        "₉" to "9",
-        "♯" to "#",
-        "♭" to "b",
-        "[Αα]" to "[Alpha]",
-        "[Ββ]" to "[Beta]",
-        "[Γγ]" to "[Gamma]",
-        "[Δδ]" to "[Delta]",
-        "[Εε]" to "[Epsilon]",
-        "[Ζζ]" to "[Zeta]",
-        "[Ηη]" to "[Eta]",
-        "[Θθ]" to "[Theta]",
-        "[Ιι]" to "[Iota]",
-        "[Κκ]" to "[Kappa]",
-        "[Λλ]" to "[Lambda]",
-        "[Μμ]" to "[Mu]",
-        "[Νν]" to "[Nu]",
-        "[Ξξ]" to "[Xi]",
-        "[Οο]" to "[Omicron]",
-        "[Ππ]" to "[Pi]",
-        "[Ρρ]" to "[Rho]",
-        "[Σσς]" to "[Sigma]",
-        "[Ττ]" to "[Tau]",
-        "[Υυ]" to "[Upsilon]",
-        "[Φφ]" to "[Phi]",
-        "[Χχ]" to "[Chi]",
-        "[Ψψ]" to "[Psi]",
-        "[Ωω]" to "[Omega]",
-        // Replace CP-1252 characters (which don't render in Across Lite on Mac) with ISO-8859-1 approximations.
-        // Ref: http://www.i18nqa.com/debug/table-iso8859-1-vs-windows-1252.html
-        "‘" to "'",
-        "’" to "'",
-        "“" to "\"",
-        "”" to "\"",
-        // en/em dashes are unsupported in ISO-8859-1
-        "—" to "-",
-        "–" to "-",
-        "★" to "*",
-    )
-
     fun substituteUnsupportedText(text: String, sanitizeCharacters: Boolean): String {
-        // TODO(#2): Generalize accented character replacement.
-        val clueReplacements =
-            if (sanitizeCharacters) htmlClueReplacements + utf8ClueReplacements else htmlClueReplacements
-        return clueReplacements.map { (key, value) -> key.toRegex() to value }.fold(text) { clue, (from, to) ->
-            clue.replace(from, to)
+        val withoutHtml = htmlClueReplacements
+            .map { (key, value) -> key.toRegex() to value }
+            .fold(text) { clue, (from, to) ->
+                clue.replace(from, to)
+            }
+        if (!sanitizeCharacters) {
+            return withoutHtml
         }
+        return Unidecode.unidecode(withoutHtml)
     }
 }
