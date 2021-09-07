@@ -19,7 +19,7 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
       - name: Build with Gradle
-        run: ./gradlew check
+        run: ./gradlew assemble check
       - name: Publish snapshot
         env:
           OSSRH_DEPLOY_USERNAME: ${{ secrets.OSSRH_DEPLOY_USERNAME }}
@@ -28,3 +28,8 @@ jobs:
           PGP_KEY_ID: ${{ secrets.PGP_KEY_ID }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
         run: ./publish-snapshot.sh
+      - name: Archive browser distribution zip
+        uses: actions/upload-artifact@v2
+        with:
+          name: browser-distribution
+          path: build/zip/kotwords-browser-distribution-*.zip

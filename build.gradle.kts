@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
+
 plugins {
     `maven-publish`
     signing
@@ -94,15 +96,31 @@ kotlin {
     }
 }
 
-// Omit .web package from documentation
-tasks.dokkaHtml.configure {
-    dokkaSourceSets {
-        configureEach {
-            perPackageOption {
-                matchingRegex.set("""com.jeffpdavidson\.kotwords\.web.*""")
-                suppress.set(true)
+tasks {
+    // Omit .web package from documentation
+    dokkaHtml.configure {
+        dokkaSourceSets {
+            configureEach {
+                perPackageOption {
+                    matchingRegex.set("""com.jeffpdavidson\.kotwords\.web.*""")
+                    suppress.set(true)
+                }
             }
         }
+    }
+
+    val browserProductionWebpackTask = getByName("jsBrowserProductionWebpack", KotlinWebpack::class)
+
+    @Suppress("UNUSED_VARIABLE") // https://youtrack.jetbrains.com/issue/KT-38871
+    val browserDistributionZip by creating(Zip::class) {
+        dependsOn(browserProductionWebpackTask)
+        from (browserProductionWebpackTask.destinationDirectory)
+        destinationDirectory.set(file("${buildDir}/zip"))
+        archiveAppendix.set("browser-distribution")
+    }
+
+    assemble {
+        dependsOn(browserDistributionZip)
     }
 }
 
