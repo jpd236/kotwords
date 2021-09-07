@@ -66,6 +66,7 @@ kotlin {
 
         val jvmMain by getting {
             dependencies {
+                implementation("org.apache.pdfbox:pdfbox:2.0.24")
                 implementation("org.glassfish:javax.json:1.1.4")
                 implementation("org.jsoup:jsoup:1.14.2")
             }
