@@ -41,7 +41,7 @@ class CodedForm {
                 ) {
                     placeholder = "In order, the letters to assign to each number, without spaces."
                 }
-                givens.render(this, "Given letters (optionals)") {
+                givens.render(this, "Given letters (optional)") {
                     placeholder = "Letters to prefill at the start of the puzzle (as hints)."
                 }
             })
