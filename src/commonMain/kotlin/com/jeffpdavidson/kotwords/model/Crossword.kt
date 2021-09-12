@@ -135,7 +135,7 @@ data class Crossword(
             var currentClueNumber = 1
             for (y in grid.indices) {
                 for (x in grid[y].indices) {
-                    if (grid[y][x].cellType == Puzzle.CellType.BLOCK) {
+                    if (grid[y][x].cellType.isBlack()) {
                         fn(
                             x, y, /* clueNumber= */ null, /* isAcross= */ false, /* isDown= */ false,
                             grid[y][x]

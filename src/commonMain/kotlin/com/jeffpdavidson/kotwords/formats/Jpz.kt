@@ -37,8 +37,10 @@ sealed interface Jpz : Puzzleable {
     @XmlSerialName("rectangular-puzzle", PUZZLE_NS, "")
     data class RectangularPuzzle(
         val metadata: Metadata = Metadata(),
+        val alphabet: String? = null,
         @XmlSerialName("crossword", PUZZLE_NS, "") val crossword: Crossword? = null,
-        @XmlSerialName("acrostic", PUZZLE_NS, "") val acrostic: Crossword? = null
+        @XmlSerialName("acrostic", PUZZLE_NS, "") val acrostic: Crossword? = null,
+        @XmlSerialName("coded", PUZZLE_NS, "") val coded: Crossword? = null,
     ) {
 
         @Serializable
@@ -82,7 +84,8 @@ sealed interface Jpz : Puzzleable {
                     @SerialName("top-bar") val topBar: Boolean? = null,
                     @SerialName("left-bar") val leftBar: Boolean? = null,
                     @SerialName("right-bar") val rightBar: Boolean? = null,
-                    @SerialName("bottom-bar") val bottomBar: Boolean? = null
+                    @SerialName("bottom-bar") val bottomBar: Boolean? = null,
+                    @SerialName("hint") val hint: Boolean? = null,
                 )
             }
 
@@ -149,6 +152,9 @@ sealed interface Jpz : Puzzleable {
         if (rectangularPuzzle.acrostic != null) {
             crossword = rectangularPuzzle.acrostic!!
             puzzleType = Puzzle.PuzzleType.ACROSTIC
+        } else if (rectangularPuzzle.coded != null) {
+            crossword = rectangularPuzzle.coded!!
+            puzzleType = Puzzle.PuzzleType.CODED
         } else {
             crossword = rectangularPuzzle.crossword!!
             puzzleType = Puzzle.PuzzleType.CROSSWORD
@@ -183,7 +189,8 @@ sealed interface Jpz : Puzzleable {
                     if (it.bottomBar == true) Puzzle.BorderDirection.BOTTOM else null,
                     if (it.leftBar == true) Puzzle.BorderDirection.LEFT else null,
                     if (it.rightBar == true) Puzzle.BorderDirection.RIGHT else null,
-                )
+                ),
+                hint = it.hint ?: false,
             )
         }
         val grid: MutableList<MutableList<Puzzle.Cell>> = mutableListOf()
@@ -312,16 +319,24 @@ sealed interface Jpz : Puzzleable {
                             backgroundColor = cell.backgroundColor.ifEmpty { null },
                             number = cell.number.ifEmpty { null },
                             type = type,
-                            solveState = if (cell.cellType == Puzzle.CellType.CLUE || solved) cell.solution else null,
+                            solveState = if (cell.cellType == Puzzle.CellType.CLUE || solved || cell.hint) {
+                                cell.solution
+                            } else {
+                                cell.entry.ifEmpty { null }
+                            },
                             topRightNumber = cell.topRightNumber.ifEmpty { null },
                             backgroundShape = backgroundShape,
                             topBar = if (topBorder) true else null,
                             bottomBar = if (bottomBorder) true else null,
                             leftBar = if (leftBorder) true else null,
                             rightBar = if (rightBorder) true else null,
+                            hint = if (cell.hint) true else null,
                         )
                     }
-                }.flatten()
+                }.flatten(),
+                gridLook = RectangularPuzzle.Crossword.Grid.GridLook(
+                    numberingScheme = if (puzzleType == Puzzle.PuzzleType.CODED) "coded" else "normal"
+                )
             )
 
             val jpzWords = words.map { word ->
@@ -362,22 +377,39 @@ sealed interface Jpz : Puzzleable {
                     description = combinedDescription.ifBlank { null },
                 ),
                 crossword = if (puzzleType == Puzzle.PuzzleType.CROSSWORD) crossword else null,
-                acrostic = if (puzzleType == Puzzle.PuzzleType.ACROSTIC) crossword else null
+                acrostic = if (puzzleType == Puzzle.PuzzleType.ACROSTIC) crossword else null,
+                coded = if (puzzleType == Puzzle.PuzzleType.CODED) crossword else null,
+                alphabet = if (puzzleType == Puzzle.PuzzleType.CODED) getAlphabet(grid) else null,
             )
 
-            return if (completionMessage.isNotEmpty() || appletSettings != null) {
-                var settings = appletSettings ?: CrosswordCompilerApplet.AppletSettings()
-                if (completionMessage.isNotEmpty()) {
-                    settings = settings.copy(completion = settings.completion.copy(message = completionMessage))
-                }
+            return if (
+                completionMessage.isNotEmpty() ||
+                appletSettings != null ||
+                puzzleType == Puzzle.PuzzleType.CODED
+            ) {
+                val settings = appletSettings ?: CrosswordCompilerApplet.AppletSettings()
+                val completion =
+                    if (completionMessage.isEmpty()) {
+                        settings.completion
+                    } else {
+                        settings.completion.copy(message = completionMessage)
+                    }
                 CrosswordCompilerApplet(
-                    appletSettings = settings,
+                    appletSettings = settings.copy(
+                        completion = completion,
+                        showAlphabet = if (puzzleType == Puzzle.PuzzleType.CODED) true else null
+                    ),
                     rectangularPuzzle = rectangularPuzzle
                 )
             } else {
                 CrosswordCompiler(rectangularPuzzle = rectangularPuzzle)
             }
         }
+
+        private fun getAlphabet(grid: List<List<Puzzle.Cell>>): String =
+            grid.flatMap { row ->
+                row.flatMap { cell -> cell.solution.toList() }
+            }.toSet().sorted().joinToString("")
 
         /**
          * Format a raw clue as valid inner HTML for a JPZ file.
@@ -461,6 +493,7 @@ data class CrosswordCompilerApplet(
     data class AppletSettings(
         @SerialName("cursor-color") val cursorColor: String = "#00B100",
         @SerialName("selected-cells-color") val selectedCellsColor: String = "#80FF80",
+        @SerialName("show-alphabet") val showAlphabet: Boolean? = null,
         val completion: Completion = Completion(),
         val actions: Actions = Actions()
     ) {

@@ -74,6 +74,10 @@ internal object FormFields {
             }
         }
 
+        fun setValue(value: String) {
+            input.value = value
+        }
+
         fun getValue(): String {
             return input.value.trim()
         }

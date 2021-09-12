@@ -49,6 +49,7 @@ data class Puzzle(
         val backgroundShape: BackgroundShape = BackgroundShape.NONE,
         val borderDirections: Set<BorderDirection> = setOf(),
         val moreAnswers: List<String> = listOf(),
+        val hint: Boolean = false,
     )
 
     data class Coordinate(
@@ -74,7 +75,8 @@ data class Puzzle(
 
     enum class PuzzleType {
         CROSSWORD,
-        ACROSTIC
+        ACROSTIC,
+        CODED,
     }
 
     /** Returns the clue list whose title contains the given text (case-insensitive), if one exists. */

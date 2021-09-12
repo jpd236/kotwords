@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <crossword-compiler xmlns="http://crossword.info/xml/crossword-compiler">
-  <rectangular-puzzle xmlns="http://crossword.info/xml/rectangular-puzzle" alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ">
+  <rectangular-puzzle xmlns="http://crossword.info/xml/rectangular-puzzle">
     <metadata>
       <title>Example Puzzle for Kotwords</title>
       <creator>Jeff Davidson</creator>
