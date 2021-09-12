@@ -132,7 +132,7 @@ class PuzzleMe(private val json: String) : Puzzleable {
                 Puzzle.ClueList("<b>Down</b>", buildClueMap(isAcross = false, clueList = downWords))
             ),
             hasHtmlClues = true,
-            words = buildWordList(acrossWords + downWords),
+            words = buildWordList(filteredGrid, acrossWords + downWords),
         )
     }
 
@@ -165,7 +165,10 @@ class PuzzleMe(private val json: String) : Puzzleable {
                 )
             }
 
-        private fun buildWordList(words: List<PuzzleMeJson.PlacedWord>): List<Puzzle.Word> {
+        private fun buildWordList(
+            grid: List<List<Puzzle.Cell>>,
+            words: List<PuzzleMeJson.PlacedWord>
+        ): List<Puzzle.Word> {
             return words.map { word ->
                 var x = word.x
                 var y = word.y
@@ -178,7 +181,11 @@ class PuzzleMe(private val json: String) : Puzzleable {
                         y++
                     }
                 }
-                Puzzle.Word(id = getWordId(isAcross = word.acrossNotDown, clueNum = word.clueNum), cells = cells)
+                Puzzle.Word(
+                    id = getWordId(isAcross = word.acrossNotDown, clueNum = word.clueNum),
+                    // Filter out any squares that fall outside the grid (e.g. due to void squares).
+                    cells = cells.filter { (x, y) -> y >= 0 && y < grid.size && x >= 0 && x < grid[y].size }
+                )
             }
         }
 
