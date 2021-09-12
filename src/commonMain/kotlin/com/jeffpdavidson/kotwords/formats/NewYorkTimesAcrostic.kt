@@ -8,7 +8,7 @@ import okio.ByteString.Companion.decodeBase64
 
 private val PUZZLE_DATA_REGEX = """\bgameData\s*=\s*"([^']+)"""".toRegex()
 
-class NewYorkTimesAcrostic(val json: String): Puzzleable {
+class NewYorkTimesAcrostic(val json: String) : Puzzleable {
 
     override fun asPuzzle(): Puzzle = asAcrostic().asPuzzle()
 
@@ -79,7 +79,9 @@ class NewYorkTimesAcrostic(val json: String): Puzzleable {
         }
 
         private fun decodeGameData(gameData: String): String =
-            Encodings.unescape(gameData.decodeBase64()?.utf8()
-                ?: throw InvalidFormatException("gameData is invalid base64"))
+            Encodings.unescape(
+                gameData.decodeBase64()?.utf8()
+                    ?: throw InvalidFormatException("gameData is invalid base64")
+            )
     }
 }

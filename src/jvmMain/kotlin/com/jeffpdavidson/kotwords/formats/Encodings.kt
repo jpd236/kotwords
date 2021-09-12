@@ -5,7 +5,6 @@ import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.charset.UnsupportedCharsetException
-import java.util.Base64
 
 internal actual object Encodings {
     private val UNESCAPE_PATTERN = "%u([0-9A-Fa-f]{4})|%([0-9A-Fa-f]{2})".toRegex()

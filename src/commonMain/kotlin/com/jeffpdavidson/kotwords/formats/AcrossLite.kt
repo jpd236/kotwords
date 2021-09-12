@@ -264,7 +264,7 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                 writeString(FILE_MAGIC, Charset.CP_1252, nullTerminated = true)
 
                 // 0x0E-0x17: checksum placeholders
-                repeat (10) { writeByte(0) }
+                repeat(10) { writeByte(0) }
 
                 // 0x18-0x1B: format version
                 val formatVersion = if (useUtf8) UTF8_FORMAT_VERSION else FORMAT_VERSION
@@ -277,7 +277,7 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                 writeShortLe(0)
 
                 // 0x20-0x2B: unknown
-                repeat (12) { writeByte(0) }
+                repeat(12) { writeByte(0) }
 
                 // 0x2C: width
                 writeByte(cleanedGrid[0].size)
