@@ -9,6 +9,7 @@
 use strict;
 use warnings;
 
+use Encode;
 use File::Basename;
 use File::Spec::Functions 'catfile';
 use Text::Unidecode;
@@ -30,14 +31,10 @@ for (my $high = 0x01; $high <= 0xFF; $high++) {
     print HANDLE "package com.jeffpdavidson.kotwords.formats.unidecode\n\n";
     print HANDLE sprintf("internal val x%02x = arrayOf(", $high);
     for (my $low = 0x00; $low <= 0xFF; $low++) {
-        if ($low % 16 == 0) {
-            print HANDLE "\n    ";
-        } else {
-            print HANDLE " ";
-        }
-        print HANDLE "\"";
         my $code = ($high << 8) + $low;
         my $decoded = exists($custom_mappings{$code}) ? $custom_mappings{$code} : unidecode(chr($code));
+        print HANDLE sprintf("\n    // 0x%04x: %s => %s", $code, encode("utf-8", chr($code)), $decoded);
+        print HANDLE "\n    \"";
         foreach my $char (split('', $decoded)) {
           print HANDLE sprintf("\\u%04x", ord($char));
         }

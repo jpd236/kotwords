@@ -19,7 +19,7 @@ internal object Unidecode {
 
         return string.map { ch ->
             if (ch.code < 256) {
-               "$ch"
+                "$ch"
             } else if (ch.code > 0xFFFF) {
                 "[?]"
             } else {
