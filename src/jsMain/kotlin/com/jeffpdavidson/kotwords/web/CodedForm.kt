@@ -1,10 +1,12 @@
 package com.jeffpdavidson.kotwords.web
 
 import com.jeffpdavidson.kotwords.KotwordsInternal
+import com.jeffpdavidson.kotwords.formats.AcrossLite
 import com.jeffpdavidson.kotwords.model.Coded
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
+import kotlinx.html.classes
 import kotlin.js.Promise
 
 /** Form to convert Coded puzzles into JPZ files. */
@@ -19,6 +21,8 @@ class CodedForm {
     private val grid: FormFields.TextBoxField = FormFields.TextBoxField("grid")
     private val assignments: FormFields.InputField = FormFields.InputField("assignments")
     private val givens: FormFields.InputField = FormFields.InputField("givens")
+    private val importPuzButton: FormFields.Button = FormFields.Button("import-puz")
+    private val importPuzFile: FormFields.FileField = FormFields.FileField("import-puz-file")
 
     init {
         renderPage {
@@ -43,6 +47,18 @@ class CodedForm {
                 }
                 givens.render(this, "Given letters (optional)") {
                     placeholder = "Letters to prefill at the start of the puzzle (as hints)."
+                }
+            }, additionalButtonsBlock = {
+                importPuzButton.render(this, "Import PUZ") {
+                    classes = classes + "btn-secondary ml-3"
+                }
+                importPuzFile.renderAsHiddenSelector(this, ".puz", ::loadPuzFile)
+            }, submitHandler = { submitter ->
+                if (submitter == importPuzButton.button) {
+                    importPuzFile.input.click()
+                    true
+                } else {
+                    false
                 }
             })
         }
@@ -69,5 +85,22 @@ class CodedForm {
             givens = givens.getValue(),
         )
         return Promise.resolve(coded.asPuzzle())
+    }
+
+    private fun loadPuzFile(puzFile: ByteArray) {
+        val puzzle = AcrossLite(puzFile).asPuzzle()
+        title.setValue(puzzle.title)
+        creator.setValue(puzzle.creator)
+        copyright.setValue(puzzle.copyright)
+        description.setValue(puzzle.description)
+        grid.setValue(puzzle.grid.joinToString("\n") { row ->
+            row.joinToString("") {
+                if (it.cellType.isBlack()) {
+                    "."
+                } else {
+                    it.solution.substring(0, 1)
+                }
+            }
+        })
     }
 }

@@ -4,7 +4,6 @@ import com.github.ajalt.colormath.RGB
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.formats.Pdf
-import com.jeffpdavidson.kotwords.js.Interop
 import com.jeffpdavidson.kotwords.js.Interop.toArrayBuffer
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.web.html.FormFields
@@ -23,7 +22,6 @@ import kotlinx.html.div
 import kotlinx.html.dom.append
 import kotlinx.html.form
 import kotlinx.html.id
-import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onSubmitFunction
 import kotlinx.html.p
 import kotlinx.html.role
@@ -31,9 +29,8 @@ import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.dom.asList
-import org.w3c.dom.events.Event
 import org.w3c.files.Blob
-import org.w3c.files.get
+import kotlin.collections.set
 import kotlin.js.Json
 import kotlin.js.Promise
 import kotlin.js.json
@@ -90,14 +87,24 @@ internal class PuzzleFileForm(
      *
      * @param parent parent to render the form into
      * @param bodyBlock block to render the form contents
-     * @param advancedOptionsBlock optional block to render advanced options (along with the default advanced options).
+     * @param advancedOptionsBlock optional block to render advanced options (along with the default advanced options)
+     * @param additionalButtonsBlock optional block to render custom buttons (along with the default set)
      */
     fun render(
-        parent: HTMLElement, bodyBlock: FlowContent.() -> Unit,
-        advancedOptionsBlock: FlowContent.() -> Unit = {}
+        parent: HTMLElement,
+        bodyBlock: FlowContent.() -> Unit,
+        advancedOptionsBlock: FlowContent.() -> Unit = {},
+        additionalButtonsBlock: FlowContent.() -> Unit = {},
+        submitHandler: (HTMLElement) -> Boolean = { false },
     ) {
         parent.append.div {
-            render(this, bodyBlock, advancedOptionsBlock)
+            render(
+                parent = this,
+                bodyBlock = bodyBlock,
+                advancedOptionsBlock = advancedOptionsBlock,
+                additionalButtonsBlock = additionalButtonsBlock,
+                submitHandler = submitHandler,
+            )
         }
     }
 
@@ -106,16 +113,28 @@ internal class PuzzleFileForm(
      *
      * @param parent parent to render the form into
      * @param bodyBlock block to render the form contents
-     * @param advancedOptionsBlock optional block to render advanced options (along with the default advanced options).
+     * @param advancedOptionsBlock optional block to render advanced options (along with the default advanced options)
+     * @param additionalButtonsBlock optional block to render custom buttons (along with the default set)
+     * @param submitHandler optional function invoked on form submission; passed the submitting element as an argument.
+     *                      Return true to indicate that the event has been handled, and false for default handling to
+     *                      apply.
      */
     fun render(
         parent: FlowContent, bodyBlock: FlowContent.() -> Unit,
-        advancedOptionsBlock: FlowContent.() -> Unit = {}
+        advancedOptionsBlock: FlowContent.() -> Unit = {},
+        additionalButtonsBlock: FlowContent.() -> Unit = {},
+        submitHandler: (HTMLElement) -> Boolean = { false },
     ) {
         parent.form {
             id = elementId("form")
 
-            onSubmitFunction = ::onSubmit
+            onSubmitFunction = { event ->
+                val submitter = event.asDynamic().submitter as HTMLElement?
+                if (submitter == null || !submitHandler(submitter)) {
+                    onSubmit(submitter)
+                }
+                event.preventDefault()
+            }
 
             bodyBlock()
 
@@ -175,27 +194,13 @@ internal class PuzzleFileForm(
                 loadDataButton?.render(this, "Load data") {
                     classes = classes + "btn-secondary ml-3"
                 }
-                loadDataFile?.render(this) {
-                    classes = classes + "d-none"
-                    accept = ".json"
-                    onChangeFunction = {
-                        val files = loadDataFile.input.files
-                        if (files != null && files.length > 0 && files[0] != null) {
-                            GlobalScope.launch {
-                                val saveDataJson = Interop.readFile(files[0]!!).await().decodeToString()
-                                // Clear the input value in case the user makes an edit and retries the same file.
-                                loadDataFile.input.value = ""
-                                loadSaveDataJson(saveDataJson)
-                            }
-                        }
-                    }
-                }
+                loadDataFile?.renderAsHiddenSelector(this, ".json", ::loadSaveDataJson)
+                additionalButtonsBlock()
             }
         }
     }
 
-    private fun onSubmit(event: Event) {
-        val submitter = event.asDynamic().submitter as HTMLElement?
+    private fun onSubmit(submitter: HTMLElement?) {
         if (saveDataButton != null && submitter == saveDataButton.button) {
             // Since the form may not be complete, we can't generate the Puzzle to obtain the title. Look for it
             // directly from the form, or else just use the puzzle type and date.
@@ -223,7 +228,6 @@ internal class PuzzleFileForm(
                 }
             }
         }
-        event.preventDefault()
     }
 
     internal fun createSaveDataJson(): String {
@@ -251,8 +255,8 @@ internal class PuzzleFileForm(
         return JSON.stringify(saveData, space = 2)
     }
 
-    internal fun loadSaveDataJson(saveDataJson: String) {
-        val saveData: Json = JSON.parse(saveDataJson)
+    internal fun loadSaveDataJson(saveDataJson: ByteArray) {
+        val saveData: Json = JSON.parse(saveDataJson.decodeToString())
         val savedPuzzleType = saveData[KEY_PUZZLE_TYPE]
         if (puzzleType != savedPuzzleType) {
             errorMessage.setMessage("Invalid save data - unknown puzzle type $savedPuzzleType")

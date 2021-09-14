@@ -1,5 +1,9 @@
 package com.jeffpdavidson.kotwords.web.html
 
+import com.jeffpdavidson.kotwords.js.Interop
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.await
+import kotlinx.coroutines.launch
 import kotlinx.dom.addClass
 import kotlinx.dom.removeClass
 import kotlinx.html.BUTTON
@@ -14,6 +18,7 @@ import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.id
 import kotlinx.html.input
+import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onInputFunction
 import kotlinx.html.label
 import kotlinx.html.role
@@ -156,6 +161,41 @@ internal object FormFields {
                     }
                     if (help.isNotBlank()) {
                         help(htmlId, help)
+                    }
+                }
+            }
+        }
+
+        /**
+         * Add the file selector into the given [FlowContent] as a hidden file selector.
+         *
+         * In this mode, the input is not visible, but can be used to read a local file by emulating a click on the
+         * input and acting on the file in the provided [onFileLoadedFn].
+         *
+         * @param parent the parent [FlowContent] to render into
+         * @param extension the extension to accept, e.g. ".puz"
+         * @param onFileLoadedFn function which will be invoked with the contents of the read file
+         */
+        fun renderAsHiddenSelector(
+            parent: FlowContent,
+            extension: String,
+            onFileLoadedFn: suspend (ByteArray) -> Unit
+        ) {
+            with(parent) {
+                input(classes = "form-control-file d-none") {
+                    this.id = htmlId
+                    this.type = InputType.file
+                    accept = extension
+                    onChangeFunction = {
+                        val files = input.files
+                        if (files != null && files.length > 0 && files[0] != null) {
+                            GlobalScope.launch {
+                                val data = Interop.readFile(files[0]!!).await()
+                                // Clear the input value in case the user makes an edit and retries the same file.
+                                input.value = ""
+                                onFileLoadedFn(data)
+                            }
+                        }
                     }
                 }
             }
