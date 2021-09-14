@@ -29,7 +29,7 @@ class PuzzleFileFormTest {
     fun loadJsonData() = runTest {
         val form = renderForm(withGivenValues = false)
         val saveDataJson = readStringResource(PuzzleFileFormTest::class, "save-data.json").replace("\r\n", "\n")
-        form.loadSaveDataJson(saveDataJson)
+        form.loadSaveDataJson(saveDataJson.encodeToByteArray())
         assertEquals("abcde", textInput.getValue())
         assertEquals("fghij", textBoxInput.getValue())
         assertTrue(checkBoxInput.getValue())
