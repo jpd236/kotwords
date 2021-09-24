@@ -7,7 +7,6 @@ import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 import kotlinx.html.InputType
 import kotlinx.html.div
-import kotlin.js.Promise
 
 @JsExport
 @KotwordsInternal
@@ -77,7 +76,7 @@ class TwoToneForm {
         }
     }
 
-    private fun createPuzzle(): Promise<Puzzle> {
+    private fun createPuzzle(): Puzzle {
         val twoTone = TwoTone(
             title = title.getValue(),
             creator = creator.getValue(),
@@ -92,6 +91,6 @@ class TwoToneForm {
             oddSquareBackgroundColor = oddSquaresColor.getValue(),
             evenSquareBackgroundColor = evenSquaresColor.getValue(),
         )
-        return Promise.resolve(twoTone.asPuzzle())
+        return twoTone.asPuzzle()
     }
 }

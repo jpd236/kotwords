@@ -2,7 +2,6 @@ package com.jeffpdavidson.kotwords.web.html
 
 import com.jeffpdavidson.kotwords.js.Interop
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
 import kotlinx.dom.addClass
 import kotlinx.dom.removeClass
@@ -190,7 +189,7 @@ internal object FormFields {
                         val files = input.files
                         if (files != null && files.length > 0 && files[0] != null) {
                             GlobalScope.launch {
-                                val data = Interop.readFile(files[0]!!).await()
+                                val data = Interop.readFile(files[0]!!)
                                 // Clear the input value in case the user makes an edit and retries the same file.
                                 input.value = ""
                                 onFileLoadedFn(data)

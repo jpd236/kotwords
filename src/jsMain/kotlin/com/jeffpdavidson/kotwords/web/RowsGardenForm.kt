@@ -9,15 +9,11 @@ import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 import com.jeffpdavidson.kotwords.web.html.Tabs
 import com.jeffpdavidson.kotwords.web.html.Tabs.tabs
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.await
-import kotlinx.coroutines.promise
 import kotlinx.html.FlowContent
 import kotlinx.html.InputType
 import kotlinx.html.div
 import kotlinx.html.dom.append
 import kotlinx.html.p
-import kotlin.js.Promise
 
 /** Form to convert Rows Garden puzzles into JPZ files. */
 @JsExport
@@ -121,20 +117,18 @@ class RowsGardenForm {
         }
     }
 
-    private fun createPuzzleFromRgzFile(): Promise<Puzzle> {
-        return GlobalScope.promise {
-            val rgz = Interop.readFile(file.getValue()).await()
-            Rgz.fromRgzFile(rgz).asRowsGarden(
-                lightBloomColor = rgzFileAdvancedOptions.lightBloomColor.getValue(),
-                mediumBloomColor = rgzFileAdvancedOptions.mediumBloomColor.getValue(),
-                darkBloomColor = rgzFileAdvancedOptions.darkBloomColor.getValue(),
-                addHyphenated = rgzFileAdvancedOptions.addAnnotations.getValue(),
-                addWordCount = rgzFileAdvancedOptions.addAnnotations.getValue(),
-            ).asPuzzle()
-        }
+    private suspend fun createPuzzleFromRgzFile(): Puzzle {
+        val rgz = Interop.readFile(file.getValue())
+        return Rgz.fromRgzFile(rgz).asRowsGarden(
+            lightBloomColor = rgzFileAdvancedOptions.lightBloomColor.getValue(),
+            mediumBloomColor = rgzFileAdvancedOptions.mediumBloomColor.getValue(),
+            darkBloomColor = rgzFileAdvancedOptions.darkBloomColor.getValue(),
+            addHyphenated = rgzFileAdvancedOptions.addAnnotations.getValue(),
+            addWordCount = rgzFileAdvancedOptions.addAnnotations.getValue(),
+        ).asPuzzle()
     }
 
-    private fun createPuzzleFromManualEntry(): Promise<Puzzle> {
+    private fun createPuzzleFromManualEntry(): Puzzle {
         val rowsGarden = RowsGarden(
             title = title.getValue(),
             author = author.getValue(),
@@ -158,7 +152,7 @@ class RowsGardenForm {
             addHyphenated = manualEntryAdvancedOptions.addAnnotations.getValue(),
             addWordCount = manualEntryAdvancedOptions.addAnnotations.getValue(),
         )
-        return Promise.resolve(rowsGarden.asPuzzle())
+        return rowsGarden.asPuzzle()
     }
 
     private fun getRgzFileName(): String {

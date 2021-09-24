@@ -7,7 +7,6 @@ import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 import kotlinx.html.classes
-import kotlin.js.Promise
 
 /** Form to convert Coded puzzles into JPZ files. */
 @JsExport
@@ -64,7 +63,7 @@ class CodedForm {
         }
     }
 
-    private fun createPuzzle(): Promise<Puzzle> {
+    private fun createPuzzle(): Puzzle {
         if (assignments.getValue().isBlank()) {
             // While fromRawInput will generate and use an assignment if the provided one is blank, we proactively
             // generate it here so we can update the form with the result, ensuring the exact same output can be
@@ -84,7 +83,7 @@ class CodedForm {
             assignments = assignments.getValue(),
             givens = givens.getValue(),
         )
-        return Promise.resolve(coded.asPuzzle())
+        return coded.asPuzzle()
     }
 
     private fun loadPuzFile(puzFile: ByteArray) {

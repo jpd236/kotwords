@@ -5,7 +5,6 @@ import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.Spiral
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
-import kotlin.js.Promise
 
 @JsExport
 @KotwordsInternal
@@ -60,7 +59,7 @@ class SpiralForm {
         }
     }
 
-    private fun createPuzzle(): Promise<Puzzle> {
+    private fun createPuzzle(): Puzzle {
         val spiral = Spiral(
             title = title.getValue(),
             creator = creator.getValue(),
@@ -72,6 +71,6 @@ class SpiralForm {
             outwardClues = outwardClues.getValue().split("\n").map { it.trim() },
             inwardCellsInput = inwardCells.getValue().split("\\s+".toRegex()),
         )
-        return Promise.resolve(spiral.asPuzzle())
+        return spiral.asPuzzle()
     }
 }

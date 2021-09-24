@@ -6,7 +6,6 @@ import com.jeffpdavidson.kotwords.model.SnakeCharmer
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 import kotlinx.html.classes
-import kotlin.js.Promise
 
 @JsExport
 @KotwordsInternal
@@ -68,7 +67,7 @@ class SnakeCharmerForm {
         }
     }
 
-    private fun createPuzzle(): Promise<Puzzle> {
+    private fun createPuzzle(): Puzzle {
         val grid = gridShape.getValue(trim = false).lines()
         require(grid.isNotEmpty()) {
             "Grid shape is required"
@@ -97,6 +96,6 @@ class SnakeCharmerForm {
             clues = clues.getValue().split("\n").map { it.trim() },
             gridCoordinates = gridCoordinates.toList()
         )
-        return Promise.resolve(snakeCharmer.asPuzzle())
+        return snakeCharmer.asPuzzle()
     }
 }

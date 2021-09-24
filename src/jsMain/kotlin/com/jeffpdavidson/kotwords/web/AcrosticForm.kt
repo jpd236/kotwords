@@ -15,7 +15,6 @@ import kotlinx.html.div
 import kotlinx.html.dom.append
 import kotlinx.html.role
 import kotlinx.html.strong
-import kotlin.js.Promise
 
 /** Form to convert Acrostic puzzles into JPZ files. */
 @JsExport
@@ -127,18 +126,17 @@ class AcrosticForm {
         }
     }
 
-    private fun createPuzzleFromApzFile(): Promise<Puzzle> {
-        return Interop.readFile(file.getValue()).then {
-            Apz.fromXmlString(it.decodeToString()).toAcrostic(
-                completionMessage = completionMessage.getValue(),
-                includeAttribution = apzFileIncludeAttribution.getValue(),
-            ).asPuzzle()
-        }
+    private suspend fun createPuzzleFromApzFile(): Puzzle {
+        val apz = Interop.readFile(file.getValue()).decodeToString()
+        return Apz.fromXmlString(apz).toAcrostic(
+            completionMessage = completionMessage.getValue(),
+            includeAttribution = apzFileIncludeAttribution.getValue(),
+        ).asPuzzle()
     }
 
-    private fun createPuzzleFromManualEntry(): Promise<Puzzle> {
+    private fun createPuzzleFromManualEntry(): Puzzle {
         if (gridKey.getValue().isBlank() && answers.getValue().isBlank()) {
-            return Promise.reject(IllegalArgumentException("Must provide either grid key or answers"))
+            throw IllegalArgumentException("Must provide either grid key or answers")
         }
         if (gridKey.getValue().isBlank()) {
             // While fromRawInput will generate and use a grid key if the provided one is blank, we proactively generate
@@ -164,7 +162,7 @@ class AcrosticForm {
             completionMessage = completionMessage.getValue(),
             includeAttribution = includeAttribution.getValue(),
         )
-        return Promise.resolve(acrostic.asPuzzle())
+        return acrostic.asPuzzle()
     }
 
     private fun getApzFileName(): String {

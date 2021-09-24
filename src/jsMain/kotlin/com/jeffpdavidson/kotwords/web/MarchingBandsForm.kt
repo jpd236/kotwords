@@ -7,7 +7,6 @@ import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 import kotlinx.html.InputType
 import kotlinx.html.div
-import kotlin.js.Promise
 
 @JsExport
 @KotwordsInternal
@@ -66,7 +65,7 @@ class MarchingBandsForm {
         }
     }
 
-    private fun createPuzzle(): Promise<Puzzle> {
+    private fun createPuzzle(): Puzzle {
         val marchingBands = MarchingBands(
             title = title.getValue(),
             creator = creator.getValue(),
@@ -85,6 +84,6 @@ class MarchingBandsForm {
             lightBandColor = lightBandColor.getValue(),
             darkBandColor = darkBandColor.getValue(),
         )
-        return Promise.resolve(marchingBands.asPuzzle())
+        return marchingBands.asPuzzle()
     }
 }

@@ -7,7 +7,6 @@ import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 import kotlinx.html.InputType
 import kotlinx.html.div
-import kotlin.js.Promise
 
 @JsExport
 @KotwordsInternal
@@ -79,7 +78,7 @@ class JellyRollForm {
         }
     }
 
-    private fun createPuzzle(): Promise<Puzzle> {
+    private fun createPuzzle(): Puzzle {
         val jellyRoll = JellyRoll(
             title = title.getValue(),
             creator = creator.getValue(),
@@ -95,6 +94,6 @@ class JellyRollForm {
             darkSquareBackgroundColor = darkSquaresColor.getValue(),
             combineJellyRollClues = combineJellyRollClues.getValue(),
         )
-        return Promise.resolve(jellyRoll.asPuzzle())
+        return jellyRoll.asPuzzle()
     }
 }

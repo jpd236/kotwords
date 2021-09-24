@@ -5,7 +5,6 @@ import com.jeffpdavidson.kotwords.model.Labyrinth
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
-import kotlin.js.Promise
 
 @JsExport
 @KotwordsInternal
@@ -55,7 +54,7 @@ class LabyrinthForm {
         }
     }
 
-    private fun createPuzzle(): Promise<Puzzle> {
+    private fun createPuzzle(): Puzzle {
         val labyrinth = Labyrinth(
             title = title.getValue(),
             creator = creator.getValue(),
@@ -73,6 +72,6 @@ class LabyrinthForm {
             windingClues = windingClues.getValue().split("/").map { it.trim() },
             alphabetizeWindingClues = alphabetizeWindingClues.getValue(),
         )
-        return Promise.resolve(labyrinth.asPuzzle())
+        return labyrinth.asPuzzle()
     }
 }

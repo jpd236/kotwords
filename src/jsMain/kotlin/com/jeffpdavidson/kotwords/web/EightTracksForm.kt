@@ -7,7 +7,6 @@ import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 import kotlinx.html.InputType
 import kotlinx.html.div
-import kotlin.js.Promise
 
 @JsExport
 @KotwordsInternal
@@ -71,7 +70,7 @@ class EightTracksForm {
         }
     }
 
-    private fun createPuzzle(): Promise<Puzzle> {
+    private fun createPuzzle(): Puzzle {
         val eightTracks = EightTracks(
             title = title.getValue(),
             creator = creator.getValue(),
@@ -91,6 +90,6 @@ class EightTracksForm {
             lightTrackColor = lightTrackColor.getValue(),
             darkTrackColor = darkTrackColor.getValue(),
         )
-        return Promise.resolve(eightTracks.asPuzzle())
+        return eightTracks.asPuzzle()
     }
 }

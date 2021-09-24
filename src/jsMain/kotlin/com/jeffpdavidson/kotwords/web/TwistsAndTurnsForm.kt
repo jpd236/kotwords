@@ -6,11 +6,8 @@ import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.TwistsAndTurns
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.promise
 import kotlinx.html.InputType
 import kotlinx.html.div
-import kotlin.js.Promise
 
 /** Form to convert Twists and Turns puzzles into digital files. */
 @JsExport
@@ -80,26 +77,22 @@ class TwistsAndTurnsForm {
         }
     }
 
-    private fun createPuzzle(): Promise<Puzzle> =
-        Promise.resolve(
-            createTwistsAndTurns(
-                separateLightAndDarkTwists = false,
-                numberTwists = true,
-                sortTwists = false,
-            ).asPuzzle()
-        )
+    private fun createPuzzle(): Puzzle =
+        createTwistsAndTurns(
+            separateLightAndDarkTwists = false,
+            numberTwists = true,
+            sortTwists = false,
+        ).asPuzzle()
 
-    private fun createPdf(blackSquareLightnessAdjustment: Float): Promise<ByteArray> =
-        GlobalScope.promise {
-            createTwistsAndTurns(
-                separateLightAndDarkTwists = true,
-                numberTwists = false,
-                sortTwists = alphabetizeTwistsClues.getValue(),
-            ).asPdf(
-                fontFamily = PdfFonts.getNotoFontFamily(),
-                blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
-            )
-        }
+    private suspend fun createPdf(blackSquareLightnessAdjustment: Float): ByteArray =
+        createTwistsAndTurns(
+            separateLightAndDarkTwists = true,
+            numberTwists = false,
+            sortTwists = alphabetizeTwistsClues.getValue(),
+        ).asPdf(
+            fontFamily = PdfFonts.getNotoFontFamily(),
+            blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
+        )
 
     private fun createTwistsAndTurns(
         separateLightAndDarkTwists: Boolean,

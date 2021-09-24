@@ -6,7 +6,6 @@ import com.jeffpdavidson.kotwords.js.Interop
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
-import kotlin.js.Promise
 
 /** Form to convert Across Lite files into JPZ files. */
 @JsExport
@@ -23,11 +22,7 @@ class AcrossLiteForm {
         }
     }
 
-    private fun createPuzzle(): Promise<Puzzle> {
-        return Interop.readFile(file.getValue()).then {
-            AcrossLite(it).asPuzzle()
-        }
-    }
+    private suspend fun createPuzzle(): Puzzle = AcrossLite(Interop.readFile(file.getValue())).asPuzzle()
 
     private fun getFileName(): String {
         return file.getValue().name.removeSuffix(".puz")

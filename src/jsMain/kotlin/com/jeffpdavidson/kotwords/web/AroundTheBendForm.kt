@@ -5,7 +5,6 @@ import com.jeffpdavidson.kotwords.model.AroundTheBend
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
-import kotlin.js.Promise
 
 @JsExport
 @KotwordsInternal
@@ -39,7 +38,7 @@ class AroundTheBendForm {
         }
     }
 
-    private fun createPuzzle(): Promise<Puzzle> {
+    private fun createPuzzle(): Puzzle {
         val aroundTheBend = AroundTheBend(
             title = title.getValue(),
             creator = creator.getValue(),
@@ -47,6 +46,6 @@ class AroundTheBendForm {
             description = description.getValue(),
             rows = rows.getValue().split("\n").map { it.trim() },
             clues = clues.getValue().split("\n").map { it.trim() })
-        return Promise.resolve(aroundTheBend.asPuzzle())
+        return aroundTheBend.asPuzzle()
     }
 }

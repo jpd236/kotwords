@@ -12,7 +12,6 @@ import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import kotlinx.browser.document
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
 import kotlinx.html.FlowContent
 import kotlinx.html.InputType
@@ -32,13 +31,12 @@ import org.w3c.dom.asList
 import org.w3c.files.Blob
 import kotlin.collections.set
 import kotlin.js.Json
-import kotlin.js.Promise
 import kotlin.js.json
 
 /**
  * Container for an HTML form for creating digital files for a particular puzzle input.
  *
- * @param createPuzzleFn function to return a [Promise] of the created [Puzzle] from the form input.
+ * @param createPuzzleFn function to return the created [Puzzle] from the form input.
  * @param getFileNameFn optional function to return the base filename that should be used when downloading the puzzle.
  *                      Defaults to the alphanumerical characters of the title. Omit any extension.
  * @param id optional ID to use for form elements in case there are multiple forms on a single page.
@@ -48,17 +46,17 @@ import kotlin.js.json
  *                                 completion message.
  * @param completionMessageDefaultValue optional default value to use for the completion message.
  * @param completionMessageHelpText optional help text to use for the completion message.
- * @param createPdfFn optional function to return a [Promise] of the created PDF (as a byte array) from the form input.
+ * @param createPdfFn optional function to return the created PDF (as a byte array) from the form input.
  */
 internal class PuzzleFileForm(
     private val puzzleType: String,
-    private val createPuzzleFn: () -> Promise<Puzzle>,
+    private val createPuzzleFn: suspend () -> Puzzle,
     private val getFileNameFn: (Puzzle) -> String = ::getDefaultFileName,
     private val id: String = "",
     includeCompletionMessage: Boolean = true,
     private val completionMessageDefaultValue: String = "Congratulations! The puzzle is solved correctly.",
     private val completionMessageHelpText: String = "",
-    private val createPdfFn: ((blackSquareLightnessAdjustment: Float) -> Promise<ByteArray>)? = null,
+    private val createPdfFn: (suspend (blackSquareLightnessAdjustment: Float) -> ByteArray)? = null,
     enableSaveData: Boolean = true,
 ) {
     private val cursorColor: FormFields.InputField = FormFields.InputField(elementId("cursor-color"))
@@ -216,7 +214,7 @@ internal class PuzzleFileForm(
         } else if (submitter == jpzButton.button || (pdfButton != null && submitter == pdfButton.button)) {
             GlobalScope.launch {
                 try {
-                    val puzzle = createPuzzleFn().await()
+                    val puzzle = createPuzzleFn()
                     if (pdfButton != null && submitter == pdfButton.button) {
                         // TODO: Avoid this unnecessary Puzzle generation just to get the title/filename.
                         downloadPdf(puzzle)
@@ -284,8 +282,9 @@ internal class PuzzleFileForm(
     }
 
     private suspend fun downloadPdf(puzzle: Puzzle) {
-        val data = createPdfFn!!(inkSaverPercentage!!.getValue() / 100f).await()
-        download("${getFileNameFn(puzzle)}.pdf", data)
+        createPdfFn?.let {
+            download("${getFileNameFn(puzzle)}.pdf", it(inkSaverPercentage!!.getValue() / 100f))
+        }
     }
 
     private suspend fun downloadJpz(puzzle: Puzzle) {

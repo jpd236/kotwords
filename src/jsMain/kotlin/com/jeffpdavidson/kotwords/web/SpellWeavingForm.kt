@@ -5,7 +5,6 @@ import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.SpellWeaving
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
-import kotlin.js.Promise
 
 @JsExport
 @KotwordsInternal
@@ -40,7 +39,7 @@ class SpellWeavingForm {
         }
     }
 
-    private fun createPuzzle(): Promise<Puzzle> {
+    private fun createPuzzle(): Puzzle {
         val spellWeaving = SpellWeaving(
             title = title.getValue(),
             creator = creator.getValue(),
@@ -49,6 +48,6 @@ class SpellWeavingForm {
             answers = answers.getValue().split("\\s+".toRegex()),
             clues = clues.getValue().split("\n").map { it.trim() },
         )
-        return Promise.resolve(spellWeaving.asPuzzle())
+        return spellWeaving.asPuzzle()
     }
 }
