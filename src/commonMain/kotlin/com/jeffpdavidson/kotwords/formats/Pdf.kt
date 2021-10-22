@@ -114,6 +114,7 @@ object Pdf {
         val pageHeight = height
         val headerWidth = pageWidth - 2 * MARGIN
         val clueCount = clues.sumOf { it.clues.size }
+        // TODO: Need to cap width such that height doesn't exceed some reasonable threshold
         val gridWidth = getGridWidthPercentage(clueCount) * headerWidth
         val gridX = pageWidth - MARGIN - gridWidth
         val gridY = MARGIN + COPYRIGHT_SIZE

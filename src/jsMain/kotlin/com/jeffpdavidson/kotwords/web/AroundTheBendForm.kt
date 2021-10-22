@@ -1,6 +1,7 @@
 package com.jeffpdavidson.kotwords.web
 
 import com.jeffpdavidson.kotwords.KotwordsInternal
+import com.jeffpdavidson.kotwords.formats.PdfFonts
 import com.jeffpdavidson.kotwords.model.AroundTheBend
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.web.html.FormFields
@@ -9,7 +10,11 @@ import com.jeffpdavidson.kotwords.web.html.Html
 @JsExport
 @KotwordsInternal
 class AroundTheBendForm {
-    private val jpzForm = PuzzleFileForm("around-the-bend", ::createPuzzle)
+    private val jpzForm = PuzzleFileForm(
+        "around-the-bend",
+        ::createPuzzle,
+        createPdfFn = ::createPdf,
+    )
     private val title: FormFields.InputField = FormFields.InputField("title")
     private val creator: FormFields.InputField = FormFields.InputField("creator")
     private val copyright: FormFields.InputField = FormFields.InputField("copyright")
@@ -38,14 +43,20 @@ class AroundTheBendForm {
         }
     }
 
-    private fun createPuzzle(): Puzzle {
-        val aroundTheBend = AroundTheBend(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            rows = rows.getValue().split("\n").map { it.trim() },
-            clues = clues.getValue().split("\n").map { it.trim() })
-        return aroundTheBend.asPuzzle()
-    }
+    private fun createAroundTheBend(): AroundTheBend = AroundTheBend(
+        title = title.getValue(),
+        creator = creator.getValue(),
+        copyright = copyright.getValue(),
+        description = description.getValue(),
+        rows = rows.getValue().split("\n").map { it.trim() },
+        clues = clues.getValue().split("\n").map { it.trim() },
+    )
+
+    private fun createPuzzle(): Puzzle = createAroundTheBend().asPuzzle()
+
+    private suspend fun createPdf(blackSquareLightnessAdjustment: Float): ByteArray =
+        createAroundTheBend().asPdf(
+            fontFamily = PdfFonts.getNotoFontFamily(),
+            blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
+        )
 }
