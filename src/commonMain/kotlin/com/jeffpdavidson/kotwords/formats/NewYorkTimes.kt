@@ -115,9 +115,10 @@ class NewYorkTimes(private val json: String) : Puzzleable {
             return Encodings.decodeHtmlEntities(this)
                 .replace("&", "&amp;")
                 .replace("<", "&lt;")
-                .replace("&lt;(/?(?:b|i|sup|sub|span|strong|s))( [^>]*)?>".toRegex(RegexOption.IGNORE_CASE), "<$1>")
+                .replace("&lt;(/?(?:b|i|sup|sub|span|strong|s|br))( [^>]*)?>".toRegex(RegexOption.IGNORE_CASE), "<$1>")
                 .replace("<(/?)strong>".toRegex(RegexOption.IGNORE_CASE), "<$1b>")
                 .replace("</?s>".toRegex(RegexOption.IGNORE_CASE), "---")
+                .replace("<br>".toRegex(RegexOption.IGNORE_CASE), "\n")
         }
     }
 }
