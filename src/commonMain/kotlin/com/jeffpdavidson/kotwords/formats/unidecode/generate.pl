@@ -16,9 +16,13 @@ use Text::Unidecode;
 
 # Custom mappings to be applied on top of the default set from unidecode.
 my %custom_mappings = (
-    0x2605 => "*",  # ★
-    0x266d => "b",  # ♭
-    0x266f => "#",  # ♯
+    0x2190 => "<-",  # ←
+    0x2191 => "^",   # ↑
+    0x2192 => "->",  # →
+    0x2193 => "v",   # ↓
+    0x2605 => "*",   # ★
+    0x266d => "b",   # ♭
+    0x266f => "#",   # ♯
 );
 
 print "private val data = mapOf(\n";
