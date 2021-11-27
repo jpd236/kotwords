@@ -129,7 +129,7 @@ class AcrosticForm {
     private suspend fun createPuzzleFromApzFile(): Puzzle {
         val apz = Interop.readFile(file.getValue()).decodeToString()
         return Apz.fromXmlString(apz).toAcrostic(
-            completionMessage = completionMessage.getValue(),
+            completionMessage = apzFileForm.getCompletionMessage(),
             includeAttribution = apzFileIncludeAttribution.getValue(),
         ).asPuzzle()
     }
