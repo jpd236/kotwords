@@ -69,7 +69,11 @@ class SpiralForm {
             inwardClues = inwardClues.getValue().split("\n").map { it.trim() },
             outwardAnswers = outwardAnswers.getValue().split("\\s+".toRegex()),
             outwardClues = outwardClues.getValue().split("\n").map { it.trim() },
-            inwardCellsInput = inwardCells.getValue().split("\\s+".toRegex()),
+            inwardCellsInput = if (inwardCells.getValue().isBlank()) {
+                listOf()
+            } else {
+                inwardCells.getValue().split("\\s+".toRegex())
+            },
         )
         return spiral.asPuzzle()
     }
