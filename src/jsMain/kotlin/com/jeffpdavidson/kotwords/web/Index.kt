@@ -16,6 +16,7 @@ object Index {
         "Acrostic",
         "Around the Bend",
         "Coded",
+        "Crosswordle",
         "Eight Tracks",
         "Jelly Roll",
         "Labyrinth",
