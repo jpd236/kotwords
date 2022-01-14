@@ -1,7 +1,9 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.formats.Pdf.asPdf
 import com.jeffpdavidson.kotwords.formats.Pdf.splitTextToLines
 import com.jeffpdavidson.kotwords.readBinaryResource
+import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -9,8 +11,8 @@ import kotlin.test.assertEquals
 class PdfTest {
     @Test
     fun asPdf() = runTest {
-        PdfComparator.assertPdfEquals(
-            readBinaryResource(PdfComparator::class, "pdf/test.pdf"),
+        ImageComparator.assertPdfEquals(
+            readBinaryResource(ImageComparator::class, "pdf/test.pdf"),
             AcrossLite(readBinaryResource(PdfTest::class, "puz/test-simple.puz"))
                 .asCrossword().asPdf(blackSquareLightnessAdjustment = 0.75f)
         )
@@ -18,10 +20,19 @@ class PdfTest {
 
     @Test
     fun asPdf_customFonts() = runTest {
-        PdfComparator.assertPdfEquals(
-            readBinaryResource(PdfComparator::class, "pdf/test-customFonts.pdf"),
+        ImageComparator.assertPdfEquals(
+            readBinaryResource(ImageComparator::class, "pdf/test-customFonts.pdf"),
             AcrossLite(readBinaryResource(PdfTest::class, "puz/test.puz"))
                 .asCrossword().asPdf(blackSquareLightnessAdjustment = 0.75f, fontFamily = getNotoSerifFontFamily())
+        )
+    }
+
+    @Test
+    fun asPdf_bgImages() = runTest {
+        ImageComparator.assertPdfEquals(
+            readBinaryResource(ImageComparator::class, "pdf/test-bgimage.pdf"),
+            Jpz.fromXmlString(readStringResource(PdfTest::class, "jpz/test-bgimage.jpz"))
+                .asPuzzle().asPdf(blackSquareLightnessAdjustment = 0.75f, fontFamily = getNotoSerifFontFamily())
         )
     }
 
@@ -135,15 +146,4 @@ class PdfTest {
             document.toByteArray()
         }
     }
-}
-
-/**
- * Comparator to use to evaluate whether two PDFs are equal.
- *
- * Since PDFs are generally non-deterministic due to timestamps and unique identifiers, and also have many different
- * ways to render the same content, we generally want to compare PDFs by rendering them as images and comparing the
- * image contents.
- */
-expect object PdfComparator {
-    suspend fun assertPdfEquals(expected: ByteArray, actual: ByteArray)
 }

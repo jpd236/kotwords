@@ -59,7 +59,7 @@ class SpiralForm {
         }
     }
 
-    private fun createPuzzle(): Puzzle {
+    private suspend fun createPuzzle(): Puzzle {
         val spiral = Spiral(
             title = title.getValue(),
             creator = creator.getValue(),

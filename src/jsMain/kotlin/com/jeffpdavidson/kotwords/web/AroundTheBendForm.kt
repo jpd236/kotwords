@@ -38,7 +38,7 @@ class AroundTheBendForm {
         }
     }
 
-    private fun createPuzzle(): Puzzle {
+    private suspend fun createPuzzle(): Puzzle {
         val aroundTheBend = AroundTheBend(
             title = title.getValue(),
             creator = creator.getValue(),

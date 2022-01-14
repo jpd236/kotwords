@@ -30,10 +30,10 @@ class AcrossLiteForm {
         }
     }
 
-    private suspend fun createPuzzle(): Puzzle = AcrossLite(Interop.readFile(file.getValue())).asPuzzle()
+    private suspend fun createPuzzle(): Puzzle = AcrossLite(Interop.readBlob(file.getValue())).asPuzzle()
 
     private suspend fun createPdf(blackSquareLightnessAdjustment: Float): ByteArray =
-        AcrossLite(Interop.readFile(file.getValue())).asPuzzle().asPdf(
+        AcrossLite(Interop.readBlob(file.getValue())).asPuzzle().asPdf(
             fontFamily = PdfFonts.getNotoFontFamily(),
             blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
         )

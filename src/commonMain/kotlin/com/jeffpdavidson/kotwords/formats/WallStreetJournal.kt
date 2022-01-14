@@ -15,7 +15,7 @@ class WallStreetJournal(
     private val includeDateInTitle: Boolean = true
 ) : Puzzleable {
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val response = JsonSerializer.fromJson<WallStreetJournalJson.CrosswordJson>(json)
         val grid = response.data.grid.map { row ->
             row.map { square ->

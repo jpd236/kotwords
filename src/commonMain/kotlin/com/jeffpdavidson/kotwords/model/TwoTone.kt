@@ -32,7 +32,7 @@ data class TwoTone(
         }
     }
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val numberedSquares = mutableSetOf<Int>()
         fun addNumberedSquares(answers: List<String>, startIndex: Int, isEveryOther: Boolean) {
             answers.fold(startIndex) { i, answer ->

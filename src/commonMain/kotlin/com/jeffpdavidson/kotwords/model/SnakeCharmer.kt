@@ -21,7 +21,7 @@ data class SnakeCharmer(
         }
     }
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val cellNumbersMap = mutableMapOf<Pair<Int, Int>, MutableList<Int>>()
         val solutionMap = mutableMapOf<Pair<Int, Int>, Char>()
         val words = mutableListOf<MutableList<Pair<Int, Int>>>()

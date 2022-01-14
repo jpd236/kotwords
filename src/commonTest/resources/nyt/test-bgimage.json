@@ -1,0 +1,278 @@
+{
+  "gamePageData": {
+    "clueLists": [
+      {
+        "clues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "name": "Across"
+      },
+      {
+        "clues": [
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "name": "Down"
+      }
+    ],
+    "meta": {
+      "constructors": [
+        "Jeff Davidson"
+      ],
+      "copyright": "2018",
+      "editor": "Jeff Editor",
+      "notes": [
+        {
+          "text": "Notepad text goes here.",
+          "platforms": {
+            "web": true
+          }
+        }
+      ],
+      "publicationDate": "2020-01-08"
+    },
+    "dimensions": {
+      "rowCount": 5,
+      "columnCount": 5
+    },
+    "cells": [
+      {
+        "type": 1,
+        "answer": "A",
+        "label": "1"
+      },
+      {
+        "type": 1,
+        "answer": "B",
+        "label": "2"
+      },
+      {
+        "type": 1,
+        "answer": "C",
+        "label": "3"
+      },
+      {
+        "type": 1,
+        "answer": "D",
+        "label": "4"
+      },
+      {
+        "type": 0
+      },
+      {
+        "type": 1,
+        "answer": "E",
+        "label": "5"
+      },
+      {
+        "type": 1,
+        "answer": "F"
+      },
+      {
+        "type": 1,
+        "answer": "G"
+      },
+      {
+        "type": 1,
+        "answer": "H"
+      },
+      {
+        "type": 0
+      },
+      {
+        "type": 2,
+        "answer": "I",
+        "label": "6"
+      },
+      {
+        "type": 1,
+        "answer": "J"
+      },
+      {
+        "type": 1,
+        "answer": "XYZ"
+      },
+      {
+        "type": 1,
+        "answer": "L"
+      },
+      {
+        "type": 2,
+        "answer": "M",
+        "label": "7"
+      },
+      {
+        "type": 0
+      },
+      {
+        "type": 1,
+        "answer": "N",
+        "label": "8"
+      },
+      {
+        "type": 1,
+        "answer": "O"
+      },
+      {
+        "type": 1,
+        "answer": "P"
+      },
+      {
+        "type": 1,
+        "answer": "Q"
+      },
+      {
+        "type": 0
+      },
+      {
+        "type": 1,
+        "answer": "1",
+        "label": "9"
+      },
+      {
+        "type": 1,
+        "answer": "2"
+      },
+      {
+        "type": 1,
+        "answer": "$"
+      },
+      {
+        "type": 1,
+        "answer": "@"
+      }
+    ],
+    "clues": [
+      {
+        "cells": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "label": "1",
+        "text": "First across clue with special characters &#945;&#946;&#947;&#948;&#949;"
+      },
+      {
+        "cells": [
+          5,
+          6,
+          7,
+          8
+        ],
+        "label": "5",
+        "text": "Second across clue"
+      },
+      {
+        "cells": [
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "label": "6",
+        "text": "Third across clue"
+      },
+      {
+        "cells": [
+          16,
+          17,
+          18,
+          19
+        ],
+        "label": "8",
+        "text": "Fourth across clue"
+      },
+      {
+        "cells": [
+          21,
+          22,
+          23,
+          24
+        ],
+        "label": "9",
+        "text": "Fifth across clue"
+      },
+      {
+        "cells": [
+          0,
+          5,
+          10
+        ],
+        "label": "1",
+        "text": "First down clue"
+      },
+      {
+        "cells": [
+          1,
+          6,
+          11,
+          16,
+          21
+        ],
+        "label": "2",
+        "text": "Second down clue"
+      },
+      {
+        "cells": [
+          2,
+          7,
+          12,
+          17,
+          22
+        ],
+        "label": "3",
+        "text": "Third down clue"
+      },
+      {
+        "cells": [
+          3,
+          8,
+          13,
+          18,
+          23
+        ],
+        "label": "4",
+        "text": "Fourth down clue"
+      },
+      {
+        "cells": [
+          14,
+          19,
+          24
+        ],
+        "label": "7",
+        "text": "Fifth down clue"
+      }
+    ],
+    "overlays": {
+      "beforeStart": "https://fake.url/bgimage.png"
+    },
+    "board": {
+      "children": [
+        {
+          "attributes": {
+            "data-group": "grid"
+          },
+          "children": [
+            {
+              "name": "rect",
+              "attributes": {
+                "width": "250.00",
+                "strokeWidth": "3.00"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

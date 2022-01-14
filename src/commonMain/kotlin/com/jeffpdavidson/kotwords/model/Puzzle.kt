@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
+import okio.ByteString
+
 // TODO: Validate data structures.
 data class Puzzle(
     val title: String,
@@ -38,11 +40,23 @@ data class Puzzle(
         BOTTOM
     }
 
+    enum class ImageFormat {
+        GIF,
+        JPG,
+        PNG,
+    }
+
+    sealed interface Image {
+        object None : Image
+        data class Data(val format: ImageFormat, val bytes: ByteString) : Image
+    }
+
     data class Cell(
         val solution: String = "",
         val entry: String = "",
         val foregroundColor: String = "",
         val backgroundColor: String = "",
+        val backgroundImage: Image = Image.None,
         val number: String = "",
         val topRightNumber: String = "",
         val cellType: CellType = CellType.REGULAR,

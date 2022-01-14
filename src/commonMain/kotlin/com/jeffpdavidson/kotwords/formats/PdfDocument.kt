@@ -55,6 +55,9 @@ expect class PdfDocument() {
     /** Draw a stroke around the current path and fill it. */
     fun fillAndStroke()
 
+    /** Draw the given image from bottom-left coordinates ([x], [y]). */
+    fun drawImage(x: Float, y: Float, width: Float, height: Float, imageData: ByteArray)
+
     /** Return this document as a PDF [ByteArray]. */
     fun toByteArray(): ByteArray
 }

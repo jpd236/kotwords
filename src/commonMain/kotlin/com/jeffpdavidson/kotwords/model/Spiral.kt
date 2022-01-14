@@ -32,7 +32,7 @@ data class Spiral(
         }
     }
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val sideLength = SpiralGrid.getSideLength(inwardCells.size)
         val squareList = SpiralGrid.createSquareList(sideLength)
         val gridMap = squareList.mapIndexed { i, (x, y) ->

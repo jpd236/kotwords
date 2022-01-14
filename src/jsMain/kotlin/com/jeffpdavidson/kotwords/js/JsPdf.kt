@@ -26,6 +26,18 @@ internal external class JsPDF(options: JsPdfOptions = definedExternally) {
     fun fill()
     fun fillStroke()
 
+    fun addImage(
+        imageData: String,
+        format: String = definedExternally,
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float,
+        alias: String = definedExternally,
+        compression: String = definedExternally,
+        rotation: Float = definedExternally,
+    )
+
     fun output(type: String): Any
 }
 

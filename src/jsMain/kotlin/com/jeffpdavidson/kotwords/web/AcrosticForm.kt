@@ -127,14 +127,14 @@ class AcrosticForm {
     }
 
     private suspend fun createPuzzleFromApzFile(): Puzzle {
-        val apz = Interop.readFile(file.getValue()).decodeToString()
+        val apz = Interop.readBlob(file.getValue()).decodeToString()
         return Apz.fromXmlString(apz).toAcrostic(
             completionMessage = apzFileForm.getCompletionMessage(),
             includeAttribution = apzFileIncludeAttribution.getValue(),
         ).asPuzzle()
     }
 
-    private fun createPuzzleFromManualEntry(): Puzzle {
+    private suspend fun createPuzzleFromManualEntry(): Puzzle {
         if (gridKey.getValue().isBlank() && answers.getValue().isBlank()) {
             throw IllegalArgumentException("Must provide either grid key or answers")
         }

@@ -54,7 +54,7 @@ class LabyrinthForm {
         }
     }
 
-    private fun createPuzzle(): Puzzle {
+    private suspend fun createPuzzle(): Puzzle {
         val labyrinth = Labyrinth(
             title = title.getValue(),
             creator = creator.getValue(),

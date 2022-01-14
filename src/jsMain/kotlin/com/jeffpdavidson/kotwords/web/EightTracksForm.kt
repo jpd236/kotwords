@@ -70,7 +70,7 @@ class EightTracksForm {
         }
     }
 
-    private fun createPuzzle(): Puzzle {
+    private suspend fun createPuzzle(): Puzzle {
         val eightTracks = EightTracks(
             title = title.getValue(),
             creator = creator.getValue(),

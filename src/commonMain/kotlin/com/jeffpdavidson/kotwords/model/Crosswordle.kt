@@ -34,7 +34,7 @@ data class Crosswordle(
         }
     }
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val cellStatuses = grid.map { row ->
             val isUsed = row.mapIndexed { x, ch -> answer[x] == ch }.toMutableList()
             row.mapIndexed { x, ch ->
@@ -102,7 +102,7 @@ data class Crosswordle(
         } + puzzleGrid[0].indices.map { x ->
             Puzzle.Word(
                 id = 1000 + x + 1,
-                cells = puzzleGrid.dropLast(1).indices.map { y -> Puzzle.Coordinate(x, y)},
+                cells = puzzleGrid.dropLast(1).indices.map { y -> Puzzle.Coordinate(x, y) },
             )
         }
 

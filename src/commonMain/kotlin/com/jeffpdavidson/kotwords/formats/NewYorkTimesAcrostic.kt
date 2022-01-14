@@ -3,14 +3,13 @@ package com.jeffpdavidson.kotwords.formats
 import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.formats.json.NewYorkTimesAcrosticJson
 import com.jeffpdavidson.kotwords.model.Acrostic
-import com.jeffpdavidson.kotwords.model.Puzzle
 import okio.ByteString.Companion.decodeBase64
 
 private val PUZZLE_DATA_REGEX = """\bgameData\s*=\s*"([^']+)"""".toRegex()
 
 class NewYorkTimesAcrostic(val json: String) : Puzzleable {
 
-    override fun asPuzzle(): Puzzle = asAcrostic().asPuzzle()
+    override suspend fun asPuzzle() = asAcrostic().asPuzzle()
 
     fun asAcrostic(): Acrostic {
         val response = JsonSerializer.fromJson<NewYorkTimesAcrosticJson.Data>(json)

@@ -17,7 +17,7 @@ class WorldOfCrosswords(
     private val copyright: String
 ) : Puzzleable {
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val data = JsonSerializer.fromJson<WorldOfCrosswordsJson>(json)
         if (!data.success) {
             throw InvalidFormatException("API failure")

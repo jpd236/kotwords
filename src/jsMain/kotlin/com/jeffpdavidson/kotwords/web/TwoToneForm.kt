@@ -76,7 +76,7 @@ class TwoToneForm {
         }
     }
 
-    private fun createPuzzle(): Puzzle {
+    private suspend fun createPuzzle(): Puzzle {
         val twoTone = TwoTone(
             title = title.getValue(),
             creator = creator.getValue(),

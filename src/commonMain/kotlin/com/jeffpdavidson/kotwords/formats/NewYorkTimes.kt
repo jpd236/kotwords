@@ -6,6 +6,10 @@ import com.jeffpdavidson.kotwords.model.Puzzle
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.format
 import com.soywiz.klock.parseDate
+import okio.ByteString
+import okio.ByteString.Companion.toByteString
+import okio.use
+import kotlin.math.roundToInt
 
 private val PUZZLE_DATA_REGEX = """\bpluribus\s*=\s*'([^']+)'""".toRegex()
 
@@ -15,13 +19,55 @@ private val PUBLICATION_DATE_FORMAT = DateFormat("YYYY-MM-dd")
 /**
  * Container for a puzzle in the New York Times embedded web format.
  */
-class NewYorkTimes(private val json: String) : Puzzleable {
+class NewYorkTimes(json: String, private val httpGetter: (suspend (String) -> ByteArray)? = null) : Puzzleable {
+    private val data = JsonSerializer.fromJson<NewYorkTimesJson.Data>(json).gamePageData
 
-    override fun asPuzzle(): Puzzle {
-        val data = JsonSerializer.fromJson<NewYorkTimesJson.Data>(json).gamePageData
+    override suspend fun asPuzzle(): Puzzle {
         val publicationDate = PUBLICATION_DATE_FORMAT.parseDate(data.meta.publicationDate)
         val puzzleName = if (data.meta.publishStream == "mini") "NY Times Mini Crossword" else "NY Times"
         val baseTitle = "$puzzleName, ${TITLE_DATE_FORMAT.format(publicationDate)}"
+
+        val backgroundImageUrl = getBackgroundImageUrl()
+        var hasUnsupportedFeatures = false
+        val backgroundImageData =
+            if (backgroundImageUrl == null || httpGetter == null) {
+                // If we have a background image, but can't load it, add the unsupported features flag. Background
+                // pictures may be instrumental to the puzzle (e.g. 2021-02-14).
+                hasUnsupportedFeatures = backgroundImageUrl != null
+                null
+            } else {
+                httpGetter.invoke(backgroundImageUrl)
+            }
+        val cellBackgrounds = mutableMapOf<Pair<Int, Int>, ByteString>()
+        if (backgroundImageData != null) {
+            val format = ParsedImageFormat.fromExtension(backgroundImageUrl!!.substringAfterLast('.'))
+            ParsedImage.parse(format, backgroundImageData).use { backgroundImage ->
+                val borderWidth = getBorderWidth(backgroundImage.width)
+                if (borderWidth == null) {
+                    // Have a background image but can't determine the border width to crop it properly.
+                    hasUnsupportedFeatures = true
+                    return@use
+                }
+                // Slice the image into cells which can be set as background images in each cell.
+                // Only include images which contain non-transparent pixels.
+                val cellWidth = (backgroundImage.width - 2 * borderWidth) / data.dimensions.columnCount
+                val cellHeight = (backgroundImage.height - 2 * borderWidth) / data.dimensions.rowCount
+                for (y in 0 until data.dimensions.rowCount) {
+                    for (x in 0 until data.dimensions.columnCount) {
+                        backgroundImage.crop(
+                            width = cellWidth.roundToInt(),
+                            height = cellHeight.roundToInt(),
+                            x = (borderWidth + x * cellWidth).roundToInt(),
+                            y = (borderWidth + y * cellHeight).roundToInt(),
+                        ).use { cellImage ->
+                            if (cellImage.containsVisiblePixels()) {
+                                cellBackgrounds[x to y] = cellImage.toPngBytes().toByteString()
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         val grid = (0 until data.dimensions.rowCount).map { y ->
             (0 until data.dimensions.columnCount).map { x ->
@@ -38,6 +84,8 @@ class NewYorkTimes(private val json: String) : Puzzleable {
                     } else {
                         Puzzle.BackgroundShape.NONE
                     }
+                val cellBackground =
+                    cellBackgrounds[x to y]?.let { Puzzle.Image.Data(Puzzle.ImageFormat.PNG, it) } ?: Puzzle.Image.None
                 Puzzle.Cell(
                     solution = Encodings.decodeHtmlEntities(cell.answer),
                     backgroundColor = backgroundColor,
@@ -45,16 +93,12 @@ class NewYorkTimes(private val json: String) : Puzzleable {
                     cellType = cellType,
                     backgroundShape = backgroundShape,
                     moreAnswers = cell.moreAnswers.valid,
+                    backgroundImage = cellBackground,
                 )
             }
         }
 
         val webNotes = data.meta.notes?.filter { it.platforms.web }
-
-        // Background pictures are unsupported and may be instrumental to the puzzle (e.g. 2021-02-14).
-        val hasUnsupportedFeatures =
-            data.overlays.beforeStart is NewYorkTimesJson.UrlValue.StringValue &&
-                    data.overlays.beforeStart.value.isNotEmpty()
 
         return Puzzle(
             title = listOfNotNull(baseTitle, data.meta.title.normalizeEntities().ifEmpty { null }).joinToString(" "),
@@ -78,6 +122,19 @@ class NewYorkTimes(private val json: String) : Puzzleable {
         )
     }
 
+    /** Return the list of extra data URLs that will be requested with [httpGetter] by [asPuzzle]. */
+    fun getExtraDataUrls(): List<String> {
+        return listOfNotNull(getBackgroundImageUrl())
+    }
+
+    private fun getBackgroundImageUrl(): String? {
+        return if (data.overlays.beforeStart is NewYorkTimesJson.UrlValue.StringValue) {
+            data.overlays.beforeStart.value.ifEmpty { null }
+        } else {
+            null
+        }
+    }
+
     private fun renderByline(constructors: List<String>, editor: String): String {
         val joinedConstructors = when (constructors.size) {
             0 -> null
@@ -88,10 +145,32 @@ class NewYorkTimes(private val json: String) : Puzzleable {
         return listOfNotNull(joinedConstructors, editor.ifEmpty { null }).joinToString(" / ")
     }
 
-    companion object {
-        fun fromHtml(html: String): NewYorkTimes = NewYorkTimes(extractPuzzleJson(html))
+    /**
+     * Get the border width of the grid, in pixels, given the width of the space the grid is rendered to.
+     *
+     * The board element is the SVG (in a deconstructed JSON format); we search for the "grid" data-group, which has a
+     * "rect" child with a width and relative stroke width. We then scale up the stroke width proportionally to the
+     * given width.
+     */
+    internal fun getBorderWidth(imageWidth: Int): Double? {
+        val grid = data.board.children.firstOrNull { it.attributes.getOrElse("data-group") { "" } == "grid" }
+        val rect = grid?.children?.firstOrNull { it.name == "rect" }
+        val width = rect?.attributes?.getOrElse("width") { "" } ?: ""
+        val strokeWidth = rect?.attributes?.getOrElse("strokeWidth") { "" } ?: ""
+        return if (width.isEmpty() || strokeWidth.isEmpty()) {
+            null
+        } else {
+            val strokeWidthDouble = strokeWidth.toDouble()
+            strokeWidthDouble * imageWidth / (width.toDouble() + strokeWidthDouble)
+        }
+    }
 
-        fun fromPluribus(pluribus: String): NewYorkTimes = NewYorkTimes(decodePluribus(pluribus))
+    companion object {
+        fun fromHtml(html: String, httpGetter: (suspend (String) -> ByteArray)? = null): NewYorkTimes =
+            NewYorkTimes(extractPuzzleJson(html), httpGetter)
+
+        fun fromPluribus(pluribus: String, httpGetter: (suspend (String) -> ByteArray)? = null): NewYorkTimes =
+            NewYorkTimes(decodePluribus(pluribus), httpGetter)
 
         internal fun extractPuzzleJson(html: String): String {
             // Look for "pluribus='[data]'" inside <script> tags; this is JSON puzzle data

@@ -34,7 +34,7 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
         }
     }
 
-    override fun asPuzzle(): Puzzle = asCrossword().asPuzzle()
+    override suspend fun asPuzzle() = asCrossword().asPuzzle()
 
     fun asCrossword(): Crossword {
         return withBinaryDataBuffer {
@@ -198,7 +198,8 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
         ): ByteArray {
             require(supportsAcrossLite()) { "Cannot save puzzle as an Across Lite file." }
 
-            var unsupportedFeatures = hasUnsupportedFeatures || clues.size > 2
+            var unsupportedFeatures =
+                hasUnsupportedFeatures || clues.size > 2 || grid.flatAny { it.backgroundImage != Puzzle.Image.None }
 
             // Validate that the solution and entry grids only contains supported characters.
             val cleanedGrid = grid.map { row ->

@@ -25,7 +25,7 @@ data class Labyrinth(
         }
     }
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val puzzleGrid = grid.mapIndexed { y, row ->
             row.mapIndexed { x, ch ->
                 // Calculate the borders. We remove borders from the outer edges of the grid as well as between any two

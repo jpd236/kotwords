@@ -12,7 +12,7 @@ data class SpellWeaving(
     val clues: List<String>
 ) : Puzzleable {
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val filteredAnswers = answers.map { answer -> answer.uppercase().filter { it in 'A'..'Z' } }
         val length = filteredAnswers.sumOf { it.length }
         val middleRowLengthDouble = (1 + sqrt(4 * length - 3.0)) / 2

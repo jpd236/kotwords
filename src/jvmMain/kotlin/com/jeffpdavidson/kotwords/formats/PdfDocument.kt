@@ -6,6 +6,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream
 import org.apache.pdfbox.pdmodel.font.PDFont
 import org.apache.pdfbox.pdmodel.font.PDType0Font
 import org.apache.pdfbox.pdmodel.font.PDType1Font
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
@@ -86,6 +87,11 @@ actual class PdfDocument {
     actual fun stroke() = content.stroke()
     actual fun fill() = content.fill()
     actual fun fillAndStroke() = content.fillAndStroke()
+
+    actual fun drawImage(x: Float, y: Float, width: Float, height: Float, imageData: ByteArray) {
+        val image = PDImageXObject.createFromByteArray(document, imageData, /* name= */ null)
+        content.drawImage(image, x, y, width, height)
+    }
 
     actual fun toByteArray(): ByteArray {
         content.close()

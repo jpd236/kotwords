@@ -42,7 +42,7 @@ data class Crossword(
         // TODO: Validate standard grid numbering / clues.
     }
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val acrossPuzzleClues = mutableListOf<Puzzle.Clue>()
         val downPuzzleClues = mutableListOf<Puzzle.Clue>()
         val words = mutableListOf<Puzzle.Word>()
@@ -114,7 +114,7 @@ data class Crossword(
      *                                       squares (i.e. to save ink). 0 indicates no adjustment; 1 would be fully
      *                                       white.
      */
-    fun asPdf(
+    suspend fun asPdf(
         fontFamily: PdfFontFamily = FONT_FAMILY_TIMES_ROMAN,
         blackSquareLightnessAdjustment: Float = 0f
     ): ByteArray = asPuzzle().asPdf(fontFamily, blackSquareLightnessAdjustment)

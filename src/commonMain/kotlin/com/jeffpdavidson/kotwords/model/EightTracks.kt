@@ -21,7 +21,7 @@ data class EightTracks(
         COUNTERCLOCKWISE
     }
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val gridMap = mutableMapOf<Pair<Int, Int>, Puzzle.Cell>()
         val gridWidth = trackAnswers.size * 2 + 1
         val clueLists = mutableListOf<Puzzle.ClueList>()

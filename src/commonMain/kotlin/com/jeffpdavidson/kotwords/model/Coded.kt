@@ -18,7 +18,7 @@ data class Coded(
         }
     }
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val assignmentMap = assignments.mapIndexed { i, ch -> ch to (i + 1) }.toMap()
         val puzzleGrid = grid.map { row ->
             row.map { ch ->

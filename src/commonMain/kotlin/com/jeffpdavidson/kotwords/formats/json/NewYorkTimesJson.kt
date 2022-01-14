@@ -118,6 +118,12 @@ internal object NewYorkTimesJson {
         val text: String,
     )
 
+    @Serializable
+    data class XmlElement(
+        val name: String = "",
+        val attributes: Map<String, String> = mapOf(),
+        val children: List<XmlElement> = listOf(),
+    )
 
     @Serializable
     data class GamePageData(
@@ -126,7 +132,8 @@ internal object NewYorkTimesJson {
         val dimensions: Dimensions,
         val cells: List<Cell>,
         val clues: List<Clue>,
-        val overlays: Overlays = Overlays()
+        val overlays: Overlays = Overlays(),
+        val board: XmlElement = XmlElement(),
     )
 
     @Serializable

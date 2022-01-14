@@ -8,5 +8,5 @@ open class InvalidFormatException(message: String) : Exception(message)
 /** Interface for data that can be parsed as a [Puzzle]. */
 interface Puzzleable {
     /** Parse and return the data as a [Puzzle]. */
-    fun asPuzzle(): Puzzle
+    suspend fun asPuzzle(): Puzzle
 }

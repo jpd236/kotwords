@@ -31,6 +31,17 @@ internal object PuzzleMeJson {
     )
 
     @Serializable
+    internal data class Image(
+        // Base64-encoded image binary data
+        val image: String,
+        val startX: Int,
+        val startY: Int,
+        val endX: Int,
+        val endY: Int,
+        val imageFormat: String,
+    )
+
+    @Serializable
     internal data class Data(
         val title: String,
         val description: String,
@@ -48,5 +59,6 @@ internal object PuzzleMeJson {
         val preRevealIdxs: List<List<Boolean>> = listOf(),
         // Clue numbers for each square. Normally inferrable but may be needed for non-traditional grids.
         val clueNums: List<List<Int>> = listOf(),
+        val imagesInGrid: List<Image> = listOf(),
     )
 }

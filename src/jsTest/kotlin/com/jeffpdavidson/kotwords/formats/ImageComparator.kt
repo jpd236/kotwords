@@ -18,15 +18,21 @@ import org.w3c.dom.ImageData
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-actual object PdfComparator {
+actual object ImageComparator {
     init {
         // TODO: Is there a better way to bundle this source?
         GlobalWorkerOptions.workerSrc = "/base/build/js/node_modules/pdfjs-dist/legacy/build/pdf.worker.min.js"
     }
 
     actual suspend fun assertPdfEquals(expected: ByteArray, actual: ByteArray) {
-        val expectedImageData = getImageData(expected)
-        val actualImageData = getImageData(actual)
+        assertImageEquals(getPdfImageData(expected), getPdfImageData(actual))
+    }
+
+    actual suspend fun assertPngEquals(expected: ByteArray, actual: ByteArray) {
+        assertImageEquals(getPngImageData(expected), getPngImageData(actual))
+    }
+
+    private fun assertImageEquals(expectedImageData: ImageData, actualImageData: ImageData) {
         assertEquals(expectedImageData.width, actualImageData.width)
         assertEquals(expectedImageData.height, actualImageData.height)
         assertEquals(expectedImageData.data.length, actualImageData.data.length)
@@ -36,13 +42,7 @@ actual object PdfComparator {
     }
 
     /** Render the given PDF as an image on an HTML canvas and return the corresponding [ImageData] */
-    private suspend fun getImageData(pdfBytes: ByteArray): ImageData {
-        val canvasId = "pdf-canvas"
-        val canvasElem = window.document.body?.append {
-            canvas {
-                id = canvasId
-            }
-        }?.get(0) as HTMLCanvasElement
+    private suspend fun getPdfImageData(pdfBytes: ByteArray): ImageData = renderImage { canvasElem, context ->
         val pdf = getDocument(Uint8Array(pdfBytes.toArrayBuffer())).promise.await()
         assertEquals(1, pdf.numPages)
         val page = pdf.getPage(1).await()
@@ -50,8 +50,24 @@ actual object PdfComparator {
         assertTrue(viewport.height > 0 && viewport.width > 0)
         canvasElem.height = viewport.height
         canvasElem.width = viewport.width
-        val context = canvasElem.getContext("2d") as CanvasRenderingContext2D
         page.render(newPdfRenderParams(canvasContext = context, viewport = viewport)).promise.await()
+    }
+
+    private suspend fun getPngImageData(imageBytes: ByteArray): ImageData = renderImage { canvasElem, context ->
+        ParsedImage.renderToCanvas(ParsedImageFormat.PNG, imageBytes, canvasElem, context)
+    }
+
+    private suspend fun renderImage(
+        renderFn: suspend (HTMLCanvasElement, CanvasRenderingContext2D) -> Unit
+    ): ImageData {
+        val canvasId = "image-canvas"
+        val canvasElem = window.document.body?.append {
+            canvas {
+                id = canvasId
+            }
+        }?.get(0) as HTMLCanvasElement
+        val context = canvasElem.getContext("2d") as CanvasRenderingContext2D
+        renderFn(canvasElem, context)
         val imageData = context.getImageData(0.0, 0.0, canvasElem.width.toDouble(), canvasElem.height.toDouble())
         canvasElem.remove()
         return imageData

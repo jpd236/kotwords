@@ -1,12 +1,11 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.RowsGarden
 import net.mamoe.yamlkt.Yaml
 
 /** Container for a Rows Garden puzzle in the .rgz format. */
 class Rgz(val rg: String) : Puzzleable {
-    override fun asPuzzle(): Puzzle = asRowsGarden().asPuzzle()
+    override suspend fun asPuzzle() = asRowsGarden().asPuzzle()
 
     fun asRowsGarden(
         lightBloomColor: String = "#FFFFFF",

@@ -3,7 +3,6 @@ package com.jeffpdavidson.kotwords.formats
 import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.formats.json.WallStreetJournalJson
 import com.jeffpdavidson.kotwords.model.Acrostic
-import com.jeffpdavidson.kotwords.model.Puzzle
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.parse
 
@@ -12,7 +11,7 @@ private val PUBLISH_DATE_FORMAT = DateFormat("EEEE, dd MMMM yyyy")
 /** Container for an acrostic puzzle in the Wall Street Journal JSON format. */
 class WallStreetJournalAcrostic(private val json: String) : Puzzleable {
 
-    override fun asPuzzle(): Puzzle = asAcrostic().asPuzzle()
+    override suspend fun asPuzzle() = asAcrostic().asPuzzle()
 
     fun asAcrostic(): Acrostic {
         val response = JsonSerializer.fromJson<WallStreetJournalJson.AcrosticJson>(json)

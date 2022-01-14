@@ -41,7 +41,7 @@ data class TwistsAndTurns(
         }
     }
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         var x = 1
         var y = 1
         val turnsCluesList = mutableListOf<Puzzle.Clue>()
@@ -115,7 +115,7 @@ data class TwistsAndTurns(
         )
     }
 
-    fun asPdf(
+    suspend fun asPdf(
         fontFamily: PdfFontFamily = FONT_FAMILY_TIMES_ROMAN,
         blackSquareLightnessAdjustment: Float = 0f,
     ): ByteArray {

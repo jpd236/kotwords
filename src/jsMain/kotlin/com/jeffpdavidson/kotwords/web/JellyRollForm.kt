@@ -78,7 +78,7 @@ class JellyRollForm {
         }
     }
 
-    private fun createPuzzle(): Puzzle {
+    private suspend fun createPuzzle(): Puzzle {
         val jellyRoll = JellyRoll(
             title = title.getValue(),
             creator = creator.getValue(),

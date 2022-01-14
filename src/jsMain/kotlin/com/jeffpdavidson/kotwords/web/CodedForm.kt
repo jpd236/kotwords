@@ -63,7 +63,7 @@ class CodedForm {
         }
     }
 
-    private fun createPuzzle(): Puzzle {
+    private suspend fun createPuzzle(): Puzzle {
         if (assignments.getValue().isBlank()) {
             // While fromRawInput will generate and use an assignment if the provided one is blank, we proactively
             // generate it here so we can update the form with the result, ensuring the exact same output can be
@@ -86,7 +86,7 @@ class CodedForm {
         return coded.asPuzzle()
     }
 
-    private fun loadPuzFile(puzFile: ByteArray) {
+    private suspend fun loadPuzFile(puzFile: ByteArray) {
         val puzzle = AcrossLite(puzFile).asPuzzle()
         title.setValue(puzzle.title)
         creator.setValue(puzzle.creator)

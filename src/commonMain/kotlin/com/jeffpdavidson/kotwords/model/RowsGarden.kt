@@ -24,7 +24,7 @@ data class RowsGarden(
     @Serializable
     data class Entry(val clue: String, val answer: String)
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         require(rows.size > 2) {
             "Must have at least 3 rows"
         }

@@ -1,8 +1,8 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
+import com.jeffpdavidson.kotwords.formats.ImageComparator.assertPdfEquals
 import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
-import com.jeffpdavidson.kotwords.formats.PdfComparator.assertPdfEquals
 import com.jeffpdavidson.kotwords.formats.getNotoSerifFontFamily
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource

@@ -12,6 +12,7 @@ import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
+import okio.ByteString.Companion.decodeBase64
 
 private const val CCA_NS = "http://crossword.info/xml/crossword-compiler-applet"
 private const val PUZZLE_NS = "http://crossword.info/xml/rectangular-puzzle"
@@ -69,6 +70,13 @@ sealed interface Jpz : Puzzleable {
                 data class GridLook(@SerialName("numbering-scheme") val numberingScheme: String = "normal")
 
                 @Serializable
+                @SerialName("background-picture")
+                data class BackgroundPicture(
+                    @SerialName("encoded-image") @XmlElement(true) val encodedImage: String,
+                    @SerialName("format") val format: String,
+                )
+
+                @Serializable
                 @SerialName("cell")
                 data class Cell(
                     @SerialName("x") val x: Int,
@@ -76,6 +84,7 @@ sealed interface Jpz : Puzzleable {
                     @SerialName("solution") val solution: String? = null,
                     @SerialName("foreground-color") val foregroundColor: String? = null,
                     @SerialName("background-color") val backgroundColor: String? = null,
+                    val backgroundPicture: BackgroundPicture? = null,
                     @SerialName("number") val number: String? = null,
                     @SerialName("type") val type: String? = null,
                     @SerialName("solve-state") val solveState: String? = null,
@@ -146,7 +155,7 @@ sealed interface Jpz : Puzzleable {
         return Zip.zip(filename, toXmlString().encodeToByteArray())
     }
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val crossword: RectangularPuzzle.Crossword
         val puzzleType: Puzzle.PuzzleType
         if (rectangularPuzzle.acrostic != null) {
@@ -176,6 +185,18 @@ sealed interface Jpz : Puzzleable {
                 } else {
                     Puzzle.BackgroundShape.NONE
                 }
+            val backgroundImage =
+                if (it.backgroundPicture != null) {
+                    val format = when (it.backgroundPicture.format) {
+                        "GIF" -> Puzzle.ImageFormat.GIF
+                        "JPG" -> Puzzle.ImageFormat.JPG
+                        "PNG" -> Puzzle.ImageFormat.PNG
+                        else -> throw UnsupportedOperationException("Unknown image type ${it.backgroundPicture.format}")
+                    }
+                    Puzzle.Image.Data(format, it.backgroundPicture.encodedImage.decodeBase64()!!)
+                } else {
+                    Puzzle.Image.None
+                }
             gridMap[position] = Puzzle.Cell(
                 solution = it.solution ?: "",
                 foregroundColor = it.foregroundColor ?: "",
@@ -191,6 +212,7 @@ sealed interface Jpz : Puzzleable {
                     if (it.rightBar == true) Puzzle.BorderDirection.RIGHT else null,
                 ),
                 hint = it.hint ?: false,
+                backgroundImage = backgroundImage,
             )
         }
         val grid: MutableList<MutableList<Puzzle.Cell>> = mutableListOf()
@@ -312,11 +334,23 @@ sealed interface Jpz : Puzzleable {
                                 || (x > 0 && grid[y][x - 1].borderDirections.contains(Puzzle.BorderDirection.RIGHT))
                         val rightBorder =
                             cell.borderDirections.contains(Puzzle.BorderDirection.RIGHT) && x == grid[y].size - 1
+                        val backgroundPicture = when (cell.backgroundImage) {
+                            is Puzzle.Image.None -> null
+                            is Puzzle.Image.Data -> RectangularPuzzle.Crossword.Grid.BackgroundPicture(
+                                encodedImage = cell.backgroundImage.bytes.base64(),
+                                format = when (cell.backgroundImage.format) {
+                                    Puzzle.ImageFormat.GIF -> "GIF"
+                                    Puzzle.ImageFormat.JPG -> "JPG"
+                                    Puzzle.ImageFormat.PNG -> "PNG"
+                                }
+                            )
+                        }
                         RectangularPuzzle.Crossword.Grid.Cell(
                             x = x + 1,
                             y = y + 1,
                             solution = cell.solution.ifEmpty { null },
                             backgroundColor = cell.backgroundColor.ifEmpty { null },
+                            backgroundPicture = backgroundPicture,
                             number = cell.number.ifEmpty { null },
                             type = type,
                             solveState = if (cell.cellType == Puzzle.CellType.CLUE || solved || cell.hint) {

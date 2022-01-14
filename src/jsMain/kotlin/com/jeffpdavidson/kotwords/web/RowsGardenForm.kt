@@ -118,7 +118,7 @@ class RowsGardenForm {
     }
 
     private suspend fun createPuzzleFromRgzFile(): Puzzle {
-        val rgz = Interop.readFile(file.getValue())
+        val rgz = Interop.readBlob(file.getValue())
         return Rgz.fromRgzFile(rgz).asRowsGarden(
             lightBloomColor = rgzFileAdvancedOptions.lightBloomColor.getValue(),
             mediumBloomColor = rgzFileAdvancedOptions.mediumBloomColor.getValue(),
@@ -128,7 +128,7 @@ class RowsGardenForm {
         ).asPuzzle()
     }
 
-    private fun createPuzzleFromManualEntry(): Puzzle {
+    private suspend fun createPuzzleFromManualEntry(): Puzzle {
         val rowsGarden = RowsGarden(
             title = title.getValue(),
             author = author.getValue(),

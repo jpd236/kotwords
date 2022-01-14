@@ -239,6 +239,11 @@ object Pdf {
                     fillAndStroke()
                 }
 
+                if (square.backgroundImage is Puzzle.Image.Data) {
+                    val imageBytes = square.backgroundImage.bytes.toByteArray()
+                    drawImage(squareX, squareY, gridSquareSize, gridSquareSize, imageBytes)
+                }
+
                 if (!square.cellType.isBlack()) {
                     if (square.backgroundShape == Puzzle.BackgroundShape.CIRCLE) {
                         addCircle(squareX, squareY, gridSquareSize / 2)

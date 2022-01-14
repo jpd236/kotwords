@@ -1,0 +1,212 @@
+{
+  "title": "Example Puzzle for Kotwords",
+  "description": "Notepad text goes here.",
+  "copyright": "© 2018 Jeff Davidson",
+  "author": "Jeff Davidson / Jeff Editor",
+  "w": 5,
+  "h": 5,
+  "box": [
+    [
+      "A",
+      "E",
+      "I",
+      "\u0000",
+      "\u0000"
+    ],
+    [
+      "B",
+      "F",
+      "J",
+      "N",
+      "1"
+    ],
+    [
+      "C",
+      "G",
+      "XYZ",
+      "O",
+      "2"
+    ],
+    [
+      "D",
+      "H",
+      "L",
+      "P",
+      "$"
+    ],
+    [
+      "\u0000",
+      "\u0000",
+      "M",
+      "Q",
+      "@"
+    ]
+  ],
+  "placedWords": [
+    {
+      "acrossNotDown": true,
+      "clueNum": 1,
+      "clue": {
+        "clue": "First across clue with special characters \u03B1\u03B2\u03B3\u03B4\u03B5"
+      },
+      "nBoxes": 4,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 5,
+      "clue": {
+        "clue": "Second across clue"
+      },
+      "nBoxes": 4,
+      "x": 0,
+      "y": 1
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 6,
+      "clue": {
+        "clue": "Third across clue"
+      },
+      "nBoxes": 5,
+      "x": 0,
+      "y": 2
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 8,
+      "clue": {
+        "clue": "Fourth across clue"
+      },
+      "nBoxes": 4,
+      "x": 1,
+      "y": 3
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 9,
+      "clue": {
+        "clue": "Fifth across clue"
+      },
+      "nBoxes": 4,
+      "x": 1,
+      "y": 4
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 1,
+      "clue": {
+        "clue": "First down clue"
+      },
+      "nBoxes": 3,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 2,
+      "clue": {
+        "clue": "Second down clue"
+      },
+      "nBoxes": 5,
+      "x": 1,
+      "y": 0
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 3,
+      "clue": {
+        "clue": "Third down clue"
+      },
+      "nBoxes": 5,
+      "x": 2,
+      "y": 0
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 4,
+      "clue": {
+        "clue": "Fourth down clue"
+      },
+      "nBoxes": 5,
+      "x": 3,
+      "y": 0
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 7,
+      "clue": {
+        "clue": "Fifth down clue"
+      },
+      "nBoxes": 3,
+      "x": 4,
+      "y": 2
+    }
+  ],
+  "clueNums": [
+    [
+      1,
+      5,
+      6,
+      0,
+      0
+    ],
+    [
+      2,
+      0,
+      0,
+      8,
+      9
+    ],
+    [
+      3,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      4,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      7,
+      0,
+      0
+    ]
+  ],
+  "backgroundShapeBoxes": [
+    [
+      0,
+      2
+    ],
+    [
+      4,
+      2
+    ]
+  ],
+  "imagesInGrid": [
+    {
+      "imageFormat": "PNG",
+      "image": "iVBORw0KGgoAAAANSUhEUgAAAGMAAABjCAYAAACPO76VAAABxElEQVR42u3b0bGCMBSEYUuhFErhzTbshFIohVK4egdnMo5iQIIH/P6Z86ZEd83ZkODpBAAAAAAAAAAAAAAAAAAAAADYB+fzuabCa3Eu16o2HKuj+muBhmu1N6EKjtGMRvyPRfXXQvWjSMMoWFNgNqRjVFSf/tUOSfVrtK7xGpeHaw8Uz2tVj7Wodd1MfGYCMz4zI21d9YzZ0E5cS3hniNi9MaSbmiU3s6ZmQ1KWtTlr/wwhnwb8fbma835Kr9OqngV87mxgRkEz0tY16/VUXi83Pi15USA3FhWFy7cqZuzQDHmxwIxWXsQxo9KiDm6GmbFsNVWqTXVrb80f2Yhmg/uMvuQB1lGMeDz8KV0MmTBi+EJdnPjFMCI9vGp+3YQqgBFypPCKSY7MbEtdQCN+y5BAbWlY67ydEdvU8W4Qx6Cuxy/XBxS9Hz9bd38sKKnDmlEnj1fOrfaDdvOumuTzuefINHSuIT3l4uzk2hAsbEjv7CLWrm7WFge1tjEkxwxBvJEZreDeT5AL7ihBTp04QS64AwW54P6SGf6nF3h2XCjyXTM6syKOGbUHmuO1qpoSQYKcCgAAAAAAAAAAAAAAAACwD/4AiHtQknvP+l4AAAAASUVORK5CYII=",
+      "startX": 3,
+      "startY": 1,
+      "endX": 3,
+      "endY": 1
+    },
+    {
+      "imageFormat": "PNG",
+      "image": "iVBORw0KGgoAAAANSUhEUgAAAGMAAABjCAYAAACPO76VAAABw0lEQVR42u3b0bGCMBSEYUuhFErhzTbohFIohVK4egdnMo5iQIJH/P6Z86ZEd83ZkODpBAAAAAAAAAAAAAAAAAAAAAAAAOA7OZ/PNRWei9NeqtpxrJ7qzwUaL9VdhSo4RjMZ8T8W1Z8LNUwijZNgTYHZkI5RUX3+VzsmNWzRuqZrtHfXHime16rua1Xrupr4yARmvGdG2rrqBbOhm7mW8M4QsX9hSD83S65mzc2GpCxrc9b+GUI+DPjbcjXn/ZTeplU9Cvjc2cCMgmakrWvR66m8XW68W/KiQG6sKgqXb1XM+EIz5MUKMzp5EceMSos6uBlmxrrVVKk21W+9NX9kI5od7jOGkgdYRzHi/vCndDFkxojxA9U68YthRHp41fy6CVUAI+RI4RWTHFnYlvqARvyWIYHa0rjVeTsj9qnj3SBOQV1PX24IKPowfbb+9lhQUoc1o04er1xa3Rvt5lU1yedzz5Fp6FJDBsrF2cm1IVjYkMHZRaxd3awtDmrtY0iOGYJ4JzM6wf09QS64owQ5deIEueAOFOSC+0Nm+J9e4NnRUuSzZvRmRRwzag80x2tVNSWCBDkVAAAAAAAAAAAAAACIyR81y1CSn57q7gAAAABJRU5ErkJggg==",
+      "startX": 0,
+      "startY": 3,
+      "endX": 0,
+      "endY": 3
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Puzzle
 
 class Crosshare(private val json: String) : Puzzleable {
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val data = JsonSerializer.fromJson<CrosshareJson.Data>(json).props.pageProps.puzzle
         val author =
             if (data.guestConstructor?.isNotEmpty() == true) {

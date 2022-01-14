@@ -189,7 +189,7 @@ internal object FormFields {
                         val files = input.files
                         if (files != null && files.length > 0 && files[0] != null) {
                             GlobalScope.launch {
-                                val data = Interop.readFile(files[0]!!)
+                                val data = Interop.readBlob(files[0]!!)
                                 // Clear the input value in case the user makes an edit and retries the same file.
                                 input.value = ""
                                 onFileLoadedFn(data)

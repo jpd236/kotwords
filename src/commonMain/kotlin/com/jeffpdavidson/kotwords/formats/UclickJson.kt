@@ -18,7 +18,7 @@ class UclickJson(
     private val addDateToTitle: Boolean = true
 ) : Puzzleable {
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val response = JsonSerializer.fromJson<UclickJson.Response>(json)
         val date = JSON_DATE_FORMAT.parseDate(response.date)
         val copyright = if (response.copyright.isNotEmpty()) decode(response.copyright) else copyright

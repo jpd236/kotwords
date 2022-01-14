@@ -120,6 +120,12 @@ actual class PdfDocument {
     actual fun fill() = pdf.fill()
     actual fun fillAndStroke() = pdf.fillStroke()
 
+    actual fun drawImage(x: Float, y: Float, width: Float, height: Float, imageData: ByteArray) {
+        // jsPDF takes a data URI, though it only parses out the base64 at the end.
+        val dataUri = "data:image/xxx;base64,${imageData.toByteString().base64()}"
+        pdf.addImage(dataUri, x = x, y = this.height - y - height, width = width, height = height)
+    }
+
     actual fun toByteArray(): ByteArray {
         return (pdf.output("arraybuffer") as ArrayBuffer).toByteArray()
     }

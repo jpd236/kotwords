@@ -39,7 +39,7 @@ class SpellWeavingForm {
         }
     }
 
-    private fun createPuzzle(): Puzzle {
+    private suspend fun createPuzzle(): Puzzle {
         val spellWeaving = SpellWeaving(
             title = title.getValue(),
             creator = creator.getValue(),

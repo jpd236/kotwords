@@ -67,7 +67,7 @@ class SnakeCharmerForm {
         }
     }
 
-    private fun createPuzzle(): Puzzle {
+    private suspend fun createPuzzle(): Puzzle {
         val grid = gridShape.getValue(trim = false).lines()
         require(grid.isNotEmpty()) {
             "Grid shape is required"

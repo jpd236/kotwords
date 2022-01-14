@@ -49,7 +49,7 @@ class CrosswordleForm {
         }
     }
 
-    private fun createPuzzle(): Puzzle =
+    private suspend fun createPuzzle(): Puzzle =
         Crosswordle(
             title = title.getValue(),
             creator = creator.getValue(),

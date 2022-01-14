@@ -46,7 +46,7 @@ data class Acrostic(
         }
     }
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         // Determine the width of the puzzle and both clue columns.
         val answerColumnSize = (gridKey.size + 1) / 2
         val gridKeyColumns = gridKey.chunked(answerColumnSize)

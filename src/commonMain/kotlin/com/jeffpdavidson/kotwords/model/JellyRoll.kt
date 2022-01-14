@@ -34,7 +34,7 @@ data class JellyRoll(
         }
     }
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val numberedSquares = mutableSetOf<Int>()
         fun addNumberedSquares(answers: List<String>, startIndex: Int, includedModulos: List<Int>) {
             answers.fold(startIndex) { i, answer ->

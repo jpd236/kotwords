@@ -1,6 +1,7 @@
 package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.asAcrossLiteBinary
+import com.jeffpdavidson.kotwords.model.assertPuzzleEquals
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.runTest
@@ -97,6 +98,15 @@ class PuzzleMeTest {
                     readStringResource(PuzzleMeTest::class, "puzzleme/test-italics.json")
                 ).asPuzzle().asAcrossLiteBinary()
             )
+        )
+    }
+
+    @Test
+    fun toPuzzle_bgImage() = runTest {
+        val puzzleMe = PuzzleMe(readStringResource(PuzzleMeTest::class, "puzzleme/test-bgimage.json"))
+        assertPuzzleEquals(
+            Jpz.fromXmlString(readStringResource(PuzzleMeTest::class, "jpz/test-bgimage.jpz")).asPuzzle(),
+            puzzleMe.asPuzzle(),
         )
     }
 

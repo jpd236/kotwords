@@ -57,6 +57,9 @@ class JpzTest {
     fun puzzleConversion_crosswordWithClueGaps() = runTest { assertConversionIsEqual("jpz/gaps.jpz") }
 
     @Test
+    fun puzzleConversion_crosswordWithBgImage() = runTest { assertConversionIsEqual("nyt/test-bgimage.jpz") }
+
+    @Test
     fun puzzleConversion_eightTracks() = runTest { assertConversionIsEqual("eight-tracks/annotations.jpz") }
 
     @Test

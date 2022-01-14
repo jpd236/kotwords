@@ -77,7 +77,7 @@ class TwistsAndTurnsForm {
         }
     }
 
-    private fun createPuzzle(): Puzzle =
+    private suspend fun createPuzzle(): Puzzle =
         createTwistsAndTurns(
             separateLightAndDarkTwists = false,
             numberTwists = true,

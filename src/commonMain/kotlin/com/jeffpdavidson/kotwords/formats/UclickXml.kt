@@ -15,7 +15,7 @@ class UclickXml(
     private val addDateToTitle: Boolean = true
 ) : Puzzleable {
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val document = Xml.parse(xml)
 
         val rawTitle = document.selectFirst("Title")?.attr("v") ?: ""

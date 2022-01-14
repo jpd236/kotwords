@@ -4,13 +4,15 @@ import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.formats.json.PuzzleMeJson
 import com.jeffpdavidson.kotwords.model.Puzzle
 import okio.ByteString.Companion.decodeBase64
+import okio.ByteString.Companion.toByteString
+import kotlin.math.roundToInt
 
 private val PUZZLE_DATA_REGEX = """\bwindow\.rawc\s*=\s*'([^']+)'""".toRegex()
 
 /** Container for a puzzle in the PuzzleMe (Amuse Labs) format. */
 class PuzzleMe(private val json: String) : Puzzleable {
 
-    override fun asPuzzle(): Puzzle {
+    override suspend fun asPuzzle(): Puzzle {
         val data = JsonSerializer.fromJson<PuzzleMeJson.Data>(json)
         val grid: MutableList<MutableList<Puzzle.Cell>> = mutableListOf()
 
@@ -28,6 +30,30 @@ class PuzzleMe(private val json: String) : Puzzleable {
                     data.backgroundShapeBoxes.filter { it.size == 2 }.map { it[0] to it[1] }
                 }
             }
+
+        val images = data.imagesInGrid.flatMap { image ->
+            val format = ParsedImageFormat.fromExtension(image.imageFormat)
+            val parsedImage = ParsedImage.parse(format, image.image.decodeBase64()!!.toByteArray())
+            val widthBoxes = image.endX - image.startX + 1
+            val heightBoxes = image.endY - image.startY + 1
+            val imageWidth = (parsedImage.width / widthBoxes.toDouble())
+            val imageHeight = (parsedImage.height / heightBoxes.toDouble())
+            (image.startX..image.endX).flatMap { x ->
+                (image.startY..image.endY).flatMap { y ->
+                    val croppedImage = parsedImage.crop(
+                        width = imageWidth.roundToInt(),
+                        height = imageHeight.roundToInt(),
+                        x = ((x - image.startX) * imageWidth).roundToInt(),
+                        y = ((y - image.startY) * imageHeight).roundToInt(),
+                    )
+                    if (croppedImage.containsVisiblePixels()) {
+                        listOf((x to y) to croppedImage.toPngBytes())
+                    } else {
+                        listOf()
+                    }
+                }
+            }
+        }.toMap()
 
         for (y in 0 until data.box[0].size) {
             val row: MutableList<Puzzle.Cell> = mutableListOf()
@@ -48,9 +74,25 @@ class PuzzleMe(private val json: String) : Puzzleable {
                                     !data.boxToPlacedWordsIdxs[x].indices.contains(y) ||
                                     data.boxToPlacedWordsIdxs[x][y] == null)
                 val isPrefilled = data.preRevealIdxs.isNotEmpty() && data.preRevealIdxs[x][y]
+                val backgroundImage =
+                    if (images.containsKey(x to y)) {
+                        Puzzle.Image.Data(
+                            format = Puzzle.ImageFormat.PNG,
+                            bytes = images[x to y]!!.toByteString()
+                        )
+                    } else {
+                        Puzzle.Image.None
+                    }
+                val borderDirections =
+                    setOfNotNull(
+                        if (cellInfo?.topWall == true) Puzzle.BorderDirection.TOP else null,
+                        if (cellInfo?.bottomWall == true) Puzzle.BorderDirection.BOTTOM else null,
+                        if (cellInfo?.leftWall == true) Puzzle.BorderDirection.LEFT else null,
+                        if (cellInfo?.rightWall == true) Puzzle.BorderDirection.RIGHT else null,
+                    )
 
                 if (isBlack || isVoid || isInvisible || (hasNoIntersectingWords && !isPrefilled)) {
-                    // Black square, though it may have a custom background color.
+                    // Black square, though it may have a custom background and/or borders.
                     val backgroundColor =
                         if (isBlack) {
                             cellInfoMap[x to y]?.bgColor ?: ""
@@ -61,6 +103,8 @@ class PuzzleMe(private val json: String) : Puzzleable {
                         Puzzle.Cell(
                             cellType = if (isVoid) Puzzle.CellType.VOID else Puzzle.CellType.BLOCK,
                             backgroundColor = backgroundColor,
+                            backgroundImage = backgroundImage,
+                            borderDirections = borderDirections,
                         )
                     )
                 } else {
@@ -84,13 +128,8 @@ class PuzzleMe(private val json: String) : Puzzleable {
                             number = number,
                             foregroundColor = cellInfo?.fgColor ?: "",
                             backgroundColor = cellInfo?.bgColor ?: "",
-                            borderDirections =
-                            setOfNotNull(
-                                if (cellInfo?.topWall == true) Puzzle.BorderDirection.TOP else null,
-                                if (cellInfo?.bottomWall == true) Puzzle.BorderDirection.BOTTOM else null,
-                                if (cellInfo?.leftWall == true) Puzzle.BorderDirection.LEFT else null,
-                                if (cellInfo?.rightWall == true) Puzzle.BorderDirection.RIGHT else null,
-                            )
+                            borderDirections = borderDirections,
+                            backgroundImage = backgroundImage,
                         )
                     )
                 }

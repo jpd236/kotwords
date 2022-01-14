@@ -2,12 +2,11 @@ package com.jeffpdavidson.kotwords.js
 
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Int8Array
-import org.w3c.files.File
+import org.w3c.files.Blob
 import org.w3c.files.FileReader
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
-import kotlin.js.Promise
 
 /** Helpers for operating on Javascript objects and data types in Kotlin. */
 internal object Interop {
@@ -22,8 +21,8 @@ internal object Interop {
         return Int8Array(toTypedArray()).buffer
     }
 
-    /** Return the contents of the given [File] as a [ByteArray]. */
-    suspend fun readFile(file: File): ByteArray = suspendCoroutine { cont ->
+    /** Return the contents of the given [Blob] as a [ByteArray]. */
+    suspend fun readBlob(blob: Blob): ByteArray = suspendCoroutine { cont ->
         val reader = FileReader()
         reader.onload = { _ ->
             try {
@@ -33,6 +32,6 @@ internal object Interop {
                 cont.resumeWithException(t)
             }
         }
-        reader.readAsArrayBuffer(file)
+        reader.readAsArrayBuffer(blob)
     }
 }
