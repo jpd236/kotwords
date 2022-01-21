@@ -21,18 +21,21 @@ private const val PUZZLE_NS = "http://crossword.info/xml/rectangular-puzzle"
 // See https://github.com/pdvrieze/xmlutil/issues/30
 private typealias Snippet = List<@Polymorphic Any>
 
-private val XmlSerializer = XML(Jpz.module()) {
-    xmlDeclMode = XmlDeclMode.Charset
-    autoPolymorphic = true
-    // Ignore unknown elements
-    unknownChildHandler = { _, _, _, _ -> }
+private fun getXmlSerializer(prettyPrint: Boolean = false): XML {
+    return XML(Jpz.module()) {
+        xmlDeclMode = XmlDeclMode.Charset
+        autoPolymorphic = true
+        // Ignore unknown elements
+        unknownChildHandler = { _, _, _, _ -> }
+        indentString = if (prettyPrint) "    " else ""
+    }
 }
 
 /** Container for a puzzle in the JPZ file format. */
 sealed interface Jpz : Puzzleable {
     val rectangularPuzzle: RectangularPuzzle
 
-    fun toXmlString(): String
+    fun toXmlString(prettyPrint: Boolean = false): String
 
     @Serializable
     @XmlSerialName("rectangular-puzzle", PUZZLE_NS, "")
@@ -151,8 +154,8 @@ sealed interface Jpz : Puzzleable {
     @SerialName("span")
     data class Span(@XmlValue(true) val data: Snippet)
 
-    suspend fun toCompressedFile(filename: String): ByteArray {
-        return Zip.zip(filename, toXmlString().encodeToByteArray())
+    suspend fun toCompressedFile(filename: String, prettyPrint: Boolean = false): ByteArray {
+        return Zip.zip(filename, toXmlString(prettyPrint).encodeToByteArray())
     }
 
     override suspend fun asPuzzle(): Puzzle {
@@ -294,9 +297,9 @@ sealed interface Jpz : Puzzleable {
         fun fromXmlString(xml: String): Jpz {
             // Try to parse as a <crossword-compiler-applet>; if it fails, fall back to <crossword-compiler>.
             return try {
-                XmlSerializer.decodeFromString(CrosswordCompilerApplet.serializer(), xml)
+                getXmlSerializer().decodeFromString(CrosswordCompilerApplet.serializer(), xml)
             } catch (e: XmlException) {
-                XmlSerializer.decodeFromString(CrosswordCompiler.serializer(), xml)
+                getXmlSerializer().decodeFromString(CrosswordCompiler.serializer(), xml)
             }
         }
 
@@ -510,8 +513,8 @@ data class CrosswordCompiler(
     override val rectangularPuzzle: Jpz.RectangularPuzzle
 ) : Jpz {
 
-    override fun toXmlString(): String {
-        return XmlSerializer.encodeToString(serializer(), this)
+    override fun toXmlString(prettyPrint: Boolean): String {
+        return getXmlSerializer(prettyPrint).encodeToString(serializer(), this)
     }
 }
 
@@ -555,7 +558,7 @@ data class CrosswordCompilerApplet(
         }
     }
 
-    override fun toXmlString(): String {
-        return XmlSerializer.encodeToString(serializer(), this)
+    override fun toXmlString(prettyPrint: Boolean): String {
+        return getXmlSerializer(prettyPrint).encodeToString(serializer(), this)
     }
 }

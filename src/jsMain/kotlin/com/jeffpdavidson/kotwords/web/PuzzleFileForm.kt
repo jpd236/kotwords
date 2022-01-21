@@ -64,6 +64,7 @@ internal class PuzzleFileForm(
 ) {
     private val cursorColor: FormFields.InputField = FormFields.InputField(elementId("cursor-color"))
     private val selectionColor: FormFields.InputField = FormFields.InputField(elementId("selection-color"))
+    private val compressJpz: FormFields.CheckBoxField = FormFields.CheckBoxField(elementId("compress-jpz"))
     private val completionMessage: FormFields.InputField? =
         if (includeCompletionMessage) FormFields.InputField(elementId("completion-message")) else null
     private val inkSaverPercentage: FormFields.ColorRangeSlider? =
@@ -166,6 +167,11 @@ internal class PuzzleFileForm(
                             value = "#80FF80"
                         }
                     }
+
+                    compressJpz.render(this, "Compress JPZ file") {
+                        checked = true
+                    }
+
                     completionMessage?.render(this, "Completion message", help = completionMessageHelpText) {
                         value = completionMessageDefaultValue
                     }
@@ -291,8 +297,13 @@ internal class PuzzleFileForm(
     }
 
     private suspend fun downloadJpz(puzzle: Puzzle) {
-        val fileName = "${puzzle.title.replace("[^A-Za-z0-9]".toRegex(), "")}.xml"
-        val data = puzzle.asJpzFile(appletSettings = createAppletSettings()).toCompressedFile(fileName)
+        val fileName = puzzle.title.replace("[^A-Za-z0-9]".toRegex(), "")
+        val jpzFile = puzzle.asJpzFile(appletSettings = createAppletSettings())
+        val data = if (compressJpz.getValue()) {
+            jpzFile.toCompressedFile("$fileName.xml")
+        } else {
+            jpzFile.toXmlString(prettyPrint = true).encodeToByteArray()
+        }
         download("${getFileNameFn(puzzle)}.jpz", data)
     }
 
