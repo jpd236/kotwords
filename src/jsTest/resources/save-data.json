@@ -6,5 +6,6 @@
   "color-input": "50",
   "this-form-cursor-color": "#00b100",
   "this-form-selection-color": "#80ff80",
+  "this-form-compress-jpz": true,
   "this-form-completion-message": "Congratulations! The puzzle is solved correctly."
 }
