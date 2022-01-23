@@ -226,15 +226,22 @@ sealed interface Jpz : Puzzleable {
             }
             grid.add(row)
         }
-        val completionMessage = if (this is CrosswordCompilerApplet) {
-            appletSettings.completion.message
-        } else {
-            ""
+        var completionMessage = ""
+        var title = rectangularPuzzle.metadata.title
+        var copyright = rectangularPuzzle.metadata.copyright
+        if (this is CrosswordCompilerApplet) {
+            completionMessage = appletSettings.completion.message
+            if (appletSettings.title?.isNotEmpty() == true) {
+                title = appletSettings.title
+            }
+            if (appletSettings.copyright?.isNotEmpty() == true) {
+                copyright = appletSettings.copyright
+            }
         }
         return Puzzle(
-            title = rectangularPuzzle.metadata.title ?: "",
+            title = title ?: "",
             creator = rectangularPuzzle.metadata.creator ?: "",
-            copyright = rectangularPuzzle.metadata.copyright ?: "",
+            copyright = copyright ?: "",
             description = rectangularPuzzle.metadata.description ?: "",
             grid = grid,
             clues = crossword.clues.map { clues ->
@@ -532,7 +539,9 @@ data class CrosswordCompilerApplet(
         @SerialName("selected-cells-color") val selectedCellsColor: String = "#80FF80",
         @SerialName("show-alphabet") val showAlphabet: Boolean? = null,
         val completion: Completion = Completion(),
-        val actions: Actions = Actions()
+        val actions: Actions = Actions(),
+        @SerialName("title") @XmlElement(true) val title: String? = null,
+        @SerialName("copyright") @XmlElement(true) val copyright: String? = null,
     ) {
 
         @Serializable

@@ -20,6 +20,16 @@ class JpzTest {
     }
 
     @Test
+    fun crosswordWithAppletMetadata() = runTest {
+        assertTrue(
+            readBinaryResource(JpzTest::class, "puz/test.puz").contentEquals(
+                Jpz.fromXmlString(readStringResource(JpzTest::class, "jpz/test-applet-metadata.jpz"))
+                    .asPuzzle().asAcrossLiteBinary()
+            )
+        )
+    }
+
+    @Test
     fun crosswordWithClueGaps() = runTest {
         assertTrue(
             readBinaryResource(JpzTest::class, "puz/gaps.puz").contentEquals(
