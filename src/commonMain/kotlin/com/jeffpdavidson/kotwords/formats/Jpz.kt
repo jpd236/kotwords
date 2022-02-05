@@ -112,7 +112,7 @@ sealed interface Jpz : Puzzleable {
 
                 @Serializable
                 @SerialName("cells")
-                data class Cells(val x: Int, val y: Int)
+                data class Cells(val x: String, val y: String)
             }
 
             @Serializable
@@ -259,15 +259,19 @@ sealed interface Jpz : Puzzleable {
     }
 
     private fun RectangularPuzzle.Crossword.Word.getCoordinates(): List<Puzzle.Coordinate> {
-        val innerCells = cells.map { cell -> Puzzle.Coordinate(x = cell.x - 1, y = cell.y - 1) }
+        val innerCells = cells.flatMap { cell -> getCoordinates(cell.x, cell.y) }
         if (x == null || x.isEmpty() || y == null || y.isEmpty()) {
             return innerCells
         }
+        return getCoordinates(x, y) + innerCells
+    }
+
+    private fun getCoordinates(x: String, y: String): List<Puzzle.Coordinate> {
         val xParts = x.split("-")
         val yParts = y.split("-")
         val xRange = xParts.first().toInt()..xParts.last().toInt()
         val yRange = yParts.first().toInt()..yParts.last().toInt()
-        return innerCells + xRange.flatMap { x -> yRange.map { y -> Puzzle.Coordinate(x = x - 1, y = y - 1) } }
+        return xRange.flatMap { i -> yRange.map { j -> Puzzle.Coordinate(x = i - 1, y = j - 1) } }
     }
 
     private fun Snippet.toHtml(trim: Boolean = true): String {
@@ -387,7 +391,7 @@ sealed interface Jpz : Puzzleable {
                 RectangularPuzzle.Crossword.Word(
                     id = word.id,
                     cells = word.cells.map { cell ->
-                        RectangularPuzzle.Crossword.Word.Cells(cell.x + 1, cell.y + 1)
+                        RectangularPuzzle.Crossword.Word.Cells("${cell.x + 1}", "${cell.y + 1}")
                     }
                 )
             }

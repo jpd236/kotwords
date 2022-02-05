@@ -39,6 +39,16 @@ class JpzTest {
     }
 
     @Test
+    fun crosswordWithCellRanges() = runTest {
+        assertTrue(
+            readBinaryResource(JpzTest::class, "puz/test.puz").contentEquals(
+                Jpz.fromXmlString(readStringResource(JpzTest::class, "jpz/test-cell-ranges.jpz"))
+                    .asPuzzle().asAcrossLiteBinary()
+            )
+        )
+    }
+
+    @Test
     fun htmlToSnippet_plainText() = runTest {
         assertEquals(
             listOf("This is a plain text clue"),
