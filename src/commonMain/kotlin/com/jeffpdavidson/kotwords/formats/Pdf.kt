@@ -1,9 +1,8 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.github.ajalt.colormath.HSL
-import com.github.ajalt.colormath.RGB
+import com.github.ajalt.colormath.model.HSL
+import com.github.ajalt.colormath.model.RGB
 import com.jeffpdavidson.kotwords.model.Puzzle
-import kotlin.math.roundToInt
 
 /** Extension functions to render crosswords as PDFs. */
 object Pdf {
@@ -231,11 +230,11 @@ object Pdf {
                     square.cellType == Puzzle.CellType.BLOCK -> gridBlackColor
                     else -> RGB("#ffffff")
                 }
-                setFillColor(backgroundColor.r / 255f, backgroundColor.g / 255f, backgroundColor.b / 255f)
+                setFillColor(backgroundColor.r, backgroundColor.g, backgroundColor.b)
                 if (square.cellType == Puzzle.CellType.VOID) {
                     fill()
                 } else {
-                    setStrokeColor(gridBlackColor.r / 255f, gridBlackColor.g / 255f, gridBlackColor.b / 255f)
+                    setStrokeColor(gridBlackColor.r, gridBlackColor.g, gridBlackColor.b)
                     fillAndStroke()
                 }
 
@@ -334,7 +333,7 @@ object Pdf {
     /** Return the adjusted color as a result of applying [lightnessAdjustment] to the given [rgb] color. */
     fun getAdjustedColor(rgb: RGB, lightnessAdjustment: Float): RGB {
         val hsl = rgb.toHSL()
-        return HSL(hsl.h, hsl.s, (hsl.l + (100 - hsl.l) * lightnessAdjustment).roundToInt()).toRGB()
+        return HSL(hsl.h, hsl.s, (hsl.l + (1.0 - hsl.l) * lightnessAdjustment)).toSRGB()
     }
 
     private fun PdfDocument.drawSquareNumber(

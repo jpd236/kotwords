@@ -6,8 +6,11 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerializersModule
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlException
+import nl.adaptivity.xmlutil.core.XmlVersion
+import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -22,12 +25,14 @@ private const val PUZZLE_NS = "http://crossword.info/xml/rectangular-puzzle"
 private typealias Snippet = List<@Polymorphic Any>
 
 private fun getXmlSerializer(prettyPrint: Boolean = false): XML {
+    @OptIn(ExperimentalXmlUtilApi::class)
     return XML(Jpz.module()) {
         xmlDeclMode = XmlDeclMode.Charset
         autoPolymorphic = true
         // Ignore unknown elements
-        unknownChildHandler = { _, _, _, _ -> }
+        unknownChildHandler = UnknownChildHandler { _, _, _, _, _ -> listOf() }
         indentString = if (prettyPrint) "    " else ""
+        xmlVersion = XmlVersion.XML10
     }
 }
 

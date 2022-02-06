@@ -1,6 +1,6 @@
 package com.jeffpdavidson.kotwords.web
 
-import com.github.ajalt.colormath.RGB
+import com.github.ajalt.colormath.model.RGB
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.formats.Pdf

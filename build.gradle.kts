@@ -4,10 +4,10 @@ plugins {
     `maven-publish`
     signing
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
-    id("org.jetbrains.dokka") version "1.5.0"
-    kotlin("multiplatform") version "1.5.30"
-    kotlin("kapt") version "1.5.30"
-    kotlin("plugin.serialization") version "1.5.30"
+    id("org.jetbrains.dokka") version "1.6.10"
+    kotlin("multiplatform") version "1.6.10"
+    kotlin("kapt") version "1.6.10"
+    kotlin("plugin.serialization") version "1.6.10"
 }
 
 group = "com.jeffpdavidson.kotwords"
@@ -45,15 +45,15 @@ kotlin {
 
         val commonMain by getting {
             dependencies {
-                implementation("com.squareup.okio:okio-multiplatform:3.0.0-alpha.9")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.2.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
+                implementation("com.squareup.okio:okio:3.0.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1")
                 implementation("net.mamoe.yamlkt:yamlkt:0.10.2")
-                implementation("io.github.pdvrieze.xmlutil:serialization:0.82.0")
-                implementation("com.github.ajalt.colormath:colormath:2.1.0")
+                implementation("io.github.pdvrieze.xmlutil:serialization:0.84.0")
+                implementation("com.github.ajalt.colormath:colormath:3.2.0")
 
                 // TODO: Migrate to kotlinx-datetime if parsing/formatting support is added.
-                implementation("com.soywiz.korlibs.klock:klock:2.4.0")
+                implementation("com.soywiz.korlibs.klock:klock:2.4.13")
             }
         }
 
@@ -66,15 +66,15 @@ kotlin {
 
         val jvmMain by getting {
             dependencies {
-                implementation("org.apache.pdfbox:pdfbox:2.0.24")
+                implementation("org.apache.pdfbox:pdfbox:2.0.25")
                 implementation("org.glassfish:javax.json:1.1.4")
-                implementation("org.jsoup:jsoup:1.14.2")
+                implementation("org.jsoup:jsoup:1.14.3")
             }
         }
 
         val jvmTest by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
                 implementation("org.jetbrains.kotlin:kotlin-test-junit")
             }
         }
@@ -82,8 +82,8 @@ kotlin {
         val jsMain by getting {
             dependencies {
                 implementation(npm("jszip", "3.7.1"))
-                implementation(npm("jspdf", "2.3.1"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.5.1")
+                implementation(npm("jspdf", "2.5.1"))
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.6.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.7.3")
             }
         }
@@ -91,7 +91,7 @@ kotlin {
         val jsTest by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-test-js")
-                implementation(npm("pdfjs-dist", "2.9.359"))
+                implementation(npm("pdfjs-dist", "2.12.313"))
             }
         }
     }
