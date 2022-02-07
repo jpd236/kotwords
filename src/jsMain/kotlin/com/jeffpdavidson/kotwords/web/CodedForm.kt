@@ -4,6 +4,7 @@ import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.formats.AcrossLite
 import com.jeffpdavidson.kotwords.model.Coded
 import com.jeffpdavidson.kotwords.model.Puzzle
+import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 import kotlinx.html.classes
@@ -68,8 +69,8 @@ class CodedForm {
             // While fromRawInput will generate and use an assignment if the provided one is blank, we proactively
             // generate it here so we can update the form with the result, ensuring the exact same output can be
             // reproduced.
-            val gridChars = grid.getValue().lines().map { line ->
-                line.trim().map { ch -> if (ch == '.') null else ch }
+            val gridChars = grid.getValue().uppercase().trimmedLines().map { line ->
+                line.map { ch -> if (ch == '.') null else ch }
             }
             val generatedAssignments = Coded.generateAssignments(gridChars)
             assignments.setValue(generatedAssignments.joinToString(""))

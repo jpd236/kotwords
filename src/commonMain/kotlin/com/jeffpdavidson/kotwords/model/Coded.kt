@@ -1,6 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.Puzzleable
+import com.jeffpdavidson.kotwords.util.trimmedLines
 
 data class Coded(
     val title: String,
@@ -82,23 +83,23 @@ data class Coded(
             assignments: String,
             givens: String,
         ): Coded {
-            val gridChars = grid.trim().lines().map { line ->
-                line.trim().map { ch -> if (ch == '.') null else ch }
+            val gridChars = grid.uppercase().trimmedLines().map { line ->
+                line.map { ch -> if (ch == '.') null else ch }
             }
             val assignmentList =
                 if (assignments.isBlank()) {
                     generateAssignments(gridChars)
                 } else {
-                    assignments.trim().toList()
+                    assignments.uppercase().toList()
                 }
             return Coded(
-                title = title.trim(),
-                creator = creator.trim(),
-                copyright = copyright.trim(),
-                description = description.trim(),
+                title = title,
+                creator = creator,
+                copyright = copyright,
+                description = description,
                 grid = gridChars,
                 assignments = assignmentList,
-                givens = givens.trim().toList(),
+                givens = givens.toList(),
             )
         }
 

@@ -4,6 +4,7 @@ import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.formats.PdfFonts
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.TwistsAndTurns
+import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 import kotlinx.html.InputType
@@ -109,8 +110,8 @@ class TwistsAndTurnsForm {
             twistBoxSize = twistBoxSize.getValue().toInt(),
             turnsAnswers = turnsAnswers.getValue().uppercase().replace("[^A-Z\\s]".toRegex(), "")
                 .split("\\s+".toRegex()),
-            turnsClues = turnsClues.getValue().split("\n").map { it.trim() },
-            twistsClues = twistsClues.getValue().split("\n").map { it.trim() },
+            turnsClues = turnsClues.getValue().trimmedLines(),
+            twistsClues = twistsClues.getValue().trimmedLines(),
             lightTwistsColor = lightTwistsColor.getValue(),
             darkTwistsColor = darkTwistsColor.getValue(),
             separateLightAndDarkTwists = separateLightAndDarkTwists,

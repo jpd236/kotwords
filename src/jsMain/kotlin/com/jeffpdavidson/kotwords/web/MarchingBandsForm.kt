@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.web
 import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.model.MarchingBands
 import com.jeffpdavidson.kotwords.model.Puzzle
+import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 import kotlinx.html.InputType
@@ -71,14 +72,14 @@ class MarchingBandsForm {
             creator = creator.getValue(),
             copyright = copyright.getValue(),
             description = description.getValue(),
-            grid = grid.getValue().split("\n").map { row ->
-                row.uppercase().replace("[^A-Z.]".toRegex(), "").map { ch -> if (ch == '.') null else ch }
+            grid = grid.getValue().uppercase().trimmedLines().map { row ->
+                row.replace("[^A-Z.]".toRegex(), "").map { ch -> if (ch == '.') null else ch }
             },
-            bandClues = bandClues.getValue().split("\n").map { clues ->
-                clues.trim().split("/").map { it.trim() }
+            bandClues = bandClues.getValue().trimmedLines().map { clues ->
+                clues.split("/").map { it.trim() }
             },
-            rowClues = rowClues.getValue().split("\n").map { clues ->
-                clues.trim().split("/").map { it.trim() }
+            rowClues = rowClues.getValue().trimmedLines().map { clues ->
+                clues.split("/").map { it.trim() }
             },
             includeRowNumbers = includeRowNumbers.getValue(),
             lightBandColor = lightBandColor.getValue(),

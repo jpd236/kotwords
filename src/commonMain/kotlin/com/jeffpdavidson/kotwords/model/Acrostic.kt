@@ -1,6 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.Puzzleable
+import com.jeffpdavidson.kotwords.util.trimmedLines
 
 data class Acrostic(
     val title: String,
@@ -218,28 +219,22 @@ data class Acrostic(
             includeAttribution: Boolean,
         ): Acrostic {
             val suggestedWidthInt = if (suggestedWidth.isEmpty()) null else suggestedWidth.toInt()
-            val answersList =
-                if (answers.trim().isEmpty()) {
-                    listOf()
-                } else {
-                    answers.trim().split("\n").map { it.trim() }
-                }
+            val answersList = answers.uppercase().trimmedLines()
+            val normalizedSolution = solution.uppercase()
             val gridKeyList = if (gridKey.isBlank()) {
-                generateGridKey(solution, answersList)
+                generateGridKey(normalizedSolution, answersList)
             } else {
-                gridKey.trim().split("\n").map { row ->
-                    row.trim().split(" +".toRegex()).map { it.trim().toInt() }
-                }
+                gridKey.trimmedLines().map { row -> row.split(" +".toRegex()).map { it.trim().toInt() } }
             }
             return Acrostic(
-                title = title.trim(),
-                creator = creator.trim(),
-                copyright = copyright.trim(),
-                description = description.trim(),
+                title = title,
+                creator = creator,
+                copyright = copyright,
+                description = description,
                 suggestedWidth = suggestedWidthInt,
-                solution = solution.trim().uppercase(),
+                solution = normalizedSolution,
                 gridKey = gridKeyList,
-                clues = clues.trim().split("\n").map { it.trim() },
+                clues = clues.trimmedLines(),
                 answers = answersList,
                 completionMessage = completionMessage,
                 includeAttribution = includeAttribution,

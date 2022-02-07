@@ -5,6 +5,7 @@ import com.jeffpdavidson.kotwords.formats.Apz
 import com.jeffpdavidson.kotwords.js.Interop
 import com.jeffpdavidson.kotwords.model.Acrostic
 import com.jeffpdavidson.kotwords.model.Puzzle
+import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 import com.jeffpdavidson.kotwords.web.html.Tabs
@@ -141,12 +142,8 @@ class AcrosticForm {
         if (gridKey.getValue().isBlank()) {
             // While fromRawInput will generate and use a grid key if the provided one is blank, we proactively generate
             // it here so we can update the form with the result, ensuring the exact same output can be reproduced.
-            val answersList = if (answers.getValue().isEmpty()) {
-                listOf()
-            } else {
-                answers.getValue().split("\n").map { it.trim() }
-            }
-            val generatedGridKey = Acrostic.generateGridKey(solution.getValue(), answersList)
+            val answersList = answers.getValue().uppercase().trimmedLines()
+            val generatedGridKey = Acrostic.generateGridKey(solution.getValue().uppercase(), answersList)
             gridKey.setValue(generatedGridKey.joinToString("\n") { it.joinToString(" ") })
         }
         val acrostic = Acrostic.fromRawInput(

@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.web
 import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.model.EightTracks
 import com.jeffpdavidson.kotwords.model.Puzzle
+import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 import kotlinx.html.InputType
@@ -80,11 +81,11 @@ class EightTracksForm {
                 if (it == "+") EightTracks.Direction.CLOCKWISE else EightTracks.Direction.COUNTERCLOCKWISE
             },
             trackStartingOffsets = trackStartingOffsets.getValue().split("\\s+".toRegex()).map { it.toInt() },
-            trackAnswers = trackAnswers.getValue().split("\n").map { clues ->
-                clues.trim().split("/").map { it.trim() }
+            trackAnswers = trackAnswers.getValue().uppercase().trimmedLines().map { clues ->
+                clues.split("/").map { it.trim() }
             },
-            trackClues = trackClues.getValue().split("\n").map { clues ->
-                clues.trim().split("/").map { it.trim() }
+            trackClues = trackClues.getValue().trimmedLines().map { clues ->
+                clues.split("/").map { it.trim() }
             },
             includeEnumerationsAndDirections = includeEnumerationsAndDirection.getValue(),
             lightTrackColor = lightTrackColor.getValue(),

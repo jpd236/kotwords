@@ -5,6 +5,7 @@ import com.jeffpdavidson.kotwords.formats.Pdf.asPdf
 import com.jeffpdavidson.kotwords.formats.PdfFonts
 import com.jeffpdavidson.kotwords.model.Crosswordle
 import com.jeffpdavidson.kotwords.model.Puzzle
+import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 
@@ -55,10 +56,10 @@ class CrosswordleForm {
             creator = creator.getValue(),
             copyright = copyright.getValue(),
             description = description.getValue(),
-            grid = grid.getValue().split("\n").map { it.trim().toList() },
-            answer = answer.getValue(),
-            acrossClues = acrossClues.getValue().split("\n").map { it.trim() },
-            downClues = downClues.getValue().split("\n").map { it.trim() },
+            grid = grid.getValue().uppercase().trimmedLines().map { it.toList() },
+            answer = answer.getValue().uppercase(),
+            acrossClues = acrossClues.getValue().trimmedLines(),
+            downClues = downClues.getValue().trimmedLines(),
         ).asPuzzle()
 
     private suspend fun createPdf(blackSquareLightnessAdjustment: Float): ByteArray =

@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.web
 import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.model.AroundTheBend
 import com.jeffpdavidson.kotwords.model.Puzzle
+import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 
@@ -44,8 +45,9 @@ class AroundTheBendForm {
             creator = creator.getValue(),
             copyright = copyright.getValue(),
             description = description.getValue(),
-            rows = rows.getValue().split("\n").map { it.trim() },
-            clues = clues.getValue().split("\n").map { it.trim() })
+            rows = rows.getValue().uppercase().trimmedLines(),
+            clues = clues.getValue().trimmedLines(),
+        )
         return aroundTheBend.asPuzzle()
     }
 }

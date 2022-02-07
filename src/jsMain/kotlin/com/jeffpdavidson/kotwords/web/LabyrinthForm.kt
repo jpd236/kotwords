@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.web
 import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.model.Labyrinth
 import com.jeffpdavidson.kotwords.model.Puzzle
+import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 
@@ -60,14 +61,14 @@ class LabyrinthForm {
             creator = creator.getValue(),
             copyright = copyright.getValue(),
             description = description.getValue(),
-            grid = grid.getValue().split("\n").map { row ->
-                row.uppercase().replace("[^A-Z.]".toRegex(), "").toList()
+            grid = grid.getValue().uppercase().trimmedLines().map { row ->
+                row.replace("[^A-Z.]".toRegex(), "").toList()
             },
-            gridKey = gridKey.getValue().split("\n").map { row ->
-                row.trim().split(" ").map { it.toInt() }
+            gridKey = gridKey.getValue().trimmedLines().map { row ->
+                row.split(" ").map { it.toInt() }
             },
-            rowClues = rowClues.getValue().split("\n").map { clues ->
-                clues.trim().split("/").map { it.trim() }
+            rowClues = rowClues.getValue().trimmedLines().map { clues ->
+                clues.split("/").map { it.trim() }
             },
             windingClues = windingClues.getValue().split("/").map { it.trim() },
             alphabetizeWindingClues = alphabetizeWindingClues.getValue(),

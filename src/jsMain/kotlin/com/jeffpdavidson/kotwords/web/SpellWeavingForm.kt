@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.web
 import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.SpellWeaving
+import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 
@@ -45,8 +46,8 @@ class SpellWeavingForm {
             creator = creator.getValue(),
             copyright = copyright.getValue(),
             description = description.getValue(),
-            answers = answers.getValue().split("\\s+".toRegex()),
-            clues = clues.getValue().split("\n").map { it.trim() },
+            answers = answers.getValue().uppercase().split("\\s+".toRegex()),
+            clues = clues.getValue().trimmedLines(),
         )
         return spellWeaving.asPuzzle()
     }

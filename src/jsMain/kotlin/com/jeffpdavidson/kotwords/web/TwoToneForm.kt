@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.web
 import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.TwoTone
+import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 import kotlinx.html.InputType
@@ -82,12 +83,12 @@ class TwoToneForm {
             creator = creator.getValue(),
             copyright = copyright.getValue(),
             description = description.getValue(),
-            allSquaresAnswers = allSquaresAnswers.getValue().split("\\s+".toRegex()),
-            allSquaresClues = allSquaresClues.getValue().split("\n").map { it.trim() },
-            oddSquaresAnswers = oddSquaresAnswers.getValue().split("\\s+".toRegex()),
-            oddSquaresClues = oddSquaresClues.getValue().split("\n").map { it.trim() },
-            evenSquaresAnswers = evenSquaresAnswers.getValue().split("\\s+".toRegex()),
-            evenSquaresClues = evenSquaresClues.getValue().split("\n").map { it.trim() },
+            allSquaresAnswers = allSquaresAnswers.getValue().uppercase().split("\\s+".toRegex()),
+            allSquaresClues = allSquaresClues.getValue().trimmedLines(),
+            oddSquaresAnswers = oddSquaresAnswers.getValue().uppercase().split("\\s+".toRegex()),
+            oddSquaresClues = oddSquaresClues.getValue().trimmedLines(),
+            evenSquaresAnswers = evenSquaresAnswers.getValue().uppercase().split("\\s+".toRegex()),
+            evenSquaresClues = evenSquaresClues.getValue().trimmedLines(),
             oddSquareBackgroundColor = oddSquaresColor.getValue(),
             evenSquareBackgroundColor = evenSquaresColor.getValue(),
         )

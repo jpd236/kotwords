@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.web
 import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.Spiral
+import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 
@@ -65,14 +66,14 @@ class SpiralForm {
             creator = creator.getValue(),
             copyright = copyright.getValue(),
             description = description.getValue(),
-            inwardAnswers = inwardAnswers.getValue().split("\\s+".toRegex()),
-            inwardClues = inwardClues.getValue().split("\n").map { it.trim() },
-            outwardAnswers = outwardAnswers.getValue().split("\\s+".toRegex()),
-            outwardClues = outwardClues.getValue().split("\n").map { it.trim() },
+            inwardAnswers = inwardAnswers.getValue().uppercase().split("\\s+".toRegex()),
+            inwardClues = inwardClues.getValue().trimmedLines(),
+            outwardAnswers = outwardAnswers.getValue().uppercase().split("\\s+".toRegex()),
+            outwardClues = outwardClues.getValue().trimmedLines(),
             inwardCellsInput = if (inwardCells.getValue().isBlank()) {
                 listOf()
             } else {
-                inwardCells.getValue().split("\\s+".toRegex())
+                inwardCells.getValue().uppercase().split("\\s+".toRegex())
             },
         )
         return spiral.asPuzzle()

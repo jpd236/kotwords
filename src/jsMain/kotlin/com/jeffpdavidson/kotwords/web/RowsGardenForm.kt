@@ -5,6 +5,7 @@ import com.jeffpdavidson.kotwords.formats.Rgz
 import com.jeffpdavidson.kotwords.js.Interop
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.RowsGarden
+import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 import com.jeffpdavidson.kotwords.web.html.Tabs
@@ -134,18 +135,18 @@ class RowsGardenForm {
             author = author.getValue(),
             copyright = copyright.getValue(),
             notes = notes.getValue(),
-            rows = rowClues.getValue().split("\n").zip(rowAnswers.getValue().split("\n"))
+            rows = rowClues.getValue().trimmedLines().zip(rowAnswers.getValue().uppercase().trimmedLines())
                 .map { (clues, answers) ->
-                    clues.trim().split("/")
-                        .zip(answers.trim().split("/"))
+                    clues.split("/")
+                        .zip(answers.split("/"))
                         .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) }
                 },
-            light = lightClues.getValue().split("\n").zip(lightAnswers.getValue().split("\n"))
-                .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) },
-            medium = mediumClues.getValue().split("\n").zip(mediumAnswers.getValue().split("\n"))
-                .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) },
-            dark = darkClues.getValue().split("\n").zip(darkAnswers.getValue().split("\n"))
-                .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) },
+            light = lightClues.getValue().trimmedLines().zip(lightAnswers.getValue().uppercase().trimmedLines())
+                .map { (clue, answer) -> RowsGarden.Entry(clue, answer) },
+            medium = mediumClues.getValue().trimmedLines().zip(mediumAnswers.getValue().uppercase().trimmedLines())
+                .map { (clue, answer) -> RowsGarden.Entry(clue, answer) },
+            dark = darkClues.getValue().trimmedLines().zip(darkAnswers.getValue().uppercase().trimmedLines())
+                .map { (clue, answer) -> RowsGarden.Entry(clue, answer) },
             lightBloomColor = manualEntryAdvancedOptions.lightBloomColor.getValue(),
             mediumBloomColor = manualEntryAdvancedOptions.mediumBloomColor.getValue(),
             darkBloomColor = manualEntryAdvancedOptions.darkBloomColor.getValue(),

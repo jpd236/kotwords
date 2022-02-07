@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.web
 import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.model.JellyRoll
 import com.jeffpdavidson.kotwords.model.Puzzle
+import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 import kotlinx.html.InputType
@@ -84,12 +85,12 @@ class JellyRollForm {
             creator = creator.getValue(),
             copyright = copyright.getValue(),
             description = description.getValue(),
-            jellyRollAnswers = jellyRollAnswers.getValue().split("\\s+".toRegex()),
-            jellyRollClues = jellyRollClues.getValue().split("\n").map { it.trim() },
-            lightSquaresAnswers = lightSquaresAnswers.getValue().split("\\s+".toRegex()),
-            lightSquaresClues = lightSquaresClues.getValue().split("\n").map { it.trim() },
-            darkSquaresAnswers = darkSquaresAnswers.getValue().split("\\s+".toRegex()),
-            darkSquaresClues = darkSquaresClues.getValue().split("\n").map { it.trim() },
+            jellyRollAnswers = jellyRollAnswers.getValue().uppercase().split("\\s+".toRegex()),
+            jellyRollClues = jellyRollClues.getValue().trimmedLines(),
+            lightSquaresAnswers = lightSquaresAnswers.getValue().uppercase().split("\\s+".toRegex()),
+            lightSquaresClues = lightSquaresClues.getValue().trimmedLines(),
+            darkSquaresAnswers = darkSquaresAnswers.getValue().uppercase().split("\\s+".toRegex()),
+            darkSquaresClues = darkSquaresClues.getValue().trimmedLines(),
             lightSquareBackgroundColor = lightSquaresColor.getValue(),
             darkSquareBackgroundColor = darkSquaresColor.getValue(),
             combineJellyRollClues = combineJellyRollClues.getValue(),
