@@ -18,6 +18,7 @@ object Index {
         "Coded",
         "Crosswordle",
         "Eight Tracks",
+        "Helter Skelter",
         "Jelly Roll",
         "Labyrinth",
         "Marching Bands",
