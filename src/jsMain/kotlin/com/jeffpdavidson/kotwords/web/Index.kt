@@ -12,10 +12,10 @@ import kotlinx.html.p
 @JsExport
 object Index {
     private val GENERATORS = listOf(
-        "Across Lite",
         "Acrostic",
         "Around the Bend",
         "Coded",
+        "Crossword",
         "Crosswordle",
         "Eight Tracks",
         "Helter Skelter",
