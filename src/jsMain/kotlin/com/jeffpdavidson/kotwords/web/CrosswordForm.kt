@@ -12,6 +12,7 @@ import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 import com.jeffpdavidson.kotwords.web.html.Tabs
 import com.jeffpdavidson.kotwords.web.html.Tabs.tabs
+import kotlinx.html.div
 import kotlinx.html.dom.append
 
 @JsExport
@@ -23,13 +24,15 @@ class CrosswordForm {
         id = "manual-entry",
         createPdfFn = ::createPdfFromManualEntry,
     )
-    private val title: FormFields.InputField = FormFields.InputField("title")
-    private val creator: FormFields.InputField = FormFields.InputField("creator")
-    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
-    private val description: FormFields.TextBoxField = FormFields.TextBoxField("description")
-    private val grid: FormFields.TextBoxField = FormFields.TextBoxField("grid")
-    private val acrossClues: FormFields.TextBoxField = FormFields.TextBoxField("across-clues")
-    private val downClues: FormFields.TextBoxField = FormFields.TextBoxField("down-clues")
+    private val title = FormFields.InputField("title")
+    private val creator = FormFields.InputField("creator")
+    private val copyright = FormFields.InputField("copyright")
+    private val description = FormFields.TextBoxField("description")
+    private val grid = FormFields.TextBoxField("grid")
+    private val acrossAnswerLengths = FormFields.TextBoxField("across-answer-lengths")
+    private val downAnswerLengths = FormFields.TextBoxField("down-answer-lengths")
+    private val acrossClues = FormFields.TextBoxField("across-clues")
+    private val downClues = FormFields.TextBoxField("down-clues")
 
     private val puzFileForm = PuzzleFileForm(
         "crossword",
@@ -57,6 +60,20 @@ class CrosswordForm {
                                 "cells with whitespace."
                         rows = "15"
                     }
+                    div(classes = "form-row") {
+                        acrossAnswerLengths.render(this, "Across answer lengths (for barred grids)", flexCols = 6) {
+                            rows = "15"
+                            placeholder = "Lengths of the across answers; one line per row. Separate multiple " +
+                                    "answers for a row with whitespace. Use \"1\" to represent unchecked or black " +
+                                    "squares. Only required for barred grids."
+                        }
+                        downAnswerLengths.render(this, "Down answer lengths (for barred grids)", flexCols = 6) {
+                            rows = "15"
+                            placeholder = "Lengths of the down answers; one line per row. Separate multiple answers " +
+                                    "for a row with whitespace. Use \"1\" to represent unchecked or black squares. " +
+                                    "Only required for barred grids."
+                        }
+                    }
                     acrossClues.render(this, "Across clues") {
                         placeholder = "One clue per row. Omit clue numbers."
                         rows = "10"
@@ -75,17 +92,49 @@ class CrosswordForm {
     }
 
     private suspend fun createPuzzleFromManualEntry(): Puzzle {
-        val crosswordGrid = grid.getValue().uppercase().trimmedLines().map { row ->
+        val borders = mutableMapOf<Pair<Int, Int>, MutableSet<Puzzle.BorderDirection>>()
+        val acrossAnswerLengthRows = acrossAnswerLengths.getValue().trimmedLines()
+        if (acrossAnswerLengthRows.isNotEmpty()) {
+            acrossAnswerLengthRows.forEachIndexed { y, lengths ->
+                var x = 0
+                lengths.split("\\s+".toRegex()).forEachIndexed { i, length ->
+                    if (i > 0) {
+                        borders.getOrPut(x to y) { mutableSetOf() }.add(Puzzle.BorderDirection.LEFT)
+                    }
+                    x += length.toInt()
+                }
+            }
+        }
+        val downAnswerLengthRows = downAnswerLengths.getValue().trimmedLines()
+        if (downAnswerLengthRows.isNotEmpty()) {
+            downAnswerLengthRows.forEachIndexed { x, lengths ->
+                var y = 0
+                lengths.split("\\s+".toRegex()).forEachIndexed { i, length ->
+                    if (i > 0) {
+                        borders.getOrPut(x to y) { mutableSetOf() }.add(Puzzle.BorderDirection.TOP)
+                    }
+                    y += length.toInt()
+                }
+            }
+        }
+
+        val crosswordGrid = grid.getValue().uppercase().trimmedLines().mapIndexed { y, row ->
             val columns = if (row.contains("\\s".toRegex())) {
                 row.split("\\s+".toRegex())
             } else {
                 row.map { "$it" }
             }
-            columns.map { col ->
+            columns.mapIndexed { x, col ->
                 when (col) {
                     "." -> Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
-                    "-" -> Puzzle.Cell(solution = "")
-                    else -> Puzzle.Cell(solution = col)
+                    "-" -> Puzzle.Cell(
+                        solution = "",
+                        borderDirections = borders.getOrElse(x to y) { setOf() },
+                    )
+                    else -> Puzzle.Cell(
+                        solution = col,
+                        borderDirections = borders.getOrElse(x to y) { setOf() },
+                    )
                 }
             }
         }
@@ -117,7 +166,7 @@ class CrosswordForm {
             "Too many across clues; expected $currentAcrossClue from grid but have ${orderedAcrossClues.size}"
         }
         require(currentDownClue == orderedDownClues.size) {
-            "Too many across clues; expected $currentDownClue from grid but have ${orderedDownClues.size}"
+            "Too many down clues; expected $currentDownClue from grid but have ${orderedDownClues.size}"
         }
 
         return Crossword(

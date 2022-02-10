@@ -56,10 +56,9 @@ data class Crossword(
             if (isAcross) {
                 val word = mutableListOf<Puzzle.Coordinate>()
                 var i = x
-                while (i < grid[y].size && !grid[y][i].cellType.isBlack()) {
+                do {
                     word.add(Puzzle.Coordinate(x = i, y = y))
-                    i++
-                }
+                } while (!hasBorder(grid, i++, y, Puzzle.BorderDirection.RIGHT))
                 if (clueNumber != null && acrossClues.containsKey(clueNumber)) {
                     acrossPuzzleClues.add(
                         Puzzle.Clue(clueNumber, "$clueNumber", acrossClues[clueNumber]!!)
@@ -70,10 +69,9 @@ data class Crossword(
             if (isDown) {
                 val word = mutableListOf<Puzzle.Coordinate>()
                 var j = y
-                while (j < grid.size && !grid[j][x].cellType.isBlack()) {
+                do {
                     word.add(Puzzle.Coordinate(x = x, y = j))
-                    j++
-                }
+                } while (!hasBorder(grid, x, j++, Puzzle.BorderDirection.BOTTOM))
                 if (clueNumber != null && downClues.containsKey(clueNumber)) {
                     downPuzzleClues.add(
                         Puzzle.Clue(1000 + clueNumber, "$clueNumber", downClues[clueNumber]!!)
@@ -173,14 +171,37 @@ data class Crossword(
             }
         }
 
-        private fun needsAcrossNumber(grid: List<List<Puzzle.Cell>>, x: Int, y: Int): Boolean {
-            return !grid[y][x].cellType.isBlack() && (x == 0 || grid[y][x - 1].cellType.isBlack())
-                    && (x + 1 < grid[0].size && !grid[y][x + 1].cellType.isBlack())
-        }
+        private fun needsAcrossNumber(grid: List<List<Puzzle.Cell>>, x: Int, y: Int): Boolean =
+            !grid[y][x].cellType.isBlack()
+                    && hasBorder(grid, x, y, Puzzle.BorderDirection.LEFT)
+                    && !hasBorder(grid, x, y, Puzzle.BorderDirection.RIGHT)
 
-        private fun needsDownNumber(grid: List<List<Puzzle.Cell>>, x: Int, y: Int): Boolean {
-            return !grid[y][x].cellType.isBlack() && (y == 0 || grid[y - 1][x].cellType.isBlack())
-                    && (y + 1 < grid.size && !grid[y + 1][x].cellType.isBlack())
+        private fun needsDownNumber(grid: List<List<Puzzle.Cell>>, x: Int, y: Int): Boolean =
+            !grid[y][x].cellType.isBlack()
+                    && hasBorder(grid, x, y, Puzzle.BorderDirection.TOP)
+                    && !hasBorder(grid, x, y, Puzzle.BorderDirection.BOTTOM)
+
+        private fun hasBorder(
+            grid: List<List<Puzzle.Cell>>, x: Int, y: Int, direction: Puzzle.BorderDirection
+        ): Boolean {
+            if (grid[y][x].borderDirections.contains(direction)) return true
+            val (borderCellX, borderCellY) = when (direction) {
+                Puzzle.BorderDirection.TOP -> x to y - 1
+                Puzzle.BorderDirection.BOTTOM -> x to y + 1
+                Puzzle.BorderDirection.LEFT -> x - 1 to y
+                Puzzle.BorderDirection.RIGHT -> x + 1 to y
+            }
+            if (borderCellY !in grid.indices || borderCellX !in grid[borderCellY].indices) {
+                return true
+            }
+            val borderCell = grid[borderCellY][borderCellX]
+            val oppositeDirection = when (direction) {
+                Puzzle.BorderDirection.TOP -> Puzzle.BorderDirection.BOTTOM
+                Puzzle.BorderDirection.BOTTOM -> Puzzle.BorderDirection.TOP
+                Puzzle.BorderDirection.LEFT -> Puzzle.BorderDirection.RIGHT
+                Puzzle.BorderDirection.RIGHT -> Puzzle.BorderDirection.LEFT
+            }
+            return borderCell.cellType.isBlack() || borderCell.borderDirections.contains(oppositeDirection)
         }
     }
 }
