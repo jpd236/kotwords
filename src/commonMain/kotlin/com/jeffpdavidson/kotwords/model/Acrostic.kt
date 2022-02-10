@@ -253,6 +253,13 @@ data class Acrostic(
                     ' ' -> wordIndex++
                 }
             }
+
+            val solutionLetterFrequencies = solutionWords.groupingBy { it.first }.eachCount()
+            val answersLetterFrequencies = answers.flatMap { it.toList() }.groupingBy { it }.eachCount()
+            if (solutionLetterFrequencies != answersLetterFrequencies) {
+                throw IllegalArgumentException("Solution letters do not exactly match letters from clue answers")
+            }
+
             val remainingSolutionCharacters = solutionWords.withIndex().toMutableSet()
             return answers.withIndex().shuffled().map { (answerIndex, answer) ->
                 val solutionWordsUsedInAnswer = mutableSetOf<Int>()
