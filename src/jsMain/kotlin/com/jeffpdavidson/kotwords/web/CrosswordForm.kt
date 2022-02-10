@@ -69,9 +69,9 @@ class CrosswordForm {
                         }
                         downAnswerLengths.render(this, "Down answer lengths (for barred grids)", flexCols = 6) {
                             rows = "15"
-                            placeholder = "Lengths of the down answers; one line per row. Separate multiple answers " +
-                                    "for a row with whitespace. Use \"1\" to represent unchecked or black squares. " +
-                                    "Only required for barred grids."
+                            placeholder = "Lengths of the down answers; one line per column. Separate multiple " +
+                                    "answers for a column with whitespace. Use \"1\" to represent unchecked or black " +
+                                    "squares. Only required for barred grids."
                         }
                     }
                     acrossClues.render(this, "Across clues") {
