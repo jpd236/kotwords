@@ -1,0 +1,294 @@
+{
+  "body": [
+    {
+      "clueLists": [
+        {
+          "clues": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "name": "Across"
+        },
+        {
+          "clues": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "name": "Down"
+        }
+      ],
+      "dimensions": {
+        "height": 5,
+        "width": 5
+      },
+      "cells": [
+        {
+          "type": 1,
+          "answer": "A",
+          "label": "1"
+        },
+        {
+          "type": 1,
+          "answer": "B",
+          "label": "2"
+        },
+        {
+          "type": 1,
+          "answer": "C",
+          "label": "3"
+        },
+        {
+          "type": 1,
+          "answer": "D",
+          "label": "4"
+        },
+        {
+        },
+        {
+          "type": 1,
+          "answer": "E",
+          "label": "5"
+        },
+        {
+          "type": 1,
+          "answer": "F"
+        },
+        {
+          "type": 1,
+          "answer": "G"
+        },
+        {
+          "type": 1,
+          "answer": "H"
+        },
+        {
+        },
+        {
+          "type": 2,
+          "answer": "I",
+          "label": "6"
+        },
+        {
+          "type": 1,
+          "answer": "J"
+        },
+        {
+          "type": 1,
+          "answer": "XYZ"
+        },
+        {
+          "type": 1,
+          "answer": "L"
+        },
+        {
+          "type": 2,
+          "answer": "M",
+          "label": "7"
+        },
+        {
+        },
+        {
+          "type": 1,
+          "answer": "N",
+          "label": "8"
+        },
+        {
+          "type": 1,
+          "answer": "O"
+        },
+        {
+          "type": 1,
+          "answer": "P"
+        },
+        {
+          "type": 1,
+          "answer": "Q"
+        },
+        {
+        },
+        {
+          "type": 1,
+          "answer": "1",
+          "label": "9"
+        },
+        {
+          "type": 1,
+          "answer": "2"
+        },
+        {
+          "type": 1,
+          "answer": "$"
+        },
+        {
+          "type": 1,
+          "answer": "@"
+        }
+      ],
+      "clues": [
+        {
+          "cells": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "label": "1",
+          "text": [
+            {
+              "formatted": "First across clue with special characters &#945;&#946;&#947;&#948;&#949;",
+              "plain": "Ignored plaintext"
+            }
+          ]
+        },
+        {
+          "cells": [
+            5,
+            6,
+            7,
+            8
+          ],
+          "label": "5",
+          "text": [
+            {
+              "plain": "Second across clue"
+            }
+          ]
+        },
+        {
+          "cells": [
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "label": "6",
+          "text": [
+            {
+              "plain": "Third across clue"
+            }
+          ]
+        },
+        {
+          "cells": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "label": "8",
+          "text": [
+            {
+              "plain": "Fourth across clue"
+            }
+          ]
+        },
+        {
+          "cells": [
+            21,
+            22,
+            23,
+            24
+          ],
+          "label": "9",
+          "text": [
+            {
+              "plain": "Fifth across clue"
+            }
+          ]
+        },
+        {
+          "cells": [
+            0,
+            5,
+            10
+          ],
+          "label": "1",
+          "text": [
+            {
+              "plain": "First down clue"
+            }
+          ]
+        },
+        {
+          "cells": [
+            1,
+            6,
+            11,
+            16,
+            21
+          ],
+          "label": "2",
+          "text": [
+            {
+              "plain": "Second down clue"
+            }
+          ]
+        },
+        {
+          "cells": [
+            2,
+            7,
+            12,
+            17,
+            22
+          ],
+          "label": "3",
+          "text": [
+            {
+              "plain": "Third down clue"
+            }
+          ]
+        },
+        {
+          "cells": [
+            3,
+            8,
+            13,
+            18,
+            23
+          ],
+          "label": "4",
+          "text": [
+            {
+              "plain": "Fourth down clue"
+            }
+          ]
+        },
+        {
+          "cells": [
+            14,
+            19,
+            24
+          ],
+          "label": "7",
+          "text": [
+            {
+              "plain": "Fifth down clue"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "constructors": [
+    "Jeff Davidson"
+  ],
+  "copyright": "2018",
+  "editor": "Jeff Editor",
+  "notes": [
+    {
+      "text": "Notepad text goes here.",
+      "platforms": {
+        "web": true
+      }
+    }
+  ],
+  "publicationDate": "2020-01-08"
+}

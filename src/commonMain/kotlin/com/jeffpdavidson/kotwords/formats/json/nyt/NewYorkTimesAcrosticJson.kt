@@ -1,4 +1,4 @@
-package com.jeffpdavidson.kotwords.formats.json
+package com.jeffpdavidson.kotwords.formats.json.nyt
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

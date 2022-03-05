@@ -30,19 +30,29 @@ class NewYorkTimesTest {
 
     @Test
     fun getBorderWidth() = runTest {
-        val nyt = NewYorkTimes(readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage.json"))
+        val json = readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage.json")
+        val nyt = NewYorkTimes.fromPluribusJson(json)
         assertEquals(6.0, nyt.getBorderWidth(506)!!, 0.01)
     }
 
     @Test
     fun toPuzzle() = runTest {
-        val puzzle = NewYorkTimes(readStringResource(NewYorkTimesTest::class, "nyt/test.json")).asPuzzle()
+        val json = readStringResource(NewYorkTimesTest::class, "nyt/test.json")
+        val puzzle = NewYorkTimes.fromPluribusJson(json).asPuzzle()
+        assertEquals(readStringResource(NewYorkTimesTest::class, "nyt/test.jpz"), puzzle.asJpzFile().toXmlString())
+    }
+
+    @Test
+    fun toPuzzle_api() = runTest {
+        val json = readStringResource(NewYorkTimesTest::class, "nyt/test-api.json")
+        val puzzle = NewYorkTimes.fromApiJson(json, "daily").asPuzzle()
         assertEquals(readStringResource(NewYorkTimesTest::class, "nyt/test.jpz"), puzzle.asJpzFile().toXmlString())
     }
 
     @Test
     fun toPuzzle_bgImage_noFetcher() = runTest {
-        val puzzle = NewYorkTimes(readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage.json")).asPuzzle()
+        val json = readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage.json")
+        val puzzle = NewYorkTimes.fromPluribusJson(json).asPuzzle()
         assertEquals(
             readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage-nofetcher.jpz"),
             puzzle.asJpzFile().toXmlString()
@@ -50,9 +60,20 @@ class NewYorkTimesTest {
     }
 
     @Test
-    fun toPuzzle_bgImage() = runTest {
-        val puzzle = NewYorkTimes(
-            readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage.json"),
+    fun toPuzzle_bgImage_api_noFetcher() = runTest {
+        val json = readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage-api.json")
+        val puzzle = NewYorkTimes.fromApiJson(json, "daily").asPuzzle()
+        assertEquals(
+            readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage-nofetcher.jpz"),
+            puzzle.asJpzFile().toXmlString()
+        )
+    }
+
+    @Test
+    fun toPuzzle_bgImage_api() = runTest {
+        val puzzle = NewYorkTimes.fromApiJson(
+            readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage-api.json"),
+            "daily",
             httpGetter = { url ->
                 assertEquals("https://fake.url/bgimage.png", url)
                 readBinaryResource(NewYorkTimesTest::class, "nyt/bgimage.png")

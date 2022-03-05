@@ -1,7 +1,7 @@
 package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
-import com.jeffpdavidson.kotwords.formats.json.NewYorkTimesAcrosticJson
+import com.jeffpdavidson.kotwords.formats.json.nyt.NewYorkTimesAcrosticJson
 import com.jeffpdavidson.kotwords.model.Acrostic
 import okio.ByteString.Companion.decodeBase64
 

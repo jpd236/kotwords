@@ -138,7 +138,7 @@ class CrosswordForm {
                 }
             }
         }
-        require (crosswordGrid.isNotEmpty() && crosswordGrid.all { it.size == crosswordGrid[0].size }) {
+        require(crosswordGrid.isNotEmpty() && crosswordGrid.all { it.size == crosswordGrid[0].size }) {
             "Crossword grid is not square"
         }
 

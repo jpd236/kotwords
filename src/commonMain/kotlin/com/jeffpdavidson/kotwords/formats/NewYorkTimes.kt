@@ -1,7 +1,8 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
-import com.jeffpdavidson.kotwords.formats.json.NewYorkTimesJson
+import com.jeffpdavidson.kotwords.formats.json.nyt.NewYorkTimesApiJson
+import com.jeffpdavidson.kotwords.formats.json.nyt.NewYorkTimesJson
+import com.jeffpdavidson.kotwords.formats.json.nyt.NewYorkTimesPluribusJson
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.format
@@ -16,18 +17,17 @@ private val PUZZLE_DATA_REGEX = """\bpluribus\s*=\s*'([^']+)'""".toRegex()
 private val TITLE_DATE_FORMAT = DateFormat("EEEE, MMMM d, yyyy")
 private val PUBLICATION_DATE_FORMAT = DateFormat("YYYY-MM-dd")
 
-/**
- * Container for a puzzle in the New York Times embedded web format.
- */
-class NewYorkTimes(json: String, private val httpGetter: (suspend (String) -> ByteArray)? = null) : Puzzleable {
-    private val data = JsonSerializer.fromJson<NewYorkTimesJson.Data>(json).gamePageData
-
+/** Container for a puzzle in the New York Times format. */
+class NewYorkTimes internal constructor(
+    private val data: NewYorkTimesJson,
+    private val httpGetter: (suspend (String) -> ByteArray)? = null
+) : Puzzleable {
     override suspend fun asPuzzle(): Puzzle {
-        val publicationDate = PUBLICATION_DATE_FORMAT.parseDate(data.meta.publicationDate)
-        val puzzleName = if (data.meta.publishStream == "mini") "NY Times Mini Crossword" else "NY Times"
+        val publicationDate = PUBLICATION_DATE_FORMAT.parseDate(data.publicationDate)
+        val puzzleName = if (data.publishStream == "mini") "NY Times Mini Crossword" else "NY Times"
         val baseTitle = "$puzzleName, ${TITLE_DATE_FORMAT.format(publicationDate)}"
 
-        val backgroundImageUrl = getBackgroundImageUrl()
+        val backgroundImageUrl = data.beforeStartOverlay
         var hasUnsupportedFeatures = false
         val backgroundImageData =
             if (backgroundImageUrl == null || httpGetter == null) {
@@ -50,10 +50,10 @@ class NewYorkTimes(json: String, private val httpGetter: (suspend (String) -> By
                 }
                 // Slice the image into cells which can be set as background images in each cell.
                 // Only include images which contain non-transparent pixels.
-                val cellWidth = (backgroundImage.width - 2 * borderWidth) / data.dimensions.columnCount
-                val cellHeight = (backgroundImage.height - 2 * borderWidth) / data.dimensions.rowCount
-                for (y in 0 until data.dimensions.rowCount) {
-                    for (x in 0 until data.dimensions.columnCount) {
+                val cellWidth = (backgroundImage.width - 2 * borderWidth) / data.width
+                val cellHeight = (backgroundImage.height - 2 * borderWidth) / data.height
+                for (y in 0 until data.height) {
+                    for (x in 0 until data.width) {
                         backgroundImage.crop(
                             width = cellWidth.roundToInt(),
                             height = cellHeight.roundToInt(),
@@ -69,9 +69,9 @@ class NewYorkTimes(json: String, private val httpGetter: (suspend (String) -> By
             }
         }
 
-        val grid = (0 until data.dimensions.rowCount).map { y ->
-            (0 until data.dimensions.columnCount).map { x ->
-                val cell = data.cells[y * data.dimensions.columnCount + x]
+        val grid = (0 until data.height).map { y ->
+            (0 until data.width).map { x ->
+                val cell = data.cells[y * data.width + x]
                 val cellType = when (cell.type) {
                     0 -> Puzzle.CellType.BLOCK
                     4 -> Puzzle.CellType.VOID
@@ -98,12 +98,12 @@ class NewYorkTimes(json: String, private val httpGetter: (suspend (String) -> By
             }
         }
 
-        val webNotes = data.meta.notes?.filter { it.platforms.web }
+        val webNotes = data.notes?.filter { it.platforms.web }
 
         return Puzzle(
-            title = listOfNotNull(baseTitle, data.meta.title.normalizeEntities().ifEmpty { null }).joinToString(" "),
-            creator = renderByline(constructors = data.meta.constructors, editor = data.meta.editor),
-            copyright = "© ${data.meta.copyright}, The New York Times",
+            title = listOfNotNull(baseTitle, data.title.normalizeEntities().ifEmpty { null }).joinToString(" "),
+            creator = renderByline(constructors = data.constructors, editor = data.editor),
+            copyright = "© ${data.copyright}, The New York Times",
             description = webNotes?.map { it.text.normalizeEntities() }?.firstOrNull() ?: "",
             grid = grid,
             clues = data.clueLists.map { clueList ->
@@ -114,7 +114,7 @@ class NewYorkTimes(json: String, private val httpGetter: (suspend (String) -> By
             },
             words = data.clues.mapIndexed { clueIndex, clue ->
                 Puzzle.Word(id = clueIndex, cells = clue.cells.map {
-                    Puzzle.Coordinate(x = it % data.dimensions.columnCount, y = it / data.dimensions.columnCount)
+                    Puzzle.Coordinate(x = it % data.width, y = it / data.width)
                 })
             },
             hasHtmlClues = true,
@@ -124,15 +124,7 @@ class NewYorkTimes(json: String, private val httpGetter: (suspend (String) -> By
 
     /** Return the list of extra data URLs that will be requested with [httpGetter] by [asPuzzle]. */
     fun getExtraDataUrls(): List<String> {
-        return listOfNotNull(getBackgroundImageUrl())
-    }
-
-    private fun getBackgroundImageUrl(): String? {
-        return if (data.overlays.beforeStart is NewYorkTimesJson.UrlValue.StringValue) {
-            data.overlays.beforeStart.value.ifEmpty { null }
-        } else {
-            null
-        }
+        return listOfNotNull(data.beforeStartOverlay)
     }
 
     private fun renderByline(constructors: List<String>, editor: String): String {
@@ -156,7 +148,9 @@ class NewYorkTimes(json: String, private val httpGetter: (suspend (String) -> By
         val grid = data.board.children.firstOrNull { it.attributes.getOrElse("data-group") { "" } == "grid" }
         val rect = grid?.children?.firstOrNull { it.name == "rect" }
         val width = rect?.attributes?.getOrElse("width") { "" } ?: ""
-        val strokeWidth = rect?.attributes?.getOrElse("strokeWidth") { "" } ?: ""
+        val strokeWidth = rect?.attributes?.getOrElse("strokeWidth") {
+            rect.attributes.getOrElse("stroke-width") { "" }
+        } ?: ""
         return if (width.isEmpty() || strokeWidth.isEmpty()) {
             null
         } else {
@@ -167,10 +161,20 @@ class NewYorkTimes(json: String, private val httpGetter: (suspend (String) -> By
 
     companion object {
         fun fromHtml(html: String, httpGetter: (suspend (String) -> ByteArray)? = null): NewYorkTimes =
-            NewYorkTimes(extractPuzzleJson(html), httpGetter)
+            NewYorkTimes(NewYorkTimesPluribusJson.parse(extractPuzzleJson(html)), httpGetter)
+
+        fun fromPluribusJson(pluribusJson: String, httpGetter: (suspend (String) -> ByteArray)? = null): NewYorkTimes =
+            NewYorkTimes(NewYorkTimesPluribusJson.parse(pluribusJson), httpGetter)
 
         fun fromPluribus(pluribus: String, httpGetter: (suspend (String) -> ByteArray)? = null): NewYorkTimes =
-            NewYorkTimes(decodePluribus(pluribus), httpGetter)
+            fromPluribusJson(decodePluribus(pluribus), httpGetter)
+
+        fun fromApiJson(
+            apiJson: String,
+            stream: String,
+            httpGetter: (suspend (String) -> ByteArray)? = null
+        ): NewYorkTimes =
+            NewYorkTimes(NewYorkTimesApiJson.parse(apiJson, stream), httpGetter)
 
         internal fun extractPuzzleJson(html: String): String {
             // Look for "pluribus='[data]'" inside <script> tags; this is JSON puzzle data
@@ -194,8 +198,12 @@ class NewYorkTimes(json: String, private val httpGetter: (suspend (String) -> By
             return Encodings.decodeHtmlEntities(this)
                 .replace("&", "&amp;")
                 .replace("<", "&lt;")
-                .replace("&lt;(/?(?:b|i|sup|sub|span|strong|s|br))( [^>]*)?>".toRegex(RegexOption.IGNORE_CASE), "<$1>")
+                .replace(
+                    "&lt;(/?(?:b|i|sup|sub|span|strong|s|br|em))( [^>]*)?>".toRegex(RegexOption.IGNORE_CASE),
+                    "<$1>"
+                )
                 .replace("<(/?)strong>".toRegex(RegexOption.IGNORE_CASE), "<$1b>")
+                .replace("<(/?)em>".toRegex(RegexOption.IGNORE_CASE), "<$1i>")
                 .replace("</?s>".toRegex(RegexOption.IGNORE_CASE), "---")
                 .replace("<br>".toRegex(RegexOption.IGNORE_CASE), "\n")
         }
