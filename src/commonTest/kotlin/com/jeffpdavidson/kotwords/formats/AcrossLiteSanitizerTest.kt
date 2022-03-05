@@ -68,7 +68,7 @@ class AcrossLiteSanitizerTest {
 
     @Test
     fun sanitizeClue_specialCharacters() {
-        val givenClue = "★Clue with a <i>star</i>"
+        val givenClue = "★Clue with a <i>star</i>\n\n"
         val givenToSanitizedClueNumMap: Map<String, String> = mapOf()
         assertEquals(
             "*Clue with a \"star\"",

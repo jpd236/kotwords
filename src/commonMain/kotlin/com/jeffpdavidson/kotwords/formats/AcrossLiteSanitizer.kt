@@ -100,7 +100,7 @@ internal object AcrossLiteSanitizer {
                 sanitizedClue.toString()
             }
 
-        return substituteUnsupportedText(renumberedClue, sanitizeCharacters)
+        return substituteUnsupportedText(renumberedClue, sanitizeCharacters).trim()
     }
 
     private val htmlClueReplacements = mapOf(
