@@ -504,6 +504,7 @@ sealed interface Jpz : Puzzleable {
             var snippet = XML(module()) {
                 autoPolymorphic = true
             }.decodeFromString(Dummy.serializer(), dummyXml).data
+            snippet = trimWhitespace(snippet)
             // For better compatibility with Crossword Solver, we need to avoid mixed content. Unwrap any outer spans,
             // and then wrap plain text in spans whenever a snippet has HTML children.
             while (snippet.size == 1 && snippet[0] is Span) {
@@ -519,6 +520,39 @@ sealed interface Jpz : Puzzleable {
                     it
                 }
             }
+        }
+
+        /** Trim whitespace from the beginning and end of the given snippet. */
+        private fun trimWhitespace(snippet: Snippet, start: Boolean = true, end: Boolean = true): Snippet {
+            if (snippet.isEmpty()) {
+                return snippet
+            }
+            val trimmed = snippet.toMutableList()
+            if (start) {
+                val first = trimmed[0]
+                trimmed[0] = when (first) {
+                    is String -> first.trimStart()
+                    is B -> B(trimWhitespace(first.data, start = true, end = false))
+                    is I -> I(trimWhitespace(first.data, start = true, end = false))
+                    is Sub -> Sub(trimWhitespace(first.data, start = true, end = false))
+                    is Sup -> Sup(trimWhitespace(first.data, start = true, end = false))
+                    is Span -> Span(trimWhitespace(first.data, start = true, end = false))
+                    else -> throw IllegalStateException("Unknown data type: $first")
+                }
+            }
+            if (end) {
+                val last = trimmed[trimmed.lastIndex]
+                trimmed[trimmed.lastIndex] = when (last) {
+                    is String -> last.trimEnd()
+                    is B -> B(trimWhitespace(last.data, start = false, end = true))
+                    is I -> I(trimWhitespace(last.data, start = false, end = true))
+                    is Sub -> Sub(trimWhitespace(last.data, start = false, end = true))
+                    is Sup -> Sup(trimWhitespace(last.data, start = false, end = true))
+                    is Span -> Span(trimWhitespace(last.data, start = false, end = true))
+                    else -> throw IllegalStateException("Unknown data type: $last")
+                }
+            }
+            return trimmed
         }
     }
 }

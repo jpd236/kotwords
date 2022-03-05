@@ -65,6 +65,14 @@ class JpzTest {
     }
 
     @Test
+    fun htmlToSnippet_extraneousNewlines() = runTest {
+        assertEquals(
+            listOf(Jpz.I(listOf("This clue has")), Jpz.Span(listOf(" extra whitespace"))),
+            Jpz.htmlToSnippet("<i>  This clue has</i><span> extra whitespace\n\n</span>")
+        )
+    }
+
+    @Test
     fun puzzleConversion_acrostic() = runTest { assertConversionIsEqual("acrostic/acrostic-attribution.jpz") }
 
     @Test
