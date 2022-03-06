@@ -49,7 +49,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1")
                 implementation("net.mamoe.yamlkt:yamlkt:0.10.2")
-                implementation("io.github.pdvrieze.xmlutil:serialization:0.84.0")
+                implementation("io.github.pdvrieze.xmlutil:serialization:0.84.1")
                 implementation("com.github.ajalt.colormath:colormath:3.2.0")
 
                 // TODO: Migrate to kotlinx-datetime if parsing/formatting support is added.
