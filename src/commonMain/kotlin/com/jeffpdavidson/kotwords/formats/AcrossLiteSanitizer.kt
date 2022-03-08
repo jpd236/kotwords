@@ -4,7 +4,8 @@ import com.jeffpdavidson.kotwords.formats.unidecode.Unidecode
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Puzzle
 
-private val CROSS_REFERENCE_PATTERN = "([1-9][0-9]*)-(?:(?!Across|Down).)*(Across|Down)".toRegex()
+private val CROSS_REFERENCE_PATTERN =
+    "([1-9][0-9]*)[- ]?(?:(?!Across|Down).)*(Across|Down)".toRegex(RegexOption.IGNORE_CASE)
 
 /** Utility to constrain clues and metadata to fit Across Lite format restrictions. */
 internal object AcrossLiteSanitizer {

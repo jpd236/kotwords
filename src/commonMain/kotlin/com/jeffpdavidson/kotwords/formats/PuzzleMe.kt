@@ -151,11 +151,13 @@ class PuzzleMe(private val json: String) : Puzzleable {
         val filteredGrid = grid.drop(topRowsToDelete).dropLast(bottomRowsToDelete)
             .map { row -> row.drop(leftRowsToDelete).dropLast(rightRowsToDelete) }
 
-        val acrossWords = data.placedWords
+        // Ignore words that don't have a proper clue associated.
+        val words = data.placedWords.filterNot { it.clueNum == 0 }
+        val acrossWords = words
             .filter { it.acrossNotDown }
             .filter { it.y >= topRowsToDelete && it.y <= grid.size - bottomRowsToDelete }
             .map { it.copy(x = it.x - leftRowsToDelete, y = it.y - topRowsToDelete) }
-        val downWords = data.placedWords
+        val downWords = words
             .filterNot { it.acrossNotDown }
             .filter { it.x >= leftRowsToDelete && it.x <= grid[0].size - rightRowsToDelete }
             .map { it.copy(x = it.x - leftRowsToDelete, y = it.y - topRowsToDelete) }

@@ -50,18 +50,35 @@ class AcrossLiteSanitizerTest {
     }
 
     @Test
-    fun sanitizeClue_simpleReplacement() {
+    fun sanitizeClue_simpleReplacement_hyphen() {
         val givenClue = "See 25-Down"
         val givenToSanitizedClueNumMap = mapOf("25" to "27")
         assertEquals("See 27-Down", AcrossLiteSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap, true))
     }
 
     @Test
-    fun sanitizeClue_complexReplacements() {
+    fun sanitizeClue_simpleReplacement_space() {
+        val givenClue = "See 25 Down"
+        val givenToSanitizedClueNumMap = mapOf("25" to "27")
+        assertEquals("See 27 Down", AcrossLiteSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap, true))
+    }
+
+    @Test
+    fun sanitizeClue_complexReplacements_hyphen() {
         val givenClue = "Where the end of 17-, 25- and 47-Across and 14- and 28-Down may be found"
         val givenToSanitizedClueNumMap = mapOf("14" to "14", "17" to "17", "25" to "26", "28" to "29", "47" to "49")
         assertEquals(
             "Where the end of 17-, 26- and 49-Across and 14- and 29-Down may be found",
+            AcrossLiteSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap, true)
+        )
+    }
+
+    @Test
+    fun sanitizeClue_complexReplacements_space() {
+        val givenClue = "Where the end of 17, 25 and 47 Across and 14 and 28 Down may be found"
+        val givenToSanitizedClueNumMap = mapOf("14" to "14", "17" to "17", "25" to "26", "28" to "29", "47" to "49")
+        assertEquals(
+            "Where the end of 17, 26 and 49 Across and 14 and 29 Down may be found",
             AcrossLiteSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap, true)
         )
     }
