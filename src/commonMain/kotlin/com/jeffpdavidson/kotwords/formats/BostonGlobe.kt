@@ -3,21 +3,17 @@ package com.jeffpdavidson.kotwords.formats
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Puzzle
 
-// Matches "TITLE Author, Copyright"
-private val SUB_HEADER_REGEX = "([^a-z]+(?![a-z])) ([^,]+), (.+)".toRegex()
+// Matches "TITLE Author"
+private val CAPITALIZED_TITLE_REGEX = "([^a-z]+(?![a-z])) (.+)".toRegex()
 
 /** Container for a puzzle in the Boston Globe HTML format. */
 class BostonGlobe(private val html: String) : Puzzleable {
     override suspend fun asPuzzle(): Puzzle {
         val document = Xml.parse(html, format = DocumentFormat.HTML)
 
-        val subHeader = document.selectFirst("p.subhed")?.text
+        val subHeaderText = document.selectFirst("p.subhed")?.text
             ?: throw InvalidFormatException("No sub header")
-        val subHeaderMatch = SUB_HEADER_REGEX.matchEntire(subHeader)
-            ?: throw InvalidFormatException("Invalid sub header: $subHeader")
-        val title = subHeaderMatch.groupValues[1]
-        val author = subHeaderMatch.groupValues[2]
-        val copyright = "\u00a9 ${subHeaderMatch.groupValues[3]}"
+        val subHeader = parseSubHeader(subHeaderText)
 
         val gridElement = document.selectFirst("table#puzzle")
             ?: throw InvalidFormatException("No puzzle table")
@@ -44,9 +40,9 @@ class BostonGlobe(private val html: String) : Puzzleable {
         val downClues = toClueMap(document.select("div.clues-down label"))
 
         return Crossword(
-            title = title,
-            creator = author,
-            copyright = copyright,
+            title = subHeader.title,
+            creator = subHeader.author,
+            copyright = subHeader.copyright,
             grid = grid,
             acrossClues = acrossClues,
             downClues = downClues
@@ -58,5 +54,41 @@ class BostonGlobe(private val html: String) : Puzzleable {
             val clue = it.text!!
             clue.substringBefore(". ", clue).toInt() to clue.substringAfter(". ", clue)
         }.toMap()
+    }
+
+    companion object {
+        internal data class SubHeader(
+            val title: String,
+            val author: String,
+            val copyright: String,
+        )
+
+        internal fun parseSubHeader(subHeader: String): SubHeader {
+            // Subheaders should be of the form: [Title + Author], [Copyright]
+            val (titleAuthor, copyright) = if (subHeader.contains(", ")) {
+                val parts = subHeader.split(", ", limit = 2)
+                parts[0] to "\u00a9 ${parts[1]}"
+            } else {
+                // Just assume the whole thing is the title + author as a fallback.
+                subHeader to ""
+            }
+
+            val (title, author) = if (titleAuthor.contains(" by ")) {
+                // Format: [Title] by [Author]
+                val parts = titleAuthor.split(" by ", limit = 2)
+                parts[0] to parts[1]
+            } else {
+                // Format: [TITLE] [Author]
+                val match = CAPITALIZED_TITLE_REGEX.matchEntire(titleAuthor)
+                if (match != null) {
+                    match.groupValues[1] to match.groupValues[2]
+                } else {
+                    // Just assume the whole thing is the title as a fallback.
+                    titleAuthor to ""
+                }
+            }
+
+            return SubHeader(title, author, copyright)
+        }
     }
 }

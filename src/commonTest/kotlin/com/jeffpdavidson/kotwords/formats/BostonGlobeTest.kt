@@ -20,4 +20,36 @@ class BostonGlobeTest {
                 )
         )
     }
+
+    @Test
+    fun parseSubHeader_capitalTitle() {
+        assertEquals(
+            BostonGlobe.Companion.SubHeader("TEST TITLE", "Test Author", "\u00a9 Test Copyright"),
+            BostonGlobe.parseSubHeader("TEST TITLE Test Author, Test Copyright")
+        )
+    }
+
+    @Test
+    fun parseSubHeader_byTitle() {
+        assertEquals(
+            BostonGlobe.Companion.SubHeader("Test Title", "Test Author", "\u00a9 Test Copyright"),
+            BostonGlobe.parseSubHeader("Test Title by Test Author, Test Copyright")
+        )
+    }
+
+    @Test
+    fun parseSubHeader_noCopyright() {
+        assertEquals(
+            BostonGlobe.Companion.SubHeader("Test Title", "Test Author", ""),
+            BostonGlobe.parseSubHeader("Test Title by Test Author")
+        )
+    }
+
+    @Test
+    fun parseSubHeader_noAuthorOrCopyright() {
+        assertEquals(
+            BostonGlobe.Companion.SubHeader("Test Title", "", ""),
+            BostonGlobe.parseSubHeader("Test Title")
+        )
+    }
 }
