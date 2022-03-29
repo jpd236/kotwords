@@ -107,12 +107,12 @@ data class Acrostic(
         fun endSection() {
             // Fill the rest of the current row with white squares.
             if (x > 0) {
-                row.addAll(generateWhiteCells(width - x))
+                row.addAll(generateBlankCells(width - x))
                 nextRow()
             }
 
             // Add a spacer row of white squares.
-            row.addAll(generateWhiteCells(width))
+            row.addAll(generateBlankCells(width))
             nextRow()
         }
         endSection()
@@ -158,7 +158,7 @@ data class Acrostic(
             }
             answerWordMap[clueIndex] = word
             row.addAll(cells)
-            row.addAll(generateWhiteCells(columnEndIndex - x))
+            row.addAll(generateBlankCells(columnEndIndex - x))
             x = columnEndIndex
         }
 
@@ -169,7 +169,7 @@ data class Acrostic(
             if (answerRow < gridKeyColumns[1].size) {
                 addClue(gridKeyColumns[0].size + answerRow, width, gridKeyColumns[1][answerRow])
             } else {
-                row.addAll(generateWhiteCells(width - x))
+                row.addAll(generateBlankCells(width - x))
             }
             nextRow()
         }
@@ -294,9 +294,9 @@ data class Acrostic(
 
         internal fun getClueLetters(clueIndex: Int): String = "${'A' + (clueIndex % 26)}".repeat(clueIndex / 26 + 1)
 
-        private fun generateWhiteCells(count: Int): List<Puzzle.Cell> {
+        private fun generateBlankCells(count: Int): List<Puzzle.Cell> {
             return (0 until count).map {
-                Puzzle.Cell(cellType = Puzzle.CellType.BLOCK, backgroundColor = "#FFFFFF")
+                Puzzle.Cell(cellType = Puzzle.CellType.VOID)
             }
         }
     }
