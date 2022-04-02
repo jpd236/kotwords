@@ -27,6 +27,14 @@ class BostonGlobeTest {
             BostonGlobe.Companion.SubHeader("TEST TITLE", "Test Author", "\u00a9 Test Copyright"),
             BostonGlobe.parseSubHeader("TEST TITLE Test Author, Test Copyright")
         )
+        assertEquals(
+            BostonGlobe.Companion.SubHeader("TEST BY TITLE", "Test Author", "\u00a9 Test Copyright"),
+            BostonGlobe.parseSubHeader("TEST BY TITLE Test Author, Test Copyright")
+        )
+        assertEquals(
+            BostonGlobe.Companion.SubHeader("TEST, TITLE", "Test Author", "\u00a9 Test Copyright"),
+            BostonGlobe.parseSubHeader("TEST, TITLE Test Author, Test Copyright")
+        )
     }
 
     @Test
@@ -34,6 +42,18 @@ class BostonGlobeTest {
         assertEquals(
             BostonGlobe.Companion.SubHeader("Test Title", "Test Author", "\u00a9 Test Copyright"),
             BostonGlobe.parseSubHeader("Test Title by Test Author, Test Copyright")
+        )
+        assertEquals(
+            BostonGlobe.Companion.SubHeader("Test Title", "Test Author", "\u00a9 Test Copyright"),
+            BostonGlobe.parseSubHeader("Test Title By Test Author, Test Copyright")
+        )
+        assertEquals(
+            BostonGlobe.Companion.SubHeader("Test By Title", "Test Author", "\u00a9 Test Copyright"),
+            BostonGlobe.parseSubHeader("Test By Title By Test Author, Test Copyright")
+        )
+        assertEquals(
+            BostonGlobe.Companion.SubHeader("Test, Title", "Test Author", "\u00a9 Test Copyright"),
+            BostonGlobe.parseSubHeader("Test, Title By Test Author, Test Copyright")
         )
     }
 

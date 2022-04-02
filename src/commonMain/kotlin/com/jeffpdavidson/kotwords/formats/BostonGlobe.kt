@@ -6,6 +6,12 @@ import com.jeffpdavidson.kotwords.model.Puzzle
 // Matches "TITLE Author"
 private val CAPITALIZED_TITLE_REGEX = "([^a-z]+(?![a-z])) (.+)".toRegex()
 
+// Matches the last " by " or " By " (but not " BY ")
+private val BY_REGEX = " [Bb]y (?!.* [Bb]y )".toRegex()
+
+// Matches the last ", "
+private val COMMA_REGEX = ", (?!.*, )".toRegex()
+
 /** Container for a puzzle in the Boston Globe HTML format. */
 class BostonGlobe(private val html: String) : Puzzleable {
     override suspend fun asPuzzle(): Puzzle {
@@ -65,17 +71,17 @@ class BostonGlobe(private val html: String) : Puzzleable {
 
         internal fun parseSubHeader(subHeader: String): SubHeader {
             // Subheaders should be of the form: [Title + Author], [Copyright]
-            val (titleAuthor, copyright) = if (subHeader.contains(", ")) {
-                val parts = subHeader.split(", ", limit = 2)
+            val (titleAuthor, copyright) = if (subHeader.contains(COMMA_REGEX)) {
+                val parts = subHeader.split(COMMA_REGEX, limit = 2)
                 parts[0] to "\u00a9 ${parts[1]}"
             } else {
                 // Just assume the whole thing is the title + author as a fallback.
                 subHeader to ""
             }
 
-            val (title, author) = if (titleAuthor.contains(" by ")) {
+            val (title, author) = if (titleAuthor.contains(BY_REGEX)) {
                 // Format: [Title] by [Author]
-                val parts = titleAuthor.split(" by ", limit = 2)
+                val parts = titleAuthor.split(BY_REGEX, limit = 2)
                 parts[0] to parts[1]
             } else {
                 // Format: [TITLE] [Author]
