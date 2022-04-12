@@ -102,4 +102,26 @@ class AcrossLiteSanitizerTest {
             AcrossLiteSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap, false)
         )
     }
+
+    @Test
+    fun sanitizeClue_html() {
+        val givenClue =
+            "Some <b>bold</b> and <i>italic</i> and <b><i>bold italic</i></b> and <i><b>italic bold</b></i> and" +
+                    " <xyz>unknown</xyz><b><i><b></b></i></b>"
+        val givenToSanitizedClueNumMap: Map<String, String> = mapOf()
+        assertEquals(
+            "Some *bold* and \"italic\" and *\"bold italic\"* and \"*italic bold*\" and unknown",
+            AcrossLiteSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap, true)
+        )
+    }
+
+    @Test
+    fun sanitizeClue_blankHtml() {
+        val givenClue = "<b></b>"
+        val givenToSanitizedClueNumMap: Map<String, String> = mapOf()
+        assertEquals(
+            "-",
+            AcrossLiteSanitizer.sanitizeClue(givenClue, givenToSanitizedClueNumMap, true)
+        )
+    }
 }

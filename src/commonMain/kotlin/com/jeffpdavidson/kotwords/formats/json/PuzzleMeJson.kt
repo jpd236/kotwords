@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 internal object PuzzleMeJson {
     @Serializable
-    internal data class Clue(val clue: String)
+    internal data class Clue(val clue: String = "")
 
     @Serializable
     internal data class PlacedWord(

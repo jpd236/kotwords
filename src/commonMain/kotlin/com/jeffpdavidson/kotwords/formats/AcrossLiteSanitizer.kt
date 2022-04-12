@@ -70,7 +70,7 @@ internal object AcrossLiteSanitizer {
     /**
      * Sanitize the given clue.
      *
-     * Missing clues are set to "-", and cross references are updated to reflect any shifted
+     * Missing/blank clues are set to "-", and cross references are updated to reflect any shifted
      * clue numbers in the sanitized grid. If sanitizeCharacters is true, invalid characters in
      * ISO-8859-1 are replaced with supported equivalents.
      */
@@ -79,47 +79,52 @@ internal object AcrossLiteSanitizer {
         givenToSanitizedClueNumberMap: Map<String, String>?,
         sanitizeCharacters: Boolean,
     ): String {
-        if (givenClue == null) {
-            return "-"
-        }
+        val cleanedClue = substituteUnsupportedText(givenClue ?: "", sanitizeCharacters).trim()
         val renumberedClue =
             if (givenToSanitizedClueNumberMap == null) {
-                givenClue
+                cleanedClue
             } else {
                 val sanitizedClue = StringBuilder()
                 var startIndex = 0
                 var matchResult: MatchResult?
                 do {
-                    matchResult = CROSS_REFERENCE_PATTERN.find(givenClue, startIndex)
+                    matchResult = CROSS_REFERENCE_PATTERN.find(cleanedClue, startIndex)
                     if (matchResult != null) {
-                        sanitizedClue.append(givenClue.substring(startIndex, matchResult.range.first))
+                        sanitizedClue.append(cleanedClue.substring(startIndex, matchResult.range.first))
                         sanitizedClue.append(givenToSanitizedClueNumberMap[matchResult.groupValues[1]])
                         startIndex = matchResult.range.first + matchResult.groupValues[1].length
                     }
                 } while (matchResult != null)
-                sanitizedClue.append(givenClue.substring(startIndex))
+                sanitizedClue.append(cleanedClue.substring(startIndex))
                 sanitizedClue.toString()
             }
-
-        return substituteUnsupportedText(renumberedClue, sanitizeCharacters).trim()
+        return renumberedClue.ifBlank { "-" }
     }
+
+    // Empty tags which should be filtered out to avoid replacing them with unnecessary substitution characters.
+    private val emptyTagRegexes = listOf("<b></b>", "<i></i>").map { it.toRegex(RegexOption.IGNORE_CASE) }
 
     private val htmlClueReplacements = mapOf(
         "</?b>" to "*",
         "</?i>" to "\"",
-        "</?sub>" to "",
-        "</?sup>" to "",
-        "</?span>" to "",
+        "</?[a-z]+>" to "",
         "&amp;" to "&",
         "&lt;" to "<",
-    )
+    ).mapKeys { it.key.toRegex(RegexOption.IGNORE_CASE) }
 
     fun substituteUnsupportedText(text: String, sanitizeCharacters: Boolean): String {
-        val withoutHtml = htmlClueReplacements
-            .map { (key, value) -> key.toRegex() to value }
-            .fold(text) { clue, (from, to) ->
-                clue.replace(from, to)
-            }
+        // First, filter out any empty tags repeatedly until none remain (to handle nesting).
+        var withoutEmpty = text
+        do {
+            val temp = withoutEmpty
+            withoutEmpty = emptyTagRegexes.fold(withoutEmpty) { clue, regex -> clue.replace(regex, "") }
+        } while (temp != withoutEmpty)
+
+        // Next, replace all HTML with supported substitutions.
+        val withoutHtml = htmlClueReplacements.entries.fold(withoutEmpty) { clue, (from, to) ->
+            clue.replace(from, to)
+        }
+
         if (!sanitizeCharacters) {
             return withoutHtml
         }
