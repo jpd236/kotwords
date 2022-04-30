@@ -66,14 +66,22 @@ internal class PuzzleFileForm(
     enableSaveData: Boolean = true,
     enableMetadataInput: Boolean = true,
 ) {
+
     private open class Field<T>(private val input: FormFields.FormField<T>?, private val defaultValue: T) {
-        operator fun getValue(thisRef: Any?, property: KProperty<*>): T = input?.value ?: defaultValue
+        open operator fun getValue(thisRef: Any?, property: KProperty<*>): T = input?.value ?: defaultValue
         operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
             input?.value = value
         }
     }
 
-    private class StringField(private val input: FormFields.FormField<String>?) : Field<String>(input, "")
+    private class StringField(
+        input: FormFields.FormField<String>?,
+        private val transformFn: (String) -> String = { it },
+    ) : Field<String>(input, "") {
+        override operator fun getValue(thisRef: Any?, property: KProperty<*>): String {
+            return transformFn(super.getValue(thisRef, property))
+        }
+    }
 
     private val titleField: FormFields.InputField? =
         if (enableMetadataInput) FormFields.InputField(elementId("title")) else null
@@ -85,7 +93,7 @@ internal class PuzzleFileForm(
 
     private val copyrightField: FormFields.InputField? =
         if (enableMetadataInput) FormFields.InputField(elementId("copyright")) else null
-    var copyright: String by StringField(copyrightField)
+    var copyright: String by StringField(copyrightField) { it.replace("(c)", "©", ignoreCase = true) }
 
     private val descriptionField: FormFields.TextBoxField? =
         if (enableMetadataInput) FormFields.TextBoxField(elementId("description")) else null
@@ -172,7 +180,7 @@ internal class PuzzleFileForm(
 
             titleField?.render(this, "Title")
             creatorField?.render(this, "Creator (optional)")
-            copyrightField?.render(this, "Copyright (optional)")
+            copyrightField?.render(this, "Copyright (optional)", help = "(c) will be replaced with ©")
             descriptionField?.render(this, "Description (optional)") {
                 rows = "5"
             }

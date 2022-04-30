@@ -160,7 +160,7 @@ data class RowsGarden(
         return Puzzle(
             title = title,
             creator = creator,
-            copyright = copyright.replace("(c)", "©"),
+            copyright = copyright,
             description = description,
             grid = grid,
             clues = listOf(Puzzle.ClueList("Rows", rowClues), Puzzle.ClueList("Blooms", bloomClues)),

@@ -23,7 +23,7 @@ class RgzTest {
         private val TEST_DATA = RowsGarden(
             title = "Test Title",
             creator = "Test Author",
-            copyright = "(c) 2020 Kotwords",
+            copyright = "© 2020 Kotwords",
             description = "Test Notes",
             rows = listOf(
                 listOf(RowsGarden.Entry("Row 1", "AAAAAAAAA")),

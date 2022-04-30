@@ -31,7 +31,7 @@ class Rgz(val rg: String) : Puzzleable {
         return RowsGarden(
             title = rgzYaml.title,
             creator = rgzYaml.author,
-            copyright = rgzYaml.copyright,
+            copyright = rgzYaml.copyright.replace("(c)", "©", ignoreCase = true),
             description = rgzYaml.notes ?: "",
             rows = rgzYaml.rows,
             light = rgzYaml.light,
