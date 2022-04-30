@@ -14,10 +14,6 @@ import kotlinx.html.classes
 @KotwordsInternal
 class CodedForm {
     private val form = PuzzleFileForm("coded", ::createPuzzle)
-    private val title: FormFields.InputField = FormFields.InputField("title")
-    private val creator: FormFields.InputField = FormFields.InputField("creator")
-    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
-    private val description: FormFields.TextBoxField = FormFields.TextBoxField("description")
     private val grid: FormFields.TextBoxField = FormFields.TextBoxField("grid")
     private val assignments: FormFields.InputField = FormFields.InputField("assignments")
     private val givens: FormFields.InputField = FormFields.InputField("givens")
@@ -27,12 +23,6 @@ class CodedForm {
     init {
         renderPage {
             form.render(this, bodyBlock = {
-                this@CodedForm.title.render(this, "Title")
-                creator.render(this, "Creator (optional)")
-                copyright.render(this, "Copyright (optional)")
-                description.render(this, "Description (optional)") {
-                    rows = "5"
-                }
                 grid.render(this, "Grid") {
                     rows = "13"
                     placeholder = "The solution grid. Use \".\" to represent black squares."
@@ -65,35 +55,35 @@ class CodedForm {
     }
 
     private suspend fun createPuzzle(): Puzzle {
-        if (assignments.getValue().isBlank()) {
+        if (assignments.value.isBlank()) {
             // While fromRawInput will generate and use an assignment if the provided one is blank, we proactively
             // generate it here so we can update the form with the result, ensuring the exact same output can be
             // reproduced.
-            val gridChars = grid.getValue().uppercase().trimmedLines().map { line ->
+            val gridChars = grid.value.uppercase().trimmedLines().map { line ->
                 line.map { ch -> if (ch == '.') null else ch }
             }
             val generatedAssignments = Coded.generateAssignments(gridChars)
-            assignments.setValue(generatedAssignments.joinToString(""))
+            assignments.value = generatedAssignments.joinToString("")
         }
         val coded = Coded.fromRawInput(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            grid = grid.getValue(),
-            assignments = assignments.getValue(),
-            givens = givens.getValue(),
+            title = form.title,
+            creator = form.creator,
+            copyright = form.copyright,
+            description = form.description,
+            grid = grid.value,
+            assignments = assignments.value,
+            givens = givens.value,
         )
         return coded.asPuzzle()
     }
 
     private suspend fun loadPuzFile(puzFile: ByteArray) {
         val puzzle = AcrossLite(puzFile).asPuzzle()
-        title.setValue(puzzle.title)
-        creator.setValue(puzzle.creator)
-        copyright.setValue(puzzle.copyright)
-        description.setValue(puzzle.description)
-        grid.setValue(puzzle.grid.joinToString("\n") { row ->
+        form.title = puzzle.title
+        form.creator = puzzle.creator
+        form.copyright = puzzle.copyright
+        form.description = puzzle.description
+        grid.value = puzzle.grid.joinToString("\n") { row ->
             row.joinToString("") {
                 if (it.cellType.isBlack()) {
                     "."
@@ -101,6 +91,6 @@ class CodedForm {
                     it.solution.substring(0, 1)
                 }
             }
-        })
+        }
     }
 }

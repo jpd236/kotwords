@@ -12,11 +12,7 @@ import kotlinx.html.div
 @JsExport
 @KotwordsInternal
 class TwoToneForm {
-    private val jpzForm = PuzzleFileForm("two-tone", ::createPuzzle)
-    private val title: FormFields.InputField = FormFields.InputField("title")
-    private val creator: FormFields.InputField = FormFields.InputField("creator")
-    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
-    private val description: FormFields.TextBoxField = FormFields.TextBoxField("description")
+    private val form = PuzzleFileForm("two-tone", ::createPuzzle)
     private val allSquaresAnswers: FormFields.TextBoxField = FormFields.TextBoxField("all-squares-answers")
     private val allSquaresClues: FormFields.TextBoxField = FormFields.TextBoxField("all-squares-clues")
     private val oddSquaresAnswers: FormFields.TextBoxField = FormFields.TextBoxField("odd-squares-answers")
@@ -28,13 +24,7 @@ class TwoToneForm {
 
     init {
         Html.renderPage {
-            jpzForm.render(this, bodyBlock = {
-                this@TwoToneForm.title.render(this, "Title")
-                creator.render(this, "Creator (optional)")
-                copyright.render(this, "Copyright (optional)")
-                description.render(this, "Description (optional)") {
-                    rows = "5"
-                }
+            form.render(this, bodyBlock = {
                 allSquaresAnswers.render(this, "All squares answers") {
                     placeholder = "In sequential order, separated by whitespace. " +
                             "Non-alphabetical characters are ignored."
@@ -79,18 +69,18 @@ class TwoToneForm {
 
     private suspend fun createPuzzle(): Puzzle {
         val twoTone = TwoTone(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            allSquaresAnswers = allSquaresAnswers.getValue().uppercase().split("\\s+".toRegex()),
-            allSquaresClues = allSquaresClues.getValue().trimmedLines(),
-            oddSquaresAnswers = oddSquaresAnswers.getValue().uppercase().split("\\s+".toRegex()),
-            oddSquaresClues = oddSquaresClues.getValue().trimmedLines(),
-            evenSquaresAnswers = evenSquaresAnswers.getValue().uppercase().split("\\s+".toRegex()),
-            evenSquaresClues = evenSquaresClues.getValue().trimmedLines(),
-            oddSquareBackgroundColor = oddSquaresColor.getValue(),
-            evenSquareBackgroundColor = evenSquaresColor.getValue(),
+            title = form.title,
+            creator = form.creator,
+            copyright = form.copyright,
+            description = form.description,
+            allSquaresAnswers = allSquaresAnswers.value.uppercase().split("\\s+".toRegex()),
+            allSquaresClues = allSquaresClues.value.trimmedLines(),
+            oddSquaresAnswers = oddSquaresAnswers.value.uppercase().split("\\s+".toRegex()),
+            oddSquaresClues = oddSquaresClues.value.trimmedLines(),
+            evenSquaresAnswers = evenSquaresAnswers.value.uppercase().split("\\s+".toRegex()),
+            evenSquaresClues = evenSquaresClues.value.trimmedLines(),
+            oddSquareBackgroundColor = oddSquaresColor.value,
+            evenSquareBackgroundColor = evenSquaresColor.value,
         )
         return twoTone.asPuzzle()
     }

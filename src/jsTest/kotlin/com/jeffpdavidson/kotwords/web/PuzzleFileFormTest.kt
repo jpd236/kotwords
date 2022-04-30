@@ -30,10 +30,10 @@ class PuzzleFileFormTest {
         val form = renderForm(withGivenValues = false)
         val saveDataJson = readStringResource(PuzzleFileFormTest::class, "save-data.json").replace("\r\n", "\n")
         form.loadSaveDataJson(saveDataJson.encodeToByteArray())
-        assertEquals("abcde", textInput.getValue())
-        assertEquals("fghij", textBoxInput.getValue())
-        assertTrue(checkBoxInput.getValue())
-        assertEquals(50, colorInput.getValue())
+        assertEquals("abcde", textInput.value)
+        assertEquals("fghij", textBoxInput.value)
+        assertTrue(checkBoxInput.value)
+        assertEquals(50, colorInput.value)
         val colorText = document.getElementById("color-input-text") as HTMLElement
         assertEquals("50%", colorText.innerText)
     }

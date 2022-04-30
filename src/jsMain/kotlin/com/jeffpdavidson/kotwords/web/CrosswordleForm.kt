@@ -12,11 +12,7 @@ import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 @JsExport
 @KotwordsInternal
 class CrosswordleForm {
-    private val puzzleFileForm = PuzzleFileForm("crosswordle", ::createPuzzle, createPdfFn = ::createPdf)
-    private val title = FormFields.InputField("title")
-    private val creator = FormFields.InputField("creator")
-    private val copyright = FormFields.InputField("copyright")
-    private val description = FormFields.TextBoxField("description")
+    private val form = PuzzleFileForm("crosswordle", ::createPuzzle, createPdfFn = ::createPdf)
     private val grid = FormFields.TextBoxField("grid")
     private val answer = FormFields.InputField("answer")
     private val acrossClues = FormFields.TextBoxField("across-clues")
@@ -24,13 +20,7 @@ class CrosswordleForm {
 
     init {
         renderPage {
-            puzzleFileForm.render(this, bodyBlock = {
-                this@CrosswordleForm.title.render(this, "Title")
-                creator.render(this, "Creator (optional)")
-                copyright.render(this, "Copyright (optional)")
-                description.render(this, "Description (optional)") {
-                    rows = "5"
-                }
+            form.render(this, bodyBlock = {
                 grid.render(this, "Grid") {
                     placeholder = "The solution grid. Omit the answer to the Wordle."
                     rows = "5"
@@ -52,14 +42,14 @@ class CrosswordleForm {
 
     private suspend fun createPuzzle(): Puzzle =
         Crosswordle(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            grid = grid.getValue().uppercase().trimmedLines().map { it.toList() },
-            answer = answer.getValue().uppercase(),
-            acrossClues = acrossClues.getValue().trimmedLines(),
-            downClues = downClues.getValue().trimmedLines(),
+            title = form.title,
+            creator = form.creator,
+            copyright = form.copyright,
+            description = form.description,
+            grid = grid.value.uppercase().trimmedLines().map { it.toList() },
+            answer = answer.value.uppercase(),
+            acrossClues = acrossClues.value.trimmedLines(),
+            downClues = downClues.value.trimmedLines(),
         ).asPuzzle()
 
     private suspend fun createPdf(blackSquareLightnessAdjustment: Float): ByteArray =

@@ -12,11 +12,7 @@ import kotlinx.html.div
 @JsExport
 @KotwordsInternal
 class EightTracksForm {
-    private val jpzForm = PuzzleFileForm("eight-tracks", ::createPuzzle)
-    private val title: FormFields.InputField = FormFields.InputField("title")
-    private val creator: FormFields.InputField = FormFields.InputField("creator")
-    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
-    private val description: FormFields.TextBoxField = FormFields.TextBoxField("description")
+    private val form = PuzzleFileForm("eight-tracks", ::createPuzzle)
     private val trackDirections: FormFields.InputField = FormFields.InputField("track-directions")
     private val trackStartingOffsets: FormFields.InputField = FormFields.InputField("track-starting-offsets")
     private val trackAnswers: FormFields.TextBoxField = FormFields.TextBoxField("track-answers")
@@ -28,13 +24,7 @@ class EightTracksForm {
 
     init {
         Html.renderPage {
-            jpzForm.render(this, bodyBlock = {
-                this@EightTracksForm.title.render(this, "Title")
-                creator.render(this, "Creator (optional)")
-                copyright.render(this, "Copyright (optional)")
-                description.render(this, "Description (optional)") {
-                    rows = "5"
-                }
+            form.render(this, bodyBlock = {
                 trackDirections.render(this, "Track directions") {
                     placeholder = "Direction of each track, separated by whitespace. " +
                             "Use + for clockwise tracks and - for counter-clockwise tracks."
@@ -73,23 +63,23 @@ class EightTracksForm {
 
     private suspend fun createPuzzle(): Puzzle {
         val eightTracks = EightTracks(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            trackDirections = trackDirections.getValue().split("\\s+".toRegex()).map {
+            title = form.title,
+            creator = form.creator,
+            copyright = form.copyright,
+            description = form.description,
+            trackDirections = trackDirections.value.split("\\s+".toRegex()).map {
                 if (it == "+") EightTracks.Direction.CLOCKWISE else EightTracks.Direction.COUNTERCLOCKWISE
             },
-            trackStartingOffsets = trackStartingOffsets.getValue().split("\\s+".toRegex()).map { it.toInt() },
-            trackAnswers = trackAnswers.getValue().uppercase().trimmedLines().map { clues ->
+            trackStartingOffsets = trackStartingOffsets.value.split("\\s+".toRegex()).map { it.toInt() },
+            trackAnswers = trackAnswers.value.uppercase().trimmedLines().map { clues ->
                 clues.split("/").map { it.trim() }
             },
-            trackClues = trackClues.getValue().trimmedLines().map { clues ->
+            trackClues = trackClues.value.trimmedLines().map { clues ->
                 clues.split("/").map { it.trim() }
             },
-            includeEnumerationsAndDirections = includeEnumerationsAndDirection.getValue(),
-            lightTrackColor = lightTrackColor.getValue(),
-            darkTrackColor = darkTrackColor.getValue(),
+            includeEnumerationsAndDirections = includeEnumerationsAndDirection.value,
+            lightTrackColor = lightTrackColor.value,
+            darkTrackColor = darkTrackColor.value,
         )
         return eightTracks.asPuzzle()
     }

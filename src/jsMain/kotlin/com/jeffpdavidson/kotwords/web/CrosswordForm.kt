@@ -24,10 +24,6 @@ class CrosswordForm {
         id = "manual-entry",
         createPdfFn = ::createPdfFromManualEntry,
     )
-    private val title = FormFields.InputField("title")
-    private val creator = FormFields.InputField("creator")
-    private val copyright = FormFields.InputField("copyright")
-    private val description = FormFields.TextBoxField("description")
     private val grid = FormFields.TextBoxField("grid")
     private val acrossAnswerLengths = FormFields.TextBoxField("across-answer-lengths")
     private val downAnswerLengths = FormFields.TextBoxField("down-answer-lengths")
@@ -41,6 +37,7 @@ class CrosswordForm {
         id = "puz-file",
         createPdfFn = ::createPdfFromPuzFile,
         enableSaveData = false,
+        enableMetadataInput = false,
     )
     private val file: FormFields.FileField = FormFields.FileField("file")
 
@@ -48,12 +45,6 @@ class CrosswordForm {
         renderPage {
             append.tabs(Tabs.Tab("manual-entry-tab", "Form") {
                 manualEntryForm.render(this, bodyBlock = {
-                    this@CrosswordForm.title.render(this, "Title")
-                    creator.render(this, "Creator (optional)")
-                    copyright.render(this, "Copyright (optional)")
-                    description.render(this, "Description (optional)") {
-                        rows = "5"
-                    }
                     grid.render(this, "Grid") {
                         placeholder = "Cells of the grid, separated into rows. Use periods for black squares, and " +
                                 "hyphens for squares which should be empty. For rebus puzzles, separate each row's " +
@@ -93,7 +84,7 @@ class CrosswordForm {
 
     private suspend fun createPuzzleFromManualEntry(): Puzzle {
         val borders = mutableMapOf<Pair<Int, Int>, MutableSet<Puzzle.BorderDirection>>()
-        val acrossAnswerLengthRows = acrossAnswerLengths.getValue().trimmedLines()
+        val acrossAnswerLengthRows = acrossAnswerLengths.value.trimmedLines()
         if (acrossAnswerLengthRows.isNotEmpty()) {
             acrossAnswerLengthRows.forEachIndexed { y, lengths ->
                 var x = 0
@@ -105,7 +96,7 @@ class CrosswordForm {
                 }
             }
         }
-        val downAnswerLengthRows = downAnswerLengths.getValue().trimmedLines()
+        val downAnswerLengthRows = downAnswerLengths.value.trimmedLines()
         if (downAnswerLengthRows.isNotEmpty()) {
             downAnswerLengthRows.forEachIndexed { x, lengths ->
                 var y = 0
@@ -118,7 +109,7 @@ class CrosswordForm {
             }
         }
 
-        val crosswordGrid = grid.getValue().uppercase().trimmedLines().mapIndexed { y, row ->
+        val crosswordGrid = grid.value.uppercase().trimmedLines().mapIndexed { y, row ->
             val columns = if (row.contains("\\s".toRegex())) {
                 row.split("\\s+".toRegex())
             } else {
@@ -142,8 +133,8 @@ class CrosswordForm {
             "Crossword grid is not square"
         }
 
-        val orderedAcrossClues = acrossClues.getValue().trimmedLines()
-        val orderedDownClues = downClues.getValue().trimmedLines()
+        val orderedAcrossClues = acrossClues.value.trimmedLines()
+        val orderedDownClues = downClues.value.trimmedLines()
         val acrossCluesByClueNumber = mutableMapOf<Int, String>()
         val downCluesByClueNumber = mutableMapOf<Int, String>()
         var currentAcrossClue = 0
@@ -170,10 +161,10 @@ class CrosswordForm {
         }
 
         return Crossword(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
+            title = manualEntryForm.title,
+            creator = manualEntryForm.creator,
+            copyright = manualEntryForm.copyright,
+            description = manualEntryForm.description,
             grid = crosswordGrid,
             acrossClues = acrossCluesByClueNumber,
             downClues = downCluesByClueNumber,
@@ -186,7 +177,7 @@ class CrosswordForm {
             blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
         )
 
-    private suspend fun createPuzzleFromPuzFile(): Puzzle = AcrossLite(Interop.readBlob(file.getValue())).asPuzzle()
+    private suspend fun createPuzzleFromPuzFile(): Puzzle = AcrossLite(Interop.readBlob(file.value)).asPuzzle()
 
     private suspend fun createPdfFromPuzFile(blackSquareLightnessAdjustment: Float): ByteArray =
         createPuzzleFromPuzFile().asPdf(
@@ -195,6 +186,6 @@ class CrosswordForm {
         )
 
     private fun getFileName(): String {
-        return file.getValue().name.removeSuffix(".puz")
+        return file.value.name.removeSuffix(".puz")
     }
 }

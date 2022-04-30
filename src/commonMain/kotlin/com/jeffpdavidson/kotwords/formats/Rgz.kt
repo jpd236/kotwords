@@ -1,11 +1,24 @@
 package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.model.RowsGarden
+import kotlinx.serialization.Serializable
 import net.mamoe.yamlkt.Yaml
 
 /** Container for a Rows Garden puzzle in the .rgz format. */
 class Rgz(val rg: String) : Puzzleable {
     override suspend fun asPuzzle() = asRowsGarden().asPuzzle()
+
+    @Serializable
+    private data class RgzYaml(
+        val title: String,
+        val author: String,
+        val copyright: String,
+        val notes: String? = null,
+        val rows: List<List<RowsGarden.Entry>>,
+        val light: List<RowsGarden.Entry>,
+        val medium: List<RowsGarden.Entry>,
+        val dark: List<RowsGarden.Entry>,
+    )
 
     fun asRowsGarden(
         lightBloomColor: String = "#FFFFFF",
@@ -13,14 +26,24 @@ class Rgz(val rg: String) : Puzzleable {
         darkBloomColor: String = "#5765F7",
         addWordCount: Boolean = true,
         addHyphenated: Boolean = true,
-    ): RowsGarden =
-        Yaml.Default.decodeFromString(RowsGarden.serializer(), fixInvalidYamlValues(rg)).copy(
+    ): RowsGarden {
+        val rgzYaml = Yaml.Default.decodeFromString(RgzYaml.serializer(), fixInvalidYamlValues(rg))
+        return RowsGarden(
+            title = rgzYaml.title,
+            creator = rgzYaml.author,
+            copyright = rgzYaml.copyright,
+            description = rgzYaml.notes ?: "",
+            rows = rgzYaml.rows,
+            light = rgzYaml.light,
+            medium = rgzYaml.medium,
+            dark = rgzYaml.dark,
             lightBloomColor = lightBloomColor,
             mediumBloomColor = mediumBloomColor,
             darkBloomColor = darkBloomColor,
             addWordCount = addWordCount,
             addHyphenated = addHyphenated,
         )
+    }
 
     companion object {
         suspend fun fromRgzFile(rgz: ByteArray): Rgz {

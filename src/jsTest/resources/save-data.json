@@ -1,5 +1,9 @@
 {
   "puzzle-type": "test-format",
+  "this-form-title": "",
+  "this-form-creator": "",
+  "this-form-copyright": "",
+  "this-form-description": "",
   "text-input": "abcde",
   "text-box-input": "fghij",
   "check-box-input": true,

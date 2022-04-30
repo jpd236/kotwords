@@ -10,11 +10,7 @@ import com.jeffpdavidson.kotwords.web.html.Html
 @JsExport
 @KotwordsInternal
 class LabyrinthForm {
-    private val jpzForm = PuzzleFileForm("labyrinth", ::createPuzzle)
-    private val title: FormFields.InputField = FormFields.InputField("title")
-    private val creator: FormFields.InputField = FormFields.InputField("creator")
-    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
-    private val description: FormFields.TextBoxField = FormFields.TextBoxField("description")
+    private val form = PuzzleFileForm("labyrinth", ::createPuzzle)
     private val grid: FormFields.TextBoxField = FormFields.TextBoxField("grid")
     private val gridKey: FormFields.TextBoxField = FormFields.TextBoxField("grid-key")
     private val rowClues: FormFields.TextBoxField = FormFields.TextBoxField("row-clues")
@@ -24,13 +20,7 @@ class LabyrinthForm {
 
     init {
         Html.renderPage {
-            jpzForm.render(this, bodyBlock = {
-                this@LabyrinthForm.title.render(this, "Title")
-                creator.render(this, "Creator (optional)")
-                copyright.render(this, "Copyright (optional)")
-                description.render(this, "Description (optional)") {
-                    rows = "5"
-                }
+            form.render(this, bodyBlock = {
                 grid.render(this, "Grid") {
                     placeholder = "Letters of the grid, separated into rows."
                     rows = "14"
@@ -57,21 +47,21 @@ class LabyrinthForm {
 
     private suspend fun createPuzzle(): Puzzle {
         val labyrinth = Labyrinth(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            grid = grid.getValue().uppercase().trimmedLines().map { row ->
+            title = form.title,
+            creator = form.creator,
+            copyright = form.copyright,
+            description = form.description,
+            grid = grid.value.uppercase().trimmedLines().map { row ->
                 row.replace("[^A-Z.]".toRegex(), "").toList()
             },
-            gridKey = gridKey.getValue().trimmedLines().map { row ->
+            gridKey = gridKey.value.trimmedLines().map { row ->
                 row.split(" ").map { it.toInt() }
             },
-            rowClues = rowClues.getValue().trimmedLines().map { clues ->
+            rowClues = rowClues.value.trimmedLines().map { clues ->
                 clues.split("/").map { it.trim() }
             },
-            windingClues = windingClues.getValue().split("/").map { it.trim() },
-            alphabetizeWindingClues = alphabetizeWindingClues.getValue(),
+            windingClues = windingClues.value.split("/").map { it.trim() },
+            alphabetizeWindingClues = alphabetizeWindingClues.value,
         )
         return labyrinth.asPuzzle()
     }

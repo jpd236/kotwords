@@ -10,23 +10,13 @@ import com.jeffpdavidson.kotwords.web.html.Html
 @JsExport
 @KotwordsInternal
 class AroundTheBendForm {
-    private val jpzForm = PuzzleFileForm("around-the-bend", ::createPuzzle)
-    private val title: FormFields.InputField = FormFields.InputField("title")
-    private val creator: FormFields.InputField = FormFields.InputField("creator")
-    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
-    private val description: FormFields.TextBoxField = FormFields.TextBoxField("description")
+    private val form = PuzzleFileForm("around-the-bend", ::createPuzzle)
     private val rows: FormFields.TextBoxField = FormFields.TextBoxField("rows")
     private val clues: FormFields.TextBoxField = FormFields.TextBoxField("clues")
 
     init {
         Html.renderPage {
-            jpzForm.render(this, bodyBlock = {
-                this@AroundTheBendForm.title.render(this, "Title")
-                creator.render(this, "Creator (optional)")
-                copyright.render(this, "Copyright (optional)")
-                description.render(this, "Description (optional)") {
-                    rows = "5"
-                }
+            form.render(this, bodyBlock = {
                 rows.render(this, "Rows") {
                     placeholder = "The letters in each row, one line per row."
                     rows = "10"
@@ -41,12 +31,12 @@ class AroundTheBendForm {
 
     private suspend fun createPuzzle(): Puzzle {
         val aroundTheBend = AroundTheBend(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            rows = rows.getValue().uppercase().trimmedLines(),
-            clues = clues.getValue().trimmedLines(),
+            title = form.title,
+            creator = form.creator,
+            copyright = form.copyright,
+            description = form.description,
+            rows = rows.value.uppercase().trimmedLines(),
+            clues = clues.value.trimmedLines(),
         )
         return aroundTheBend.asPuzzle()
     }

@@ -20,11 +20,11 @@ import kotlinx.html.p
 @JsExport
 @KotwordsInternal
 class RowsGardenForm {
-    private val manualEntryForm = PuzzleFileForm("rows-garden", ::createPuzzleFromManualEntry, id = "manual-entry")
-    private val title: FormFields.InputField = FormFields.InputField("title")
-    private val author: FormFields.InputField = FormFields.InputField("author")
-    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
-    private val notes: FormFields.TextBoxField = FormFields.TextBoxField("notes")
+    private val manualEntryForm = PuzzleFileForm(
+        "rows-garden",
+        ::createPuzzleFromManualEntry,
+        id = "manual-entry",
+    )
     private val rowClues: FormFields.TextBoxField = FormFields.TextBoxField("row-clues")
     private val rowAnswers: FormFields.TextBoxField = FormFields.TextBoxField("row-answers")
     private val lightClues: FormFields.TextBoxField = FormFields.TextBoxField("light-clues")
@@ -40,7 +40,8 @@ class RowsGardenForm {
         ::createPuzzleFromRgzFile,
         { getRgzFileName() },
         id = "rgz-file",
-        enableSaveData = false
+        enableSaveData = false,
+        enableMetadataInput = false,
     )
     private val file: FormFields.FileField = FormFields.FileField("file")
     private val rgzFileAdvancedOptions = RowsGardenAdvancedOptions("rgz-file")
@@ -53,12 +54,6 @@ class RowsGardenForm {
             }
             append.tabs(Tabs.Tab("manual-entry-tab", "Form") {
                 manualEntryForm.render(this, bodyBlock = {
-                    this@RowsGardenForm.title.render(this, "Title")
-                    author.render(this, "Author (optional)")
-                    copyright.render(this, "Copyright (optional)")
-                    notes.render(this, "Notes (optional)") {
-                        rows = "5"
-                    }
                     div(classes = "form-row") {
                         rowClues.render(this, "Row clues", flexCols = 6) {
                             rows = "12"
@@ -119,45 +114,45 @@ class RowsGardenForm {
     }
 
     private suspend fun createPuzzleFromRgzFile(): Puzzle {
-        val rgz = Interop.readBlob(file.getValue())
+        val rgz = Interop.readBlob(file.value)
         return Rgz.fromRgzFile(rgz).asRowsGarden(
-            lightBloomColor = rgzFileAdvancedOptions.lightBloomColor.getValue(),
-            mediumBloomColor = rgzFileAdvancedOptions.mediumBloomColor.getValue(),
-            darkBloomColor = rgzFileAdvancedOptions.darkBloomColor.getValue(),
-            addHyphenated = rgzFileAdvancedOptions.addAnnotations.getValue(),
-            addWordCount = rgzFileAdvancedOptions.addAnnotations.getValue(),
+            lightBloomColor = rgzFileAdvancedOptions.lightBloomColor.value,
+            mediumBloomColor = rgzFileAdvancedOptions.mediumBloomColor.value,
+            darkBloomColor = rgzFileAdvancedOptions.darkBloomColor.value,
+            addHyphenated = rgzFileAdvancedOptions.addAnnotations.value,
+            addWordCount = rgzFileAdvancedOptions.addAnnotations.value,
         ).asPuzzle()
     }
 
     private suspend fun createPuzzleFromManualEntry(): Puzzle {
         val rowsGarden = RowsGarden(
-            title = title.getValue(),
-            author = author.getValue(),
-            copyright = copyright.getValue(),
-            notes = notes.getValue(),
-            rows = rowClues.getValue().trimmedLines().zip(rowAnswers.getValue().uppercase().trimmedLines())
+            title = manualEntryForm.title,
+            creator = manualEntryForm.creator,
+            copyright = manualEntryForm.copyright,
+            description = manualEntryForm.description,
+            rows = rowClues.value.trimmedLines().zip(rowAnswers.value.uppercase().trimmedLines())
                 .map { (clues, answers) ->
                     clues.split("/")
                         .zip(answers.split("/"))
                         .map { (clue, answer) -> RowsGarden.Entry(clue.trim(), answer.trim()) }
                 },
-            light = lightClues.getValue().trimmedLines().zip(lightAnswers.getValue().uppercase().trimmedLines())
+            light = lightClues.value.trimmedLines().zip(lightAnswers.value.uppercase().trimmedLines())
                 .map { (clue, answer) -> RowsGarden.Entry(clue, answer) },
-            medium = mediumClues.getValue().trimmedLines().zip(mediumAnswers.getValue().uppercase().trimmedLines())
+            medium = mediumClues.value.trimmedLines().zip(mediumAnswers.value.uppercase().trimmedLines())
                 .map { (clue, answer) -> RowsGarden.Entry(clue, answer) },
-            dark = darkClues.getValue().trimmedLines().zip(darkAnswers.getValue().uppercase().trimmedLines())
+            dark = darkClues.value.trimmedLines().zip(darkAnswers.value.uppercase().trimmedLines())
                 .map { (clue, answer) -> RowsGarden.Entry(clue, answer) },
-            lightBloomColor = manualEntryAdvancedOptions.lightBloomColor.getValue(),
-            mediumBloomColor = manualEntryAdvancedOptions.mediumBloomColor.getValue(),
-            darkBloomColor = manualEntryAdvancedOptions.darkBloomColor.getValue(),
-            addHyphenated = manualEntryAdvancedOptions.addAnnotations.getValue(),
-            addWordCount = manualEntryAdvancedOptions.addAnnotations.getValue(),
+            lightBloomColor = manualEntryAdvancedOptions.lightBloomColor.value,
+            mediumBloomColor = manualEntryAdvancedOptions.mediumBloomColor.value,
+            darkBloomColor = manualEntryAdvancedOptions.darkBloomColor.value,
+            addHyphenated = manualEntryAdvancedOptions.addAnnotations.value,
+            addWordCount = manualEntryAdvancedOptions.addAnnotations.value,
         )
         return rowsGarden.asPuzzle()
     }
 
     private fun getRgzFileName(): String {
-        return file.getValue().name.removeSuffix(".rgz").removeSuffix(".rg")
+        return file.value.name.removeSuffix(".rgz").removeSuffix(".rg")
     }
 }
 

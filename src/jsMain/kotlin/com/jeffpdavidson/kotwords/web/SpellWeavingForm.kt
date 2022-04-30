@@ -10,23 +10,13 @@ import com.jeffpdavidson.kotwords.web.html.Html
 @JsExport
 @KotwordsInternal
 class SpellWeavingForm {
-    private val jpzForm = PuzzleFileForm("spell-weaving", ::createPuzzle)
-    private val title: FormFields.InputField = FormFields.InputField("title")
-    private val creator: FormFields.InputField = FormFields.InputField("creator")
-    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
-    private val description: FormFields.TextBoxField = FormFields.TextBoxField("description")
+    private val form = PuzzleFileForm("spell-weaving", ::createPuzzle)
     private val answers: FormFields.TextBoxField = FormFields.TextBoxField("answers")
     private val clues: FormFields.TextBoxField = FormFields.TextBoxField("clues")
 
     init {
         Html.renderPage {
-            jpzForm.render(this, bodyBlock = {
-                this@SpellWeavingForm.title.render(this, "Title")
-                creator.render(this, "Creator (optional)")
-                copyright.render(this, "Copyright (optional)")
-                description.render(this, "Description (optional)") {
-                    rows = "5"
-                }
+            form.render(this, bodyBlock = {
                 answers.render(this, "Answers") {
                     placeholder = "In sequential order, separated by whitespace. " +
                             "Non-alphabetical characters are ignored."
@@ -42,12 +32,12 @@ class SpellWeavingForm {
 
     private suspend fun createPuzzle(): Puzzle {
         val spellWeaving = SpellWeaving(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            answers = answers.getValue().uppercase().split("\\s+".toRegex()),
-            clues = clues.getValue().trimmedLines(),
+            title = form.title,
+            creator = form.creator,
+            copyright = form.copyright,
+            description = form.description,
+            answers = answers.value.uppercase().split("\\s+".toRegex()),
+            clues = clues.value.trimmedLines(),
         )
         return spellWeaving.asPuzzle()
     }

@@ -10,11 +10,7 @@ import com.jeffpdavidson.kotwords.web.html.Html
 @JsExport
 @KotwordsInternal
 class SpiralForm {
-    private val jpzForm = PuzzleFileForm("spiral", ::createPuzzle)
-    private val title: FormFields.InputField = FormFields.InputField("title")
-    private val creator: FormFields.InputField = FormFields.InputField("creator")
-    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
-    private val description: FormFields.TextBoxField = FormFields.TextBoxField("description")
+    private val form = PuzzleFileForm("spiral", ::createPuzzle)
     private val inwardAnswers: FormFields.TextBoxField = FormFields.TextBoxField("inward-answers")
     private val inwardClues: FormFields.TextBoxField = FormFields.TextBoxField("inward-clues")
     private val outwardAnswers: FormFields.TextBoxField = FormFields.TextBoxField("outward-answers")
@@ -23,13 +19,7 @@ class SpiralForm {
 
     init {
         Html.renderPage {
-            jpzForm.render(this, bodyBlock = {
-                this@SpiralForm.title.render(this, "Title")
-                creator.render(this, "Creator (optional)")
-                copyright.render(this, "Copyright (optional)")
-                description.render(this, "Description (optional)") {
-                    rows = "5"
-                }
+            form.render(this, bodyBlock = {
                 inwardAnswers.render(this, "Inward answers") {
                     placeholder = "In sequential order, separated by whitespace. " +
                             "Non-alphabetical characters are ignored."
@@ -62,18 +52,18 @@ class SpiralForm {
 
     private suspend fun createPuzzle(): Puzzle {
         val spiral = Spiral(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            inwardAnswers = inwardAnswers.getValue().uppercase().split("\\s+".toRegex()),
-            inwardClues = inwardClues.getValue().trimmedLines(),
-            outwardAnswers = outwardAnswers.getValue().uppercase().split("\\s+".toRegex()),
-            outwardClues = outwardClues.getValue().trimmedLines(),
-            inwardCellsInput = if (inwardCells.getValue().isBlank()) {
+            title = form.title,
+            creator = form.creator,
+            copyright = form.copyright,
+            description = form.description,
+            inwardAnswers = inwardAnswers.value.uppercase().split("\\s+".toRegex()),
+            inwardClues = inwardClues.value.trimmedLines(),
+            outwardAnswers = outwardAnswers.value.uppercase().split("\\s+".toRegex()),
+            outwardClues = outwardClues.value.trimmedLines(),
+            inwardCellsInput = if (inwardCells.value.isBlank()) {
                 listOf()
             } else {
-                inwardCells.getValue().uppercase().split("\\s+".toRegex())
+                inwardCells.value.uppercase().split("\\s+".toRegex())
             },
         )
         return spiral.asPuzzle()

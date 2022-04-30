@@ -14,11 +14,7 @@ import kotlinx.html.div
 @JsExport
 @KotwordsInternal
 class TwistsAndTurnsForm {
-    private val puzzleFileForm = PuzzleFileForm("twists-and-turns", ::createPuzzle, createPdfFn = ::createPdf)
-    private val title: FormFields.InputField = FormFields.InputField("title")
-    private val creator: FormFields.InputField = FormFields.InputField("creator")
-    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
-    private val description: FormFields.TextBoxField = FormFields.TextBoxField("description")
+    private val form = PuzzleFileForm("twists-and-turns", ::createPuzzle, createPdfFn = ::createPdf)
     private val width: FormFields.InputField = FormFields.InputField("width")
     private val height: FormFields.InputField = FormFields.InputField("height")
     private val twistBoxSize: FormFields.InputField = FormFields.InputField("twist-box-size")
@@ -31,13 +27,7 @@ class TwistsAndTurnsForm {
 
     init {
         renderPage {
-            puzzleFileForm.render(this, bodyBlock = {
-                this@TwistsAndTurnsForm.title.render(this, "Title")
-                creator.render(this, "Creator (optional)")
-                copyright.render(this, "Copyright (optional)")
-                description.render(this, "Description (optional)") {
-                    rows = "5"
-                }
+            form.render(this, bodyBlock = {
                 div(classes = "form-row") {
                     width.render(this, "Width", flexCols = 4) {
                         type = InputType.number
@@ -89,7 +79,7 @@ class TwistsAndTurnsForm {
         createTwistsAndTurns(
             separateLightAndDarkTwists = true,
             numberTwists = false,
-            sortTwists = alphabetizeTwistsClues.getValue(),
+            sortTwists = alphabetizeTwistsClues.value,
         ).asPdf(
             fontFamily = PdfFonts.getNotoFontFamily(),
             blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
@@ -101,19 +91,19 @@ class TwistsAndTurnsForm {
         sortTwists: Boolean
     ): TwistsAndTurns {
         return TwistsAndTurns(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            width = width.getValue().toInt(),
-            height = height.getValue().toInt(),
-            twistBoxSize = twistBoxSize.getValue().toInt(),
-            turnsAnswers = turnsAnswers.getValue().uppercase().replace("[^A-Z\\s]".toRegex(), "")
+            title = form.title,
+            creator = form.creator,
+            copyright = form.copyright,
+            description = form.description,
+            width = width.value.toInt(),
+            height = height.value.toInt(),
+            twistBoxSize = twistBoxSize.value.toInt(),
+            turnsAnswers = turnsAnswers.value.uppercase().replace("[^A-Z\\s]".toRegex(), "")
                 .split("\\s+".toRegex()),
-            turnsClues = turnsClues.getValue().trimmedLines(),
-            twistsClues = twistsClues.getValue().trimmedLines(),
-            lightTwistsColor = lightTwistsColor.getValue(),
-            darkTwistsColor = darkTwistsColor.getValue(),
+            turnsClues = turnsClues.value.trimmedLines(),
+            twistsClues = twistsClues.value.trimmedLines(),
+            lightTwistsColor = lightTwistsColor.value,
+            darkTwistsColor = darkTwistsColor.value,
             separateLightAndDarkTwists = separateLightAndDarkTwists,
             numberTwists = numberTwists,
             sortTwists = sortTwists,

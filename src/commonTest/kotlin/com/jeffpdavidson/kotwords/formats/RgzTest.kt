@@ -10,7 +10,7 @@ class RgzTest {
     @Test
     fun parseRg() = runTest {
         val parsed = Rgz.fromRgzFile(readBinaryResource(RowsGardenTest::class, "rows-garden/test.rg")).asRowsGarden()
-        assertEquals(TEST_DATA.copy(notes = null), parsed)
+        assertEquals(TEST_DATA.copy(description = ""), parsed)
     }
 
     @Test
@@ -22,9 +22,9 @@ class RgzTest {
     companion object {
         private val TEST_DATA = RowsGarden(
             title = "Test Title",
-            author = "Test Author",
+            creator = "Test Author",
             copyright = "(c) 2020 Kotwords",
-            notes = "Test Notes",
+            description = "Test Notes",
             rows = listOf(
                 listOf(RowsGarden.Entry("Row 1", "AAAAAAAAA")),
                 listOf(

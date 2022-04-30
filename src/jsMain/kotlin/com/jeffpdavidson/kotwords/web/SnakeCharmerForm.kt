@@ -11,24 +11,14 @@ import kotlinx.html.classes
 @JsExport
 @KotwordsInternal
 class SnakeCharmerForm {
-    private val jpzForm = PuzzleFileForm("snake-charmer", ::createPuzzle)
-    private val title: FormFields.InputField = FormFields.InputField("title")
-    private val creator: FormFields.InputField = FormFields.InputField("creator")
-    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
-    private val description: FormFields.TextBoxField = FormFields.TextBoxField("description")
+    private val form = PuzzleFileForm("snake-charmer", ::createPuzzle)
     private val answers: FormFields.TextBoxField = FormFields.TextBoxField("answers")
     private val clues: FormFields.TextBoxField = FormFields.TextBoxField("clues")
     private val gridShape: FormFields.TextBoxField = FormFields.TextBoxField("grid-shape")
 
     init {
         Html.renderPage {
-            jpzForm.render(this, bodyBlock = {
-                this@SnakeCharmerForm.title.render(this, "Title")
-                creator.render(this, "Creator (optional)")
-                copyright.render(this, "Copyright (optional)")
-                description.render(this, "Description (optional)") {
-                    rows = "5"
-                }
+            form.render(this, bodyBlock = {
                 answers.render(this, "Answers") {
                     placeholder = "In sequential order, separated by whitespace. " +
                             "Non-alphabetical characters are ignored."
@@ -69,7 +59,7 @@ class SnakeCharmerForm {
     }
 
     private suspend fun createPuzzle(): Puzzle {
-        val grid = gridShape.getValue(trim = false).lines()
+        val grid = gridShape.untrimmedValue.lines()
         require(grid.isNotEmpty()) {
             "Grid shape is required"
         }
@@ -89,12 +79,12 @@ class SnakeCharmerForm {
             y = nextPoint.second
         } while (true)
         val snakeCharmer = SnakeCharmer(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            answers = answers.getValue().uppercase().split("\\s+".toRegex()),
-            clues = clues.getValue().trimmedLines(),
+            title = form.title,
+            creator = form.creator,
+            copyright = form.copyright,
+            description = form.description,
+            answers = answers.value.uppercase().split("\\s+".toRegex()),
+            clues = clues.value.trimmedLines(),
             gridCoordinates = gridCoordinates.toList()
         )
         return snakeCharmer.asPuzzle()

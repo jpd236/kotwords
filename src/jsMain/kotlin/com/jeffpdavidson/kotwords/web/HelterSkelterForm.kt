@@ -12,13 +12,7 @@ import com.jeffpdavidson.kotwords.web.html.Html
 @JsExport
 @KotwordsInternal
 class HelterSkelterForm {
-    private val VECTOR_PATTERN = "([0-9]+)\\s+([0-9]+)\\s(N|NE|E|SE|S|SW|W|NW)".toRegex()
-
-    private val puzzleFileForm = PuzzleFileForm("helter-skelter", ::createPuzzle, createPdfFn = ::createPdf)
-    private val title: FormFields.InputField = FormFields.InputField("title")
-    private val creator: FormFields.InputField = FormFields.InputField("creator")
-    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
-    private val description: FormFields.TextBoxField = FormFields.TextBoxField("description")
+    private val form = PuzzleFileForm("helter-skelter", ::createPuzzle, createPdfFn = ::createPdf)
     private val grid: FormFields.TextBoxField = FormFields.TextBoxField("grid")
     private val answers: FormFields.TextBoxField = FormFields.TextBoxField("answers")
     private val clues: FormFields.TextBoxField = FormFields.TextBoxField("clues")
@@ -27,13 +21,7 @@ class HelterSkelterForm {
 
     init {
         Html.renderPage {
-            puzzleFileForm.render(this, bodyBlock = {
-                this@HelterSkelterForm.title.render(this, "Title")
-                creator.render(this, "Creator (optional)")
-                copyright.render(this, "Copyright (optional)")
-                description.render(this, "Description (optional)") {
-                    rows = "5"
-                }
+            form.render(this, bodyBlock = {
                 grid.render(this, "Grid") {
                     placeholder = "Letters of the grid, separated into rows."
                     rows = "10"
@@ -70,14 +58,14 @@ class HelterSkelterForm {
 
     private fun createHelterSkelter(): HelterSkelter {
         return HelterSkelter(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            grid = grid.getValue().uppercase().trimmedLines().map { it.toList() },
-            answers = answers.getValue().uppercase().replace("[^A-Z\\s]".toRegex(), "").split("\\s+".toRegex()),
-            clues = clues.getValue().trimmedLines(),
-            answerVectors = answerVectors.getValue().trimmedLines().map { rawVector ->
+            title = form.title,
+            creator = form.creator,
+            copyright = form.copyright,
+            description = form.description,
+            grid = grid.value.uppercase().trimmedLines().map { it.toList() },
+            answers = answers.value.uppercase().replace("[^A-Z\\s]".toRegex(), "").split("\\s+".toRegex()),
+            clues = clues.value.trimmedLines(),
+            answerVectors = answerVectors.value.trimmedLines().map { rawVector ->
                 val match = VECTOR_PATTERN.matchEntire(rawVector.uppercase())
                 require(match != null) {
                     "Invalid answer vector: $rawVector"
@@ -97,7 +85,11 @@ class HelterSkelterForm {
                     }
                 )
             },
-            extendToEdges = extendToEdges.getValue(),
+            extendToEdges = extendToEdges.value,
         )
+    }
+
+    companion object {
+        private val VECTOR_PATTERN = "([0-9]+)\\s+([0-9]+)\\s(N|NE|E|SE|S|SW|W|NW)".toRegex()
     }
 }

@@ -36,13 +36,23 @@ import org.w3c.files.get
 /** Classes to encapsulate and render form fields. */
 internal object FormFields {
 
+    interface FormField<T> {
+        var value: T
+    }
+
     /**
      * Create an <input> field for standard input types.
      *
      * @param htmlId the ID to be used for the input field (and as an ID prefix for associated tags)
      */
-    class InputField(private val htmlId: String) {
+    class InputField(private val htmlId: String) : FormField<String> {
         private val input: HTMLInputElement by Html.getElementById(htmlId)
+
+        override var value: String
+            get() = input.value.trim()
+            set(value) {
+                input.value = value
+            }
 
         /**
          * Render the field into the given [FlowContent].
@@ -77,14 +87,6 @@ internal object FormFields {
                 }
             }
         }
-
-        fun setValue(value: String) {
-            input.value = value
-        }
-
-        fun getValue(): String {
-            return input.value.trim()
-        }
     }
 
     /**
@@ -92,8 +94,14 @@ internal object FormFields {
      *
      * @param htmlId the ID to be used for the input field (and as an ID prefix for associated tags)
      */
-    class CheckBoxField(private val htmlId: String) {
+    class CheckBoxField(private val htmlId: String) : FormField<Boolean> {
         private val input: HTMLInputElement by Html.getElementById(htmlId)
+
+        override var value: Boolean
+            get() = input.checked
+            set(value) {
+                input.checked = value
+            }
 
         /**
          * Render the field into the given [FlowContent].
@@ -119,10 +127,6 @@ internal object FormFields {
                 }
             }
         }
-
-        fun getValue(): Boolean {
-            return input.checked
-        }
     }
 
     /**
@@ -130,8 +134,19 @@ internal object FormFields {
      *
      * @param htmlId the ID to be used for the input field (and as an ID prefix for associated tags)
      */
-    class FileField(private val htmlId: String) {
+    class FileField(private val htmlId: String) : FormField<File> {
         val input: HTMLInputElement by Html.getElementById(htmlId)
+
+        override var value: File
+            get() {
+                if (input.files?.length == 0 || input.files!![0] == null) {
+                    throw IllegalArgumentException("No file selected")
+                }
+                return input.files!![0]!!
+            }
+            set(_) {
+                throw UnsupportedOperationException()
+            }
 
         /**
          * Render the file selector into the given [FlowContent].
@@ -199,13 +214,6 @@ internal object FormFields {
                 }
             }
         }
-
-        fun getValue(): File {
-            if (input.files?.length == 0 || input.files!![0] == null) {
-                throw IllegalArgumentException("No file selected")
-            }
-            return input.files!![0]!!
-        }
     }
 
     /**
@@ -213,8 +221,17 @@ internal object FormFields {
      *
      * @param htmlId the ID to be used for the input field (and as an ID prefix for associated tags)
      */
-    class TextBoxField(private val htmlId: String) {
+    class TextBoxField(private val htmlId: String) : FormField<String> {
         private val input: HTMLTextAreaElement by Html.getElementById(htmlId)
+
+        override var value: String
+            get() = input.value.trim()
+            set(value) {
+                input.value = value
+            }
+
+        val untrimmedValue: String
+            get() = input.value
 
         /**
          * Render the field into the given [FlowContent].
@@ -248,15 +265,6 @@ internal object FormFields {
                 }
             }
         }
-
-        fun setValue(value: String) {
-            input.value = value
-        }
-
-        fun getValue(trim: Boolean = true): String {
-            val value = input.value
-            return if (trim) value.trim() else value
-        }
     }
 
     /**
@@ -268,10 +276,16 @@ internal object FormFields {
     class ColorRangeSlider(
         private val htmlId: String,
         private val colorGetter: (Int) -> String,
-    ) {
+    ) : FormField<Int> {
         private val input: HTMLInputElement by Html.getElementById(htmlId)
         private val square: HTMLDivElement by Html.getElementById("$htmlId-square")
         private val text: HTMLSpanElement by Html.getElementById("$htmlId-text")
+
+        override var value: Int
+            get() = input.value.toInt()
+            set(value) {
+                input.value = value.toString()
+            }
 
         /**
          * Render the field into the given [FlowContent].
@@ -318,12 +332,8 @@ internal object FormFields {
         }
 
         private fun onColorChange() {
-            square.style.backgroundColor = colorGetter(getValue())
-            text.innerText = "${getValue()}%"
-        }
-
-        fun getValue(): Int {
-            return input.value.toInt()
+            square.style.backgroundColor = colorGetter(value)
+            text.innerText = "${value}%"
         }
     }
 

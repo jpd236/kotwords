@@ -12,11 +12,7 @@ import kotlinx.html.div
 @JsExport
 @KotwordsInternal
 class MarchingBandsForm {
-    private val jpzForm = PuzzleFileForm("marching-bands", ::createPuzzle)
-    private val title: FormFields.InputField = FormFields.InputField("title")
-    private val creator: FormFields.InputField = FormFields.InputField("creator")
-    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
-    private val description: FormFields.TextBoxField = FormFields.TextBoxField("description")
+    private val form = PuzzleFileForm("marching-bands", ::createPuzzle)
     private val grid: FormFields.TextBoxField = FormFields.TextBoxField("grid")
     private val bandClues: FormFields.TextBoxField = FormFields.TextBoxField("band-clues")
     private val rowClues: FormFields.TextBoxField = FormFields.TextBoxField("row-clues")
@@ -26,13 +22,7 @@ class MarchingBandsForm {
 
     init {
         Html.renderPage {
-            jpzForm.render(this, bodyBlock = {
-                this@MarchingBandsForm.title.render(this, "Title")
-                creator.render(this, "Creator (optional)")
-                copyright.render(this, "Copyright (optional)")
-                description.render(this, "Description (optional)") {
-                    rows = "5"
-                }
+            form.render(this, bodyBlock = {
                 grid.render(this, "Grid") {
                     placeholder = "Letters of the grid, separated into rows. Use a period for the middle square."
                     rows = "13"
@@ -68,22 +58,22 @@ class MarchingBandsForm {
 
     private suspend fun createPuzzle(): Puzzle {
         val marchingBands = MarchingBands(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            grid = grid.getValue().uppercase().trimmedLines().map { row ->
+            title = form.title,
+            creator = form.creator,
+            copyright = form.copyright,
+            description = form.description,
+            grid = grid.value.uppercase().trimmedLines().map { row ->
                 row.replace("[^A-Z.]".toRegex(), "").map { ch -> if (ch == '.') null else ch }
             },
-            bandClues = bandClues.getValue().trimmedLines().map { clues ->
+            bandClues = bandClues.value.trimmedLines().map { clues ->
                 clues.split("/").map { it.trim() }
             },
-            rowClues = rowClues.getValue().trimmedLines().map { clues ->
+            rowClues = rowClues.value.trimmedLines().map { clues ->
                 clues.split("/").map { it.trim() }
             },
-            includeRowNumbers = includeRowNumbers.getValue(),
-            lightBandColor = lightBandColor.getValue(),
-            darkBandColor = darkBandColor.getValue(),
+            includeRowNumbers = includeRowNumbers.value,
+            lightBandColor = lightBandColor.value,
+            darkBandColor = darkBandColor.value,
         )
         return marchingBands.asPuzzle()
     }

@@ -12,11 +12,7 @@ import kotlinx.html.div
 @JsExport
 @KotwordsInternal
 class JellyRollForm {
-    private val jpzForm = PuzzleFileForm("jelly-roll", ::createPuzzle)
-    private val title: FormFields.InputField = FormFields.InputField("title")
-    private val creator: FormFields.InputField = FormFields.InputField("creator")
-    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
-    private val description: FormFields.TextBoxField = FormFields.TextBoxField("description")
+    private val form = PuzzleFileForm("jelly-roll", ::createPuzzle)
     private val jellyRollAnswers: FormFields.TextBoxField = FormFields.TextBoxField("jelly-roll-answers")
     private val jellyRollClues: FormFields.TextBoxField = FormFields.TextBoxField("jelly-roll-clues")
     private val lightSquaresAnswers: FormFields.TextBoxField = FormFields.TextBoxField("light-squares-answers")
@@ -29,13 +25,7 @@ class JellyRollForm {
 
     init {
         Html.renderPage {
-            jpzForm.render(this, bodyBlock = {
-                this@JellyRollForm.title.render(this, "Title")
-                creator.render(this, "Creator (optional)")
-                copyright.render(this, "Copyright (optional)")
-                description.render(this, "Description (optional)") {
-                    rows = "5"
-                }
+            form.render(this, bodyBlock = {
                 jellyRollAnswers.render(this, "Jelly roll answers") {
                     placeholder = "In sequential order, separated by whitespace. " +
                             "Non-alphabetical characters are ignored."
@@ -81,19 +71,19 @@ class JellyRollForm {
 
     private suspend fun createPuzzle(): Puzzle {
         val jellyRoll = JellyRoll(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            jellyRollAnswers = jellyRollAnswers.getValue().uppercase().split("\\s+".toRegex()),
-            jellyRollClues = jellyRollClues.getValue().trimmedLines(),
-            lightSquaresAnswers = lightSquaresAnswers.getValue().uppercase().split("\\s+".toRegex()),
-            lightSquaresClues = lightSquaresClues.getValue().trimmedLines(),
-            darkSquaresAnswers = darkSquaresAnswers.getValue().uppercase().split("\\s+".toRegex()),
-            darkSquaresClues = darkSquaresClues.getValue().trimmedLines(),
-            lightSquareBackgroundColor = lightSquaresColor.getValue(),
-            darkSquareBackgroundColor = darkSquaresColor.getValue(),
-            combineJellyRollClues = combineJellyRollClues.getValue(),
+            title = form.title,
+            creator = form.creator,
+            copyright = form.copyright,
+            description = form.description,
+            jellyRollAnswers = jellyRollAnswers.value.uppercase().split("\\s+".toRegex()),
+            jellyRollClues = jellyRollClues.value.trimmedLines(),
+            lightSquaresAnswers = lightSquaresAnswers.value.uppercase().split("\\s+".toRegex()),
+            lightSquaresClues = lightSquaresClues.value.trimmedLines(),
+            darkSquaresAnswers = darkSquaresAnswers.value.uppercase().split("\\s+".toRegex()),
+            darkSquaresClues = darkSquaresClues.value.trimmedLines(),
+            lightSquareBackgroundColor = lightSquaresColor.value,
+            darkSquareBackgroundColor = darkSquaresColor.value,
+            combineJellyRollClues = combineJellyRollClues.value,
         )
         return jellyRoll.asPuzzle()
     }

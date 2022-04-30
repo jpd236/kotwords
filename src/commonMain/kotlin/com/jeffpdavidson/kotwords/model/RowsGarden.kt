@@ -8,9 +8,9 @@ import kotlin.math.roundToInt
 @Serializable
 data class RowsGarden(
     val title: String,
-    val author: String,
+    val creator: String,
     val copyright: String,
-    val notes: String? = null,
+    val description: String,
     val rows: List<List<Entry>>,
     val light: List<Entry>,
     val medium: List<Entry>,
@@ -159,9 +159,9 @@ data class RowsGarden(
 
         return Puzzle(
             title = title,
-            creator = author,
+            creator = creator,
             copyright = copyright.replace("(c)", "©"),
-            description = notes ?: "",
+            description = description,
             grid = grid,
             clues = listOf(Puzzle.ClueList("Rows", rowClues), Puzzle.ClueList("Blooms", bloomClues)),
             words = rowsWords + bloomsWords.sortedBy { it.id },

@@ -25,12 +25,8 @@ class AcrosticForm {
         "acrostic",
         ::createPuzzleFromManualEntry,
         id = "manual-entry",
-        includeCompletionMessage = false
+        includeCompletionMessage = false,
     )
-    private val title: FormFields.InputField = FormFields.InputField("title")
-    private val creator: FormFields.InputField = FormFields.InputField("creator")
-    private val copyright: FormFields.InputField = FormFields.InputField("copyright")
-    private val description: FormFields.TextBoxField = FormFields.TextBoxField("description")
     private val suggestedWidth: FormFields.InputField = FormFields.InputField("suggested-width")
     private val solution: FormFields.TextBoxField = FormFields.TextBoxField("solution")
     private val gridKey: FormFields.TextBoxField = FormFields.TextBoxField("grid-key")
@@ -47,6 +43,7 @@ class AcrosticForm {
         completionMessageDefaultValue = "",
         completionMessageHelpText = "If blank, will be generated from the quote and source.",
         enableSaveData = false,
+        enableMetadataInput = false,
     )
     private val file: FormFields.FileField = FormFields.FileField("file")
     private val apzFileIncludeAttribution: FormFields.CheckBoxField =
@@ -75,12 +72,6 @@ class AcrosticForm {
             }
             append.tabs(Tabs.Tab("manual-entry-tab", "Form") {
                 manualEntryForm.render(this, bodyBlock = {
-                    this@AcrosticForm.title.render(this, "Title")
-                    creator.render(this, "Creator (optional)")
-                    copyright.render(this, "Copyright (optional)")
-                    description.render(this, "Description (optional)") {
-                        rows = "5"
-                    }
                     suggestedWidth.render(this, "Suggested width (optional)") {
                         type = InputType.number
                     }
@@ -128,42 +119,42 @@ class AcrosticForm {
     }
 
     private suspend fun createPuzzleFromApzFile(): Puzzle {
-        val apz = Interop.readBlob(file.getValue()).decodeToString()
+        val apz = Interop.readBlob(file.value).decodeToString()
         return Apz.fromXmlString(apz).toAcrostic(
-            completionMessage = apzFileForm.getCompletionMessage(),
-            includeAttribution = apzFileIncludeAttribution.getValue(),
+            completionMessage = apzFileForm.completionMessage,
+            includeAttribution = apzFileIncludeAttribution.value,
         ).asPuzzle()
     }
 
     private suspend fun createPuzzleFromManualEntry(): Puzzle {
-        if (gridKey.getValue().isBlank() && answers.getValue().isBlank()) {
+        if (gridKey.value.isBlank() && answers.value.isBlank()) {
             throw IllegalArgumentException("Must provide either grid key or answers")
         }
-        if (gridKey.getValue().isBlank()) {
+        if (gridKey.value.isBlank()) {
             // While fromRawInput will generate and use a grid key if the provided one is blank, we proactively generate
             // it here so we can update the form with the result, ensuring the exact same output can be reproduced.
-            val answersList = answers.getValue().uppercase().trimmedLines()
-            val generatedGridKey = Acrostic.generateGridKey(solution.getValue().uppercase(), answersList)
-            gridKey.setValue(generatedGridKey.joinToString("\n") { it.joinToString(" ") })
+            val answersList = answers.value.uppercase().trimmedLines()
+            val generatedGridKey = Acrostic.generateGridKey(solution.value.uppercase(), answersList)
+            gridKey.value = generatedGridKey.joinToString("\n") { it.joinToString(" ") }
         }
         val acrostic = Acrostic.fromRawInput(
-            title = title.getValue(),
-            creator = creator.getValue(),
-            copyright = copyright.getValue(),
-            description = description.getValue(),
-            suggestedWidth = suggestedWidth.getValue(),
-            solution = solution.getValue(),
-            gridKey = gridKey.getValue(),
-            clues = clues.getValue(),
-            answers = answers.getValue(),
-            completionMessage = completionMessage.getValue(),
-            includeAttribution = includeAttribution.getValue(),
+            title = manualEntryForm.title,
+            creator = manualEntryForm.creator,
+            copyright = manualEntryForm.copyright,
+            description = manualEntryForm.description,
+            suggestedWidth = suggestedWidth.value,
+            solution = solution.value,
+            gridKey = gridKey.value,
+            clues = clues.value,
+            answers = answers.value,
+            completionMessage = completionMessage.value,
+            includeAttribution = includeAttribution.value,
         )
         return acrostic.asPuzzle()
     }
 
     private fun getApzFileName(): String {
-        return file.getValue().name.removeSuffix(".apz")
+        return file.value.name.removeSuffix(".apz")
     }
 
     companion object {
