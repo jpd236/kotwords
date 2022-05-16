@@ -5,6 +5,7 @@ import com.jeffpdavidson.kotwords.formats.json.PuzzleMeJson
 import com.jeffpdavidson.kotwords.model.Puzzle
 import okio.ByteString.Companion.decodeBase64
 import okio.ByteString.Companion.toByteString
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 private val PUZZLE_DATA_REGEX = """\bwindow\.rawc\s*=\s*'([^']+)'""".toRegex()
@@ -194,8 +195,34 @@ class PuzzleMe(private val json: String) : Puzzleable {
             throw InvalidFormatException("Could not find puzzle data in PuzzleMe HTML")
         }
 
-        private fun decodeRawc(rawc: String) =
-            rawc.decodeBase64()?.utf8() ?: throw InvalidFormatException("Rawc is invalid base64")
+        private fun deobfuscateRawc(rawc: String): String {
+            val rawcParts = rawc.split(".")
+            val buffer = rawcParts[0].toCharArray()
+            val key = rawcParts[1].reversed().map { it.digitToInt(16) + 2 }
+            var i = 0
+            var segmentCount = 0
+            while (i < buffer.size - 1) {
+                // Reverse sections of the buffer, using the key digits as lengths of each section.
+                val segmentLength = min(key[segmentCount++ % key.size], buffer.size - i)
+                (0 until segmentLength / 2).forEach { j ->
+                    val temp = buffer[i + j]
+                    buffer[i + j] = buffer[i + segmentLength - j - 1]
+                    buffer[i + segmentLength - j - 1] = temp
+                }
+                i += segmentLength
+            }
+            return buffer.joinToString("")
+        }
+
+        private fun decodeRawc(rawc: String): String {
+            val deobfuscatedRawc = if (rawc.contains(".")) {
+                deobfuscateRawc(rawc)
+            } else {
+                rawc
+            }
+            return deobfuscatedRawc.decodeBase64()?.utf8() ?: throw InvalidFormatException("Rawc is invalid base64")
+        }
+
 
         private fun buildClueMap(isAcross: Boolean, clueList: List<PuzzleMeJson.PlacedWord>): List<Puzzle.Clue> =
             clueList.map {
