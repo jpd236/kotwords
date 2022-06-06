@@ -22,8 +22,11 @@ class AcrossLiteSanitizerTest {
                     "X" -> Puzzle.Cell(solution = "X")
                     else -> Puzzle.Cell(solution = "X", number = square)
                 }
-            }
+            }.toMutableList()
         }
+
+        // Add cell borders, which should be ignored for Across Lite numbering purposes.
+        grid[2][1] = grid[2][1].copy(borderDirections = setOf(Puzzle.BorderDirection.TOP, Puzzle.BorderDirection.TOP))
 
         val expectedSanitizedMap = mapOf(
             "1" to "1",

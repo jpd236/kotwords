@@ -30,7 +30,7 @@ internal object AcrossLiteSanitizer {
         sanitizeCharacters: Boolean,
     ): Pair<Map<Int, String>, Map<Int, String>> {
         var hasCustomNumbering = false
-        Crossword.forEachCell(grid) { x, y, clueNumber, _, _, _ ->
+        Crossword.forEachCell(grid, useBorders = false) { x, y, clueNumber, _, _, _ ->
             hasCustomNumbering = hasCustomNumbering || grid[y][x].number != (clueNumber?.toString() ?: "")
         }
         val givenToSanitizedClueNumberMap = if (hasCustomNumbering) mapGivenToSanitizedClueNumbers(grid) else null
@@ -39,7 +39,7 @@ internal object AcrossLiteSanitizer {
         val downCluesByClueNumber = downClues.clues.associate { it.number to it.text }
         val sanitizedAcrossClues: MutableMap<Int, String> = mutableMapOf()
         val sanitizedDownClues: MutableMap<Int, String> = mutableMapOf()
-        Crossword.forEachNumberedCell(grid) { x, y, clueNumber, isAcross, isDown ->
+        Crossword.forEachNumberedCell(grid, useBorders = false) { x, y, clueNumber, isAcross, isDown ->
             val givenSquareNumber = grid[y][x].number.ifEmpty { if (hasCustomNumbering) "" else clueNumber.toString() }
             if (isAcross) {
                 sanitizedAcrossClues[clueNumber] = sanitizeClue(
@@ -58,7 +58,7 @@ internal object AcrossLiteSanitizer {
     /** Generate a map from given clue numbers to clue numbers in the sanitized grid. */
     internal fun mapGivenToSanitizedClueNumbers(grid: List<List<Puzzle.Cell>>): Map<String, String> {
         val givenToSanitizedClueNumberMap: MutableMap<String, String> = mutableMapOf()
-        Crossword.forEachNumberedCell(grid) { x, y, clueNumber, _, _ ->
+        Crossword.forEachNumberedCell(grid, useBorders = false) { x, y, clueNumber, _, _ ->
             val givenSquareNumber = grid[y][x].number
             if (givenSquareNumber.isNotEmpty()) {
                 givenToSanitizedClueNumberMap[givenSquareNumber] = clueNumber.toString()

@@ -63,7 +63,7 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                     if (solutionChar == '.') Puzzle.Cell(cellType = Puzzle.CellType.BLOCK) else Puzzle.Cell()
                 }
             }
-            Crossword.forEachNumberedCell(initialGrid) { _, _, clueNumber, isAcross, isDown ->
+            Crossword.forEachNumberedCell(initialGrid, useBorders = false) { _, _, clueNumber, isAcross, isDown ->
                 if (isAcross) {
                     acrossClues[clueNumber] = readNullTerminatedString(charset)
                 }
@@ -475,7 +475,7 @@ private enum class Charset(val encodeFn: (String) -> ByteArray, val decodeFn: (B
 private inline fun BufferedSink.writeGrid(
     grid: List<List<Puzzle.Cell>>, blackCellValue: Byte, crossinline whiteCellFn: (Puzzle.Cell) -> Byte
 ) {
-    Crossword.forEachCell(grid) { _, _, _, _, _, cell ->
+    Crossword.forEachCell(grid, useBorders = false) { _, _, _, _, _, cell ->
         writeByte((if (cell.cellType.isBlack()) blackCellValue else whiteCellFn(cell)).toInt())
     }
 }
@@ -483,7 +483,7 @@ private inline fun BufferedSink.writeGrid(
 private inline fun BufferedSink.writeGrid(
     grid: List<List<Puzzle.Cell>>, blackCellValue: Char, crossinline whiteCellFn: (Puzzle.Cell) -> Char
 ) {
-    Crossword.forEachCell(grid) { _, _, _, _, _, cell ->
+    Crossword.forEachCell(grid, useBorders = false) { _, _, _, _, _, cell ->
         val char = if (cell.cellType.isBlack()) blackCellValue else whiteCellFn(cell)
         writeString(char.toString(), Charset.CP_1252, nullTerminated = false)
     }
