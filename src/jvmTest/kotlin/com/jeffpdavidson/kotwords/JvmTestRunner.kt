@@ -1,11 +1,8 @@
 package com.jeffpdavidson.kotwords
 
-import kotlinx.coroutines.runBlocking
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import kotlin.reflect.KClass
-
-actual fun runTest(block: suspend () -> Unit) = runBlocking { block() }
 
 actual suspend fun <T : Any> readBinaryResource(clazz: KClass<T>, resourceName: String): ByteArray {
     return getResourceAsStream(clazz, resourceName).readBytes()

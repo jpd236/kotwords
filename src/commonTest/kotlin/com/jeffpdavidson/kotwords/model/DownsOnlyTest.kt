@@ -3,7 +3,7 @@ package com.jeffpdavidson.kotwords.model
 import com.jeffpdavidson.kotwords.formats.AcrossLite
 import com.jeffpdavidson.kotwords.model.DownsOnly.getDirectionToClearForDownsOnly
 import com.jeffpdavidson.kotwords.readBinaryResource
-import com.jeffpdavidson.kotwords.runTest
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

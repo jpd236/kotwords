@@ -1,10 +1,10 @@
 package com.jeffpdavidson.kotwords.web
 
 import com.jeffpdavidson.kotwords.readStringResource
-import com.jeffpdavidson.kotwords.runTest
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.coroutines.test.runTest
 import org.w3c.dom.HTMLElement
 import kotlin.test.Test
 import kotlin.test.assertEquals

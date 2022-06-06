@@ -3,8 +3,8 @@ package com.jeffpdavidson.kotwords.formats
 import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.asAcrossLiteBinary
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
-import com.jeffpdavidson.kotwords.runTest
 import com.soywiz.klock.Date
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

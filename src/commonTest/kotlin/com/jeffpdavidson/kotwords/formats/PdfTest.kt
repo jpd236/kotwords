@@ -4,7 +4,7 @@ import com.jeffpdavidson.kotwords.formats.Pdf.asPdf
 import com.jeffpdavidson.kotwords.formats.Pdf.splitTextToLines
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
-import com.jeffpdavidson.kotwords.runTest
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
