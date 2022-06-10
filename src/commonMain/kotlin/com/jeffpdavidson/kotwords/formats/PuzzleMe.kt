@@ -9,6 +9,7 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 private val PUZZLE_DATA_REGEX = """\bwindow\.rawc\s*=\s*'([^']+)'""".toRegex()
+private val KEY_REGEX = """var [a-zA-Z]+\s*=\s*"([a-z\d]+)"""".toRegex()
 
 /** Container for a puzzle in the PuzzleMe (Amuse Labs) format. */
 class PuzzleMe(private val json: String) : Puzzleable {
@@ -181,15 +182,20 @@ class PuzzleMe(private val json: String) : Puzzleable {
     companion object {
         fun fromHtml(html: String): PuzzleMe = PuzzleMe(extractPuzzleJson(html))
 
-        fun fromRawc(rawc: String): PuzzleMe = PuzzleMe(decodeRawc(rawc))
+        fun fromRawc(rawc: String, onReadyFn: String = ""): PuzzleMe =
+            PuzzleMe(decodeRawcFromOnReadyFn(rawc, onReadyFn))
 
         internal fun extractPuzzleJson(html: String): String {
+            return decodeRawc(extractRawc(html))
+        }
+
+        internal fun extractRawc(html: String): String {
             // Look for "window.rawc = '[data]'" inside <script> tags; this is JSON puzzle data
             // encoded as Base64.
             Xml.parse(html, format = DocumentFormat.HTML).select("script").forEach {
                 val matchResult = PUZZLE_DATA_REGEX.find(it.data)
                 if (matchResult != null) {
-                    return decodeRawc(matchResult.groupValues[1])
+                    return matchResult.groupValues[1]
                 }
             }
             throw InvalidFormatException("Could not find puzzle data in PuzzleMe HTML")
@@ -197,8 +203,12 @@ class PuzzleMe(private val json: String) : Puzzleable {
 
         private fun deobfuscateRawc(rawc: String): String {
             val rawcParts = rawc.split(".")
-            val buffer = rawcParts[0].toCharArray()
-            val key = rawcParts[1].reversed().map { it.digitToInt(16) + 2 }
+            return deobfuscateRawc(rawcParts[0], rawcParts[1].reversed())
+        }
+
+        private fun deobfuscateRawc(rawc: String, keyStr: String): String {
+            val buffer = rawc.toCharArray()
+            val key = keyStr.map { it.digitToInt(16) + 2 }
             var i = 0
             var segmentCount = 0
             while (i < buffer.size - 1) {
@@ -214,15 +224,32 @@ class PuzzleMe(private val json: String) : Puzzleable {
             return buffer.joinToString("")
         }
 
-        private fun decodeRawc(rawc: String): String {
+        internal fun decodeRawcFromOnReadyFn(rawc: String, onReadyFn: String): String {
+            if (!rawc.contains('.') && onReadyFn.isNotEmpty()) {
+                // Try to find the key variable in the onReady function.
+                KEY_REGEX.findAll(onReadyFn).forEach { matchResult ->
+                    val decodedRawc = try {
+                        decodeRawc(rawc, matchResult.groupValues[1])
+                    } catch (e: InvalidFormatException) {
+                        // Assume this is an invalid key; try the next match.
+                        return@forEach
+                    }
+                    return decodedRawc
+                }
+            }
+            return decodeRawc(rawc)
+        }
+
+        private fun decodeRawc(rawc: String, key: String = ""): String {
             val deobfuscatedRawc = if (rawc.contains(".")) {
                 deobfuscateRawc(rawc)
+            } else if (key.isNotEmpty()) {
+                deobfuscateRawc(rawc, key)
             } else {
                 rawc
             }
             return deobfuscatedRawc.decodeBase64()?.utf8() ?: throw InvalidFormatException("Rawc is invalid base64")
         }
-
 
         private fun buildClueMap(isAcross: Boolean, clueList: List<PuzzleMeJson.PlacedWord>): List<Puzzle.Clue> =
             clueList.map {
