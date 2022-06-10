@@ -58,7 +58,7 @@ internal object PuzzleMeJson {
         // Squares which should have their solution revealed at the start
         val preRevealIdxs: List<List<Boolean>> = listOf(),
         // Clue numbers for each square. Normally inferrable but may be needed for non-traditional grids.
-        val clueNums: List<List<Int>> = listOf(),
+        val clueNums: List<List<Int?>> = listOf(),
         val imagesInGrid: List<Image> = listOf(),
     )
 }

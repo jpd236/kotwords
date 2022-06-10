@@ -117,7 +117,7 @@ class PuzzleMe(private val json: String) : Puzzleable {
                             Puzzle.BackgroundShape.NONE
                         }
                     val number =
-                        if (data.clueNums.isNotEmpty() && data.clueNums[x][y] != 0) {
+                        if (data.clueNums.isNotEmpty() && (data.clueNums[x][y] ?: 0) != 0) {
                             data.clueNums[x][y].toString()
                         } else {
                             ""
