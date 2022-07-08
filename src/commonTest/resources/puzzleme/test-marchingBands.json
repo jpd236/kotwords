@@ -1,0 +1,287 @@
+{
+  "title": "Test title",
+  "description": "Test description",
+  "copyright": "Test copyright",
+  "author": "Test creator",
+  "w": 5,
+  "h": 5,
+  "box": [
+    [
+      "A",
+      "F",
+      "K",
+      "O",
+      "T"
+    ],
+    [
+      "B",
+      "G",
+      "L",
+      "P",
+      "U"
+    ],
+    [
+      "C",
+      "H",
+      "\u0000",
+      "Q",
+      "V"
+    ],
+    [
+      "D",
+      "I",
+      "M",
+      "R",
+      "W"
+    ],
+    [
+      "E",
+      "J",
+      "N",
+      "S",
+      "X"
+    ]
+  ],
+  "placedWords": [
+    {
+      "acrossNotDown": true,
+      "clueNum": 1,
+      "clue": {
+        "clue": "Row 1: Row 1A / Row 1B"
+      },
+      "nBoxes": 5,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 2,
+      "clue": {
+        "clue": "Row 2: Row 2A / Row 2B"
+      },
+      "nBoxes": 5,
+      "x": 0,
+      "y": 1
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 3,
+      "clue": {
+        "clue": "Row 3: Row 3A / Row 3B"
+      },
+      "nBoxes": 5,
+      "x": 0,
+      "y": 2
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 4,
+      "clue": {
+        "clue": "Row 4: Row 4A / Row 4B"
+      },
+      "nBoxes": 5,
+      "x": 0,
+      "y": 3
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 5,
+      "clue": {
+        "clue": "Row 5: Row 5A / Row 5B"
+      },
+      "nBoxes": 5,
+      "x": 0,
+      "y": 4
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 1,
+      "clue": {
+        "clue": "First band: Band A1 / Band A2 / Band A3"
+      },
+      "nBoxes": 5,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 2,
+      "clue": {
+        "clue": "Second band: Band B1 / Band B2"
+      },
+      "nBoxes": 3,
+      "x": 1,
+      "y": 1
+    }
+  ],
+  "cellInfos": [
+    {
+      "x": 0,
+      "y": 0,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 2,
+      "y": 0,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 3,
+      "y": 0,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 4,
+      "y": 0,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 0,
+      "y": 1,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 1,
+      "y": 1,
+      "bgColor": "#C0C0C0",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 2,
+      "y": 1,
+      "bgColor": "#C0C0C0",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 3,
+      "y": 1,
+      "bgColor": "#C0C0C0",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 4,
+      "y": 1,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 0,
+      "y": 2,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 1,
+      "y": 2,
+      "bgColor": "#C0C0C0",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 3,
+      "y": 2,
+      "bgColor": "#C0C0C0",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 4,
+      "y": 2,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 0,
+      "y": 3,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 1,
+      "y": 3,
+      "bgColor": "#C0C0C0",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 2,
+      "y": 3,
+      "bgColor": "#C0C0C0",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 3,
+      "y": 3,
+      "bgColor": "#C0C0C0",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 4,
+      "y": 3,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 0,
+      "y": 4,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 1,
+      "y": 4,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 2,
+      "y": 4,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 3,
+      "y": 4,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    },
+    {
+      "x": 4,
+      "y": 4,
+      "bgColor": "#FFFFFF",
+      "isCircled": false,
+      "isVoid": false
+    }
+  ]
+}

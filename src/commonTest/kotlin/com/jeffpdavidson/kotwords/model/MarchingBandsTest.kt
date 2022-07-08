@@ -1,7 +1,14 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
+import com.jeffpdavidson.kotwords.formats.ImageComparator
+import com.jeffpdavidson.kotwords.formats.ImageComparator.assertPdfEquals
+import com.jeffpdavidson.kotwords.formats.Jpz
 import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
+import com.jeffpdavidson.kotwords.formats.Pdf.asPdf
+import com.jeffpdavidson.kotwords.formats.PdfTest
+import com.jeffpdavidson.kotwords.formats.getNotoSerifFontFamily
+import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -35,6 +42,15 @@ class MarchingBandsTest {
                     completion = CrosswordCompilerApplet.AppletSettings.Completion(message = "All done!"),
                 )
             ).toXmlString()
+        )
+    }
+
+    @Test
+    fun pdfGeneration() = runTest {
+        assertPdfEquals(
+            readBinaryResource(ImageComparator::class, "marching-bands/marching-bands.pdf"),
+            Jpz.fromXmlString(readStringResource(PdfTest::class, "marching-bands/marching-bands.jpz"))
+                .asPuzzle().asPdf(blackSquareLightnessAdjustment = 0.75f, fontFamily = getNotoSerifFontFamily())
         )
     }
 

@@ -2,6 +2,7 @@ package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.formats.json.PuzzleMeJson
+import com.jeffpdavidson.kotwords.model.MarchingBands
 import com.jeffpdavidson.kotwords.model.Puzzle
 import okio.ByteString.Companion.decodeBase64
 import okio.ByteString.Companion.toByteString
@@ -11,8 +12,11 @@ import kotlin.math.roundToInt
 private val PUZZLE_DATA_REGEX = """\bwindow\.rawc\s*=\s*'([^']+)'""".toRegex()
 private val KEY_REGEX = """var [a-zA-Z]+\s*=\s*"([a-z\d]+)"""".toRegex()
 
+private val ROWS_REGEX = """Row \d+: """.toRegex(RegexOption.IGNORE_CASE)
+private val BANDS_REGEX = """[^:]*band: """.toRegex(RegexOption.IGNORE_CASE)
+
 /** Container for a puzzle in the PuzzleMe (Amuse Labs) format. */
-class PuzzleMe(private val json: String) : Puzzleable {
+class PuzzleMe(val json: String) : Puzzleable {
 
     override suspend fun asPuzzle(): Puzzle {
         val data = JsonSerializer.fromJson<PuzzleMeJson.Data>(json)
@@ -124,7 +128,7 @@ class PuzzleMe(private val json: String) : Puzzleable {
                         }
                     row.add(
                         Puzzle.Cell(
-                            solution = box!!,
+                            solution = if (isPrefilled && box!! == "*") { "" } else { box!! },
                             cellType = if (isPrefilled) Puzzle.CellType.CLUE else Puzzle.CellType.REGULAR,
                             backgroundShape = backgroundShape,
                             number = number,
@@ -163,19 +167,17 @@ class PuzzleMe(private val json: String) : Puzzleable {
             .filterNot { it.acrossNotDown }
             .filter { it.x >= leftRowsToDelete && it.x <= grid[0].size - rightRowsToDelete }
             .map { it.copy(x = it.x - leftRowsToDelete, y = it.y - topRowsToDelete) }
+        val processedData = getProcessedPuzzleData(filteredGrid, acrossWords, downWords)
 
         return Puzzle(
             title = data.title.trim(),
             creator = data.author.trim(),
             copyright = data.copyright.trim(),
-            description = data.description.ifBlank { data.help?.ifBlank { "" } ?: "" }.trim(),
-            grid = filteredGrid,
-            clues = listOf(
-                Puzzle.ClueList("<b>Across</b>", buildClueMap(isAcross = true, clueList = acrossWords)),
-                Puzzle.ClueList("<b>Down</b>", buildClueMap(isAcross = false, clueList = downWords))
-            ),
+            description = toHtml(data.description.ifBlank { data.help?.ifBlank { "" } ?: "" }.trim()),
+            grid = processedData.grid,
+            clues = processedData.clues,
             hasHtmlClues = true,
-            words = buildWordList(filteredGrid, acrossWords + downWords),
+            words = processedData.words,
         )
     }
 
@@ -278,8 +280,12 @@ class PuzzleMe(private val json: String) : Puzzleable {
                 }
                 Puzzle.Word(
                     id = getWordId(isAcross = word.acrossNotDown, clueNum = word.clueNum),
-                    // Filter out any squares that fall outside the grid (e.g. due to void squares).
-                    cells = cells.filter { (x, y) -> y >= 0 && y < grid.size && x >= 0 && x < grid[y].size }
+                    // Filter out any squares that fall outside the grid (e.g. due to void squares) or which cannot
+                    // have letters entered in them.
+                    cells = cells.filter { (x, y) ->
+                        y >= 0 && y < grid.size && x >= 0 && x < grid[y].size
+                                && grid[y][x].cellType == Puzzle.CellType.REGULAR
+                    }
                 )
             }
         }
@@ -290,13 +296,102 @@ class PuzzleMe(private val json: String) : Puzzleable {
          * Convert a PuzzleMe JSON string to HTML.
          *
          * PuzzleMe mixes unescaped special XML characters (&, <) with HTML tags. This method escapes the special
-         * characters while leaving supported HTML tags untouched.
+         * characters while leaving supported HTML tags untouched. <br> tags are replaced with newlines.
          */
         internal fun toHtml(clue: String): String {
             return clue
                 .replace("&", "&amp;")
+                .replace("<br/?>".toRegex(RegexOption.IGNORE_CASE), "\n")
                 .replace("<", "&lt;")
                 .replace("&lt;(/?(?:b|i|sup|sub|span))>".toRegex(RegexOption.IGNORE_CASE), "<$1>")
+        }
+
+        data class PuzzleData(
+            val grid: List<List<Puzzle.Cell>>,
+            val clues: List<Puzzle.ClueList>,
+            val words: List<Puzzle.Word>
+        )
+
+        private fun getProcessedPuzzleData(
+            filteredGrid: List<List<Puzzle.Cell>>,
+            acrossWords: List<PuzzleMeJson.PlacedWord>,
+            downWords: List<PuzzleMeJson.PlacedWord>
+        ): PuzzleData {
+            return if (acrossWords.all { it.clue.clue.isEmpty() || it.clue.clue.contains(ROWS_REGEX) } &&
+                downWords.all { it.clue.clue.isEmpty() || it.clue.clue.contains(BANDS_REGEX) }) {
+                // Assume this is a Marching Bands puzzle. There's no other indication apparent in the data itself; the
+                // only proper way to know is to look at the full HTML to see if the extra "Sparkling bands" Javascript
+                // code which post-processes the raw puzzle data is included.
+
+                // Regenerate words since the provided ones are invalid.
+                val rowWords = acrossWords
+                    .filterNot { it.clue.clue.isEmpty() }.mapIndexed { i, word ->
+                        word.copy(
+                            clueNum = i + 1,
+                            // Clear the "Row [n]: " prefix
+                            clue = word.clue.copy(clue = word.clue.clue.replace(ROWS_REGEX, "")),
+                            x = 0,
+                            y = word.y,
+                            nBoxes = filteredGrid[0].size
+                        )
+                    }
+                val rowWordList = buildWordList(filteredGrid, rowWords)
+                val bandWords = downWords.filterNot { it.clue.clue.isEmpty() }.map { word ->
+                    // Clear the "[Color] band: " prefix
+                    word.copy(clue = word.clue.copy(clue = word.clue.clue.replace(BANDS_REGEX, "")))
+                }
+                val bandWordList = List(bandWords.size) { i ->
+                    Puzzle.Word(
+                        id = getWordId(isAcross = false, clueNum = i + 1),
+                        cells = MarchingBands.getBandCells(
+                            width = filteredGrid[0].size,
+                            height = filteredGrid.size,
+                            bandIndex = i,
+                        )
+                    )
+                }
+                val bandClues = bandWords.mapIndexed { i, word ->
+                    Puzzle.Clue(
+                        wordId = getWordId(isAcross = false, clueNum = i + 1),
+                        number = ('A' + i).toString(),
+                        text = toHtml(word.clue.clue)
+                    )
+                }
+
+                // Clear extraneous numbers and add band letters.
+                val grid = filteredGrid.mapIndexed { y, row ->
+                    row.mapIndexed { x, cell ->
+                        val topRightNumber =
+                            if (x == y && x < bandClues.size && cell.cellType == Puzzle.CellType.REGULAR) {
+                                ('A' + y).toString()
+                            } else {
+                                ""
+                            }
+                        cell.copy(
+                            number = if (x == 0) "${y + 1}" else "",
+                            topRightNumber = topRightNumber,
+                        )
+                    }
+                }
+
+                PuzzleData(
+                    grid = grid,
+                    clues = listOf(
+                        Puzzle.ClueList("<b>Bands</b>", bandClues),
+                        Puzzle.ClueList("<b>Rows</b>", buildClueMap(isAcross = true, clueList = rowWords)),
+                    ),
+                    words = bandWordList + rowWordList
+                )
+            } else {
+                PuzzleData(
+                    grid = filteredGrid,
+                    clues = listOf(
+                        Puzzle.ClueList("<b>Across</b>", buildClueMap(isAcross = true, clueList = acrossWords)),
+                        Puzzle.ClueList("<b>Down</b>", buildClueMap(isAcross = false, clueList = downWords))
+                    ),
+                    words = buildWordList(filteredGrid, acrossWords + downWords)
+                )
+            }
         }
     }
 }

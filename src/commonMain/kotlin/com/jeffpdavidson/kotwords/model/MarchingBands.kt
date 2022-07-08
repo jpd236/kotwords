@@ -58,13 +58,7 @@ data class MarchingBands(
             Puzzle.Clue(y + 1, "${y + 1}", clues.joinToString(" / ")) to Puzzle.Word(y + 1, cells)
         }.unzip()
         val (bandClueList, bandWordList) = bandClues.mapIndexed { i, clues ->
-            val cells =
-                (i until puzzleGrid[i].size - i).map { x -> Puzzle.Coordinate(x = x, y = i) } +
-                        (i + 1 until puzzleGrid.size - i)
-                            .map { y -> Puzzle.Coordinate(x = puzzleGrid[y].size - i - 1, y = y) } +
-                        (i until puzzleGrid[i].size - i - 1)
-                            .map { x -> Puzzle.Coordinate(x = x, y = puzzleGrid.size - i - 1) }.reversed() +
-                        (i + 1 until puzzleGrid.size - i - 1).map { y -> Puzzle.Coordinate(x = i, y = y) }.reversed()
+            val cells = getBandCells(width = puzzleGrid[i].size, height = puzzleGrid.size, bandIndex = i)
             Puzzle.Clue(1000 + i + 1, "${'A' + i}", clues.joinToString(" / ")) to Puzzle.Word(1000 + i + 1, cells)
         }.unzip()
         return Puzzle(
@@ -76,5 +70,18 @@ data class MarchingBands(
             clues = listOf(Puzzle.ClueList("Bands", bandClueList), Puzzle.ClueList("Rows", rowClueList)),
             words = bandWordList + rowWordList,
         )
+    }
+
+    companion object {
+        /** Return the coordinates in band [bandIndex] in a grid of size width x height. */
+        internal fun getBandCells(width: Int, height: Int, bandIndex: Int): List<Puzzle.Coordinate> {
+            return (bandIndex until width - bandIndex).map { x -> Puzzle.Coordinate(x = x, y = bandIndex) } +
+                    (bandIndex + 1 until height - bandIndex)
+                        .map { y -> Puzzle.Coordinate(x = width - bandIndex - 1, y = y) } +
+                    (bandIndex until width - bandIndex - 1)
+                        .map { x -> Puzzle.Coordinate(x = x, y = height - bandIndex - 1) }.reversed() +
+                    (bandIndex + 1 until height - bandIndex - 1).map { y -> Puzzle.Coordinate(x = bandIndex, y = y) }
+                        .reversed()
+        }
     }
 }

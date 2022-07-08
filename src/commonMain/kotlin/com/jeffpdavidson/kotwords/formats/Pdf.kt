@@ -18,7 +18,7 @@ object Pdf {
     private const val AUTHOR_SIZE = 14f
 
     /** Size of the puzzle notes. */
-    private const val NOTES_SIZE = 12f
+    private const val NOTES_SIZE = 10f
 
     /** Space between the header text and the start of the clues. */
     private const val HEADER_CLUES_SPACING = 28f
@@ -257,6 +257,7 @@ object Pdf {
                             textWidth = getTextWidth(square.number, fontFamily.baseFont, gridNumberSize),
                             gridNumberSize = gridNumberSize,
                             font = fontFamily.baseFont,
+                            backgroundColor = backgroundColor,
                         )
                     }
                     if (square.topRightNumber.isNotBlank()) {
@@ -265,15 +266,16 @@ object Pdf {
                             x = gridX + (x + 1) * gridSquareSize - GRID_NUMBER_X_OFFSET - textWidth,
                             y = gridY + gridHeight - y * gridSquareSize - gridNumberSize,
                             text = square.topRightNumber,
-                            textWidth = getTextWidth(square.number, fontFamily.baseFont, gridNumberSize),
+                            textWidth = textWidth,
                             gridNumberSize = gridNumberSize,
                             font = fontFamily.baseFont,
+                            backgroundColor = backgroundColor,
                         )
                     }
-                    if (square.cellType == Puzzle.CellType.CLUE) {
+                    if (square.cellType == Puzzle.CellType.CLUE && square.solution.isNotBlank()) {
                         // Render the square's solution.
-                        // Truncate the solution if it's greater than eight characters, and split it into two lines if it's
-                        // more than four characters.
+                        // Truncate the solution if it's greater than eight characters, and split it into two lines if
+                        // it's more than four characters.
                         var solutionString = square.solution
                         if (solutionString.length > 8) {
                             solutionString = solutionString.substring(0, 5) + "..."
@@ -342,9 +344,11 @@ object Pdf {
         text: String,
         textWidth: Float,
         gridNumberSize: Float,
-        font: PdfFont
+        font: PdfFont,
+        backgroundColor: RGB,
     ) {
         // Erase a rectangle around the number to make sure it stands out if there is a circle.
+        setFillColor(backgroundColor.r, backgroundColor.g, backgroundColor.b)
         addRect(
             x,
             y,
@@ -538,8 +542,41 @@ object Pdf {
         }
     }
 
-    /** Split formatted [text] into lines (using spaces as word separators) to fit the given [lineWidth]. */
+    /**
+     * Split formatted [text] into lines (using spaces as word separators and new lines as paragraph separators) to fit
+     * the given [lineWidth].
+     */
     private fun splitTextToLines(
+        document: PdfDocument,
+        text: List<FormattedChar>,
+        baseFont: PdfFont,
+        fontSize: Float,
+        lineWidth: Float,
+    ): List<List<FormattedChar>> {
+        val lines = mutableListOf<List<FormattedChar>>()
+        val currentLine = mutableListOf<FormattedChar>()
+        fun newLine() {
+            while (currentLine.isNotEmpty() && currentLine.last().char == ' ') {
+                currentLine.removeLast()
+            }
+            lines.addAll(splitParagraphToLines(document, currentLine, baseFont, fontSize, lineWidth))
+            currentLine.clear()
+        }
+        text.forEach { char ->
+            if (char.char == '\n') {
+                newLine()
+            } else if (currentLine.isNotEmpty() || char.char != ' ') {
+                currentLine.add(char)
+            }
+        }
+        newLine()
+        return lines
+    }
+
+    /**
+     * Split a paragraph of formatted [text] into lines (using spaces as word separators) to fit the given [lineWidth].
+     */
+    private fun splitParagraphToLines(
         document: PdfDocument,
         text: List<FormattedChar>,
         baseFont: PdfFont,
