@@ -301,7 +301,7 @@ class PuzzleMe(val json: String) : Puzzleable {
         internal fun toHtml(clue: String): String {
             return clue
                 .replace("&", "&amp;")
-                .replace("<br/?>".toRegex(RegexOption.IGNORE_CASE), "\n")
+                .replace("\\s*<br/?>\\s*".toRegex(RegexOption.IGNORE_CASE), "\n")
                 .replace("<", "&lt;")
                 .replace("&lt;(/?(?:b|i|sup|sub|span))>".toRegex(RegexOption.IGNORE_CASE), "<$1>")
         }
