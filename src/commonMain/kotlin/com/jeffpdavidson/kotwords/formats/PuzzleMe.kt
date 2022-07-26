@@ -170,9 +170,9 @@ class PuzzleMe(val json: String) : Puzzleable {
         val processedData = getProcessedPuzzleData(filteredGrid, acrossWords, downWords)
 
         return Puzzle(
-            title = data.title.trim(),
-            creator = data.author.trim(),
-            copyright = data.copyright.trim(),
+            title = toHtml(data.title.trim()),
+            creator = toHtml(data.author.trim()),
+            copyright = toHtml(data.copyright.trim()),
             description = toHtml(data.description.ifBlank { data.help?.ifBlank { "" } ?: "" }.trim()),
             grid = processedData.grid,
             clues = processedData.clues,
@@ -296,14 +296,15 @@ class PuzzleMe(val json: String) : Puzzleable {
          * Convert a PuzzleMe JSON string to HTML.
          *
          * PuzzleMe mixes unescaped special XML characters (&, <) with HTML tags. This method escapes the special
-         * characters while leaving supported HTML tags untouched. <br> tags are replaced with newlines.
+         * characters while leaving supported HTML tags untouched. <br> tags are replaced with newlines. Attributes
+         * are stripped out.
          */
         internal fun toHtml(clue: String): String {
             return clue
                 .replace("&", "&amp;")
                 .replace("\\s*<br/?>\\s*".toRegex(RegexOption.IGNORE_CASE), "\n")
                 .replace("<", "&lt;")
-                .replace("&lt;(/?(?:b|i|sup|sub|span))>".toRegex(RegexOption.IGNORE_CASE), "<$1>")
+                .replace("&lt;(/?(?:b|i|sup|sub|span))[^>]*>".toRegex(RegexOption.IGNORE_CASE), "<$1>")
         }
 
         data class PuzzleData(

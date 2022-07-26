@@ -43,6 +43,9 @@ sealed interface Jpz : Puzzleable {
     fun toXmlString(prettyPrint: Boolean = false): String
 
     @Serializable
+    data class Html(@XmlValue(true) val data: Snippet)
+
+    @Serializable
     @XmlSerialName("rectangular-puzzle", PUZZLE_NS, "")
     data class RectangularPuzzle(
         val metadata: Metadata = Metadata(),
@@ -55,10 +58,10 @@ sealed interface Jpz : Puzzleable {
         @Serializable
         @SerialName("metadata")
         data class Metadata(
-            @SerialName("title") @XmlElement(true) val title: String? = null,
-            @SerialName("creator") @XmlElement(true) val creator: String? = null,
-            @SerialName("copyright") @XmlElement(true) val copyright: String? = null,
-            @SerialName("description") @XmlElement(true) val description: String? = null
+            @XmlSerialName("title", PUZZLE_NS, "") val title: Html? = null,
+            @XmlSerialName("creator", PUZZLE_NS, "") val creator: Html? = null,
+            @XmlSerialName("copyright", PUZZLE_NS, "") val copyright: Html? = null,
+            @XmlSerialName("description", PUZZLE_NS, "") val description: Html? = null,
         )
 
         @Serializable
@@ -122,12 +125,10 @@ sealed interface Jpz : Puzzleable {
 
             @Serializable
             @SerialName("clues")
-            data class Clues(val title: Title, val clues: List<Clue>) {
-
-                @Serializable
-                @SerialName("title")
-                data class Title(@XmlValue(true) val data: Snippet)
-
+            data class Clues(
+                @XmlSerialName("title", PUZZLE_NS, "") val title: Html,
+                val clues: List<Clue>,
+            ) {
                 @Serializable
                 @SerialName("clue")
                 data class Clue(
@@ -236,18 +237,18 @@ sealed interface Jpz : Puzzleable {
         var copyright = rectangularPuzzle.metadata.copyright
         if (this is CrosswordCompilerApplet) {
             completionMessage = appletSettings.completion.message
-            if (appletSettings.title?.isNotEmpty() == true) {
+            if (appletSettings.title != null) {
                 title = appletSettings.title
             }
-            if (appletSettings.copyright?.isNotEmpty() == true) {
+            if (appletSettings.copyright != null) {
                 copyright = appletSettings.copyright
             }
         }
         return Puzzle(
-            title = title ?: "",
-            creator = rectangularPuzzle.metadata.creator ?: "",
-            copyright = copyright ?: "",
-            description = rectangularPuzzle.metadata.description ?: "",
+            title = title?.data?.toHtml() ?: "",
+            creator = rectangularPuzzle.metadata.creator?.data?.toHtml() ?: "",
+            copyright = copyright?.data?.toHtml() ?: "",
+            description = rectangularPuzzle.metadata.description?.data?.toHtml() ?: "",
             grid = grid,
             clues = crossword.clues.map { clues ->
                 Puzzle.ClueList(title = clues.title.data.toHtml(), clues = clues.clues.map { clue ->
@@ -402,15 +403,15 @@ sealed interface Jpz : Puzzleable {
             }
 
             val jpzClues = clues.map { clueList ->
-                val title = if (hasHtmlClues) htmlToSnippet(clueList.title) else listOf(B(listOf(clueList.title)))
+                val htmlTitle = clueList.title.toSnippet(hasHtmlClues)
+                val title = if (hasHtmlClues) htmlTitle else listOf(B(htmlTitle))
                 RectangularPuzzle.Crossword.Clues(
-                    title = RectangularPuzzle.Crossword.Clues.Title(title),
+                    title = Html(title),
                     clues = clueList.clues.map { clue ->
-                        val htmlClues = if (hasHtmlClues) clue.text else formatClue(clue.text)
                         RectangularPuzzle.Crossword.Clues.Clue(
                             word = clue.wordId,
                             number = clue.number,
-                            text = htmlToSnippet(htmlClues)
+                            text = clue.text.toSnippet(hasHtmlClues)
                         )
                     })
             }
@@ -424,10 +425,12 @@ sealed interface Jpz : Puzzleable {
 
             val rectangularPuzzle = RectangularPuzzle(
                 metadata = RectangularPuzzle.Metadata(
-                    title = title.ifBlank { null },
-                    creator = creator.ifBlank { null },
-                    copyright = copyright.ifBlank { null },
-                    description = combinedDescription.ifBlank { null },
+                    title = if (title.isBlank()) null else Html(title.toSnippet(hasHtmlClues)),
+                    creator = if (creator.isBlank()) null else Html(creator.toSnippet(hasHtmlClues)),
+                    copyright = if (copyright.isBlank()) null else Html(copyright.toSnippet(hasHtmlClues)),
+                    description = if (combinedDescription.isBlank()) null else Html(
+                        combinedDescription.toSnippet(hasHtmlClues)
+                    ),
                 ),
                 crossword = if (puzzleType == Puzzle.PuzzleType.CROSSWORD) crossword else null,
                 acrostic = if (puzzleType == Puzzle.PuzzleType.ACROSTIC) crossword else null,
@@ -464,13 +467,16 @@ sealed interface Jpz : Puzzleable {
                 row.flatMap { cell -> cell.solution.toList() }
             }.toSet().sorted().joinToString("")
 
+        private fun String.toSnippet(hasHtmlClues: Boolean): Snippet =
+            htmlToSnippet(if (hasHtmlClues) this else formatPlainText(this))
+
         /**
-         * Format a raw clue as valid inner HTML for a JPZ file.
+         * Format plain text as valid inner HTML for a JPZ file.
          *
          * <p>Invalid XML characters are escaped, and text surrounded by asterisks is italicized.
          */
-        private fun formatClue(rawClue: String): String {
-            val escapedClue = rawClue.replace("&", "&amp;").replace("<", "&lt;")
+        private fun formatPlainText(plainText: String): String {
+            val escapedClue = plainText.replace("&", "&amp;").replace("<", "&lt;")
             // Only italicize text if there are an even number of asterisks to try to avoid false positives on text like
             // "M*A*S*H". If this proves to trigger in other unintended circumstances, it may need to be removed from
             // here and applied instead at a higher level where the intent is clearer.
@@ -583,8 +589,8 @@ data class CrosswordCompilerApplet(
         @SerialName("show-alphabet") val showAlphabet: Boolean? = null,
         val completion: Completion = Completion(),
         val actions: Actions = Actions(),
-        @SerialName("title") @XmlElement(true) val title: String? = null,
-        @SerialName("copyright") @XmlElement(true) val copyright: String? = null,
+        @XmlSerialName("title", CCA_NS, "") val title: Jpz.Html? = null,
+        @XmlSerialName("copyright", CCA_NS, "") val copyright: Jpz.Html? = null,
     ) {
 
         @Serializable
