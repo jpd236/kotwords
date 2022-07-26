@@ -20,9 +20,6 @@ object Pdf {
     /** Size of the puzzle notes. */
     private const val NOTES_SIZE = 10f
 
-    /** Space between the header text and the start of the clues. */
-    private const val HEADER_CLUES_SPACING = 28f
-
     /** Size of the puzzle copyright. */
     private const val COPYRIGHT_SIZE = 9f
 
@@ -49,6 +46,10 @@ object Pdf {
 
     /** Line spacing for text. */
     private const val LINE_SPACING = 1.15f
+
+    /** Space between the header text and the start of the clues. */
+    // Divide by LINE_SPACING since the margin is drawn as a new line below the creator/description
+    private const val HEADER_CLUES_SPACING = 28f / LINE_SPACING
 
     /** Percentage of the current font size to use for sub/superscripts. */
     private const val SUB_SUPER_SCRIPT_FONT_SIZE_PERCENTAGE = 0.75f
@@ -122,21 +123,42 @@ object Pdf {
         val titleY = pageHeight - MARGIN
 
         var positionY = titleY
-        fun newLine(offsetY: Float) {
-            newLineAtOffset(0f, -offsetY)
-            positionY -= offsetY
-        }
 
         beginText()
         newLineAtOffset(titleX, titleY)
 
         // Header - title, creator, description.
-        drawMultiLineText(title, fontFamily.boldFont, TITLE_SIZE, headerWidth, ::newLine)
-        newLine(AUTHOR_SIZE * LINE_SPACING)
-        drawMultiLineText(creator, fontFamily.baseFont, AUTHOR_SIZE, headerWidth, ::newLine)
-        if (description.isNotBlank()) {
-            newLine(NOTES_SIZE * LINE_SPACING)
-            drawMultiLineText(description, fontFamily.italicFont, NOTES_SIZE, headerWidth, ::newLine)
+        val boldFontFamily = fontFamily.copy(baseFont = fontFamily.boldFont, italicFont = fontFamily.boldItalicFont)
+        positionY = drawMultiLineText(
+            title,
+            fontFamily = boldFontFamily,
+            fontSize = TITLE_SIZE,
+            lineWidth = headerWidth,
+            isHtml = hasHtmlClues,
+            initialPositionY = positionY,
+            nextFontSize = AUTHOR_SIZE,
+        )
+        val hasDescription = description.isNotBlank()
+        val nextFontSize = if (hasDescription) NOTES_SIZE else HEADER_CLUES_SPACING
+        positionY = drawMultiLineText(
+            creator,
+            fontFamily = fontFamily,
+            fontSize = AUTHOR_SIZE,
+            lineWidth = headerWidth,
+            isHtml = hasHtmlClues,
+            initialPositionY = positionY,
+            nextFontSize = nextFontSize)
+        if (hasDescription) {
+            val italicFontFamily =
+                fontFamily.copy(baseFont = fontFamily.italicFont, boldFont = fontFamily.boldItalicFont)
+            positionY = drawMultiLineText(
+                description,
+                fontFamily = italicFontFamily,
+                fontSize = NOTES_SIZE,
+                lineWidth = headerWidth,
+                isHtml = hasHtmlClues,
+                initialPositionY = positionY,
+                nextFontSize = HEADER_CLUES_SPACING)
         }
         endText()
 
@@ -154,7 +176,6 @@ object Pdf {
         // Clues
         setFillColor(0f, 0f, 0f)
         beginText()
-        positionY -= HEADER_CLUES_SPACING
         newLineAtOffset(titleX, positionY)
 
         // Try progressively smaller clue sizes until we find one small enough to fit every clue on one page.
@@ -365,16 +386,36 @@ object Pdf {
         endText()
     }
 
+    /**
+     * Draw text, splitting into multiple lines to fit the given line width as needed.
+     *
+     * @return the updated Y position after all text has been drawn
+     */
     private fun PdfDocument.drawMultiLineText(
-        text: String, font: PdfFont, fontSize: Float, lineWidth: Float, newLineFn: (Float) -> Unit
-    ) {
-        setFont(font, fontSize)
-        splitTextToLines(this, text, font, fontSize, lineWidth).forEachIndexed { i, line ->
-            if (i > 0) {
-                newLineFn(fontSize * LINE_SPACING)
-            }
-            drawText(line)
-        }
+        text: String,
+        fontFamily: PdfFontFamily,
+        fontSize: Float,
+        lineWidth: Float,
+        isHtml: Boolean,
+        initialPositionY: Float,
+        nextFontSize: Float,
+    ): Float {
+        val richTextElements = splitTextToLines(
+            document = this,
+            rawText = text,
+            fontFamily = fontFamily,
+            fontSize = fontSize,
+            lineWidth = lineWidth,
+            isHtml = isHtml,
+        )
+        return drawRichText(
+            richTextElements,
+            baseFont = fontFamily.baseFont,
+            fontSize = fontSize,
+            initialPositionY = initialPositionY,
+            render = true,
+            nextFontSize = nextFontSize,
+        )
     }
 
     internal enum class Script {
@@ -392,10 +433,10 @@ object Pdf {
 
     internal data class Format(val font: PdfFont, val script: Script)
 
-    internal sealed class ClueTextElement {
-        data class Text(val text: String) : ClueTextElement()
-        object NewLine : ClueTextElement()
-        data class SetFormat(val format: Format) : ClueTextElement()
+    internal sealed class RichTextElement {
+        data class Text(val text: String) : RichTextElement()
+        object NewLine : RichTextElement()
+        data class SetFormat(val format: Format) : RichTextElement()
     }
 
     private data class FormattedChar(val char: Char, val format: Format)
@@ -407,7 +448,18 @@ object Pdf {
         fontSize: Float,
         lineWidth: Float,
         isHtml: Boolean,
-    ): List<ClueTextElement> {
+    ): List<RichTextElement> = rawText.split('\n').flatMap { line ->
+        splitParagraphToLines(document, line, fontFamily, fontSize, lineWidth, isHtml)
+    }
+
+    private fun splitParagraphToLines(
+        document: PdfDocument,
+        rawText: String,
+        fontFamily: PdfFontFamily,
+        fontSize: Float,
+        lineWidth: Float,
+        isHtml: Boolean,
+    ): List<RichTextElement> {
         // Parse the HTML to create a list of character + font pairs.
         data class NodeState(
             val node: Node,
@@ -456,23 +508,23 @@ object Pdf {
 
         // Split the formatted text into lines, and convert into a stream of text, font changes, and new lines.
         val lines = splitTextToLines(document, formattedChars, fontFamily.baseFont, fontSize, lineWidth)
-        val clueTextElements = mutableListOf<ClueTextElement>()
+        val richTextElements = mutableListOf<RichTextElement>()
         val baseFormat = Format(fontFamily.baseFont, Script.REGULAR)
         var currentFormat = baseFormat
         lines.forEach { line ->
             forEachFormat(line) { text, format ->
                 if (format != currentFormat) {
-                    clueTextElements.add(ClueTextElement.SetFormat(format))
+                    richTextElements.add(RichTextElement.SetFormat(format))
                     currentFormat = format
                 }
-                clueTextElements.add(ClueTextElement.Text(text))
+                richTextElements.add(RichTextElement.Text(text))
             }
-            clueTextElements.add(ClueTextElement.NewLine)
+            richTextElements.add(RichTextElement.NewLine)
         }
         if (currentFormat != baseFormat) {
-            clueTextElements.add(ClueTextElement.SetFormat(baseFormat))
+            richTextElements.add(RichTextElement.SetFormat(baseFormat))
         }
-        return clueTextElements
+        return richTextElements
     }
 
     private fun getFont(fontFamily: PdfFontFamily, boldTagLevel: Int, italicTagLevel: Int): PdfFont {
@@ -528,55 +580,8 @@ object Pdf {
         }
     }
 
-    /** Split [text] into lines (using spaces as word separators) to fit the given [lineWidth]. */
-    internal fun splitTextToLines(
-        document: PdfDocument,
-        text: String,
-        font: PdfFont,
-        fontSize: Float,
-        lineWidth: Float,
-    ): List<String> {
-        val formattedText = text.map { FormattedChar(it, Format(font, Script.REGULAR)) }
-        return splitTextToLines(document, formattedText, font, fontSize, lineWidth).map { line ->
-            line.map { it.char }.toCharArray().concatToString()
-        }
-    }
-
-    /**
-     * Split formatted [text] into lines (using spaces as word separators and new lines as paragraph separators) to fit
-     * the given [lineWidth].
-     */
+    /** Split formatted [text] into lines (using spaces as word separators) to fit the given [lineWidth]. */
     private fun splitTextToLines(
-        document: PdfDocument,
-        text: List<FormattedChar>,
-        baseFont: PdfFont,
-        fontSize: Float,
-        lineWidth: Float,
-    ): List<List<FormattedChar>> {
-        val lines = mutableListOf<List<FormattedChar>>()
-        val currentLine = mutableListOf<FormattedChar>()
-        fun newLine() {
-            while (currentLine.isNotEmpty() && currentLine.last().char == ' ') {
-                currentLine.removeLast()
-            }
-            lines.addAll(splitParagraphToLines(document, currentLine, baseFont, fontSize, lineWidth))
-            currentLine.clear()
-        }
-        text.forEach { char ->
-            if (char.char == '\n') {
-                newLine()
-            } else if (currentLine.isNotEmpty() || char.char != ' ') {
-                currentLine.add(char)
-            }
-        }
-        newLine()
-        return lines
-    }
-
-    /**
-     * Split a paragraph of formatted [text] into lines (using spaces as word separators) to fit the given [lineWidth].
-     */
-    private fun splitParagraphToLines(
         document: PdfDocument,
         text: List<FormattedChar>,
         baseFont: PdfFont,
@@ -694,6 +699,76 @@ object Pdf {
         return lastSuccess
     }
 
+    /**
+     * Draw formatted/split text.
+     *
+     * @return the updated Y position after all text has been drawn
+     */
+    private fun PdfDocument.drawRichText(
+        richTextElements: List<RichTextElement>,
+        baseFont: PdfFont,
+        fontSize: Float,
+        initialPositionY: Float,
+        render: Boolean,
+        nextFontSize: Float = fontSize,
+    ): Float {
+        var currentFont = baseFont
+        var currentFontSize = fontSize
+        setFont(currentFont, currentFontSize)
+
+        var currentScript = Script.REGULAR
+        var currentLinePosition = 0f
+        var lastLineXOffset = 0f
+        var lastLineYOffset = 0f
+        var positionY = initialPositionY
+
+        val lastNewLineIndex = richTextElements.lastIndexOf(RichTextElement.NewLine)
+
+        richTextElements.forEachIndexed { i, element ->
+            when (element) {
+                is RichTextElement.Text -> {
+                    if (render) {
+                        drawText(element.text)
+                        currentLinePosition += getTextWidth(element.text, currentFont, currentFontSize)
+                    }
+                }
+                is RichTextElement.NewLine -> {
+                    val offset = (if (i == lastNewLineIndex) nextFontSize else fontSize) * LINE_SPACING
+                    if (render) {
+                        newLineAtOffset(-lastLineXOffset, -offset)
+                        currentLinePosition = 0f
+                        lastLineXOffset = 0f
+                    }
+                    positionY -= offset
+                }
+                is RichTextElement.SetFormat -> {
+                    if (render) {
+                        val newFont = element.format.font
+                        val newFontSize = element.format.script.getScaledFontSize(fontSize)
+                        if (newFont != currentFont || newFontSize != currentFontSize) {
+                            setFont(newFont, newFontSize)
+                            currentFont = newFont
+                            currentFontSize = newFontSize
+                        }
+                        if (currentScript != element.format.script) {
+                            val yOffset =
+                                when (element.format.script) {
+                                    Script.SUPERSCRIPT -> fontSize * SUPER_SCRIPT_OFFSET_PERCENTAGE
+                                    Script.SUBSCRIPT -> -fontSize * SUB_SCRIPT_OFFSET_PERCENTAGE
+                                    Script.REGULAR -> 0f
+                                }
+                            newLineAtOffset(currentLinePosition - lastLineXOffset, yOffset - lastLineYOffset)
+                            lastLineXOffset = currentLinePosition
+                            lastLineYOffset = yOffset
+                            currentScript = element.format.script
+                        }
+                    }
+                }
+            }
+        }
+        return positionY
+    }
+
     private fun PdfDocument.showClueList(
         puzzle: Puzzle,
         clues: Puzzle.ClueList,
@@ -720,7 +795,7 @@ object Pdf {
         val title = (if (isHtml) clues.title else "<b>${clues.title}</b>").uppercase()
         val titleElements =
             splitTextToLines(this, title, fontFamily, clueHeaderSize, columnWidth - maxPrefixWidth, isHtml = true)
-        val titleLineCount = titleElements.count { it == ClueTextElement.NewLine }
+        val titleLineCount = titleElements.count { it == RichTextElement.NewLine }
 
         clues.clues.forEachIndexed { index, clue ->
             // Count the number of lines needed for the entire clue, plus the section header if
@@ -728,7 +803,7 @@ object Pdf {
             // show a section header at the end of a column.
             val clueElements =
                 splitTextToLines(this, clue.text, fontFamily, clueTextSize, columnWidth - maxPrefixWidth, isHtml)
-            val lineCount = clueElements.count { it == ClueTextElement.NewLine }
+            val lineCount = clueElements.count { it == RichTextElement.NewLine }
             val clueHeight = clueTextSize * (1 + LINE_SPACING * (lineCount - 1)) +
                     if (index == 0) {
                         clueHeaderSize * (1 + LINE_SPACING * (titleLineCount - 1)) + (LINE_SPACING - 1) * clueTextSize
@@ -749,78 +824,35 @@ object Pdf {
                 columnBottomY = gridY + gridHeight + clueTextSize
             }
 
-            fun drawClueElements(clueElements: List<ClueTextElement>, textSize: Float, nextTextSize: Float = textSize) {
-                var currentFont = fontFamily.baseFont
-                var currentFontSize = textSize
-                var currentScript = Script.REGULAR
-                var currentLinePosition = 0f
-                var lastLineXOffset = 0f
-                var lastLineYOffset = 0f
-
-                val lastNewLineIndex = clueElements.lastIndexOf(ClueTextElement.NewLine)
-
-                clueElements.forEachIndexed { i, clueElement ->
-                    when (clueElement) {
-                        is ClueTextElement.Text -> {
-                            if (render) {
-                                drawText(clueElement.text)
-                                currentLinePosition += getTextWidth(clueElement.text, currentFont, currentFontSize)
-                            }
-                        }
-                        is ClueTextElement.NewLine -> {
-                            val offset = (if (i == lastNewLineIndex) nextTextSize else textSize) * LINE_SPACING
-                            if (render) {
-                                newLineAtOffset(-lastLineXOffset, -offset)
-                                currentLinePosition = 0f
-                                lastLineXOffset = 0f
-                            }
-                            positionY -= offset
-                        }
-                        is ClueTextElement.SetFormat -> {
-                            if (render) {
-                                val newFont = clueElement.format.font
-                                val newFontSize = clueElement.format.script.getScaledFontSize(textSize)
-                                if (newFont != currentFont || newFontSize != currentFontSize) {
-                                    setFont(newFont, newFontSize)
-                                    currentFont = newFont
-                                    currentFontSize = newFontSize
-                                }
-                                if (currentScript != clueElement.format.script) {
-                                    val yOffset =
-                                        when (clueElement.format.script) {
-                                            Script.SUPERSCRIPT -> clueTextSize * SUPER_SCRIPT_OFFSET_PERCENTAGE
-                                            Script.SUBSCRIPT -> -clueTextSize * SUB_SCRIPT_OFFSET_PERCENTAGE
-                                            Script.REGULAR -> 0f
-                                        }
-                                    newLineAtOffset(currentLinePosition - lastLineXOffset, yOffset - lastLineYOffset)
-                                    lastLineXOffset = currentLinePosition
-                                    lastLineYOffset = yOffset
-                                    currentScript = clueElement.format.script
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
             if (index == 0) {
-                setFont(fontFamily.baseFont, clueHeaderSize)
-                newLineAtOffset(maxPrefixWidth, 0f)
-                drawClueElements(titleElements, textSize = clueHeaderSize, nextTextSize = clueTextSize)
-                newLineAtOffset(-maxPrefixWidth, 0f)
-
-                setFont(fontFamily.baseFont, clueTextSize)
+                if (render) newLineAtOffset(maxPrefixWidth, 0f)
+                positionY = drawRichText(
+                    titleElements,
+                    baseFont = fontFamily.baseFont,
+                    fontSize = clueHeaderSize,
+                    initialPositionY = positionY,
+                    render = render,
+                    nextFontSize = clueTextSize,
+                )
+                if (render) newLineAtOffset(-maxPrefixWidth, 0f)
             }
 
             if (render) {
                 val prefix = "${clue.number.ifBlank { "•" }} "
                 val prefixWidth = getTextWidth(prefix, fontFamily.baseFont, clueTextSize)
                 newLineAtOffset(maxPrefixWidth - prefixWidth, 0f)
+                setFont(fontFamily.baseFont, clueTextSize)
                 drawText(prefix)
                 newLineAtOffset(prefixWidth, 0f)
             }
 
-            drawClueElements(clueElements, textSize = clueTextSize)
+            positionY = drawRichText(
+                clueElements,
+                baseFont = fontFamily.baseFont,
+                fontSize = clueTextSize,
+                initialPositionY = positionY,
+                render = render,
+            )
 
             if (render) {
                 newLineAtOffset(-maxPrefixWidth, 0f)

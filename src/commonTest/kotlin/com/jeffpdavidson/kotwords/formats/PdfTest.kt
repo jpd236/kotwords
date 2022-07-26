@@ -42,18 +42,24 @@ class PdfTest {
     fun splitTextToLines_standardText() = withDocument { document ->
         assertEquals(
             listOf(
-                "a b c d e f g h",
-                "i jj kk ll mm nn",
-                "oo ppp qqq rrr",
-                "sss tttt uuuu",
-                "vvvv"
+                Pdf.RichTextElement.Text("a b c d e f g h"),
+                Pdf.RichTextElement.NewLine,
+                Pdf.RichTextElement.Text("i jj kk ll mm nn"),
+                Pdf.RichTextElement.NewLine,
+                Pdf.RichTextElement.Text("oo ppp qqq rrr"),
+                Pdf.RichTextElement.NewLine,
+                Pdf.RichTextElement.Text("sss tttt uuuu"),
+                Pdf.RichTextElement.NewLine,
+                Pdf.RichTextElement.Text("vvvv"),
+                Pdf.RichTextElement.NewLine,
             ),
             splitTextToLines(
                 document,
                 "a b c d e f g h i jj kk ll mm nn oo ppp qqq rrr sss tttt uuuu vvvv",
-                PdfFont.BuiltInFont(BuiltInFontName.COURIER),
+                FONT_FAMILY_COURIER,
                 10f,
-                100f
+                100f,
+                isHtml = false,
             )
         )
     }
@@ -64,45 +70,45 @@ class PdfTest {
             Pdf.Format(PdfFont.BuiltInFont(fontName), script)
         assertEquals(
             listOf(
-                Pdf.ClueTextElement.Text("a "),
-                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_BOLD, Pdf.Script.REGULAR)),
-                Pdf.ClueTextElement.Text("b c"),
-                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER, Pdf.Script.REGULAR)),
-                Pdf.ClueTextElement.Text(" d e "),
-                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_ITALIC, Pdf.Script.REGULAR)),
-                Pdf.ClueTextElement.Text("f g"),
-                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER, Pdf.Script.REGULAR)),
-                Pdf.ClueTextElement.Text(" h"),
-                Pdf.ClueTextElement.NewLine,
+                Pdf.RichTextElement.Text("a "),
+                Pdf.RichTextElement.SetFormat(format(BuiltInFontName.COURIER_BOLD, Pdf.Script.REGULAR)),
+                Pdf.RichTextElement.Text("b c"),
+                Pdf.RichTextElement.SetFormat(format(BuiltInFontName.COURIER, Pdf.Script.REGULAR)),
+                Pdf.RichTextElement.Text(" d e "),
+                Pdf.RichTextElement.SetFormat(format(BuiltInFontName.COURIER_ITALIC, Pdf.Script.REGULAR)),
+                Pdf.RichTextElement.Text("f g"),
+                Pdf.RichTextElement.SetFormat(format(BuiltInFontName.COURIER, Pdf.Script.REGULAR)),
+                Pdf.RichTextElement.Text(" h"),
+                Pdf.RichTextElement.NewLine,
 
-                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_BOLD_ITALIC, Pdf.Script.REGULAR)),
-                Pdf.ClueTextElement.Text("i"),
-                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER, Pdf.Script.REGULAR)),
-                Pdf.ClueTextElement.Text(" jj kk ll mm "),
-                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_BOLD, Pdf.Script.REGULAR)),
-                Pdf.ClueTextElement.Text("nn"),
-                Pdf.ClueTextElement.NewLine,
+                Pdf.RichTextElement.SetFormat(format(BuiltInFontName.COURIER_BOLD_ITALIC, Pdf.Script.REGULAR)),
+                Pdf.RichTextElement.Text("i"),
+                Pdf.RichTextElement.SetFormat(format(BuiltInFontName.COURIER, Pdf.Script.REGULAR)),
+                Pdf.RichTextElement.Text(" jj kk ll mm "),
+                Pdf.RichTextElement.SetFormat(format(BuiltInFontName.COURIER_BOLD, Pdf.Script.REGULAR)),
+                Pdf.RichTextElement.Text("nn"),
+                Pdf.RichTextElement.NewLine,
 
-                Pdf.ClueTextElement.Text("oo"),
-                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER, Pdf.Script.REGULAR)),
-                Pdf.ClueTextElement.Text(" ppp qqq "),
-                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_ITALIC, Pdf.Script.REGULAR)),
-                Pdf.ClueTextElement.Text("rr"),
-                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_ITALIC, Pdf.Script.SUPERSCRIPT)),
-                Pdf.ClueTextElement.Text("r"),
-                Pdf.ClueTextElement.NewLine,
+                Pdf.RichTextElement.Text("oo"),
+                Pdf.RichTextElement.SetFormat(format(BuiltInFontName.COURIER, Pdf.Script.REGULAR)),
+                Pdf.RichTextElement.Text(" ppp qqq "),
+                Pdf.RichTextElement.SetFormat(format(BuiltInFontName.COURIER_ITALIC, Pdf.Script.REGULAR)),
+                Pdf.RichTextElement.Text("rr"),
+                Pdf.RichTextElement.SetFormat(format(BuiltInFontName.COURIER_ITALIC, Pdf.Script.SUPERSCRIPT)),
+                Pdf.RichTextElement.Text("r"),
+                Pdf.RichTextElement.NewLine,
 
-                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_BOLD_ITALIC, Pdf.Script.REGULAR)),
-                Pdf.ClueTextElement.Text("sss"),
-                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_ITALIC, Pdf.Script.REGULAR)),
-                Pdf.ClueTextElement.Text(" tttt"),
-                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER_ITALIC, Pdf.Script.SUBSCRIPT)),
-                Pdf.ClueTextElement.Text("uuuu"),
-                Pdf.ClueTextElement.NewLine,
+                Pdf.RichTextElement.SetFormat(format(BuiltInFontName.COURIER_BOLD_ITALIC, Pdf.Script.REGULAR)),
+                Pdf.RichTextElement.Text("sss"),
+                Pdf.RichTextElement.SetFormat(format(BuiltInFontName.COURIER_ITALIC, Pdf.Script.REGULAR)),
+                Pdf.RichTextElement.Text(" tttt"),
+                Pdf.RichTextElement.SetFormat(format(BuiltInFontName.COURIER_ITALIC, Pdf.Script.SUBSCRIPT)),
+                Pdf.RichTextElement.Text("uuuu"),
+                Pdf.RichTextElement.NewLine,
 
-                Pdf.ClueTextElement.SetFormat(format(BuiltInFontName.COURIER, Pdf.Script.REGULAR)),
-                Pdf.ClueTextElement.Text("vvvvv"),
-                Pdf.ClueTextElement.NewLine,
+                Pdf.RichTextElement.SetFormat(format(BuiltInFontName.COURIER, Pdf.Script.REGULAR)),
+                Pdf.RichTextElement.Text("vvvvv"),
+                Pdf.RichTextElement.NewLine,
             ),
             splitTextToLines(
                 document,
@@ -123,17 +129,22 @@ class PdfTest {
     fun splitTextToLines_longWords() = withDocument { document ->
         assertEquals(
             listOf(
-                "1234567890123456",
-                "7890 12345678901",
-                "234567890 123456",
-                "78901234567890"
+                Pdf.RichTextElement.Text("1234567890123456"),
+                Pdf.RichTextElement.NewLine,
+                Pdf.RichTextElement.Text("7890 12345678901"),
+                Pdf.RichTextElement.NewLine,
+                Pdf.RichTextElement.Text("234567890 123456"),
+                Pdf.RichTextElement.NewLine,
+                Pdf.RichTextElement.Text("78901234567890"),
+                Pdf.RichTextElement.NewLine,
             ),
             splitTextToLines(
                 document,
                 "12345678901234567890 12345678901234567890 12345678901234567890",
-                PdfFont.BuiltInFont(BuiltInFontName.COURIER),
+                FONT_FAMILY_COURIER,
                 10f,
-                100f
+                100f,
+                isHtml = false,
             )
         )
     }
