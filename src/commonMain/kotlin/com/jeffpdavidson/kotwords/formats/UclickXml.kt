@@ -18,15 +18,19 @@ class UclickXml(
     override suspend fun asPuzzle(): Puzzle {
         val document = Xml.parse(xml)
 
-        val rawTitle = document.selectFirst("Title")?.attr("v") ?: ""
-        val title = if (addDateToTitle) {
-            "$rawTitle - ${TITLE_DATE_FORMAT.format(date)}"
-        } else {
-            rawTitle
-        }
+        val category = Encodings.decodeUrl(document.selectFirst("Category")?.attr("v") ?: "")
+        val rawTitle = Encodings.decodeUrl(document.selectFirst("Title")?.attr("v") ?: "")
+        val formattedDate = if (addDateToTitle) TITLE_DATE_FORMAT.format(date) else null
+        val categoryAndDate = listOfNotNull(category.ifEmpty { null }, formattedDate).joinToString(", ")
+        val title = listOfNotNull(rawTitle, categoryAndDate.ifEmpty { null }).joinToString(" - ")
 
-        val author = document.selectFirst("Author")?.attr("v") ?: ""
-        val copyright = document.selectFirst("Copyright")?.attr("v") ?: ""
+        val author = Encodings.decodeUrl(document.selectFirst("Author")?.attr("v") ?: "")
+        val editor = Encodings.decodeUrl(document.selectFirst("Editor")?.attr("v") ?: "")
+        val byline = listOfNotNull(
+            author.ifEmpty { null },
+            if (editor.isEmpty()) { null } else { "Edited by $editor" }
+        ).joinToString(" / ")
+        val copyright = Encodings.decodeUrl(document.selectFirst("Copyright")?.attr("v") ?: "")
 
         val allAnswer = document.selectFirst("AllAnswer")?.attr("v") ?: ""
         val width = document.selectFirst("Width")?.attr("v")?.toInt() ?: 0
@@ -45,8 +49,8 @@ class UclickXml(
 
         return Crossword(
             title = title,
-            creator = author,
-            copyright = "\u00a9 ${date.year} $copyright",
+            creator = byline,
+            copyright = if (copyright.isEmpty()) "" else "\u00a9 ${date.year} $copyright",
             grid = grid,
             acrossClues = toClueMap(acrossClues),
             downClues = toClueMap(downClues)
