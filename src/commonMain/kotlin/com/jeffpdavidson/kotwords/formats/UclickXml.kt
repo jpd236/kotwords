@@ -22,7 +22,7 @@ class UclickXml(
         val rawTitle = Encodings.decodeUrl(document.selectFirst("Title")?.attr("v") ?: "")
         val formattedDate = if (addDateToTitle) TITLE_DATE_FORMAT.format(date) else null
         val categoryAndDate = listOfNotNull(category.ifEmpty { null }, formattedDate).joinToString(", ")
-        val title = listOfNotNull(rawTitle, categoryAndDate.ifEmpty { null }).joinToString(" - ")
+        val title = listOfNotNull(rawTitle.ifEmpty { null }, categoryAndDate.ifEmpty { null }).joinToString(" - ")
 
         val author = Encodings.decodeUrl(document.selectFirst("Author")?.attr("v") ?: "")
         val editor = Encodings.decodeUrl(document.selectFirst("Editor")?.attr("v") ?: "")
