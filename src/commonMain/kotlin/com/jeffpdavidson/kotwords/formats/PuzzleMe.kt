@@ -304,6 +304,9 @@ class PuzzleMe(val json: String) : Puzzleable {
                 .replace("&", "&amp;")
                 .replace("\\s*<br/?>\\s*".toRegex(RegexOption.IGNORE_CASE), "\n")
                 .replace("<", "&lt;")
+                // Workaround for New Yorker titles. These use a span with a custom style to add a margin between the
+                // date and the title; since we don't support styles, add a space to separate them.
+                .replace("&lt;span[^>]*class=\"[^\"]*subtitle[^\"]*\">".toRegex(RegexOption.IGNORE_CASE), " <span>")
                 .replace("&lt;(/?(?:b|i|sup|sub|span))[^>]*>".toRegex(RegexOption.IGNORE_CASE), "<$1>")
         }
 
