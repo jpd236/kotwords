@@ -1,5 +1,5 @@
 # kotwords
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/jpd236/kotwords/Gradle)](https://github.com/jpd236/kotwords/actions/workflows/gradle-build.yaml)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/jpd236/kotwords/gradle-build.yaml?branch=master)](https://github.com/jpd236/kotwords/actions/workflows/gradle-build.yaml)
 [![Maven Central](https://img.shields.io/maven-central/v/com.jeffpdavidson.kotwords/kotwords)](https://search.maven.org/artifact/com.jeffpdavidson.kotwords/kotwords)
 [![javadoc](https://javadoc.io/badge2/com.jeffpdavidson.kotwords/kotwords/javadoc.svg)](https://javadoc.io/doc/com.jeffpdavidson.kotwords/kotwords)
 
