@@ -25,7 +25,7 @@ rows:
     answer: AAAAAAAAAAA
 - - clue: Row 6 Clue 1
     answer: AAAAAAAAAA
-  - clue: Row 6 Clue 2 :{}[],&*#?|-<>=!%@\ (special characters)
+  - clue: Row 6 Clue 2 :{}[],&*#?|-<>=!%@ (special characters)
     answer: AAAAAAAAAAA
 - - clue: Row 7 Clue 1
     answer: AAAAAAAAAA

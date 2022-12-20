@@ -11,6 +11,8 @@ internal object PuzzleMeJson {
         val clue: Clue,
         val clueNum: Int,
         val acrossNotDown: Boolean,
+        val clueSection: String = "",
+        val originalTerm: String = "",
         val nBoxes: Int = 0,
         val x: Int = 0,
         val y: Int = 0,

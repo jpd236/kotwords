@@ -4,6 +4,7 @@ import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.formats.json.PuzzleMeJson
 import com.jeffpdavidson.kotwords.model.MarchingBands
 import com.jeffpdavidson.kotwords.model.Puzzle
+import com.jeffpdavidson.kotwords.model.RowsGarden
 import okio.ByteString.Companion.decodeBase64
 import okio.ByteString.Companion.toByteString
 import kotlin.math.min
@@ -318,7 +319,7 @@ class PuzzleMe(val json: String) : Puzzleable {
             val words: List<Puzzle.Word>
         )
 
-        private fun getProcessedPuzzleData(
+        private suspend fun getProcessedPuzzleData(
             filteredGrid: List<List<Puzzle.Cell>>,
             acrossWords: List<PuzzleMeJson.PlacedWord>,
             downWords: List<PuzzleMeJson.PlacedWord>
@@ -387,6 +388,42 @@ class PuzzleMe(val json: String) : Puzzleable {
                         Puzzle.ClueList("<b>Rows</b>", buildClueMap(isAcross = true, clueList = rowWords)),
                     ),
                     words = bandWordList + rowWordList
+                )
+            } else if (acrossWords.all { it.clueSection == "Rows" } && downWords.all { it.clueSection == "Blooms" }) {
+                // Assume this is a Rows Garden puzzle.
+                // TODO(#15): Ideally, we'd rework the interface here to return the RowsGarden object directly. This
+                // would retain more of the original information for better PDF conversion, possible RGZ output, etc.
+                val rowsGarden = RowsGarden(
+                    title = "",
+                    creator = "",
+                    copyright = "",
+                    description = "",
+                    rows = acrossWords.map { word ->
+                        val answers = word.originalTerm.split(" / ")
+                        val clues = toHtml(word.clue.clue).split(" / ")
+                        if (answers.size != clues.size) {
+                            throw InvalidFormatException("Row clue has mismatched clue and answer counts")
+                        }
+                        clues.zip(answers).map { (clue, answer) ->
+                            RowsGarden.Entry(clue = clue, answer = answer)
+                        }
+                    },
+                    light = downWords.filter { it.clueNum == acrossWords.size + 1 }.map { word ->
+                        RowsGarden.Entry(clue = toHtml(word.clue.clue), answer = word.originalTerm)
+                    },
+                    medium = downWords.filter { it.clueNum == acrossWords.size + 3 }.map { word ->
+                        RowsGarden.Entry(clue = toHtml(word.clue.clue), answer = word.originalTerm)
+                    },
+                    dark = downWords.filter { it.clueNum == acrossWords.size + 2 }.map { word ->
+                        RowsGarden.Entry(clue = toHtml(word.clue.clue), answer = word.originalTerm)
+                    },
+                    addWordCount = false,
+                    addHyphenated = false,
+                ).asPuzzle()
+                PuzzleData(
+                    grid = rowsGarden.grid,
+                    clues = rowsGarden.clues.map { it.copy(title = "<b>${it.title}</b>") },
+                    words = rowsGarden.words,
                 )
             } else {
                 PuzzleData(

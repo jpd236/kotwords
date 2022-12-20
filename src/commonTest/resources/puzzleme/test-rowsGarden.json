@@ -1,0 +1,1056 @@
+{
+  "title": "Test Title",
+  "description": "Test Notes",
+  "copyright": "© 2020 Kotwords",
+  "author": "Test Author",
+  "w": 21,
+  "h": 12,
+  "box": [
+    [
+      "\u0000",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "\u0000"
+    ],
+    [
+      "\u0000",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "\u0000"
+    ],
+    [
+      "\u0000",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "\u0000"
+    ],
+    [
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A"
+    ],
+    [
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A"
+    ],
+    [
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A"
+    ],
+    [
+      "\u0000",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "\u0000"
+    ],
+    [
+      "\u0000",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "\u0000"
+    ],
+    [
+      "\u0000",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "\u0000"
+    ],
+    [
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A"
+    ],
+    [
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A"
+    ],
+    [
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A"
+    ],
+    [
+      "\u0000",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "\u0000"
+    ],
+    [
+      "\u0000",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "\u0000"
+    ],
+    [
+      "\u0000",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "\u0000"
+    ],
+    [
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A"
+    ],
+    [
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A"
+    ],
+    [
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A"
+    ],
+    [
+      "\u0000",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "\u0000"
+    ],
+    [
+      "\u0000",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "\u0000"
+    ],
+    [
+      "\u0000",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "\u0000"
+    ]
+  ],
+  "clueNums": [
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  ],
+  "placedWords": [
+    {
+      "originalTerm": "AAAAAAAAA",
+      "acrossNotDown": true,
+      "clueSection": "Rows",
+      "clueNum": "1",
+      "clue": {
+        "clue": "Row 1"
+      }
+    },
+    {
+      "originalTerm": "AAAAA AAAAA / AAAAAAAAAAA",
+      "acrossNotDown": true,
+      "clueSection": "Rows",
+      "clueNum": "2",
+      "clue": {
+        "clue": "Row 2 Clue 1 (space): 2 wds. / Row 2 Clue 2"
+      }
+    },
+    {
+      "originalTerm": "AAAAAAAAAA / AAA-AAAAAAAA",
+      "acrossNotDown": true,
+      "clueSection": "Rows",
+      "clueNum": "3",
+      "clue": {
+        "clue": "Row 3 Clue 1 / Row 3 Clue 2 (hyphen): hyph."
+      }
+    },
+    {
+      "originalTerm": "AAA AA AA-AAA / AAAAAAAAAAA",
+      "acrossNotDown": true,
+      "clueSection": "Rows",
+      "clueNum": "4",
+      "clue": {
+        "clue": "Row 4 Clue 1 (spaces and hyphen): 3 wds., hyph. / Row 4 Clue 2"
+      }
+    },
+    {
+      "originalTerm": "AAAAAAAAAA / AAAAAAAAAAA",
+      "acrossNotDown": true,
+      "clueSection": "Rows",
+      "clueNum": "5",
+      "clue": {
+        "clue": "<span>Row 5 </span><i>Clue 1</i><span> (italics) / \"Row 5\" Clue 2 (quotes)</span>"
+      }
+    },
+    {
+      "originalTerm": "AAAAAAAAAA / AAAAAAAAAAA",
+      "acrossNotDown": true,
+      "clueSection": "Rows",
+      "clueNum": "6",
+      "clue": {
+        "clue": "Row 6 Clue 1 / Row 6 Clue 2 :{}[],&*#?|-<>=!%@ (special characters)"
+      }
+    },
+    {
+      "originalTerm": "AAAAAAAAAA / AAAAAAAAAAA",
+      "acrossNotDown": true,
+      "clueSection": "Rows",
+      "clueNum": "7",
+      "clue": {
+        "clue": "Row 7 Clue 1 / Row 7 Clue 2"
+      }
+    },
+    {
+      "originalTerm": "AAAAAAAAAA / AAAAAAAAAAA",
+      "acrossNotDown": true,
+      "clueSection": "Rows",
+      "clueNum": "8",
+      "clue": {
+        "clue": "Row 8 Clue 1 / Row 8 Clue 2"
+      }
+    },
+    {
+      "originalTerm": "AAAAAAAAAA / AAAAAAAAAAA",
+      "acrossNotDown": true,
+      "clueSection": "Rows",
+      "clueNum": "9",
+      "clue": {
+        "clue": "Row 9 Clue 1 / Row 9 Clue 2"
+      }
+    },
+    {
+      "originalTerm": "AAAAAAAAAA / AAAAAAAAAAA",
+      "acrossNotDown": true,
+      "clueSection": "Rows",
+      "clueNum": "10",
+      "clue": {
+        "clue": "Row 10 Clue 1 / Row 10 Clue 2"
+      }
+    },
+    {
+      "originalTerm": "AAAAAAAAAA / AAAAAAAAAAA",
+      "acrossNotDown": true,
+      "clueSection": "Rows",
+      "clueNum": "11",
+      "clue": {
+        "clue": "Row 11 Clue 1 / Row 11 Clue 2"
+      }
+    },
+    {
+      "originalTerm": "AAAAAAAAA",
+      "acrossNotDown": true,
+      "clueSection": "Rows",
+      "clueNum": "12",
+      "clue": {
+        "clue": "Row 12"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "13",
+      "clue": {
+        "clue": "Light 1"
+      }
+    },
+    {
+      "originalTerm": "AAA AAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "13",
+      "clue": {
+        "clue": "Light 2 (space): 2 wds."
+      }
+    },
+    {
+      "originalTerm": "AAA-AAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "13",
+      "clue": {
+        "clue": "Light 3 (hyphen): hyph."
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "13",
+      "clue": {
+        "clue": "Light 4"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "13",
+      "clue": {
+        "clue": "Light 5"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "13",
+      "clue": {
+        "clue": "Light 6"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "13",
+      "clue": {
+        "clue": "Light 7"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "13",
+      "clue": {
+        "clue": "Light 8"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "13",
+      "clue": {
+        "clue": "Light 9"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "13",
+      "clue": {
+        "clue": "Light 10"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "13",
+      "clue": {
+        "clue": "Light 11"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "13",
+      "clue": {
+        "clue": "Light 12"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "13",
+      "clue": {
+        "clue": "Light 13"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "13",
+      "clue": {
+        "clue": "Light 14"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "15",
+      "clue": {
+        "clue": "Medium 1"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "15",
+      "clue": {
+        "clue": "Medium 2"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "15",
+      "clue": {
+        "clue": "Medium 3"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "15",
+      "clue": {
+        "clue": "Medium 4"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "15",
+      "clue": {
+        "clue": "Medium 5"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "15",
+      "clue": {
+        "clue": "Medium 6"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "15",
+      "clue": {
+        "clue": "Medium 7"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "15",
+      "clue": {
+        "clue": "Medium 8"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "15",
+      "clue": {
+        "clue": "Medium 9"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "15",
+      "clue": {
+        "clue": "Medium 10"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "15",
+      "clue": {
+        "clue": "Medium 11"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "15",
+      "clue": {
+        "clue": "Medium 12"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "15",
+      "clue": {
+        "clue": "Medium 13"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "15",
+      "clue": {
+        "clue": "Medium 14"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "14",
+      "clue": {
+        "clue": "Dark 1"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "14",
+      "clue": {
+        "clue": "Dark 2"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "14",
+      "clue": {
+        "clue": "Dark 3"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "14",
+      "clue": {
+        "clue": "Dark 4"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "14",
+      "clue": {
+        "clue": "Dark 5"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "14",
+      "clue": {
+        "clue": "Dark 6"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "14",
+      "clue": {
+        "clue": "Dark 7"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "14",
+      "clue": {
+        "clue": "Dark 8"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "14",
+      "clue": {
+        "clue": "Dark 9"
+      }
+    },
+    {
+      "originalTerm": "AAAAAA",
+      "acrossNotDown": false,
+      "clueSection": "Blooms",
+      "clueNum": "14",
+      "clue": {
+        "clue": "Dark 10"
+      }
+    }
+  ],
+  "clueSections": [
+    "Rows",
+    "Blooms"
+  ]
+}
