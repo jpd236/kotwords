@@ -129,7 +129,11 @@ class PuzzleMe(val json: String) : Puzzleable {
                         }
                     row.add(
                         Puzzle.Cell(
-                            solution = if (isPrefilled && box!! == "*") { "" } else { box!! },
+                            solution = if (isPrefilled && box!! == "*") {
+                                ""
+                            } else {
+                                box!!
+                            },
                             cellType = if (isPrefilled) Puzzle.CellType.CLUE else Puzzle.CellType.REGULAR,
                             backgroundShape = backgroundShape,
                             number = number,
@@ -159,7 +163,7 @@ class PuzzleMe(val json: String) : Puzzleable {
             .map { row -> row.drop(leftRowsToDelete).dropLast(rightRowsToDelete) }
 
         // Ignore words that don't have a proper clue associated.
-        val words = data.placedWords.filterNot { it.clueNum == 0 }
+        val words = data.placedWords.filterNot { it.clueNum == "0" }
         val acrossWords = words
             .filter { it.acrossNotDown }
             .filter { it.y >= topRowsToDelete && it.y <= grid.size - bottomRowsToDelete }
@@ -168,7 +172,7 @@ class PuzzleMe(val json: String) : Puzzleable {
             .filterNot { it.acrossNotDown }
             .filter { it.x >= leftRowsToDelete && it.x <= grid[0].size - rightRowsToDelete }
             .map { it.copy(x = it.x - leftRowsToDelete, y = it.y - topRowsToDelete) }
-        val processedData = getProcessedPuzzleData(filteredGrid, acrossWords, downWords)
+        val processedData = getProcessedPuzzleData(filteredGrid, acrossWords, downWords, data.clueSections)
 
         return Puzzle(
             title = toHtml(data.title.trim()),
@@ -255,11 +259,11 @@ class PuzzleMe(val json: String) : Puzzleable {
         }
 
         private fun buildClueMap(isAcross: Boolean, clueList: List<PuzzleMeJson.PlacedWord>): List<Puzzle.Clue> =
-            clueList.map {
+            clueList.mapIndexed { i, word ->
                 Puzzle.Clue(
-                    wordId = getWordId(isAcross, it.clueNum),
-                    number = it.clueNum.toString(),
-                    text = toHtml(it.clue.clue)
+                    wordId = getWordId(isAcross, "${i + 1}"),
+                    number = word.clueNum,
+                    text = toHtml(word.clue.clue),
                 )
             }
 
@@ -267,20 +271,24 @@ class PuzzleMe(val json: String) : Puzzleable {
             grid: List<List<Puzzle.Cell>>,
             words: List<PuzzleMeJson.PlacedWord>
         ): List<Puzzle.Word> {
-            return words.map { word ->
+            return words.mapIndexed { i, word ->
                 var x = word.x
                 var y = word.y
                 val cells = mutableListOf<Puzzle.Coordinate>()
-                repeat(word.nBoxes) {
-                    cells.add(Puzzle.Coordinate(x = x, y = y))
-                    if (word.acrossNotDown) {
-                        x++
-                    } else {
-                        y++
+                if (word.boxesForWord.isNotEmpty()) {
+                    cells.addAll(word.boxesForWord.map { box -> Puzzle.Coordinate(x = box.x, y = box.y) })
+                } else {
+                    repeat(word.nBoxes) {
+                        cells.add(Puzzle.Coordinate(x = x, y = y))
+                        if (word.acrossNotDown) {
+                            x++
+                        } else {
+                            y++
+                        }
                     }
                 }
                 Puzzle.Word(
-                    id = getWordId(isAcross = word.acrossNotDown, clueNum = word.clueNum),
+                    id = getWordId(isAcross = word.acrossNotDown, clueNum = "${i + 1}"),
                     // Filter out any squares that fall outside the grid (e.g. due to void squares) or which cannot
                     // have letters entered in them.
                     cells = cells.filter { (x, y) ->
@@ -291,7 +299,7 @@ class PuzzleMe(val json: String) : Puzzleable {
             }
         }
 
-        private fun getWordId(isAcross: Boolean, clueNum: Int): Int = (if (isAcross) 0 else 1000) + clueNum
+        private fun getWordId(isAcross: Boolean, clueNum: String): Int = (if (isAcross) 0 else 1000) + clueNum.toInt()
 
         /**
          * Convert a PuzzleMe JSON string to HTML.
@@ -322,34 +330,39 @@ class PuzzleMe(val json: String) : Puzzleable {
         private suspend fun getProcessedPuzzleData(
             filteredGrid: List<List<Puzzle.Cell>>,
             acrossWords: List<PuzzleMeJson.PlacedWord>,
-            downWords: List<PuzzleMeJson.PlacedWord>
+            downWords: List<PuzzleMeJson.PlacedWord>,
+            clueSections: List<String>,
         ): PuzzleData {
             return if (acrossWords.all { it.clue.clue.isEmpty() || it.clue.clue.contains(ROWS_REGEX) } &&
                 downWords.all { it.clue.clue.isEmpty() || it.clue.clue.contains(BANDS_REGEX) }) {
-                // Assume this is a Marching Bands puzzle. There's no other indication apparent in the data itself; the
-                // only proper way to know is to look at the full HTML to see if the extra "Sparkling bands" Javascript
-                // code which post-processes the raw puzzle data is included.
+                // Assume this is a legacy Marching Bands puzzle. There's no other indication apparent in the data
+                // itself; the only proper way to know is to look at the full HTML to see if the extra "Sparkling bands"
+                // Javascript code which post-processes the raw puzzle data is included. Newer puzzles should have
+                // proper boxesForWords and clueSections and can be processed as standard puzzles.
 
                 // Regenerate words since the provided ones are invalid.
                 val rowWords = acrossWords
                     .filterNot { it.clue.clue.isEmpty() }.mapIndexed { i, word ->
                         word.copy(
-                            clueNum = i + 1,
+                            clueNum = "${i + 1}",
                             // Clear the "Row [n]: " prefix
                             clue = word.clue.copy(clue = word.clue.clue.replace(ROWS_REGEX, "")),
                             x = 0,
                             y = word.y,
-                            nBoxes = filteredGrid[0].size
+                            nBoxes = filteredGrid[0].size,
+                            boxesForWord = listOf(),
                         )
                     }
                 val rowWordList = buildWordList(filteredGrid, rowWords)
                 val bandWords = downWords.filterNot { it.clue.clue.isEmpty() }.map { word ->
                     // Clear the "[Color] band: " prefix
-                    word.copy(clue = word.clue.copy(clue = word.clue.clue.replace(BANDS_REGEX, "")))
+                    word.copy(
+                        clue = word.clue.copy(clue = word.clue.clue.replace(BANDS_REGEX, "")), boxesForWord = listOf()
+                    )
                 }
                 val bandWordList = List(bandWords.size) { i ->
                     Puzzle.Word(
-                        id = getWordId(isAcross = false, clueNum = i + 1),
+                        id = getWordId(isAcross = false, clueNum = "${i + 1}"),
                         cells = MarchingBands.getBandCells(
                             width = filteredGrid[0].size,
                             height = filteredGrid.size,
@@ -359,7 +372,7 @@ class PuzzleMe(val json: String) : Puzzleable {
                 }
                 val bandClues = bandWords.mapIndexed { i, word ->
                     Puzzle.Clue(
-                        wordId = getWordId(isAcross = false, clueNum = i + 1),
+                        wordId = getWordId(isAcross = false, clueNum = "${i + 1}"),
                         number = ('A' + i).toString(),
                         text = toHtml(word.clue.clue)
                     )
@@ -408,13 +421,13 @@ class PuzzleMe(val json: String) : Puzzleable {
                             RowsGarden.Entry(clue = clue, answer = answer)
                         }
                     },
-                    light = downWords.filter { it.clueNum == acrossWords.size + 1 }.map { word ->
+                    light = downWords.filter { it.clueNum.toInt() == acrossWords.size + 1 }.map { word ->
                         RowsGarden.Entry(clue = toHtml(word.clue.clue), answer = word.originalTerm)
                     },
-                    medium = downWords.filter { it.clueNum == acrossWords.size + 3 }.map { word ->
+                    medium = downWords.filter { it.clueNum.toInt() == acrossWords.size + 3 }.map { word ->
                         RowsGarden.Entry(clue = toHtml(word.clue.clue), answer = word.originalTerm)
                     },
-                    dark = downWords.filter { it.clueNum == acrossWords.size + 2 }.map { word ->
+                    dark = downWords.filter { it.clueNum.toInt() == acrossWords.size + 2 }.map { word ->
                         RowsGarden.Entry(clue = toHtml(word.clue.clue), answer = word.originalTerm)
                     },
                     addWordCount = false,
@@ -426,13 +439,18 @@ class PuzzleMe(val json: String) : Puzzleable {
                     words = rowsGarden.words,
                 )
             } else {
+                val clueTitles = if (clueSections.size == 2) clueSections else listOf("Across", "Down")
                 PuzzleData(
                     grid = filteredGrid,
                     clues = listOf(
-                        Puzzle.ClueList("<b>Across</b>", buildClueMap(isAcross = true, clueList = acrossWords)),
-                        Puzzle.ClueList("<b>Down</b>", buildClueMap(isAcross = false, clueList = downWords))
+                        Puzzle.ClueList(
+                            "<b>${clueTitles[0]}</b>", buildClueMap(isAcross = true, clueList = acrossWords)
+                        ),
+                        Puzzle.ClueList(
+                            "<b>${clueTitles[1]}</b>", buildClueMap(isAcross = false, clueList = downWords)
+                        )
                     ),
-                    words = buildWordList(filteredGrid, acrossWords + downWords)
+                    words = buildWordList(filteredGrid, acrossWords) + buildWordList(filteredGrid, downWords)
                 )
             }
         }

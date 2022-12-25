@@ -1,21 +1,41 @@
 package com.jeffpdavidson.kotwords.formats.json
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.JsonTransformingSerializer
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.serializer
 
 internal object PuzzleMeJson {
     @Serializable
     internal data class Clue(val clue: String = "")
 
+    internal object NumberToStringSerializer : JsonTransformingSerializer<String>(serializer()) {
+        override fun transformDeserialize(element: JsonElement): JsonElement {
+            if (element.jsonPrimitive.isString) {
+                return element
+            }
+            return JsonPrimitive(element.jsonPrimitive.int.toString())
+        }
+    }
+
+    @Serializable
+    internal data class Box(val x: Int, val y: Int)
+
     @Serializable
     internal data class PlacedWord(
         val clue: Clue,
-        val clueNum: Int,
+        @Serializable(with = NumberToStringSerializer::class)
+        val clueNum: String,
         val acrossNotDown: Boolean,
         val clueSection: String = "",
         val originalTerm: String = "",
         val nBoxes: Int = 0,
         val x: Int = 0,
         val y: Int = 0,
+        val boxesForWord: List<Box> = listOf(),
     )
 
     @Serializable
@@ -62,5 +82,6 @@ internal object PuzzleMeJson {
         // Clue numbers for each square. Normally inferrable but may be needed for non-traditional grids.
         val clueNums: List<List<Int?>> = listOf(),
         val imagesInGrid: List<Image> = listOf(),
+        val clueSections: List<String> = listOf(),
     )
 }
