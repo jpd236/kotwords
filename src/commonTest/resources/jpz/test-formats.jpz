@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<crossword-compiler xmlns="http://crossword.info/xml/crossword-compiler">
+  <rectangular-puzzle xmlns="http://crossword.info/xml/rectangular-puzzle">
+    <metadata>
+      <title>Example Puzzle for Kotwords</title>
+      <creator>Jeff Davidson</creator>
+      <copyright>© 2018 Jeff Davidson</copyright>
+      <description>Notepad text goes here.</description>
+    </metadata>
+    <crossword>
+      <grid width="5" height="5">
+        <grid-look numbering-scheme="normal" cell-size-in-pixels="26" clue-square-divider-width="0.7"/>
+        <cell x="1" y="1" solution="A" number="1"/>
+        <cell x="2" y="1" solution="B" number="2"/>
+        <cell x="3" y="1" solution="C" number="3"/>
+        <cell x="4" y="1" solution="D" number="4"/>
+        <cell x="5" y="1" type="block"/>
+        <cell x="1" y="2" solution="E" number="5"/>
+        <cell x="2" y="2" solution="F"/>
+        <cell x="3" y="2" solution="G"/>
+        <cell x="4" y="2" solution="H"/>
+        <cell x="5" y="2" type="block"/>
+        <cell x="1" y="3" solution="I" number="6" background-shape="circle"/>
+        <cell x="2" y="3" solution="J"/>
+        <cell x="3" y="3" solution="XYZ"/>
+        <cell x="4" y="3" solution="L"/>
+        <cell x="5" y="3" solution="M" number="7" background-shape="circle"/>
+        <cell x="1" y="4" type="block"/>
+        <cell x="2" y="4" solution="N" number="8"/>
+        <cell x="3" y="4" solution="O"/>
+        <cell x="4" y="4" solution="P"/>
+        <cell x="5" y="4" solution="Q"/>
+        <cell x="1" y="5" type="block"/>
+        <cell x="2" y="5" solution="1" number="9"/>
+        <cell x="3" y="5" solution="2"/>
+        <cell x="4" y="5" solution="$"/>
+        <cell x="5" y="5" solution="@"/>
+      </grid>
+      <word id="1">
+        <cells x="1" y="1"/>
+        <cells x="2" y="1"/>
+        <cells x="3" y="1"/>
+        <cells x="4" y="1"/>
+      </word>
+      <word id="2">
+        <cells x="1" y="2"/>
+        <cells x="2" y="2"/>
+        <cells x="3" y="2"/>
+        <cells x="4" y="2"/>
+      </word>
+      <word id="3">
+        <cells x="1" y="3"/>
+        <cells x="2" y="3"/>
+        <cells x="3" y="3"/>
+        <cells x="4" y="3"/>
+        <cells x="5" y="3"/>
+      </word>
+      <word id="4">
+        <cells x="2" y="4"/>
+        <cells x="3" y="4"/>
+        <cells x="4" y="4"/>
+        <cells x="5" y="4"/>
+      </word>
+      <word id="5">
+        <cells x="2" y="5"/>
+        <cells x="3" y="5"/>
+        <cells x="4" y="5"/>
+        <cells x="5" y="5"/>
+      </word>
+      <word id="1001">
+        <cells x="1" y="1"/>
+        <cells x="1" y="2"/>
+        <cells x="1" y="3"/>
+      </word>
+      <word id="1002">
+        <cells x="2" y="1"/>
+        <cells x="2" y="2"/>
+        <cells x="2" y="3"/>
+        <cells x="2" y="4"/>
+        <cells x="2" y="5"/>
+      </word>
+      <word id="1003">
+        <cells x="3" y="1"/>
+        <cells x="3" y="2"/>
+        <cells x="3" y="3"/>
+        <cells x="3" y="4"/>
+        <cells x="3" y="5"/>
+      </word>
+      <word id="1004">
+        <cells x="4" y="1"/>
+        <cells x="4" y="2"/>
+        <cells x="4" y="3"/>
+        <cells x="4" y="4"/>
+        <cells x="4" y="5"/>
+      </word>
+      <word id="1005">
+        <cells x="5" y="3"/>
+        <cells x="5" y="4"/>
+        <cells x="5" y="5"/>
+      </word>
+      <clues ordering="normal">
+        <title><b>Across</b></title>
+        <clue word="1" number="1" format="4">First across clue with special characters &#945;&#946;&#947;&#948;&#949;</clue>
+        <clue word="2" number="5">Second across clue</clue>
+        <clue word="3" number="6">Third across clue</clue>
+        <clue word="4" number="8">Fourth across clue</clue>
+        <clue word="5" number="9">Fifth across clue</clue>
+      </clues>
+      <clues ordering="normal">
+        <title><b>Down</b></title>
+        <clue word="1001" number="1" format="2, 3">First down clue</clue>
+        <clue word="1002" number="2">Second down clue</clue>
+        <clue word="1003" number="3">Third down clue</clue>
+        <clue word="1004" number="4">Fourth down clue</clue>
+        <clue word="1005" number="7">Fifth down clue</clue>
+      </clues>
+    </crossword>
+  </rectangular-puzzle>
+</crossword-compiler>

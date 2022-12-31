@@ -96,5 +96,5 @@ object DownsOnly {
     }
 
     private fun clearClues(clueList: Puzzle.ClueList): Puzzle.ClueList =
-        clueList.copy(clues = clueList.clues.map { clue -> clue.copy(text = "-") })
+        clueList.copy(clues = clueList.clues.map { clue -> clue.copy(text = "-", format = "") })
 }

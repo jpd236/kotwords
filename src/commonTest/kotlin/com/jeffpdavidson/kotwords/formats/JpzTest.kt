@@ -49,6 +49,16 @@ class JpzTest {
     }
 
     @Test
+    fun crosswordWithStrippedFormats() = runTest {
+        assertTrue(
+            readBinaryResource(JpzTest::class, "puz/test.puz").contentEquals(
+                Jpz.fromXmlString(readStringResource(JpzTest::class, "jpz/test-formats.jpz"), stripFormats = true)
+                    .asPuzzle().asAcrossLiteBinary()
+            )
+        )
+    }
+
+    @Test
     fun htmlToSnippet_plainText() = runTest {
         assertEquals(
             listOf("This is a plain text clue"),

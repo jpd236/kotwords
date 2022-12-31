@@ -122,6 +122,15 @@ class PuzzleMeTest {
     }
 
     @Test
+    fun toCrossword_wordlens() = runTest {
+        val puzzleMe = PuzzleMe(readStringResource(PuzzleMeTest::class, "puzzleme/test-wordlens.json"))
+        assertPuzzleEquals(
+            Jpz.fromXmlString(readStringResource(PuzzleMeTest::class, "jpz/test-formats.jpz")).asPuzzle(),
+            puzzleMe.asPuzzle(),
+        )
+    }
+
+    @Test
     fun toPuzzle_marchingBands() = runTest {
         val puzzleMe = PuzzleMe(readStringResource(PuzzleMeTest::class, "puzzleme/test-marchingBands.json"))
         assertPuzzleEquals(
@@ -154,4 +163,11 @@ class PuzzleMeTest {
     @Test
     fun toHtml_mixedTags() =
         assertEquals("div<SUP>super</SUP>", PuzzleMe.toHtml("<div>div</div><SUP>super</SUP>"))
+
+    @Test
+    fun toHtml_links() =
+        assertEquals(
+            "test link and <b>test bold link</b>",
+            PuzzleMe.toHtml("<a href=\"abc\">test link</a> and <a href=\"def\"><b>test bold link</b></a>")
+        )
 }

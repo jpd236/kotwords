@@ -134,7 +134,8 @@ sealed interface Jpz : Puzzleable {
                 data class Clue(
                     @SerialName("word") val word: Int,
                     @SerialName("number") val number: String,
-                    @XmlValue(true) val text: Snippet
+                    @XmlValue(true) val text: Snippet,
+                    @SerialName("format") val format: String? = null,
                 )
             }
         }
@@ -252,7 +253,9 @@ sealed interface Jpz : Puzzleable {
             grid = grid,
             clues = crossword.clues.map { clues ->
                 Puzzle.ClueList(title = clues.title.data.toHtml(), clues = clues.clues.map { clue ->
-                    Puzzle.Clue(wordId = clue.word, number = clue.number, text = clue.text.toHtml())
+                    Puzzle.Clue(
+                        wordId = clue.word, number = clue.number, text = clue.text.toHtml(), format = clue.format ?: ""
+                    )
                 })
             },
             words = crossword.words.map { word ->
@@ -300,23 +303,47 @@ sealed interface Jpz : Puzzleable {
          * Parse the given JPZ file.
          *
          * Supports either zip-compressed files or the underlying XML.
+         * @param stripFormats if true, the format will be cleared from all clues. Useful when the format is applied
+         *                     inconsistently or unnecessarily (e.g. is just the total answer length for each clue).
          */
-        suspend fun fromJpzFile(jpz: ByteArray): Jpz {
+        suspend fun fromJpzFile(jpz: ByteArray, stripFormats: Boolean = false): Jpz {
             val xml = try {
                 Zip.unzip(jpz)
             } catch (e: InvalidZipException) {
                 // Assume the file is already unzipped.
                 jpz
             }
-            return fromXmlString(xml.decodeToString())
+            return fromXmlString(xml.decodeToString(), stripFormats)
         }
 
-        fun fromXmlString(xml: String): Jpz {
+        /**
+         * Parse the given JPZ XML.
+         *
+         * @param stripFormats if true, the format will be cleared from all clues. Useful when the format is applied
+         *                     inconsistently or unnecessarily (e.g. is just the total answer length for each clue).
+         */
+        fun fromXmlString(xml: String, stripFormats: Boolean = false): Jpz {
             // Try to parse as a <crossword-compiler-applet>; if it fails, fall back to <crossword-compiler>.
-            return try {
+            val jpz = try {
                 getXmlSerializer().decodeFromString(CrosswordCompilerApplet.serializer(), xml)
             } catch (e: XmlException) {
                 getXmlSerializer().decodeFromString(CrosswordCompiler.serializer(), xml)
+            }
+            if (!stripFormats || jpz.rectangularPuzzle.crossword == null) {
+                return jpz
+            }
+            val rectangularPuzzle = jpz.rectangularPuzzle.copy(
+                crossword = jpz.rectangularPuzzle.crossword!!.copy(
+                    clues = jpz.rectangularPuzzle.crossword!!.clues.map { clues ->
+                        clues.copy(clues = clues.clues.map { clue ->
+                            clue.copy(format = null)
+                        })
+                    }
+                )
+            )
+            return when (jpz) {
+                is CrosswordCompilerApplet -> jpz.copy(rectangularPuzzle = rectangularPuzzle)
+                is CrosswordCompiler -> jpz.copy(rectangularPuzzle = rectangularPuzzle)
             }
         }
 
@@ -411,7 +438,8 @@ sealed interface Jpz : Puzzleable {
                         RectangularPuzzle.Crossword.Clues.Clue(
                             word = clue.wordId,
                             number = clue.number,
-                            text = clue.text.toSnippet(hasHtmlClues)
+                            text = clue.text.toSnippet(hasHtmlClues),
+                            format = clue.format.ifEmpty { null },
                         )
                     })
             }

@@ -1,0 +1,197 @@
+{
+  "title": "Example Puzzle for Kotwords",
+  "description": "Notepad text goes here.",
+  "copyright": "© 2018 Jeff Davidson",
+  "author": "Jeff Davidson",
+  "w": 5,
+  "h": 5,
+  "wordLengthsEnabled": true,
+  "box": [
+    [
+      "A",
+      "E",
+      "I",
+      "\u0000",
+      "\u0000"
+    ],
+    [
+      "B",
+      "F",
+      "J",
+      "N",
+      "1"
+    ],
+    [
+      "C",
+      "G",
+      "XYZ",
+      "O",
+      "2"
+    ],
+    [
+      "D",
+      "H",
+      "L",
+      "P",
+      "$"
+    ],
+    [
+      "\u0000",
+      "\u0000",
+      "M",
+      "Q",
+      "@"
+    ]
+  ],
+  "placedWords": [
+    {
+      "acrossNotDown": true,
+      "clueNum": 1,
+      "clue": {
+        "clue": "First across clue with special characters \u03B1\u03B2\u03B3\u03B4\u03B5"
+      },
+      "nBoxes": 4,
+      "x": 0,
+      "y": 0,
+      "wordLens": [4]
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 5,
+      "clue": {
+        "clue": "Second across clue"
+      },
+      "nBoxes": 4,
+      "x": 0,
+      "y": 1
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 6,
+      "clue": {
+        "clue": "Third across clue"
+      },
+      "nBoxes": 5,
+      "x": 0,
+      "y": 2
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 8,
+      "clue": {
+        "clue": "Fourth across clue"
+      },
+      "nBoxes": 4,
+      "x": 1,
+      "y": 3
+    },
+    {
+      "acrossNotDown": true,
+      "clueNum": 9,
+      "clue": {
+        "clue": "Fifth across clue"
+      },
+      "nBoxes": 4,
+      "x": 1,
+      "y": 4
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 1,
+      "clue": {
+        "clue": "First down clue"
+      },
+      "nBoxes": 3,
+      "x": 0,
+      "y": 0,
+      "wordLens": [2, 3]
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 2,
+      "clue": {
+        "clue": "Second down clue"
+      },
+      "nBoxes": 5,
+      "x": 1,
+      "y": 0
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 3,
+      "clue": {
+        "clue": "Third down clue"
+      },
+      "nBoxes": 5,
+      "x": 2,
+      "y": 0
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 4,
+      "clue": {
+        "clue": "Fourth down clue"
+      },
+      "nBoxes": 5,
+      "x": 3,
+      "y": 0
+    },
+    {
+      "acrossNotDown": false,
+      "clueNum": 7,
+      "clue": {
+        "clue": "Fifth down clue"
+      },
+      "nBoxes": 3,
+      "x": 4,
+      "y": 2
+    }
+  ],
+  "clueNums": [
+    [
+      1,
+      5,
+      6,
+      0,
+      0
+    ],
+    [
+      2,
+      0,
+      0,
+      8,
+      9
+    ],
+    [
+      3,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      4,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      7,
+      0,
+      0
+    ]
+  ],
+  "backgroundShapeBoxes": [
+    [
+      0,
+      2
+    ],
+    [
+      4,
+      2
+    ]
+  ]
+}

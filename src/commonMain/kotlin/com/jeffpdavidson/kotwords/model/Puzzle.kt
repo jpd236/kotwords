@@ -79,8 +79,16 @@ data class Puzzle(
     data class Clue(
         val wordId: Int,
         val number: String,
-        val text: String
-    )
+        val text: String,
+        val format: String = "",
+    ) {
+        fun textAndFormat(): String {
+            if (format.isNotBlank()) {
+                return "$text ($format)"
+            }
+            return text
+        }
+    }
 
     data class ClueList(
         val title: String,
@@ -94,6 +102,6 @@ data class Puzzle(
     }
 
     /** Returns the clue list whose title contains the given text (case-insensitive), if one exists. */
-    fun getClues(titleText: String): Puzzle.ClueList? =
+    fun getClues(titleText: String): ClueList? =
         clues.find { it.title.contains(titleText.toRegex(RegexOption.IGNORE_CASE)) }
 }

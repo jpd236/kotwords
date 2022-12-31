@@ -36,6 +36,7 @@ internal object PuzzleMeJson {
         val x: Int = 0,
         val y: Int = 0,
         val boxesForWord: List<Box> = listOf(),
+        val wordLens: List<Int> = listOf(),
     )
 
     @Serializable
@@ -83,5 +84,6 @@ internal object PuzzleMeJson {
         val clueNums: List<List<Int?>> = listOf(),
         val imagesInGrid: List<Image> = listOf(),
         val clueSections: List<String> = listOf(),
+        val wordLengthsEnabled: Boolean = false,
     )
 }

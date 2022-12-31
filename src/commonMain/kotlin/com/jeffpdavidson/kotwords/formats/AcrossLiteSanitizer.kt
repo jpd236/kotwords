@@ -35,8 +35,8 @@ internal object AcrossLiteSanitizer {
         }
         val givenToSanitizedClueNumberMap = if (hasCustomNumbering) mapGivenToSanitizedClueNumbers(grid) else null
 
-        val acrossCluesByClueNumber = acrossClues.clues.associate { it.number to it.text }
-        val downCluesByClueNumber = downClues.clues.associate { it.number to it.text }
+        val acrossCluesByClueNumber = acrossClues.clues.associate { it.number to it.textAndFormat() }
+        val downCluesByClueNumber = downClues.clues.associate { it.number to it.textAndFormat() }
         val sanitizedAcrossClues: MutableMap<Int, String> = mutableMapOf()
         val sanitizedDownClues: MutableMap<Int, String> = mutableMapOf()
         Crossword.forEachNumberedCell(grid, useBorders = false) { x, y, clueNumber, isAcross, isDown ->

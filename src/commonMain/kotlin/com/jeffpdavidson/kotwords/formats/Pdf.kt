@@ -801,8 +801,9 @@ object Pdf {
             // Count the number of lines needed for the entire clue, plus the section header if
             // this is the first clue in a section, as we do not want to split a clue apart or
             // show a section header at the end of a column.
-            val clueElements =
-                splitTextToLines(this, clue.text, fontFamily, clueTextSize, columnWidth - maxPrefixWidth, isHtml)
+            val clueElements = splitTextToLines(
+                this, clue.textAndFormat(), fontFamily, clueTextSize, columnWidth - maxPrefixWidth, isHtml
+            )
             val lineCount = clueElements.count { it == RichTextElement.NewLine }
             val clueHeight = clueTextSize * (1 + LINE_SPACING * (lineCount - 1)) +
                     if (index == 0) {

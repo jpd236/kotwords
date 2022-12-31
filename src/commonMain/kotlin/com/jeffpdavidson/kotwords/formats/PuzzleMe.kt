@@ -172,7 +172,7 @@ class PuzzleMe(val json: String) : Puzzleable {
             .filterNot { it.acrossNotDown }
             .filter { it.x >= leftRowsToDelete && it.x <= grid[0].size - rightRowsToDelete }
             .map { it.copy(x = it.x - leftRowsToDelete, y = it.y - topRowsToDelete) }
-        val processedData = getProcessedPuzzleData(filteredGrid, acrossWords, downWords, data.clueSections)
+        val processedData = getProcessedPuzzleData(data, filteredGrid, acrossWords, downWords)
 
         return Puzzle(
             title = toHtml(data.title.trim()),
@@ -258,12 +258,20 @@ class PuzzleMe(val json: String) : Puzzleable {
             return deobfuscatedRawc.decodeBase64()?.utf8() ?: throw InvalidFormatException("Rawc is invalid base64")
         }
 
-        private fun buildClueMap(isAcross: Boolean, clueList: List<PuzzleMeJson.PlacedWord>): List<Puzzle.Clue> =
+        private fun buildClueMap(
+            isAcross: Boolean, clueList: List<PuzzleMeJson.PlacedWord>, wordLengthsEnabled: Boolean
+        ): List<Puzzle.Clue> =
             clueList.mapIndexed { i, word ->
+                val format = if (wordLengthsEnabled && word.wordLens.isNotEmpty()) {
+                    word.wordLens.joinToString(", ")
+                } else {
+                    ""
+                }
                 Puzzle.Clue(
                     wordId = getWordId(isAcross, "${i + 1}"),
                     number = word.clueNum,
                     text = toHtml(word.clue.clue),
+                    format = format,
                 )
             }
 
@@ -314,6 +322,8 @@ class PuzzleMe(val json: String) : Puzzleable {
                 .replace("\\s*<br/?>\\s*".toRegex(RegexOption.IGNORE_CASE), "\n")
                 // Strip other unsupported tags.
                 .replace("</?(?:div|img)(?: [^>]*)?/?>".toRegex(RegexOption.IGNORE_CASE), "")
+                // Strip <a> tags but leave their contents.
+                .replace("<a(?: [^>]*)?>(.*?)</a>".toRegex(RegexOption.IGNORE_CASE), "$1")
                 .replace("<", "&lt;")
                 // Workaround for New Yorker titles. These use a span with a custom style to add a margin between the
                 // date and the title; since we don't support styles, add a space to separate them.
@@ -328,10 +338,10 @@ class PuzzleMe(val json: String) : Puzzleable {
         )
 
         private suspend fun getProcessedPuzzleData(
+            data: PuzzleMeJson.Data,
             filteredGrid: List<List<Puzzle.Cell>>,
             acrossWords: List<PuzzleMeJson.PlacedWord>,
             downWords: List<PuzzleMeJson.PlacedWord>,
-            clueSections: List<String>,
         ): PuzzleData {
             return if (acrossWords.all { it.clue.clue.isEmpty() || it.clue.clue.contains(ROWS_REGEX) } &&
                 downWords.all { it.clue.clue.isEmpty() || it.clue.clue.contains(BANDS_REGEX) }) {
@@ -398,7 +408,10 @@ class PuzzleMe(val json: String) : Puzzleable {
                     grid = grid,
                     clues = listOf(
                         Puzzle.ClueList("<b>Bands</b>", bandClues),
-                        Puzzle.ClueList("<b>Rows</b>", buildClueMap(isAcross = true, clueList = rowWords)),
+                        Puzzle.ClueList(
+                            "<b>Rows</b>",
+                            buildClueMap(isAcross = true, clueList = rowWords, wordLengthsEnabled = false),
+                        )
                     ),
                     words = bandWordList + rowWordList
                 )
@@ -439,15 +452,21 @@ class PuzzleMe(val json: String) : Puzzleable {
                     words = rowsGarden.words,
                 )
             } else {
-                val clueTitles = if (clueSections.size == 2) clueSections else listOf("Across", "Down")
+                val clueTitles = if (data.clueSections.size == 2) data.clueSections else listOf("Across", "Down")
                 PuzzleData(
                     grid = filteredGrid,
                     clues = listOf(
                         Puzzle.ClueList(
-                            "<b>${clueTitles[0]}</b>", buildClueMap(isAcross = true, clueList = acrossWords)
+                            "<b>${clueTitles[0]}</b>",
+                            buildClueMap(
+                                isAcross = true, clueList = acrossWords, wordLengthsEnabled = data.wordLengthsEnabled
+                            )
                         ),
                         Puzzle.ClueList(
-                            "<b>${clueTitles[1]}</b>", buildClueMap(isAcross = false, clueList = downWords)
+                            "<b>${clueTitles[1]}</b>",
+                            buildClueMap(
+                                isAcross = false, clueList = downWords, wordLengthsEnabled = data.wordLengthsEnabled
+                            )
                         )
                     ),
                     words = buildWordList(filteredGrid, acrossWords) + buildWordList(filteredGrid, downWords)
