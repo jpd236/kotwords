@@ -16,7 +16,7 @@ class UclickJpz(
 ): Puzzleable {
 
     override suspend fun asPuzzle(): Puzzle {
-        val puzzle = Jpz.fromXmlString(jpzXml).asPuzzle()
+        val puzzle = Jpz.fromXmlString(jpzXml, stripFormats = true).asPuzzle()
 
         // Add date to title if provided.
         val rawTitle = puzzle.title
