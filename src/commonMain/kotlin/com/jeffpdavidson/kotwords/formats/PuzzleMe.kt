@@ -10,7 +10,7 @@ import okio.ByteString.Companion.toByteString
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-private val PUZZLE_DATA_REGEX = """\bwindow\.rawc\s*=\s*'([^']+)'""".toRegex()
+private val PUZZLE_DATA_REGEX = """\bwindow\.(?:puzzleEnv\.)?rawc\s*=\s*'([^']+)'""".toRegex()
 private val KEY_REGEX = """var [a-zA-Z]+\s*=\s*"([a-z\d]+)"""".toRegex()
 
 private val ROWS_REGEX = """Row \d+: """.toRegex(RegexOption.IGNORE_CASE)
