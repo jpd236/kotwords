@@ -13,7 +13,8 @@ class NewYorkTimesAcrostic(val json: String) : Puzzleable {
 
     fun asAcrostic(): Acrostic {
         val response = JsonSerializer.fromJson<NewYorkTimesAcrosticJson.Data>(json)
-        val puzzleDataLines = response.puzzleData.lines()
+        // Newer acrostics use one line as a separator; older ones use two.
+        val puzzleDataLines = response.puzzleData.split("""[\n\r]+""".toRegex())
         require(puzzleDataLines.size >= 6) {
             "Invalid puzzle data - expect at least six lines, but found ${puzzleDataLines.size}"
         }
