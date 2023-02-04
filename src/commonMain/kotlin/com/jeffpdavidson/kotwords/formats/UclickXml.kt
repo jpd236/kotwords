@@ -28,7 +28,11 @@ class UclickXml(
         val editor = Encodings.decodeUrl(document.selectFirst("Editor")?.attr("v") ?: "")
         val byline = listOfNotNull(
             author.ifEmpty { null },
-            if (editor.isEmpty()) { null } else { "Edited by $editor" }
+            if (editor.isEmpty()) {
+                null
+            } else {
+                "Edited by $editor"
+            }
         ).joinToString(" / ")
         val copyright = Encodings.decodeUrl(document.selectFirst("Copyright")?.attr("v") ?: "")
 

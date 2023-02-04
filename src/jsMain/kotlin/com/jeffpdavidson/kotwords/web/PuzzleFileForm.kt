@@ -11,7 +11,7 @@ import com.jeffpdavidson.kotwords.web.html.Html
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import kotlinx.browser.document
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.html.FlowContent
 import kotlinx.html.InputType
@@ -66,6 +66,7 @@ internal class PuzzleFileForm(
     enableSaveData: Boolean = true,
     enableMetadataInput: Boolean = true,
 ) {
+    private val mainScope = MainScope()
 
     private open class Field<T>(private val input: FormFields.FormField<T>?, private val defaultValue: T) {
         open operator fun getValue(thisRef: Any?, property: KProperty<*>): T = input?.value ?: defaultValue
@@ -268,7 +269,7 @@ internal class PuzzleFileForm(
         } else if (loadDataButton != null && loadDataFileField != null && submitter == loadDataButton.button) {
             loadDataFileField.input.click()
         } else if (submitter == jpzButton.button || (pdfButton != null && submitter == pdfButton.button)) {
-            GlobalScope.launch {
+            mainScope.launch {
                 try {
                     val puzzle = createPuzzleFn()
                     if (pdfButton != null && submitter == pdfButton.button) {

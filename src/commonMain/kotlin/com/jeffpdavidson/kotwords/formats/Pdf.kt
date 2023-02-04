@@ -147,7 +147,8 @@ object Pdf {
             lineWidth = headerWidth,
             isHtml = hasHtmlClues,
             initialPositionY = positionY,
-            nextFontSize = nextFontSize)
+            nextFontSize = nextFontSize
+        )
         if (hasDescription) {
             val italicFontFamily =
                 fontFamily.copy(baseFont = fontFamily.italicFont, boldFont = fontFamily.boldItalicFont)
@@ -158,7 +159,8 @@ object Pdf {
                 lineWidth = headerWidth,
                 isHtml = hasHtmlClues,
                 initialPositionY = positionY,
-                nextFontSize = HEADER_CLUES_SPACING)
+                nextFontSize = HEADER_CLUES_SPACING
+            )
         }
         endText()
 

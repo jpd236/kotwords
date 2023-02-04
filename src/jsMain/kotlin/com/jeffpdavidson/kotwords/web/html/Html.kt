@@ -1,7 +1,7 @@
 package com.jeffpdavidson.kotwords.web.html
 
 import kotlinx.browser.document
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.promise
 import kotlinx.dom.addClass
 import org.w3c.dom.HTMLAnchorElement
@@ -19,6 +19,8 @@ private external class navigator {
 }
 
 internal object Html {
+    private val mainScope = MainScope()
+
     @Suppress("UNCHECKED_CAST")
     fun <T : HTMLElement> getElementById(id: String): Lazy<T> {
         return lazy {
@@ -38,7 +40,7 @@ internal object Html {
         if (hasMsSaveBlob) {
             navigator.msSaveBlob(blob, fileName)
         } else {
-            val dataUrlPromise = GlobalScope.promise {
+            val dataUrlPromise = mainScope.promise {
                 val reader = FileReader()
                 suspendCoroutine<String> { cont ->
                     reader.onload = { event ->

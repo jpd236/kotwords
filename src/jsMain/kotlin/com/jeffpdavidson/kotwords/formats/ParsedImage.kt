@@ -8,7 +8,6 @@ import org.khronos.webgl.get
 import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.Image
-import org.w3c.files.Blob
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -19,7 +18,7 @@ internal actual class ParsedImage private constructor(
     actual val width: Int,
     actual val height: Int,
 ) : Closeable {
-    private val context = canvas.getContext("2d") as CanvasRenderingContext2D
+    private val context = canvas.getContext("2d", js("{ willReadFrequently: true }")) as CanvasRenderingContext2D
 
     actual fun containsVisiblePixels(): Boolean {
         val imageData =
@@ -39,9 +38,10 @@ internal actual class ParsedImage private constructor(
         val croppedCanvas = document.createElement("canvas") as HTMLCanvasElement
         croppedCanvas.width = width
         croppedCanvas.height = height
-        val croppedContext = croppedCanvas.getContext("2d") as CanvasRenderingContext2D
+        val croppedContext =
+            croppedCanvas.getContext("2d", js("{ willReadFrequently: true }")) as CanvasRenderingContext2D
         croppedContext.putImageData(imageData, 0.0, 0.0)
-        val blob = suspendCoroutine<Blob> { continuation ->
+        val blob = suspendCoroutine { continuation ->
             croppedCanvas.toBlob({ blob ->
                 continuation.resume(blob!!)
             }, "image/png")
@@ -57,7 +57,7 @@ internal actual class ParsedImage private constructor(
     actual companion object {
         actual suspend fun parse(format: ParsedImageFormat, data: ByteArray): ParsedImage {
             val canvas = document.createElement("canvas") as HTMLCanvasElement
-            val context = canvas.getContext("2d") as CanvasRenderingContext2D
+            val context = canvas.getContext("2d", js("{ willReadFrequently: true }")) as CanvasRenderingContext2D
             renderToCanvas(format, data, canvas, context)
             return ParsedImage(canvas, xOffset = 0, yOffset = 0, width = canvas.width, height = canvas.height)
         }

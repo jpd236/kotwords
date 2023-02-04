@@ -13,7 +13,7 @@ class UclickJpz(
     private val jpzXml: String,
     private val date: Date,
     private val addDateToTitle: Boolean = true
-): Puzzleable {
+) : Puzzleable {
 
     override suspend fun asPuzzle(): Puzzle {
         val puzzle = Jpz.fromXmlString(jpzXml, stripFormats = true).asPuzzle()

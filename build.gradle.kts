@@ -4,10 +4,9 @@ plugins {
     `maven-publish`
     signing
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
-    id("org.jetbrains.dokka") version "1.6.20"
-    kotlin("multiplatform") version "1.6.20"
-    kotlin("kapt") version "1.6.20"
-    kotlin("plugin.serialization") version "1.6.20"
+    id("org.jetbrains.dokka") version "1.7.20"
+    kotlin("multiplatform") version "1.8.10"
+    kotlin("plugin.serialization") version "1.8.10"
 }
 
 group = "com.jeffpdavidson.kotwords"
@@ -20,13 +19,9 @@ repositories {
 kotlin {
     jvm {
         withJava()
-
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
-        }
     }
+
+    jvmToolchain(8)
 
     js(IR) {
         browser {}
@@ -40,21 +35,20 @@ kotlin {
                 optIn("kotlin.RequiresOptIn")
                 optIn("kotlin.js.ExperimentalJsExport")
                 optIn("com.jeffpdavidson.kotwords.KotwordsInternal")
-                optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
             }
         }
 
         val commonMain by getting {
             dependencies {
-                implementation("com.squareup.okio:okio:3.1.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.3")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+                implementation("com.squareup.okio:okio:3.3.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
                 implementation("net.mamoe.yamlkt:yamlkt:0.12.0")
-                implementation("io.github.pdvrieze.xmlutil:serialization:0.84.2")
-                implementation("com.github.ajalt.colormath:colormath:3.2.0")
+                implementation("io.github.pdvrieze.xmlutil:serialization:0.84.3")
+                implementation("com.github.ajalt.colormath:colormath:3.2.1")
 
                 // TODO: Migrate to kotlinx-datetime if parsing/formatting support is added.
-                implementation("com.soywiz.korlibs.klock:klock:2.7.0")
+                implementation("com.soywiz.korlibs.klock:klock:3.4.0")
             }
         }
 
@@ -62,38 +56,38 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-test-annotations-common")
                 implementation("org.jetbrains.kotlin:kotlin-test-common")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
             }
         }
 
         val jvmMain by getting {
             dependencies {
-                implementation("org.apache.pdfbox:pdfbox:2.0.26")
+                implementation("org.apache.pdfbox:pdfbox:2.0.27")
                 implementation("org.glassfish:javax.json:1.1.4")
-                implementation("org.jsoup:jsoup:1.15.1")
+                implementation("org.jsoup:jsoup:1.15.3")
             }
         }
 
         val jvmTest by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
                 implementation("org.jetbrains.kotlin:kotlin-test-junit")
             }
         }
 
         val jsMain by getting {
             dependencies {
-                implementation(npm("jszip", "3.10.0"))
+                implementation(npm("jszip", "3.10.1"))
                 implementation(npm("jspdf", "2.5.1"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.6.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.7.5")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.6.4")
+                implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.8.0")
             }
         }
 
         val jsTest by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-test-js")
-                implementation(npm("pdfjs-dist", "2.14.305"))
+                implementation(npm("pdfjs-dist", "3.3.122"))
             }
         }
     }
