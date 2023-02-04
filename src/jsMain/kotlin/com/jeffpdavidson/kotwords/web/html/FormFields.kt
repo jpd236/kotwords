@@ -1,7 +1,7 @@
 package com.jeffpdavidson.kotwords.web.html
 
 import com.jeffpdavidson.kotwords.js.Interop
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.dom.addClass
 import kotlinx.dom.removeClass
@@ -35,6 +35,8 @@ import org.w3c.files.get
 
 /** Classes to encapsulate and render form fields. */
 internal object FormFields {
+
+    private val mainScope = MainScope()
 
     interface FormField<T> {
         var value: T
@@ -203,7 +205,7 @@ internal object FormFields {
                     onChangeFunction = {
                         val files = input.files
                         if (files != null && files.length > 0 && files[0] != null) {
-                            GlobalScope.launch {
+                            mainScope.launch {
                                 val data = Interop.readBlob(files[0]!!)
                                 // Clear the input value in case the user makes an edit and retries the same file.
                                 input.value = ""

@@ -58,6 +58,10 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-test-common")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
             }
+
+            languageSettings {
+                optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+            }
         }
 
         val jvmMain by getting {
@@ -72,6 +76,10 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
                 implementation("org.jetbrains.kotlin:kotlin-test-junit")
+            }
+
+            languageSettings {
+                optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
             }
         }
 
@@ -88,6 +96,10 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-test-js")
                 implementation(npm("pdfjs-dist", "3.3.122"))
+            }
+
+            languageSettings {
+                optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
             }
         }
     }
