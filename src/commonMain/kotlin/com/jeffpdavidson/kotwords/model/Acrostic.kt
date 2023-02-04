@@ -25,7 +25,7 @@ data class Acrostic(
         require((1..allNumbers.size).toList() == allNumbers) {
             "Grid key must contain exactly one of each number from 1 to the size of the grid"
         }
-        val solutionLetters = solution.filter { it in 'A'..'Z' }
+        val solutionLetters = solution.filter { it in 'A'..'Z' || it in '0'..'9' }
         require(solutionLetters.length == allNumbers.size) {
             "Grid key must have same number of letters as the solution"
         }
@@ -77,7 +77,7 @@ data class Acrostic(
         solution.forEach { ch ->
             row.add(
                 when (ch) {
-                    in 'A'..'Z' -> {
+                    in 'A'..'Z', in '0'..'9' -> {
                         solutionChars.add(ch)
                         val cellNumber = solutionChars.size
                         val clueLetter =

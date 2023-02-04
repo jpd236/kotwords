@@ -31,8 +31,9 @@ class NewYorkTimesAcrostic(val json: String) : Puzzleable {
                 wordKey[clueId] = gridIndex + 1
             }
 
-        // Line 2: Clues, split by |, with an extra "|" at the end.
-        val clues = puzzleDataLines[1].split("|").dropLast(1)
+        // Line 2: Clues, split by |, usually (but not always) with an extra "|" at the end.
+        // A few puzzles have extra bad clues at the end - just skip them.
+        val clues = puzzleDataLines[1].split("|").filterNot { it.isEmpty() }.take(gridKey.size)
 
         // Line 3: Title, byline, copyright, split by |
         val meta = puzzleDataLines[2].split("|")
