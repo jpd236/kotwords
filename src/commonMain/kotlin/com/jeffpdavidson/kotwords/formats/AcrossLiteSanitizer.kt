@@ -98,6 +98,10 @@ internal object AcrossLiteSanitizer {
                 sanitizedClue.append(cleanedClue.substring(startIndex))
                 sanitizedClue.toString()
             }
+        if (renumberedClue.length > 505) {
+            // Across Lite crashes for clues that are longer than this, so ellipsize to fit the limit.
+            return "${renumberedClue.substring(0 until 502)}..."
+        }
         return renumberedClue.ifBlank { "-" }
     }
 
