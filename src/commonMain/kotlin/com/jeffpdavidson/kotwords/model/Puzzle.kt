@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.Puzzleable
 import okio.ByteString
 
 // TODO: Validate data structures.
@@ -15,7 +16,7 @@ data class Puzzle(
     val completionMessage: String = "",
     val puzzleType: PuzzleType = PuzzleType.CROSSWORD,
     val hasUnsupportedFeatures: Boolean = false,
-) {
+) : Puzzleable() {
 
     enum class CellType {
         REGULAR,
@@ -100,6 +101,8 @@ data class Puzzle(
         ACROSTIC,
         CODED,
     }
+
+    override suspend fun createPuzzle(): Puzzle = this
 
     /** Returns the clue list whose title contains the given text (case-insensitive), if one exists. */
     fun getClues(titleText: String): ClueList? =

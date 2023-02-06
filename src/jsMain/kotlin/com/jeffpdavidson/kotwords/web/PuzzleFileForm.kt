@@ -2,7 +2,6 @@ package com.jeffpdavidson.kotwords.web
 
 import com.github.ajalt.colormath.model.RGB
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
-import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.formats.Pdf
 import com.jeffpdavidson.kotwords.js.Interop.toArrayBuffer
 import com.jeffpdavidson.kotwords.model.Puzzle
@@ -355,7 +354,7 @@ internal class PuzzleFileForm(
 
     private suspend fun downloadJpz(puzzle: Puzzle) {
         val fileName = puzzle.title.replace("[^A-Za-z0-9]".toRegex(), "")
-        val jpzFile = puzzle.asJpzFile(appletSettings = createAppletSettings())
+        val jpzFile = puzzle.asJpz(appletSettings = createAppletSettings())
         val data = if (compressJpzField.value) {
             jpzFile.toCompressedFile("$fileName.xml")
         } else {

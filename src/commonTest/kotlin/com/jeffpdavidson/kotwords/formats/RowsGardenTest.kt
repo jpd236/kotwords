@@ -1,6 +1,5 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
 import kotlinx.coroutines.test.runTest
@@ -21,7 +20,7 @@ class RowsGardenTest {
 
         val expected = readStringResource(RowsGardenTest::class, "rows-garden/rows-garden.jpz")
         assertEquals(
-            expected, puzzle.asJpzFile(
+            expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
                     selectedCellsColor = "#80ff80",
@@ -44,7 +43,7 @@ class RowsGardenTest {
 
         val expected = readStringResource(RowsGardenTest::class, "rows-garden/rows-garden-mini.jpz")
         assertEquals(
-            expected, puzzle.asJpzFile(
+            expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
                     selectedCellsColor = "#80ff80",

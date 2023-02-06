@@ -15,7 +15,7 @@ data class Acrostic(
     val answers: List<String> = listOf(),
     val completionMessage: String = "",
     val includeAttribution: Boolean = true,
-) : Puzzleable {
+) : Puzzleable() {
     init {
         require(clues.size > 1) { "Must have at least 2 clues." }
         require(clues.size == gridKey.size) {
@@ -47,7 +47,7 @@ data class Acrostic(
         }
     }
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun createPuzzle(): Puzzle {
         // Determine the width of the puzzle and both clue columns.
         val answerColumnSize = (gridKey.size + 1) / 2
         val gridKeyColumns = gridKey.chunked(answerColumnSize)

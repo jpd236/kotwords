@@ -7,11 +7,9 @@ import okio.ByteString.Companion.decodeBase64
 
 private val PUZZLE_DATA_REGEX = """\bgameData\s*=\s*"([^']+)"""".toRegex()
 
-class NewYorkTimesAcrostic(val json: String) : Puzzleable {
+class NewYorkTimesAcrostic(val json: String) : DelegatingPuzzleable() {
 
-    override suspend fun asPuzzle() = asAcrostic().asPuzzle()
-
-    fun asAcrostic(): Acrostic {
+    override suspend fun getPuzzleable(): Acrostic {
         val response = JsonSerializer.fromJson<NewYorkTimesAcrosticJson.Data>(json)
         // Newer acrostics use one line as a separator; older ones use two.
         val puzzleDataLines = response.puzzleData.split("""[\n\r]+""".toRegex())

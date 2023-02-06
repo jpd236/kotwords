@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 import net.mamoe.yamlkt.Yaml
 
 /** Container for a Rows Garden puzzle in the .rgz format. */
-class Rgz(val rg: String) : Puzzleable {
-    override suspend fun asPuzzle() = asRowsGarden().asPuzzle()
+class Rgz(val rg: String) : DelegatingPuzzleable() {
+    override suspend fun getPuzzleable() = asRowsGarden()
 
     @Serializable
     private data class RgzYaml(

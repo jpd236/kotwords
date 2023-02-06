@@ -1,7 +1,6 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
-import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.readStringResource
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -24,7 +23,7 @@ class SpiralTest {
 
         val expected = readStringResource(SpiralTest::class, "spiral/spiral.jpz")
         assertEquals(
-            expected, puzzle.asJpzFile(
+            expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
                     selectedCellsColor = "#80ff80",
@@ -50,7 +49,7 @@ class SpiralTest {
 
         val expected = readStringResource(SpiralTest::class, "spiral/spiral-nonsquare.jpz")
         assertEquals(
-            expected, puzzle.asJpzFile(
+            expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
                     selectedCellsColor = "#80ff80",
@@ -76,6 +75,6 @@ class SpiralTest {
         val puzzle = spiral.asPuzzle()
 
         val expected = readStringResource(SpiralTest::class, "spiral/spiral-chunked.jpz")
-        assertEquals(expected, puzzle.asJpzFile().toXmlString())
+        assertEquals(expected, puzzle.asJpz().toXmlString())
     }
 }

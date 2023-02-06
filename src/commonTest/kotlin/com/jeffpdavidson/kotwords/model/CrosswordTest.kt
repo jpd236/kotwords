@@ -1,7 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
-import com.jeffpdavidson.kotwords.formats.Jpz
-import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
+import com.jeffpdavidson.kotwords.formats.JpzFile
+import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -70,7 +70,7 @@ class CrosswordTest {
         )
 
         assertEquals(
-            Jpz.fromXmlString(readStringResource(CrosswordTest::class, "jpz/test.jpz")).asPuzzle(),
+            JpzFile(readBinaryResource(CrosswordTest::class, "jpz/test.jpz")).asPuzzle(),
             crossword.asPuzzle(),
         )
     }
@@ -138,7 +138,7 @@ class CrosswordTest {
 
         assertEquals(
             readStringResource(CrosswordTest::class, "jpz/test-barred.jpz"),
-            crossword.asPuzzle().asJpzFile().toXmlString(),
+            crossword.asPuzzle().asJpz().toXmlString(),
         )
     }
 

@@ -15,13 +15,9 @@ private val validSymbolRegex = "[@#$%&+?A-Z0-9]".toRegex()
 /**
  * Container for a puzzle in the Across Lite binary file format.
  *
- * This implements [Puzzleable] and as such can create a [Puzzle] structure for the puzzle it
- * represents with [asPuzzle]. However, in the common case that the puzzle is just being
- * serialized to disk in this format, prefer [binaryData] which is already in the correct format.
- *
  * @param binaryData The raw binary data in Across Lite format.
  */
-class AcrossLite(val binaryData: ByteArray) : Puzzleable {
+class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
 
     init {
         // Verify file magic to catch any unexpected file contents.
@@ -34,7 +30,26 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
         }
     }
 
-    override suspend fun asPuzzle() = asCrossword().asPuzzle()
+    override suspend fun getPuzzleable(): Puzzleable = asCrossword()
+
+    override suspend fun asAcrossLiteBinary(solved: Boolean, writeUtf8: Boolean): ByteArray {
+        // If we need to fill in the solution, we need to go through the full parse and rewrite path.
+        if (solved) {
+            return super.asAcrossLiteBinary(solved, writeUtf8)
+        }
+        // If we're permitted to write UTF-8, we can return the given data directly, whether it needs UTF-8 or not.
+        if (writeUtf8) {
+            return binaryData
+        }
+        // Otherwise, we need to parse the puzzle to see if it needs UTF-8. If not, we can still return the given data.
+        val puzzle = asPuzzle()
+        if (!needsUtf8(puzzle)) {
+            return binaryData
+        }
+        // We need UTF-8 but can't write it - rewrite the puzzle so we can convert UTF-8 characters to their nearest
+        // ISO-8859-1 equivalents.
+        return puzzle.asAcrossLiteBinary(solved, writeUtf8)
+    }
 
     fun asCrossword(): Crossword {
         return withBinaryDataBuffer {
@@ -183,19 +198,12 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
             return acrossClues != null && downClues != null && acrossClues != downClues
         }
 
-        /**
-         * Serialize this puzzle into Across Lite binary format.
-         *
-         * @param solved If true, the grid will be filled in with the correct solution.
-         * @param writeUtf8 If true, clues and metadata will be written directly as UTF-8 characters, if needed. This
-         *                  uses the 2.0 version of the Across Lite format, which may not be supported by all
-         *                  applications. If false, clues and metadata will be written as ISO-8859-1 characters, and
-         *                  unsupported characters will be substituted or dropped.
-         */
-        fun Puzzle.asAcrossLiteBinary(
-            solved: Boolean = false,
-            writeUtf8: Boolean = true,
-        ): ByteArray {
+        /** Serialize this puzzle into Across Lite binary format. */
+        internal fun asAcrossLiteBinary(
+            puzzle: Puzzle,
+            solved: Boolean,
+            writeUtf8: Boolean,
+        ): ByteArray = with(puzzle) {
             require(supportsAcrossLite()) { "Cannot save puzzle as an Across Lite file." }
 
             var unsupportedFeatures =
@@ -243,13 +251,12 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
                 writeByte(0)
             }
 
-            val acrossClues = getClues("Across") ?: error("No Across clues")
-            val downClues = getClues("Down") ?: error("No Down clues")
-
-            val useUtf8 = writeUtf8 && needsUtf8(this, acrossClues, downClues)
+            val useUtf8 = writeUtf8 && needsUtf8(this)
             val charset = if (useUtf8) Charset.UTF_8 else Charset.CP_1252
 
             // Sanitize the clue numbers/clues to be Across Lite compatible.
+            val acrossClues = getClues("Across") ?: error("No Across clues")
+            val downClues = getClues("Down") ?: error("No Down clues")
             val (adjustedAcrossClues, adjustedDownClues) =
                 AcrossLiteSanitizer.sanitizeClues(cleanedGrid, acrossClues, downClues, sanitizeCharacters = !useUtf8)
 
@@ -446,7 +453,9 @@ class AcrossLite(val binaryData: ByteArray) : Puzzleable {
 
         private fun <T> writeData(fn: Buffer.() -> T): T = Buffer().use { it.fn() }
 
-        private fun needsUtf8(puzzle: Puzzle, acrossClues: Puzzle.ClueList, downClues: Puzzle.ClueList): Boolean {
+        private fun needsUtf8(puzzle: Puzzle): Boolean {
+            val acrossClues = puzzle.getClues("Across") ?: error("No Across clues")
+            val downClues = puzzle.getClues("Down") ?: error("No Down clues")
             return puzzle.title.needsUtf8()
                     || puzzle.creator.needsUtf8()
                     || puzzle.copyright.needsUtf8()

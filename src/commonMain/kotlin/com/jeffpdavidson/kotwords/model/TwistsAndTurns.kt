@@ -2,7 +2,6 @@ package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.FONT_FAMILY_TIMES_ROMAN
 import com.jeffpdavidson.kotwords.formats.Pdf
-import com.jeffpdavidson.kotwords.formats.Pdf.asPdf
 import com.jeffpdavidson.kotwords.formats.PdfDocument
 import com.jeffpdavidson.kotwords.formats.PdfFontFamily
 import com.jeffpdavidson.kotwords.formats.Puzzleable
@@ -23,7 +22,7 @@ data class TwistsAndTurns(
     val separateLightAndDarkTwists: Boolean = false,
     val numberTwists: Boolean = true,
     val sortTwists: Boolean = false,
-) : Puzzleable {
+) : Puzzleable() {
     init {
         require(width % twistBoxSize == 0 && height % twistBoxSize == 0) {
             "Width $width and height $height must evenly divide twist box size $twistBoxSize"
@@ -41,7 +40,7 @@ data class TwistsAndTurns(
         }
     }
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun createPuzzle(): Puzzle {
         var x = 1
         var y = 1
         val turnsCluesList = mutableListOf<Puzzle.Clue>()

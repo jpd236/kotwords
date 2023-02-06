@@ -2,7 +2,6 @@ package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.formats.ImageComparator.assertPdfEquals
-import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.formats.getNotoSerifFontFamily
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
@@ -16,7 +15,7 @@ class TwistsAndTurnsTest {
     fun jpzGeneration() = runTest {
         val expected = readStringResource(TwistsAndTurnsTest::class, "twists-and-turns.jpz")
         assertEquals(
-            expected, puzzle.asPuzzle().asJpzFile(
+            expected, puzzle.asPuzzle().asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
                     selectedCellsColor = "#80ff80",

@@ -14,14 +14,14 @@ data class EightTracks(
     val includeEnumerationsAndDirections: Boolean,
     val lightTrackColor: String,
     val darkTrackColor: String,
-) : Puzzleable {
+) : Puzzleable() {
 
     enum class Direction {
         CLOCKWISE,
         COUNTERCLOCKWISE
     }
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun createPuzzle(): Puzzle {
         val gridMap = mutableMapOf<Pair<Int, Int>, Puzzle.Cell>()
         val gridWidth = trackAnswers.size * 2 + 1
         val clueLists = mutableListOf<Puzzle.ClueList>()

@@ -1,6 +1,5 @@
 package com.jeffpdavidson.kotwords.model
 
-import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.readStringResource
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -40,6 +39,6 @@ class CrosswordleTest {
         val puzzle = crosswordle.asPuzzle()
 
         val expected = readStringResource(CrosswordleTest::class, "crosswordle.jpz")
-        assertEquals(expected, puzzle.asJpzFile().toXmlString())
+        assertEquals(expected, puzzle.asJpz().toXmlString())
     }
 }

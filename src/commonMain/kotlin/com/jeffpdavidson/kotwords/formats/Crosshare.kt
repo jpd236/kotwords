@@ -5,8 +5,8 @@ import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Puzzle
 
-class Crosshare(private val json: String) : Puzzleable {
-    override suspend fun asPuzzle(): Puzzle {
+class Crosshare(private val json: String) : DelegatingPuzzleable() {
+    override suspend fun getPuzzleable(): Puzzleable {
         val data = JsonSerializer.fromJson<CrosshareJson.Data>(json).props.pageProps.puzzle
         val author =
             if (data.guestConstructor?.isNotEmpty() == true) {
@@ -39,7 +39,7 @@ class Crosshare(private val json: String) : Puzzleable {
             },
             acrossClues = getClues(data.clues, 0),
             downClues = getClues(data.clues, 1),
-        ).asPuzzle()
+        )
     }
 
     private fun getClues(clues: List<CrosshareJson.Clue>, direction: Int): Map<Int, String> {

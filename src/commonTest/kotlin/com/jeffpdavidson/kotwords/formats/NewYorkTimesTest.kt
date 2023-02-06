@@ -1,6 +1,5 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.model.assertPuzzleEquals
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
@@ -39,14 +38,14 @@ class NewYorkTimesTest {
     fun toPuzzle() = runTest {
         val json = readStringResource(NewYorkTimesTest::class, "nyt/test.json")
         val puzzle = NewYorkTimes.fromPluribusJson(json).asPuzzle()
-        assertEquals(readStringResource(NewYorkTimesTest::class, "nyt/test.jpz"), puzzle.asJpzFile().toXmlString())
+        assertEquals(readStringResource(NewYorkTimesTest::class, "nyt/test.jpz"), puzzle.asJpz().toXmlString())
     }
 
     @Test
     fun toPuzzle_api() = runTest {
         val json = readStringResource(NewYorkTimesTest::class, "nyt/test-api.json")
         val puzzle = NewYorkTimes.fromApiJson(json, "daily").asPuzzle()
-        assertEquals(readStringResource(NewYorkTimesTest::class, "nyt/test.jpz"), puzzle.asJpzFile().toXmlString())
+        assertEquals(readStringResource(NewYorkTimesTest::class, "nyt/test.jpz"), puzzle.asJpz().toXmlString())
     }
 
     @Test
@@ -55,7 +54,7 @@ class NewYorkTimesTest {
         val puzzle = NewYorkTimes.fromPluribusJson(json).asPuzzle()
         assertEquals(
             readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage-nofetcher.jpz"),
-            puzzle.asJpzFile().toXmlString()
+            puzzle.asJpz().toXmlString()
         )
     }
 
@@ -65,7 +64,7 @@ class NewYorkTimesTest {
         val puzzle = NewYorkTimes.fromApiJson(json, "daily").asPuzzle()
         assertEquals(
             readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage-nofetcher.jpz"),
-            puzzle.asJpzFile().toXmlString()
+            puzzle.asJpz().toXmlString()
         )
     }
 
@@ -80,7 +79,7 @@ class NewYorkTimesTest {
             },
         ).asPuzzle()
         assertPuzzleEquals(
-            Jpz.fromXmlString(readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage.jpz")).asPuzzle(),
+            JpzFile(readBinaryResource(NewYorkTimesTest::class, "nyt/test-bgimage.jpz")).asPuzzle(),
             puzzle,
         )
     }

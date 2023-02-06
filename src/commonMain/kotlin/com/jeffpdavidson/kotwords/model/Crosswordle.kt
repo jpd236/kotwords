@@ -11,7 +11,7 @@ data class Crosswordle(
     val answer: String,
     val acrossClues: List<String>,
     val downClues: List<String>,
-) : Puzzleable {
+) : Puzzleable() {
 
     private enum class CellStatus(val bgColor: String) {
         WHITE(""),
@@ -34,7 +34,7 @@ data class Crosswordle(
         }
     }
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun createPuzzle(): Puzzle {
         val cellStatuses = grid.map { row ->
             val isUsed = row.mapIndexed { x, ch -> answer[x] == ch }.toMutableList()
             row.mapIndexed { x, ch ->

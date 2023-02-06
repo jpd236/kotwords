@@ -44,8 +44,10 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
                 implementation("net.mamoe.yamlkt:yamlkt:0.12.0")
-                implementation("io.github.pdvrieze.xmlutil:serialization:0.84.3")
+                // TODO: Migrate to 0.84.3+ once https://github.com/pdvrieze/xmlutil/issues/119 is fixed.
+                implementation("io.github.pdvrieze.xmlutil:serialization:0.84.2")
                 implementation("com.github.ajalt.colormath:colormath:3.2.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
                 // TODO: Migrate to kotlinx-datetime if parsing/formatting support is added.
                 implementation("com.soywiz.korlibs.klock:klock:3.4.0")
@@ -74,7 +76,6 @@ kotlin {
 
         val jvmTest by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
                 implementation("org.jetbrains.kotlin:kotlin-test-junit")
             }
 
@@ -87,7 +88,6 @@ kotlin {
             dependencies {
                 implementation(npm("jszip", "3.10.1"))
                 implementation(npm("jspdf", "2.5.1"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.6.4")
                 implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.8.0")
             }
         }

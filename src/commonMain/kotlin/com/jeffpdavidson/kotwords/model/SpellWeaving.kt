@@ -10,9 +10,9 @@ data class SpellWeaving(
     val description: String,
     val answers: List<String>,
     val clues: List<String>
-) : Puzzleable {
+) : Puzzleable() {
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun createPuzzle(): Puzzle {
         val filteredAnswers = answers.map { answer -> answer.uppercase().filter { it in 'A'..'Z' } }
         val length = filteredAnswers.sumOf { it.length }
         val middleRowLengthDouble = (1 + sqrt(4 * length - 3.0)) / 2

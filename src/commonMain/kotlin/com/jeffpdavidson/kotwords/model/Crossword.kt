@@ -1,7 +1,6 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.FONT_FAMILY_TIMES_ROMAN
-import com.jeffpdavidson.kotwords.formats.Pdf.asPdf
 import com.jeffpdavidson.kotwords.formats.PdfFontFamily
 import com.jeffpdavidson.kotwords.formats.Puzzleable
 
@@ -30,7 +29,7 @@ data class Crossword(
     val acrossClues: Map<Int, String>,
     val downClues: Map<Int, String>,
     val hasHtmlClues: Boolean = false,
-) : Puzzleable {
+) : Puzzleable() {
     init {
         // Validate that grid is a rectangle.
         val width = grid[0].size
@@ -42,7 +41,7 @@ data class Crossword(
         // TODO: Validate standard grid numbering / clues.
     }
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun createPuzzle(): Puzzle {
         val acrossPuzzleClues = mutableListOf<Puzzle.Clue>()
         val downPuzzleClues = mutableListOf<Puzzle.Clue>()
         val words = mutableListOf<Puzzle.Word>()

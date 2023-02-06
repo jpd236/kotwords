@@ -16,9 +16,9 @@ class UclickJson(
     private val json: String,
     private val copyright: String = "",
     private val addDateToTitle: Boolean = true
-) : Puzzleable {
+) : DelegatingPuzzleable() {
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun getPuzzleable(): Puzzleable {
         val response = JsonSerializer.fromJson<UclickJson.Response>(json)
         val date = JSON_DATE_FORMAT.parseDate(response.date)
         val copyright = if (response.copyright.isNotEmpty()) decode(response.copyright) else copyright
@@ -40,7 +40,7 @@ class UclickJson(
             grid = grid,
             acrossClues = toClueMap(response.acrossClue),
             downClues = toClueMap(response.downClue)
-        ).asPuzzle()
+        )
     }
 
     private fun toClueMap(clueString: String): Map<Int, String> {

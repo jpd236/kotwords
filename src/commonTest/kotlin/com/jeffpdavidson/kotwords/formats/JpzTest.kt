@@ -1,7 +1,5 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.asAcrossLiteBinary
-import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
 import kotlinx.coroutines.test.runTest
@@ -11,10 +9,46 @@ import kotlin.test.assertTrue
 
 class JpzTest {
     @Test
+    fun jpzReadAndWrite() = runTest {
+        val jpzFile = JpzFile(readBinaryResource(JpzTest::class, "jpz/test.jpz"))
+        val convertedJpz = jpzFile.asPuzzle().asJpz(appletSettings = null)
+        assertEquals(jpzFile.getPuzzleable(), convertedJpz)
+    }
+
+    @Test
+    fun jpzReadAndWrite_gaps() = runTest {
+        val jpzFile = JpzFile(readBinaryResource(JpzTest::class, "jpz/gaps.jpz"))
+        val convertedJpz = jpzFile.asPuzzle().asJpz(appletSettings = null)
+        assertEquals(jpzFile.getPuzzleable(), convertedJpz)
+    }
+
+    @Test
+    fun jpzReadAndWrite_solved() = runTest {
+        val jpzFile = JpzFile(readBinaryResource(JpzTest::class, "jpz/test.jpz"))
+        val convertedJpz = jpzFile.asPuzzle().asJpz(solved = true, appletSettings = null)
+        assertEquals(JpzFile(readBinaryResource(JpzTest::class, "jpz/test-solved.jpz")).getPuzzleable(), convertedJpz)
+    }
+
+    @Test
+    fun jpzReadAndWrite_inlineCells() = runTest {
+        val jpzFile = JpzFile(readBinaryResource(JpzTest::class, "jpz/test.jpz"))
+        val inlineCellJpzFile = JpzFile(readBinaryResource(JpzTest::class, "jpz/test-inline-cells.jpz"))
+        val convertedInlineCellJpz = inlineCellJpzFile.asPuzzle().asJpz(appletSettings = null)
+        assertEquals(jpzFile.getPuzzleable(), convertedInlineCellJpz)
+    }
+
+    @Test
+    fun jpzReadAndWrite_bgImages() = runTest {
+        val jpzFile = JpzFile(readBinaryResource(JpzTest::class, "jpz/test-bgimage.jpz"))
+        val convertedJpz = jpzFile.asPuzzle().asJpz(appletSettings = null)
+        assertEquals(jpzFile.getPuzzleable(), convertedJpz)
+    }
+
+    @Test
     fun crossword() = runTest {
         assertTrue(
             readBinaryResource(JpzTest::class, "puz/test.puz").contentEquals(
-                Jpz.fromXmlString(readStringResource(JpzTest::class, "jpz/test.jpz")).asPuzzle().asAcrossLiteBinary()
+                JpzFile(readBinaryResource(JpzTest::class, "jpz/test.jpz")).asPuzzle().asAcrossLiteBinary()
             )
         )
     }
@@ -23,7 +57,7 @@ class JpzTest {
     fun crosswordWithAppletMetadata() = runTest {
         assertTrue(
             readBinaryResource(JpzTest::class, "puz/test.puz").contentEquals(
-                Jpz.fromXmlString(readStringResource(JpzTest::class, "jpz/test-applet-metadata.jpz"))
+                JpzFile(readBinaryResource(JpzTest::class, "jpz/test-applet-metadata.jpz"))
                     .asPuzzle().asAcrossLiteBinary()
             )
         )
@@ -33,7 +67,7 @@ class JpzTest {
     fun crosswordWithClueGaps() = runTest {
         assertTrue(
             readBinaryResource(JpzTest::class, "puz/gaps.puz").contentEquals(
-                Jpz.fromXmlString(readStringResource(JpzTest::class, "jpz/gaps.jpz")).asPuzzle().asAcrossLiteBinary()
+                JpzFile(readBinaryResource(JpzTest::class, "jpz/gaps.jpz")).asPuzzle().asAcrossLiteBinary()
             )
         )
     }
@@ -42,7 +76,7 @@ class JpzTest {
     fun crosswordWithCellRanges() = runTest {
         assertTrue(
             readBinaryResource(JpzTest::class, "puz/test.puz").contentEquals(
-                Jpz.fromXmlString(readStringResource(JpzTest::class, "jpz/test-cell-ranges.jpz"))
+                JpzFile(readBinaryResource(JpzTest::class, "jpz/test-cell-ranges.jpz"))
                     .asPuzzle().asAcrossLiteBinary()
             )
         )
@@ -52,7 +86,7 @@ class JpzTest {
     fun crosswordWithStrippedFormats() = runTest {
         assertTrue(
             readBinaryResource(JpzTest::class, "puz/test.puz").contentEquals(
-                Jpz.fromXmlString(readStringResource(JpzTest::class, "jpz/test-formats.jpz"), stripFormats = true)
+                JpzFile(readBinaryResource(JpzTest::class, "jpz/test-formats.jpz"), stripFormats = true)
                     .asPuzzle().asAcrossLiteBinary()
             )
         )
@@ -130,8 +164,8 @@ class JpzTest {
     private suspend fun assertConversionIsEqual(jpzPath: String) {
         val jpz = Jpz.fromXmlString(readStringResource(JpzTest::class, jpzPath))
         val convertedJpz = when (jpz) {
-            is CrosswordCompiler -> jpz.asPuzzle().asJpzFile(appletSettings = null)
-            is CrosswordCompilerApplet -> jpz.asPuzzle().asJpzFile(appletSettings = jpz.appletSettings)
+            is CrosswordCompiler -> jpz.asPuzzle().asJpz(appletSettings = null)
+            is CrosswordCompilerApplet -> jpz.asPuzzle().asJpz(appletSettings = jpz.appletSettings)
         }
         assertEquals(jpz, convertedJpz)
     }

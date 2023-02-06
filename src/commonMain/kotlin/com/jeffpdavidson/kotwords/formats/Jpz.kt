@@ -36,11 +36,38 @@ private fun getXmlSerializer(prettyPrint: Boolean = false): XML {
     }
 }
 
-/** Container for a puzzle in the JPZ file format. */
-sealed interface Jpz : Puzzleable {
-    val rectangularPuzzle: RectangularPuzzle
+/**
+ * Container for a JPZ file.
+ *
+ * @param data the file data. Can either be XML or a ZIP file containing one XML file.
+ * @param stripFormats if true, the format will be cleared from all clues. Useful when the format is applied
+ *                     inconsistently or unnecessarily (e.g. is just the total answer length for each clue).
+ */
+class JpzFile(private val data: ByteArray, private val stripFormats: Boolean = false) : DelegatingPuzzleable() {
+    override suspend fun getPuzzleable(): Jpz {
+        val xml = try {
+            Zip.unzip(data)
+        } catch (e: InvalidZipException) {
+            // Assume the file is already unzipped.
+            data
+        }
+        return Jpz.fromXmlString(xml = xml.decodeToString(), stripFormats = stripFormats)
+    }
 
-    fun toXmlString(prettyPrint: Boolean = false): String
+    override suspend fun asJpzFile(solved: Boolean): ByteArray {
+        // If we don't need to fill in the solution, we can return the given data directly.
+        if (!solved) {
+            return data
+        }
+        return super.asJpzFile(solved)
+    }
+}
+
+/** Container for JPZ XML data. */
+sealed class Jpz : Puzzleable() {
+    abstract val rectangularPuzzle: RectangularPuzzle
+
+    abstract fun toXmlString(prettyPrint: Boolean = false): String
 
     @Serializable
     data class Html(@XmlValue(true) val data: Snippet)
@@ -161,11 +188,11 @@ sealed interface Jpz : Puzzleable {
     @SerialName("span")
     data class Span(@XmlValue(true) val data: Snippet)
 
-    suspend fun toCompressedFile(filename: String, prettyPrint: Boolean = false): ByteArray {
+    suspend fun toCompressedFile(filename: String = "puzzle.jpz", prettyPrint: Boolean = false): ByteArray {
         return Zip.zip(filename, toXmlString(prettyPrint).encodeToByteArray())
     }
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun createPuzzle(): Puzzle {
         val crossword: RectangularPuzzle.Crossword
         val puzzleType: Puzzle.PuzzleType
         if (rectangularPuzzle.acrostic != null) {
@@ -300,23 +327,6 @@ sealed interface Jpz : Puzzleable {
 
     companion object {
         /**
-         * Parse the given JPZ file.
-         *
-         * Supports either zip-compressed files or the underlying XML.
-         * @param stripFormats if true, the format will be cleared from all clues. Useful when the format is applied
-         *                     inconsistently or unnecessarily (e.g. is just the total answer length for each clue).
-         */
-        suspend fun fromJpzFile(jpz: ByteArray, stripFormats: Boolean = false): Jpz {
-            val xml = try {
-                Zip.unzip(jpz)
-            } catch (e: InvalidZipException) {
-                // Assume the file is already unzipped.
-                jpz
-            }
-            return fromXmlString(xml.decodeToString(), stripFormats)
-        }
-
-        /**
          * Parse the given JPZ XML.
          *
          * @param stripFormats if true, the format will be cleared from all clues. Useful when the format is applied
@@ -347,15 +357,12 @@ sealed interface Jpz : Puzzleable {
             }
         }
 
-        /**
-         * Returns this puzzle as a JPZ file.
-         *
-         * @param solved If true, the grid will be filled in with the correct solution.
-         */
-        fun Puzzle.asJpzFile(
-            solved: Boolean = false,
-            appletSettings: CrosswordCompilerApplet.AppletSettings? = CrosswordCompilerApplet.AppletSettings()
-        ): Jpz {
+        /** Returns this puzzle as a JPZ file. */
+        internal fun asJpz(
+            puzzle: Puzzle,
+            solved: Boolean,
+            appletSettings: CrosswordCompilerApplet.AppletSettings?,
+        ): Jpz = with(puzzle) {
             val jpzGrid = RectangularPuzzle.Crossword.Grid(
                 width = grid[0].size,
                 height = grid.size,
@@ -593,10 +600,7 @@ sealed interface Jpz : Puzzleable {
 
 @Serializable
 @XmlSerialName("crossword-compiler", "http://crossword.info/xml/crossword-compiler", "")
-data class CrosswordCompiler(
-    override val rectangularPuzzle: Jpz.RectangularPuzzle
-) : Jpz {
-
+data class CrosswordCompiler(override val rectangularPuzzle: RectangularPuzzle) : Jpz() {
     override fun toXmlString(prettyPrint: Boolean): String {
         return getXmlSerializer(prettyPrint).encodeToString(serializer(), this)
     }
@@ -606,8 +610,8 @@ data class CrosswordCompiler(
 @XmlSerialName("crossword-compiler-applet", CCA_NS, "")
 data class CrosswordCompilerApplet(
     val appletSettings: AppletSettings = AppletSettings(),
-    override val rectangularPuzzle: Jpz.RectangularPuzzle
-) : Jpz {
+    override val rectangularPuzzle: RectangularPuzzle
+) : Jpz() {
 
     @Serializable
     @SerialName("applet-settings")
@@ -617,8 +621,8 @@ data class CrosswordCompilerApplet(
         @SerialName("show-alphabet") val showAlphabet: Boolean? = null,
         val completion: Completion = Completion(),
         val actions: Actions = Actions(),
-        @XmlSerialName("title", CCA_NS, "") val title: Jpz.Html? = null,
-        @XmlSerialName("copyright", CCA_NS, "") val copyright: Jpz.Html? = null,
+        @XmlSerialName("title", CCA_NS, "") val title: Html? = null,
+        @XmlSerialName("copyright", CCA_NS, "") val copyright: Html? = null,
     ) {
 
         @Serializable

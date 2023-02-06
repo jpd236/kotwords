@@ -13,8 +13,8 @@ private val BY_REGEX = " [Bb]y (?!.* [Bb]y )".toRegex()
 private val COMMA_REGEX = ", (?!.*, )".toRegex()
 
 /** Container for a puzzle in the Boston Globe HTML format. */
-class BostonGlobe(private val html: String) : Puzzleable {
-    override suspend fun asPuzzle(): Puzzle {
+class BostonGlobe(private val html: String) : DelegatingPuzzleable() {
+    override suspend fun getPuzzleable(): Puzzleable {
         val document = Xml.parse(html, format = DocumentFormat.HTML)
 
         val subHeaderText = document.selectFirst("p.subhed")?.text
@@ -52,7 +52,7 @@ class BostonGlobe(private val html: String) : Puzzleable {
             grid = grid,
             acrossClues = acrossClues,
             downClues = downClues
-        ).asPuzzle()
+        )
     }
 
     private fun toClueMap(clueElements: Iterable<Element>): Map<Int, String> {

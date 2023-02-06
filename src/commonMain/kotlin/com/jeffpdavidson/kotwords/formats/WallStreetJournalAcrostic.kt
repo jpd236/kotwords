@@ -9,11 +9,9 @@ import com.soywiz.klock.parse
 private val PUBLISH_DATE_FORMAT = DateFormat("EEEE, dd MMMM yyyy")
 
 /** Container for an acrostic puzzle in the Wall Street Journal JSON format. */
-class WallStreetJournalAcrostic(private val json: String) : Puzzleable {
+class WallStreetJournalAcrostic(private val json: String) : DelegatingPuzzleable() {
 
-    override suspend fun asPuzzle() = asAcrostic().asPuzzle()
-
-    fun asAcrostic(): Acrostic {
+    override suspend fun getPuzzleable(): Acrostic {
         val response = JsonSerializer.fromJson<WallStreetJournalJson.AcrosticJson>(json)
         val gridKey = mutableMapOf<Char, MutableMap<Char, Int>>()
         response.celldata

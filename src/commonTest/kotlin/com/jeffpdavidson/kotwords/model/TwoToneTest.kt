@@ -1,7 +1,6 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
-import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.readStringResource
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -28,7 +27,7 @@ class TwoToneTest {
 
         val expected = readStringResource(TwoToneTest::class, "two-tone/two-tone.jpz")
         assertEquals(
-            expected, puzzle.asJpzFile(
+            expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
                     selectedCellsColor = "#80ff80",
@@ -58,7 +57,7 @@ class TwoToneTest {
 
         val expected = readStringResource(TwoToneTest::class, "two-tone/two-tone-nonsquare.jpz")
         assertEquals(
-            expected, puzzle.asJpzFile(
+            expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
                     selectedCellsColor = "#80ff80",

@@ -10,7 +10,7 @@ data class SnakeCharmer(
     val answers: List<String>,
     val clues: List<String>,
     val gridCoordinates: List<Pair<Int, Int>>
-) : Puzzleable {
+) : Puzzleable() {
 
     init {
         require(gridCoordinates.isNotEmpty()) {
@@ -21,7 +21,7 @@ data class SnakeCharmer(
         }
     }
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun createPuzzle(): Puzzle {
         val cellNumbersMap = mutableMapOf<Pair<Int, Int>, MutableList<Int>>()
         val solutionMap = mutableMapOf<Pair<Int, Int>, Char>()
         val words = mutableListOf<MutableList<Pair<Int, Int>>>()

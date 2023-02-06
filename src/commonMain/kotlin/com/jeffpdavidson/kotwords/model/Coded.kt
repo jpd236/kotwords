@@ -11,7 +11,7 @@ data class Coded(
     val grid: List<List<Char?>>,
     val assignments: List<Char>,
     val givens: List<Char>,
-) : Puzzleable {
+) : Puzzleable() {
     init {
         val gridLetters = grid.flatMap { it.filterNotNull() }.distinct().toSet()
         require(gridLetters == assignments.toSet()) {
@@ -19,7 +19,7 @@ data class Coded(
         }
     }
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun createPuzzle(): Puzzle {
         val assignmentMap = assignments.mapIndexed { i, ch -> ch to (i + 1) }.toMap()
         val puzzleGrid = grid.map { row ->
             row.map { ch ->

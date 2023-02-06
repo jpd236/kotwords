@@ -21,8 +21,8 @@ private val PUBLICATION_DATE_FORMAT = DateFormat("YYYY-MM-dd")
 class NewYorkTimes internal constructor(
     private val data: NewYorkTimesJson,
     private val httpGetter: (suspend (String) -> ByteArray)? = null
-) : Puzzleable {
-    override suspend fun asPuzzle(): Puzzle {
+) : Puzzleable() {
+    override suspend fun createPuzzle(): Puzzle {
         val publicationDate = PUBLICATION_DATE_FORMAT.parseDate(data.publicationDate)
         val puzzleName = if (data.publishStream == "mini") "NY Times Mini Crossword" else "NY Times"
         val baseTitle = "$puzzleName, ${TITLE_DATE_FORMAT.format(publicationDate)}"

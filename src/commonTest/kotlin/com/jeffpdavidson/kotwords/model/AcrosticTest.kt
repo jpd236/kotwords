@@ -1,7 +1,6 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
-import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.readStringResource
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -13,7 +12,7 @@ class AcrosticTest {
     fun asJpz() = runTest {
         assertEquals(
             readStringResource(AcrosticTest::class, "acrostic/acrostic.jpz"),
-            acrostic.asPuzzle().asJpzFile(
+            acrostic.asPuzzle().asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
                     selectedCellsColor = "#80ff80",
@@ -27,7 +26,7 @@ class AcrosticTest {
     fun asJpz_withAttribution() = runTest {
         assertEquals(
             readStringResource(AcrosticTest::class, "acrostic/acrostic-attribution.jpz"),
-            acrostic.copy(includeAttribution = true).asPuzzle().asJpzFile(
+            acrostic.copy(includeAttribution = true).asPuzzle().asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
                     selectedCellsColor = "#80ff80",

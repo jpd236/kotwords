@@ -15,7 +15,7 @@ data class TwoTone(
     val evenSquaresClues: List<String>,
     val oddSquareBackgroundColor: String,
     val evenSquareBackgroundColor: String,
-) : Puzzleable {
+) : Puzzleable() {
 
     init {
         val splitAnswers =
@@ -32,7 +32,7 @@ data class TwoTone(
         }
     }
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun createPuzzle(): Puzzle {
         val numberedSquares = mutableSetOf<Int>()
         fun addNumberedSquares(answers: List<String>, startIndex: Int, isEveryOther: Boolean) {
             answers.fold(startIndex) { i, answer ->

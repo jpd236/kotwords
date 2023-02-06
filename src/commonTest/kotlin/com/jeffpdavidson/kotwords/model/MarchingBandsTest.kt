@@ -3,9 +3,7 @@ package com.jeffpdavidson.kotwords.model
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.formats.ImageComparator
 import com.jeffpdavidson.kotwords.formats.ImageComparator.assertPdfEquals
-import com.jeffpdavidson.kotwords.formats.Jpz
-import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
-import com.jeffpdavidson.kotwords.formats.Pdf.asPdf
+import com.jeffpdavidson.kotwords.formats.JpzFile
 import com.jeffpdavidson.kotwords.formats.PdfTest
 import com.jeffpdavidson.kotwords.formats.getNotoSerifFontFamily
 import com.jeffpdavidson.kotwords.readBinaryResource
@@ -20,7 +18,7 @@ class MarchingBandsTest {
         val puzzle = MARCHING_BANDS.asPuzzle()
         val expected = readStringResource(MarchingBandsTest::class, "marching-bands/marching-bands.jpz")
         assertEquals(
-            expected, puzzle.asJpzFile(
+            expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
                     selectedCellsColor = "#80ff80",
@@ -35,7 +33,7 @@ class MarchingBandsTest {
         val puzzle = MARCHING_BANDS.copy(includeRowNumbers = false).asPuzzle()
         val expected = readStringResource(MarchingBandsTest::class, "marching-bands/marching-bands-without-rows.jpz")
         assertEquals(
-            expected, puzzle.asJpzFile(
+            expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
                     selectedCellsColor = "#80ff80",
@@ -49,7 +47,7 @@ class MarchingBandsTest {
     fun pdfGeneration() = runTest {
         assertPdfEquals(
             readBinaryResource(ImageComparator::class, "marching-bands/marching-bands.pdf"),
-            Jpz.fromXmlString(readStringResource(PdfTest::class, "marching-bands/marching-bands.jpz"))
+            JpzFile(readBinaryResource(PdfTest::class, "marching-bands/marching-bands.jpz"))
                 .asPuzzle().asPdf(blackSquareLightnessAdjustment = 0.75f, fontFamily = getNotoSerifFontFamily())
         )
     }

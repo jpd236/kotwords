@@ -24,7 +24,7 @@ class WallStreetJournalAcrosticTest {
                 clues = listOf("Clue 1", "Clue 2"),
                 completionMessage = "Quote author, “Quote”",
                 includeAttribution = true,
-            ), acrostic.asAcrostic()
+            ), acrostic.getPuzzleable()
         )
     }
 }

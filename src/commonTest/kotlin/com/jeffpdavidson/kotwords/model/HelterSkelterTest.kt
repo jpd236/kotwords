@@ -1,6 +1,5 @@
 package com.jeffpdavidson.kotwords.model
 
-import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.readStringResource
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -11,7 +10,7 @@ class HelterSkelterTest {
     fun asPuzzle() = runTest {
         assertEquals(
             readStringResource(HelterSkelterTest::class, "helter-skelter/helter-skelter.jpz"),
-            helterSkelter.asPuzzle().asJpzFile().toXmlString(),
+            helterSkelter.asPuzzle().asJpz().toXmlString(),
         )
     }
 
@@ -19,7 +18,7 @@ class HelterSkelterTest {
     fun asPuzzle_withoutVectors() = runTest {
         assertEquals(
             readStringResource(HelterSkelterTest::class, "helter-skelter/helter-skelter.jpz"),
-            helterSkelter.copy(answerVectors = listOf()).asPuzzle().asJpzFile().toXmlString(),
+            helterSkelter.copy(answerVectors = listOf()).asPuzzle().asJpz().toXmlString(),
         )
     }
 
@@ -27,7 +26,7 @@ class HelterSkelterTest {
     fun asPuzzle_extendToEdges() = runTest {
         assertEquals(
             readStringResource(HelterSkelterTest::class, "helter-skelter/helter-skelter-extend-to-edges.jpz"),
-            helterSkelter.copy(extendToEdges = true).asPuzzle().asJpzFile().toXmlString(),
+            helterSkelter.copy(extendToEdges = true).asPuzzle().asJpz().toXmlString(),
         )
     }
 

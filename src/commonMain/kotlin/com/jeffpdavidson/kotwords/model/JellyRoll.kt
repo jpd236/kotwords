@@ -17,7 +17,7 @@ data class JellyRoll(
     val lightSquareBackgroundColor: String,
     val darkSquareBackgroundColor: String,
     val combineJellyRollClues: Boolean,
-) : Puzzleable {
+) : Puzzleable() {
 
     init {
         val splitAnswers =
@@ -34,7 +34,7 @@ data class JellyRoll(
         }
     }
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun createPuzzle(): Puzzle {
         val numberedSquares = mutableSetOf<Int>()
         fun addNumberedSquares(answers: List<String>, startIndex: Int, includedModulos: List<Int>) {
             answers.fold(startIndex) { i, answer ->

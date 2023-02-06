@@ -9,8 +9,8 @@ data class AroundTheBend(
     val description: String,
     var rows: List<String>,
     val clues: List<String>
-) : Puzzleable {
-    override suspend fun asPuzzle(): Puzzle {
+) : Puzzleable() {
+    override suspend fun createPuzzle(): Puzzle {
         val maxWidth = rows.maxByOrNull { it.length }!!.length
         val grid = rows.mapIndexed { y, row ->
             val padding = maxWidth - row.length

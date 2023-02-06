@@ -88,18 +88,11 @@ object Pdf {
      *
      * Inspired by [puz2pdf](https://sourceforge.net/projects/puz2pdf) and
      * [Crossword Nexus's PDF converter](https://crosswordnexus.com/js/puz_functions.js).
-     *
-     * @param fontFamily Font family to use for the PDF.
-     * @param blackSquareLightnessAdjustment Percentage (from 0 to 1) indicating how much to brighten black/colored
-     *                                       squares (i.e. to save ink). 0 indicates no adjustment; 1 would be fully
-     *                                       white.
-     * @param gridRenderer Optional function to render the grid, if custom rendering is desired. The default rendering
-     *                     draws a rectangular grid with square cells. Custom functions should fill a maximum width of
-     *                     gridWidth and return the resulting maximum height of the grid.
      */
-    fun Puzzle.asPdf(
-        fontFamily: PdfFontFamily = FONT_FAMILY_TIMES_ROMAN,
-        blackSquareLightnessAdjustment: Float = 0f,
+    internal fun asPdf(
+        puzzle: Puzzle,
+        fontFamily: PdfFontFamily,
+        blackSquareLightnessAdjustment: Float,
         gridRenderer: (
             document: PdfDocument,
             grid: List<List<Puzzle.Cell>>,
@@ -108,117 +101,119 @@ object Pdf {
             gridX: Float,
             gridY: Float,
             fontFamily: PdfFontFamily,
-        ) -> DrawGridResult = ::drawGrid,
-    ): ByteArray = PdfDocument().run {
-        val pageWidth = width
-        val pageHeight = height
-        val headerWidth = pageWidth - 2 * MARGIN
-        val clueCount = clues.sumOf { it.clues.size }
-        val gridWidth = getGridWidthPercentage(clueCount) * headerWidth
-        val gridX = pageWidth - MARGIN - gridWidth
-        val gridY = MARGIN + COPYRIGHT_SIZE
-        val columns = getClueColumns(clueCount)
-        val columnWidth = (headerWidth - (columns - 1) * COLUMN_PADDING) / columns
-        val titleX = MARGIN
-        val titleY = pageHeight - MARGIN
+        ) -> DrawGridResult,
+    ): ByteArray = with(puzzle) {
+        PdfDocument().run {
+            val pageWidth = width
+            val pageHeight = height
+            val headerWidth = pageWidth - 2 * MARGIN
+            val clueCount = clues.sumOf { it.clues.size }
+            val gridWidth = getGridWidthPercentage(clueCount) * headerWidth
+            val gridX = pageWidth - MARGIN - gridWidth
+            val gridY = MARGIN + COPYRIGHT_SIZE
+            val columns = getClueColumns(clueCount)
+            val columnWidth = (headerWidth - (columns - 1) * COLUMN_PADDING) / columns
+            val titleX = MARGIN
+            val titleY = pageHeight - MARGIN
 
-        var positionY = titleY
+            var positionY = titleY
 
-        beginText()
-        newLineAtOffset(titleX, titleY)
+            beginText()
+            newLineAtOffset(titleX, titleY)
 
-        // Header - title, creator, description.
-        val boldFontFamily = fontFamily.copy(baseFont = fontFamily.boldFont, italicFont = fontFamily.boldItalicFont)
-        positionY = drawMultiLineText(
-            title,
-            fontFamily = boldFontFamily,
-            fontSize = TITLE_SIZE,
-            lineWidth = headerWidth,
-            isHtml = hasHtmlClues,
-            initialPositionY = positionY,
-            nextFontSize = AUTHOR_SIZE,
-        )
-        val hasDescription = description.isNotBlank()
-        val nextFontSize = if (hasDescription) NOTES_SIZE else HEADER_CLUES_SPACING
-        positionY = drawMultiLineText(
-            creator,
-            fontFamily = fontFamily,
-            fontSize = AUTHOR_SIZE,
-            lineWidth = headerWidth,
-            isHtml = hasHtmlClues,
-            initialPositionY = positionY,
-            nextFontSize = nextFontSize
-        )
-        if (hasDescription) {
-            val italicFontFamily =
-                fontFamily.copy(baseFont = fontFamily.italicFont, boldFont = fontFamily.boldItalicFont)
+            // Header - title, creator, description.
+            val boldFontFamily = fontFamily.copy(baseFont = fontFamily.boldFont, italicFont = fontFamily.boldItalicFont)
             positionY = drawMultiLineText(
-                description,
-                fontFamily = italicFontFamily,
-                fontSize = NOTES_SIZE,
+                title,
+                fontFamily = boldFontFamily,
+                fontSize = TITLE_SIZE,
                 lineWidth = headerWidth,
                 isHtml = hasHtmlClues,
                 initialPositionY = positionY,
-                nextFontSize = HEADER_CLUES_SPACING
+                nextFontSize = AUTHOR_SIZE,
             )
-        }
-        endText()
+            val hasDescription = description.isNotBlank()
+            val nextFontSize = if (hasDescription) NOTES_SIZE else HEADER_CLUES_SPACING
+            positionY = drawMultiLineText(
+                creator,
+                fontFamily = fontFamily,
+                fontSize = AUTHOR_SIZE,
+                lineWidth = headerWidth,
+                isHtml = hasHtmlClues,
+                initialPositionY = positionY,
+                nextFontSize = nextFontSize
+            )
+            if (hasDescription) {
+                val italicFontFamily =
+                    fontFamily.copy(baseFont = fontFamily.italicFont, boldFont = fontFamily.boldItalicFont)
+                positionY = drawMultiLineText(
+                    description,
+                    fontFamily = italicFontFamily,
+                    fontSize = NOTES_SIZE,
+                    lineWidth = headerWidth,
+                    isHtml = hasHtmlClues,
+                    initialPositionY = positionY,
+                    nextFontSize = HEADER_CLUES_SPACING
+                )
+            }
+            endText()
 
-        // Grid
-        val drawGridResult = gridRenderer(
-            this,
-            grid,
-            blackSquareLightnessAdjustment,
-            gridWidth,
-            gridX,
-            gridY,
-            fontFamily,
-        )
+            // Grid
+            val drawGridResult = gridRenderer(
+                this,
+                grid,
+                blackSquareLightnessAdjustment,
+                gridWidth,
+                gridX,
+                gridY,
+                fontFamily,
+            )
 
-        // Clues
-        setFillColor(0f, 0f, 0f)
-        beginText()
-        newLineAtOffset(titleX, positionY)
+            // Clues
+            setFillColor(0f, 0f, 0f)
+            beginText()
+            newLineAtOffset(titleX, positionY)
 
-        // Try progressively smaller clue sizes until we find one small enough to fit every clue on one page.
-        setFont(fontFamily.baseFont, CLUE_TEXT_MAX_SIZE)
-        val bestTextSize = findBestFontSize(CLUE_TEXT_MIN_SIZE, CLUE_TEXT_MAX_SIZE) {
+            // Try progressively smaller clue sizes until we find one small enough to fit every clue on one page.
+            setFont(fontFamily.baseFont, CLUE_TEXT_MAX_SIZE)
+            val bestTextSize = findBestFontSize(CLUE_TEXT_MIN_SIZE, CLUE_TEXT_MAX_SIZE) {
+                showClueLists(
+                    puzzle = this@with,
+                    fontFamily = fontFamily,
+                    columnWidth = columnWidth,
+                    columns = columns,
+                    clueTopY = positionY,
+                    gridY = gridY,
+                    gridHeight = drawGridResult.gridHeight,
+                    clueTextSize = it,
+                    render = false
+                )
+            }
+            require(bestTextSize != null) {
+                "Clues do not fit on a single page"
+            }
             showClueLists(
-                puzzle = this@asPdf,
+                puzzle = this@with,
                 fontFamily = fontFamily,
                 columnWidth = columnWidth,
                 columns = columns,
                 clueTopY = positionY,
                 gridY = gridY,
                 gridHeight = drawGridResult.gridHeight,
-                clueTextSize = it,
-                render = false
+                clueTextSize = bestTextSize,
+                render = true
             )
-        }
-        require(bestTextSize != null) {
-            "Clues do not fit on a single page"
-        }
-        showClueLists(
-            puzzle = this@asPdf,
-            fontFamily = fontFamily,
-            columnWidth = columnWidth,
-            columns = columns,
-            clueTopY = positionY,
-            gridY = gridY,
-            gridHeight = drawGridResult.gridHeight,
-            clueTextSize = bestTextSize,
-            render = true
-        )
-        endText()
+            endText()
 
-        // Copyright
-        beginText()
-        newLineAtOffset(gridX + drawGridResult.bottomRowStartOffset, MARGIN)
-        setFont(fontFamily.baseFont, COPYRIGHT_SIZE)
-        drawText(copyright)
-        endText()
+            // Copyright
+            beginText()
+            newLineAtOffset(gridX + drawGridResult.bottomRowStartOffset, MARGIN)
+            setFont(fontFamily.baseFont, COPYRIGHT_SIZE)
+            drawText(copyright)
+            endText()
 
-        toByteArray()
+            toByteArray()
+        }
     }
 
     /** Default grid drawing function for [asPdf]. */

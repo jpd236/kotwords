@@ -15,9 +15,9 @@ class WorldOfCrosswords(
     private val year: Int,
     private val author: String,
     private val copyright: String
-) : Puzzleable {
+) : DelegatingPuzzleable() {
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun getPuzzleable(): Puzzleable {
         val data = JsonSerializer.fromJson<WorldOfCrosswordsJson>(json)
         if (!data.success) {
             throw InvalidFormatException("API failure")
@@ -56,7 +56,7 @@ class WorldOfCrosswords(
             acrossClues = buildClueMap(clueData.first),
             downClues = buildClueMap(clueData.second),
             hasHtmlClues = true,
-        ).asPuzzle()
+        )
     }
 
     private fun buildClueMap(clueData: List<JsonArray>): Map<Int, String> {

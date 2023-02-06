@@ -13,7 +13,7 @@ data class MarchingBands(
     val includeRowNumbers: Boolean,
     val lightBandColor: String,
     val darkBandColor: String,
-) : Puzzleable {
+) : Puzzleable() {
     init {
         val height = grid.size
         require(grid.count { it.size == height } == height) {
@@ -28,7 +28,7 @@ data class MarchingBands(
         }
     }
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun createPuzzle(): Puzzle {
         val puzzleGrid = grid.mapIndexed { y, row ->
             row.mapIndexed { x, ch ->
                 if (ch == null) {

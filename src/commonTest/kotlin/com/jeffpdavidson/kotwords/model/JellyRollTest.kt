@@ -1,7 +1,6 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
-import com.jeffpdavidson.kotwords.formats.Jpz.Companion.asJpzFile
 import com.jeffpdavidson.kotwords.readStringResource
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -29,7 +28,7 @@ class JellyRollTest {
 
         val expected = readStringResource(JellyRollTest::class, "jelly-roll/jelly-roll.jpz")
         assertEquals(
-            expected, puzzle.asJpzFile(
+            expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
                     selectedCellsColor = "#80ff80",
@@ -60,7 +59,7 @@ class JellyRollTest {
 
         val expected = readStringResource(JellyRollTest::class, "jelly-roll/jelly-roll-combined.jpz")
         assertEquals(
-            expected, puzzle.asJpzFile(
+            expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
                     selectedCellsColor = "#80ff80",
@@ -91,7 +90,7 @@ class JellyRollTest {
 
         val expected = readStringResource(JellyRollTest::class, "jelly-roll/jelly-roll-nonsquare.jpz")
         assertEquals(
-            expected, puzzle.asJpzFile(
+            expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
                     selectedCellsColor = "#80ff80",

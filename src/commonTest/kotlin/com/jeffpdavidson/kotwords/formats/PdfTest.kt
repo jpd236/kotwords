@@ -1,9 +1,7 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.formats.Pdf.asPdf
 import com.jeffpdavidson.kotwords.formats.Pdf.splitTextToLines
 import com.jeffpdavidson.kotwords.readBinaryResource
-import com.jeffpdavidson.kotwords.readStringResource
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -31,7 +29,7 @@ class PdfTest {
     fun asPdf_bgImages() = runTest {
         ImageComparator.assertPdfEquals(
             readBinaryResource(ImageComparator::class, "pdf/test-bgimage.pdf"),
-            Jpz.fromXmlString(readStringResource(PdfTest::class, "jpz/test-bgimage.jpz"))
+            JpzFile(readBinaryResource(PdfTest::class, "jpz/test-bgimage.jpz"))
                 .asPuzzle().asPdf(blackSquareLightnessAdjustment = 0.75f, fontFamily = getNotoSerifFontFamily())
         )
     }

@@ -13,9 +13,9 @@ class UclickXml(
     private val xml: String,
     private val date: Date,
     private val addDateToTitle: Boolean = true
-) : Puzzleable {
+) : DelegatingPuzzleable() {
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun getPuzzleable(): Puzzleable {
         val document = Xml.parse(xml)
 
         val category = Encodings.decodeUrl(document.selectFirst("Category")?.attr("v") ?: "")
@@ -58,7 +58,7 @@ class UclickXml(
             grid = grid,
             acrossClues = toClueMap(acrossClues),
             downClues = toClueMap(downClues)
-        ).asPuzzle()
+        )
     }
 
     private fun toClueMap(clues: Iterable<Element>): Map<Int, String> {

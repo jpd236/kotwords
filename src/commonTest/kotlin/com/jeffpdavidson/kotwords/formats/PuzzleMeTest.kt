@@ -1,6 +1,5 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.formats.AcrossLite.Companion.asAcrossLiteBinary
 import com.jeffpdavidson.kotwords.model.assertPuzzleEquals
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
@@ -116,7 +115,7 @@ class PuzzleMeTest {
     fun toPuzzle_bgImage() = runTest {
         val puzzleMe = PuzzleMe(readStringResource(PuzzleMeTest::class, "puzzleme/test-bgimage.json"))
         assertPuzzleEquals(
-            Jpz.fromXmlString(readStringResource(PuzzleMeTest::class, "jpz/test-bgimage.jpz")).asPuzzle(),
+            JpzFile(readBinaryResource(PuzzleMeTest::class, "jpz/test-bgimage.jpz")).asPuzzle(),
             puzzleMe.asPuzzle(),
         )
     }
@@ -125,7 +124,7 @@ class PuzzleMeTest {
     fun toCrossword_wordlens() = runTest {
         val puzzleMe = PuzzleMe(readStringResource(PuzzleMeTest::class, "puzzleme/test-wordlens.json"))
         assertPuzzleEquals(
-            Jpz.fromXmlString(readStringResource(PuzzleMeTest::class, "jpz/test-formats.jpz")).asPuzzle(),
+            JpzFile(readBinaryResource(PuzzleMeTest::class, "jpz/test-formats.jpz")).asPuzzle(),
             puzzleMe.asPuzzle(),
         )
     }
@@ -134,7 +133,7 @@ class PuzzleMeTest {
     fun toPuzzle_marchingBands() = runTest {
         val puzzleMe = PuzzleMe(readStringResource(PuzzleMeTest::class, "puzzleme/test-marchingBands.json"))
         assertPuzzleEquals(
-            Jpz.fromXmlString(readStringResource(PuzzleMeTest::class, "marching-bands/marching-bands.jpz")).asPuzzle(),
+            JpzFile(readBinaryResource(PuzzleMeTest::class, "marching-bands/marching-bands.jpz")).asPuzzle(),
             puzzleMe.asPuzzle().copy(completionMessage = "All done!"),
         )
     }
@@ -143,7 +142,7 @@ class PuzzleMeTest {
     fun toPuzzle_rowsGarden() = runTest {
         val puzzleMe = PuzzleMe(readStringResource(PuzzleMeTest::class, "puzzleme/test-rowsGarden.json"))
         assertPuzzleEquals(
-            Jpz.fromXmlString(readStringResource(PuzzleMeTest::class, "rows-garden/rows-garden.jpz")).asPuzzle(),
+            JpzFile(readBinaryResource(PuzzleMeTest::class, "rows-garden/rows-garden.jpz")).asPuzzle(),
             puzzleMe.asPuzzle().copy(completionMessage = "All done!"),
         )
     }

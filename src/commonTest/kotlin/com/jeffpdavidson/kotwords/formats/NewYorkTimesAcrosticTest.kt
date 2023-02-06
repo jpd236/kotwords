@@ -45,7 +45,7 @@ class NewYorkTimesAcrosticTest {
                 clues = listOf("Clue 1", "Clue 2"),
                 completionMessage = "\"Quote\" -Quote author, Source",
                 includeAttribution = true,
-            ), acrostic.asAcrostic()
+            ), acrostic.getPuzzleable()
         )
     }
 }

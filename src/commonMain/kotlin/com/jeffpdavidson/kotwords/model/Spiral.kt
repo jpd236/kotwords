@@ -12,7 +12,7 @@ data class Spiral(
     val outwardAnswers: List<String>,
     val outwardClues: List<String>,
     val inwardCellsInput: List<String> = listOf(),
-) : Puzzleable {
+) : Puzzleable() {
 
     private val inwardCells = inwardCellsInput.ifEmpty { inwardAnswers.joinToString("").chunked(1) }
     private val outwardCells = inwardCells.reversed()
@@ -32,7 +32,7 @@ data class Spiral(
         }
     }
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun createPuzzle(): Puzzle {
         val sideLength = SpiralGrid.getSideLength(inwardCells.size)
         val squareList = SpiralGrid.createSquareList(sideLength)
         val gridMap = squareList.mapIndexed { i, (x, y) ->

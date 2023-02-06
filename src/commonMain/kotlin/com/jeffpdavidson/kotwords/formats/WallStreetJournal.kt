@@ -13,9 +13,9 @@ private val PUBLISH_DATE_FORMAT = DateFormat("EEEE, dd MMMM yyyy")
 class WallStreetJournal(
     private val json: String,
     private val includeDateInTitle: Boolean = true
-) : Puzzleable {
+) : DelegatingPuzzleable() {
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun getPuzzleable(): Puzzleable {
         val response = JsonSerializer.fromJson<WallStreetJournalJson.CrosswordJson>(json)
         val grid = response.data.grid.map { row ->
             row.map { square ->
@@ -53,7 +53,7 @@ class WallStreetJournal(
             grid = grid,
             acrossClues = getClueMap(response, "Across"),
             downClues = getClueMap(response, "Down")
-        ).asPuzzle()
+        )
     }
 
     private fun getClueMap(response: WallStreetJournalJson.CrosswordJson, direction: String):

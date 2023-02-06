@@ -13,10 +13,10 @@ class UclickJpz(
     private val jpzXml: String,
     private val date: Date,
     private val addDateToTitle: Boolean = true
-) : Puzzleable {
+) : Puzzleable() {
 
-    override suspend fun asPuzzle(): Puzzle {
-        val puzzle = Jpz.fromXmlString(jpzXml, stripFormats = true).asPuzzle()
+    override suspend fun createPuzzle(): Puzzle {
+        val puzzle = JpzFile(jpzXml.encodeToByteArray(), stripFormats = true).asPuzzle()
 
         // Add date to title if provided.
         val rawTitle = puzzle.title

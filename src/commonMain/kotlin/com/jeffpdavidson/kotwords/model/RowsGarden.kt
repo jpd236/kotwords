@@ -20,11 +20,12 @@ data class RowsGarden(
     val darkBloomColor: String = "#5765F7",
     val addWordCount: Boolean = true,
     val addHyphenated: Boolean = true,
-) : Puzzleable {
+    val hasHtmlClues: Boolean = false,
+) : Puzzleable() {
     @Serializable
     data class Entry(val clue: String, val answer: String)
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun createPuzzle(): Puzzle {
         require(rows.size > 2) {
             "Must have at least 3 rows"
         }
@@ -163,10 +164,16 @@ data class RowsGarden(
             copyright = copyright,
             description = description,
             grid = grid,
-            clues = listOf(Puzzle.ClueList("Rows", rowClues), Puzzle.ClueList("Blooms", bloomClues)),
+            clues = listOf(
+                Puzzle.ClueList(getClueListTitle("Rows"), rowClues),
+                Puzzle.ClueList(getClueListTitle("Blooms"), bloomClues)
+            ),
             words = rowsWords + bloomsWords.sortedBy { it.id },
+            hasHtmlClues = hasHtmlClues,
         )
     }
+
+    private fun getClueListTitle(title: String): String = if (hasHtmlClues) "<b>$title</b>" else title
 
     private fun formatClue(
         entry: Entry,

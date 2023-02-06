@@ -12,7 +12,7 @@ data class HelterSkelter(
     val clues: List<String>,
     val answerVectors: List<AnswerVector> = listOf(),
     val extendToEdges: Boolean = false,
-) : Puzzleable {
+) : Puzzleable() {
 
     init {
         require(answers.size == clues.size) {
@@ -44,7 +44,7 @@ data class HelterSkelter(
         }
     }
 
-    override suspend fun asPuzzle(): Puzzle {
+    override suspend fun createPuzzle(): Puzzle {
         val vectors = getOrCalculateAnswerVectors()
         val numbers = mutableMapOf<Pair<Int, Int>, String>()
         vectors.forEachIndexed { i, vector ->
