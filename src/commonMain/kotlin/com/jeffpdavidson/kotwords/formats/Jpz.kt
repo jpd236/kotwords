@@ -333,11 +333,24 @@ sealed class Jpz : Puzzleable() {
          *                     inconsistently or unnecessarily (e.g. is just the total answer length for each clue).
          */
         fun fromXmlString(xml: String, stripFormats: Boolean = false): Jpz {
+            // Clean up invalid xmlns as saved by Xword.
+            val cleanedXml = if (
+                xml.contains("<crossword-compiler-applet") &&
+                xml.contains("xmlns=\"http://crossword.info/xml/crossword-compiler\"")
+            ) {
+                xml.replace(
+                    "xmlns=\"http://crossword.info/xml/crossword-compiler\"",
+                    "xmlns=\"http://crossword.info/xml/crossword-compiler-applet\""
+                )
+            } else {
+                xml
+            }
+
             // Try to parse as a <crossword-compiler-applet>; if it fails, fall back to <crossword-compiler>.
             val jpz = try {
-                getXmlSerializer().decodeFromString(CrosswordCompilerApplet.serializer(), xml)
+                getXmlSerializer().decodeFromString(CrosswordCompilerApplet.serializer(), cleanedXml)
             } catch (e: XmlException) {
-                getXmlSerializer().decodeFromString(CrosswordCompiler.serializer(), xml)
+                getXmlSerializer().decodeFromString(CrosswordCompiler.serializer(), cleanedXml)
             }
             if (!stripFormats || jpz.rectangularPuzzle.crossword == null) {
                 return jpz

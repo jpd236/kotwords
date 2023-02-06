@@ -64,6 +64,16 @@ class JpzTest {
     }
 
     @Test
+    fun crosswordWithInvalidNamespace() = runTest {
+        assertTrue(
+            readBinaryResource(JpzTest::class, "puz/test.puz").contentEquals(
+                JpzFile(readBinaryResource(JpzTest::class, "jpz/test-invalid-namespace.jpz"))
+                    .asPuzzle().asAcrossLiteBinary()
+            )
+        )
+    }
+
+    @Test
     fun crosswordWithClueGaps() = runTest {
         assertTrue(
             readBinaryResource(JpzTest::class, "puz/gaps.puz").contentEquals(
