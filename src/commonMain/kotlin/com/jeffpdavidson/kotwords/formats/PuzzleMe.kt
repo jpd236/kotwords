@@ -11,7 +11,7 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 private val PUZZLE_DATA_REGEX = """\bwindow\.(?:puzzleEnv\.)?rawc\s*=\s*'([^']+)'""".toRegex()
-private val KEY_REGEX = """var [a-zA-Z]+\s*=\s*"([a-z\d]+)"""".toRegex()
+private val KEY_REGEX = """var [a-zA-Z]+\s*=\s*"([0-9a-f]{7,})"""".toRegex()
 
 private val ROWS_REGEX = """Row \d+: """.toRegex(RegexOption.IGNORE_CASE)
 private val BANDS_REGEX = """[^:]*band: """.toRegex(RegexOption.IGNORE_CASE)
@@ -178,8 +178,8 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
     companion object {
         fun fromHtml(html: String): PuzzleMe = PuzzleMe(extractPuzzleJson(html))
 
-        fun fromRawc(rawc: String, onReadyFn: String = ""): PuzzleMe =
-            PuzzleMe(decodeRawcFromOnReadyFn(rawc, onReadyFn))
+        fun fromRawc(rawc: String, crosswordJs: String = ""): PuzzleMe =
+            PuzzleMe(decodeRawcWithCrosswordJs(rawc, crosswordJs))
 
         internal fun extractPuzzleJson(html: String): String {
             return decodeRawc(extractRawc(html))
@@ -220,10 +220,10 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
             return buffer.joinToString("")
         }
 
-        internal fun decodeRawcFromOnReadyFn(rawc: String, onReadyFn: String): String {
-            if (!rawc.contains('.') && onReadyFn.isNotEmpty()) {
-                // Try to find the key variable in the onReady function.
-                KEY_REGEX.findAll(onReadyFn).forEach { matchResult ->
+        internal fun decodeRawcWithCrosswordJs(rawc: String, crosswordJs: String): String {
+            if (!rawc.contains('.') && crosswordJs.isNotEmpty()) {
+                // Try to find the key variable in the Javascript.
+                KEY_REGEX.findAll(crosswordJs).forEach { matchResult ->
                     val decodedRawc = try {
                         decodeRawc(rawc, matchResult.groupValues[1])
                     } catch (e: InvalidFormatException) {

@@ -38,7 +38,7 @@ class PuzzleMeTest {
         val key = rawcParts[1].reversed()
         assertEquals(
             readStringResource(PuzzleMeTest::class, "puzzleme/test.json").replace("\r\n", "\n"),
-            PuzzleMe.decodeRawcFromOnReadyFn(rawc, """function(){function a(){var x="$key";}}""")
+            PuzzleMe.decodeRawcWithCrosswordJs(rawc, """function(){function a(){var x="$key";}}""")
         )
     }
 
