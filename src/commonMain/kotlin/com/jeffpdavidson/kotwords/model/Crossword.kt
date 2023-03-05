@@ -19,6 +19,7 @@ import com.jeffpdavidson.kotwords.formats.Puzzleable
  * @param acrossClues Mapping from across clue number to the clue for that number.
  * @param downClues Mapping from down clue number to the clue for that number.
  * @param hasHtmlClues Whether clue contents are in HTML.
+ * @param diagramless Indication that the puzzle is intended to be solved a diagramless puzzle.
  */
 data class Crossword(
     val title: String,
@@ -29,6 +30,7 @@ data class Crossword(
     val acrossClues: Map<Int, String>,
     val downClues: Map<Int, String>,
     val hasHtmlClues: Boolean = false,
+    val diagramless: Boolean = false,
 ) : Puzzleable() {
     init {
         // Validate that grid is a rectangle.
@@ -100,6 +102,7 @@ data class Crossword(
             listOf(Puzzle.ClueList(acrossTitle, acrossPuzzleClues), Puzzle.ClueList(downTitle, downPuzzleClues)),
             words.sortedBy { it.id },
             hasHtmlClues = hasHtmlClues,
+            diagramless = diagramless,
         )
     }
 

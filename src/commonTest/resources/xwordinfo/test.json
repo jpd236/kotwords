@@ -1,0 +1,80 @@
+{
+  "title": "Example Puzzle for Kotwords",
+  "author": "Jeff Davidson",
+  "copyright": "2018 Jeff Davidson",
+  "notepad": "Notepad text goes here.",
+  "size": {
+    "rows": 5,
+    "cols": 5
+  },
+  "grid": [
+    "A",
+    "B",
+    "C",
+    "D",
+    ".",
+    "E",
+    "F",
+    "G",
+    "H",
+    ".",
+    "I",
+    "J",
+    "XYZ",
+    "L",
+    "M",
+    ".",
+    "N",
+    "O",
+    "P",
+    "Q",
+    ".",
+    "1",
+    "2",
+    "$",
+    "@"
+  ],
+  "circles": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "clues": {
+    "across": [
+      "1. First across clue with special characters &#945;&#946;&#947;&#948;&#949;",
+      "5. Second across clue",
+      "6. Third across clue",
+      "8. Fourth across clue",
+      "9. Fifth across clue"
+    ],
+    "down": [
+      "1. First down clue",
+      "2. Second down clue",
+      "3. Third down clue",
+      "4. Fourth down clue",
+      "7. Fifth down clue"
+    ]
+  }
+}

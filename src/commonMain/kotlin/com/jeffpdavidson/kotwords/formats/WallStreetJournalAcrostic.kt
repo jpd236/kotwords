@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.formats.Encodings.decodeHtmlEntities
 import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.formats.json.WallStreetJournalJson
 import com.jeffpdavidson.kotwords.model.Acrostic
@@ -21,28 +22,22 @@ class WallStreetJournalAcrostic(private val json: String) : DelegatingPuzzleable
                 val wordKey = gridKey.getOrPut(cellId) { mutableMapOf() }
                 wordKey[clueId] = gridIndex + 1
             }
-        val publishDate = response.copy.datePublish.unescapeEntities()
-        val title = response.copy.title.unescapeEntities()
+        val publishDate = decodeHtmlEntities(response.copy.datePublish)
+        val title = decodeHtmlEntities(response.copy.title)
         val date = PUBLISH_DATE_FORMAT.parse(publishDate)
         return Acrostic(
             title = title,
-            creator = response.copy.byline.unescapeEntities(),
-            copyright = "\u00a9 ${date.yearInt} ${response.copy.publisher.unescapeEntities()}",
+            creator = decodeHtmlEntities(response.copy.byline),
+            copyright = "\u00a9 ${date.yearInt} ${decodeHtmlEntities(response.copy.publisher)}",
             description = "",
             suggestedWidth = response.copy.gridsize.cols,
             solution = response.settings.solution,
             gridKey = gridKey.keys.sorted().map { wordKey ->
                 gridKey[wordKey]!!.entries.sortedBy { it.key }.map { it.value }
             },
-            clues = response.settings.clues.map { it.clue.unescapeEntities() },
-            completionMessage = response.copy.description.unescapeEntities(),
+            clues = response.settings.clues.map { decodeHtmlEntities(it.clue) },
+            completionMessage = decodeHtmlEntities(response.copy.description),
             includeAttribution = true,
         )
-    }
-
-    companion object {
-        private fun String.unescapeEntities(): String {
-            return Encodings.decodeHtmlEntities(this)
-        }
     }
 }

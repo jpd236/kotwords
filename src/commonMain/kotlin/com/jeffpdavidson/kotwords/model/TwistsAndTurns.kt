@@ -124,7 +124,7 @@ data class TwistsAndTurns(
 
     private fun drawGrid(
         document: PdfDocument,
-        grid: List<List<Puzzle.Cell>>,
+        puzzle: Puzzle,
         blackSquareLightnessAdjustment: Float,
         gridWidth: Float,
         gridX: Float,
@@ -148,7 +148,7 @@ data class TwistsAndTurns(
         val adjustedGridWidth = gridWidth - leftPadding - rightPadding
         val drawGridResult = Pdf.drawGrid(
             document = document,
-            grid = grid,
+            puzzle = puzzle,
             blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
             gridWidth = adjustedGridWidth,
             gridX = gridX + leftPadding,

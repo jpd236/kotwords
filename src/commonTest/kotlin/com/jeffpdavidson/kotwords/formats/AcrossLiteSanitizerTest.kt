@@ -131,7 +131,7 @@ class AcrossLiteSanitizerTest {
     @Test
     fun sanitizeClue_atLengthLimit() {
         val givenClue = "A".repeat(505)
-        assertEquals(givenClue, AcrossLiteSanitizer.sanitizeClue(givenClue,  mapOf(), true))
+        assertEquals(givenClue, AcrossLiteSanitizer.sanitizeClue(givenClue, mapOf(), true))
     }
 
     @Test

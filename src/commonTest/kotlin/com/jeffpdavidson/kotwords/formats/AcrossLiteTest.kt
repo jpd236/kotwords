@@ -13,6 +13,12 @@ class AcrossLiteTest {
     }
 
     @Test
+    fun readAndWrite_diagramless() = runTest {
+        val data = readBinaryResource(AcrossLiteTest::class, "puz/test-diagramless.puz")
+        assertTrue(data.contentEquals(AcrossLite(data).asPuzzle().asAcrossLiteBinary()))
+    }
+
+    @Test
     fun readAndWrite_notesCirclesRebusUtf8() = runTest {
         val data = readBinaryResource(AcrossLiteTest::class, "puz/test.puz")
         assertTrue(data.contentEquals(AcrossLite(data).asPuzzle().asAcrossLiteBinary()))

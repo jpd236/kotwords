@@ -92,7 +92,7 @@ abstract class Puzzleable {
         blackSquareLightnessAdjustment: Float = 0f,
         gridRenderer: (
             document: PdfDocument,
-            grid: List<List<Puzzle.Cell>>,
+            puzzle: Puzzle,
             blackSquareLightnessAdjustment: Float,
             gridWidth: Float,
             gridX: Float,
@@ -122,7 +122,7 @@ abstract class DelegatingPuzzleable : Puzzleable() {
         blackSquareLightnessAdjustment: Float,
         gridRenderer: (
             document: PdfDocument,
-            grid: List<List<Puzzle.Cell>>,
+            puzzle: Puzzle,
             blackSquareLightnessAdjustment: Float,
             gridWidth: Float,
             gridX: Float,

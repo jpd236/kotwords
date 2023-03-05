@@ -95,7 +95,7 @@ object Pdf {
         blackSquareLightnessAdjustment: Float,
         gridRenderer: (
             document: PdfDocument,
-            grid: List<List<Puzzle.Cell>>,
+            puzzle: Puzzle,
             blackSquareLightnessAdjustment: Float,
             gridWidth: Float,
             gridX: Float,
@@ -161,7 +161,7 @@ object Pdf {
             // Grid
             val drawGridResult = gridRenderer(
                 this,
-                grid,
+                puzzle,
                 blackSquareLightnessAdjustment,
                 gridWidth,
                 gridX,
@@ -219,13 +219,14 @@ object Pdf {
     /** Default grid drawing function for [asPdf]. */
     fun drawGrid(
         document: PdfDocument,
-        grid: List<List<Puzzle.Cell>>,
+        puzzle: Puzzle,
         blackSquareLightnessAdjustment: Float,
         gridWidth: Float,
         gridX: Float,
         gridY: Float,
         fontFamily: PdfFontFamily,
     ): DrawGridResult = document.run {
+        val grid = puzzle.grid
         val gridRows = grid.size
         val gridCols = grid.maxOf { it.size }
         val gridSquareSize = gridWidth / gridCols
@@ -245,7 +246,7 @@ object Pdf {
                 val backgroundColor = when {
                     square.backgroundColor.isNotBlank() ->
                         getAdjustedColor(RGB(square.backgroundColor), blackSquareLightnessAdjustment)
-                    square.cellType == Puzzle.CellType.BLOCK -> gridBlackColor
+                    square.cellType == Puzzle.CellType.BLOCK && !puzzle.diagramless -> gridBlackColor
                     else -> RGB("#ffffff")
                 }
                 setFillColor(backgroundColor.r, backgroundColor.g, backgroundColor.b)

@@ -16,6 +16,7 @@ data class Puzzle(
     val completionMessage: String = "",
     val puzzleType: PuzzleType = PuzzleType.CROSSWORD,
     val hasUnsupportedFeatures: Boolean = false,
+    val diagramless: Boolean = false,
 ) : Puzzleable() {
 
     enum class CellType {

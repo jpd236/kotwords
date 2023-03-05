@@ -10,6 +10,10 @@ import okio.use
 private const val FILE_MAGIC = "ACROSS&DOWN"
 private const val FORMAT_VERSION = "1.4"
 private const val UTF8_FORMAT_VERSION = "2.0"
+
+private const val TYPE_NORMAL = 0x0001
+private const val TYPE_DIAGRAMLESS = 0x0401
+
 private val validSymbolRegex = "[@#$%&+?A-Z0-9]".toRegex()
 
 /**
@@ -62,7 +66,11 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
             val width = readByte()
             val height = readByte()
 
-            skip(6)
+            skip(2)
+
+            val diagramless = readShortLe().toInt() == TYPE_DIAGRAMLESS
+
+            skip(2)
 
             val solutions = readString(length = width * height, charset = Charset.CP_1252)
             val entries = readString(length = width * height, charset = Charset.CP_1252)
@@ -179,6 +187,7 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
                 acrossClues = acrossClues,
                 downClues = downClues,
                 grid = grid,
+                diagramless = diagramless,
             )
         }
     }
@@ -297,7 +306,7 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
                 writeShortLe(clueCount)
 
                 // 0x30-0x31: puzzle type (normal vs. diagramless)
-                writeShortLe(1)
+                writeShortLe(if (diagramless) TYPE_DIAGRAMLESS else TYPE_NORMAL)
 
                 // 0x32-0x33: scrambled tag (unscrambled vs. scrambled vs. no solution)
                 writeShortLe(0)
