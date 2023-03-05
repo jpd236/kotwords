@@ -268,7 +268,7 @@ object Pdf {
                         stroke()
                     }
 
-                    if (square.number.isNotBlank()) {
+                    if (square.number.isNotBlank() && !puzzle.diagramless) {
                         drawSquareNumber(
                             x = gridX + x * gridSquareSize + GRID_NUMBER_X_OFFSET,
                             y = gridY + gridHeight - y * gridSquareSize - gridNumberSize,
