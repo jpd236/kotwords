@@ -44,8 +44,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
                 implementation("net.mamoe.yamlkt:yamlkt:0.12.0")
-                // TODO: Migrate to 0.84.3+ once https://github.com/pdvrieze/xmlutil/issues/119 is fixed.
-                implementation("io.github.pdvrieze.xmlutil:serialization:0.84.2")
+                implementation("io.github.pdvrieze.xmlutil:serialization:0.85.0")
                 implementation("com.github.ajalt.colormath:colormath:3.2.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
