@@ -16,7 +16,7 @@ import kotlinx.html.div
 import kotlinx.html.dom.append
 import kotlinx.html.p
 
-/** Form to convert Rows Garden puzzles into JPZ files. */
+/** Form to convert Rows Garden puzzles into digital puzzle files. */
 @JsExport
 @KotwordsInternal
 class RowsGardenForm {

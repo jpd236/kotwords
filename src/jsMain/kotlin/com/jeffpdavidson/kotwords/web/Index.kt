@@ -34,7 +34,7 @@ object Index {
         Html.renderPage {
             append {
                 p {
-                    +"Share digital versions of variety puzzles by generating JPZ files for use in "
+                    +"Generate digital, solvable versions of variety puzzles for use in "
                     a {
                         href = "https://mrichards42.github.io/xword/"
                         target = "_blank"

@@ -47,7 +47,7 @@ internal object SpiralGrid {
 
         fun move(point: Pair<Int, Int>): Pair<Int, Int> = point.first + offset.first to point.second + offset.second
 
-        fun rotate(): Direction = when(this) {
+        fun rotate(): Direction = when (this) {
             EAST -> SOUTH
             SOUTH -> WEST
             WEST -> NORTH

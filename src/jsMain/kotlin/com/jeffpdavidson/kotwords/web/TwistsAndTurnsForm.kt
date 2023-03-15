@@ -10,7 +10,7 @@ import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 import kotlinx.html.InputType
 import kotlinx.html.div
 
-/** Form to convert Twists and Turns puzzles into digital files. */
+/** Form to convert Twists and Turns puzzles into digital puzzle files. */
 @JsExport
 @KotwordsInternal
 class TwistsAndTurnsForm {

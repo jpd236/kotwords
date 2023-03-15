@@ -30,7 +30,7 @@ class LabyrinthTest {
         )
         val puzzle = labyrinth.asPuzzle()
 
-        val expected = readStringResource(LabyrinthTest::class, "labyrinth.jpz")
+        val expected = readStringResource(LabyrinthTest::class, "labyrinth/labyrinth.jpz")
         assertEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(

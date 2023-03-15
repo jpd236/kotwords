@@ -29,7 +29,7 @@ class AroundTheBendTest {
         )
         val puzzle = aroundTheBend.asPuzzle()
 
-        val expected = readStringResource(AroundTheBendTest::class, "around-the-bend.jpz")
+        val expected = readStringResource(AroundTheBendTest::class, "around-the-bend/around-the-bend.jpz")
         assertEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(

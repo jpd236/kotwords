@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 class TwistsAndTurnsTest {
     @Test
     fun jpzGeneration() = runTest {
-        val expected = readStringResource(TwistsAndTurnsTest::class, "twists-and-turns.jpz")
+        val expected = readStringResource(TwistsAndTurnsTest::class, "twists-and-turns/twists-and-turns.jpz")
         assertEquals(
             expected, puzzle.asPuzzle().asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(

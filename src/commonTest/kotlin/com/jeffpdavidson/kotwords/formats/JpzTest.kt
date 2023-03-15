@@ -130,7 +130,7 @@ class JpzTest {
     fun puzzleConversion_acrostic() = runTest { assertConversionIsEqual("acrostic/acrostic-attribution.jpz") }
 
     @Test
-    fun puzzleConversion_aroundTheBend() = runTest { assertConversionIsEqual("around-the-bend.jpz") }
+    fun puzzleConversion_aroundTheBend() = runTest { assertConversionIsEqual("around-the-bend/around-the-bend.jpz") }
 
     @Test
     fun puzzleConversion_crossword() = runTest { assertConversionIsEqual("jpz/test.jpz") }
@@ -148,7 +148,7 @@ class JpzTest {
     fun puzzleConversion_jellyRoll() = runTest { assertConversionIsEqual("jelly-roll/jelly-roll.jpz") }
 
     @Test
-    fun puzzleConversion_labyrinth() = runTest { assertConversionIsEqual("labyrinth.jpz") }
+    fun puzzleConversion_labyrinth() = runTest { assertConversionIsEqual("labyrinth/labyrinth.jpz") }
 
     @Test
     fun puzzleConversion_marchingBands() = runTest { assertConversionIsEqual("marching-bands/marching-bands.jpz") }
@@ -157,16 +157,16 @@ class JpzTest {
     fun puzzleConversion_rowsGarden() = runTest { assertConversionIsEqual("rows-garden/rows-garden.jpz") }
 
     @Test
-    fun puzzleConversion_snakeCharmer() = runTest { assertConversionIsEqual("snake-charmer.jpz") }
+    fun puzzleConversion_snakeCharmer() = runTest { assertConversionIsEqual("snake-charmer/snake-charmer.jpz") }
 
     @Test
-    fun puzzleConversion_spellWeaving() = runTest { assertConversionIsEqual("spell-weaving.jpz") }
+    fun puzzleConversion_spellWeaving() = runTest { assertConversionIsEqual("spell-weaving/spell-weaving.jpz") }
 
     @Test
     fun puzzleConversion_spiral() = runTest { assertConversionIsEqual("spiral/spiral.jpz") }
 
     @Test
-    fun puzzleConversion_twistsAndTurns() = runTest { assertConversionIsEqual("twists-and-turns.jpz") }
+    fun puzzleConversion_twistsAndTurns() = runTest { assertConversionIsEqual("twists-and-turns/twists-and-turns.jpz") }
 
     @Test
     fun puzzleConversion_twoTone() = runTest { assertConversionIsEqual("two-tone/two-tone.jpz") }

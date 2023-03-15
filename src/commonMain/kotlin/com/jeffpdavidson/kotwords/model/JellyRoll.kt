@@ -34,10 +34,10 @@ data class JellyRoll(
             "Dark square answers do not match the jelly roll answers"
         }
         if (dimensions.first > 0 || dimensions.second > 0) {
-            require (dimensions.first > 0 && dimensions.second > 0) {
+            require(dimensions.first > 0 && dimensions.second > 0) {
                 "Either neither or both of width and height must be specified"
             }
-            require (dimensions.first * dimensions.second >= jellyRollAnswers.sumOf { it.length }) {
+            require(dimensions.first * dimensions.second >= jellyRollAnswers.sumOf { it.length }) {
                 "Grid size not large enough to fit all cells"
             }
         }

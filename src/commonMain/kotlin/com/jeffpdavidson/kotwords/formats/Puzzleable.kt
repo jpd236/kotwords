@@ -73,6 +73,10 @@ abstract class Puzzleable {
         return asJpz(solved).toCompressedFile()
     }
 
+    open suspend fun asIpuzFile(solved: Boolean = false): ByteArray {
+        return Ipuz.asIpuzJson(asPuzzle(), solved).toJsonString().encodeToByteArray()
+    }
+
     /**
      * Return the data as a PDF.
      *

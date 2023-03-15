@@ -20,7 +20,7 @@ class SnakeCharmerTest {
         )
         val puzzle = snakeCharmer.asPuzzle()
 
-        val expected = readStringResource(SnakeCharmerTest::class, "snake-charmer.jpz")
+        val expected = readStringResource(SnakeCharmerTest::class, "snake-charmer/snake-charmer.jpz")
         assertEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(

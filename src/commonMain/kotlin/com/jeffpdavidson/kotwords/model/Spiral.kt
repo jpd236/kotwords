@@ -32,10 +32,10 @@ data class Spiral(
             "Different number of outward clues (${outwardClues.size}) than answers (${outwardAnswers.size})"
         }
         if (dimensions.first > 0 || dimensions.second > 0) {
-            require (dimensions.first > 0 && dimensions.second > 0) {
+            require(dimensions.first > 0 && dimensions.second > 0) {
                 "Either neither or both of width and height must be specified"
             }
-            require (dimensions.first * dimensions.second >= inwardCells.size) {
+            require(dimensions.first * dimensions.second >= inwardCells.size) {
                 "Grid size not large enough to fit all cells"
             }
         }

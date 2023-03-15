@@ -19,7 +19,7 @@ class SpellWeavingTest {
         )
         val puzzle = spellWeaving.asPuzzle()
 
-        val expected = readStringResource(SpellWeavingTest::class, "spell-weaving.jpz")
+        val expected = readStringResource(SpellWeavingTest::class, "spell-weaving/spell-weaving.jpz")
         assertEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(

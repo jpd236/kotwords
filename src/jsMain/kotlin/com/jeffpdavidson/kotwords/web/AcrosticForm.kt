@@ -17,7 +17,7 @@ import kotlinx.html.dom.append
 import kotlinx.html.role
 import kotlinx.html.strong
 
-/** Form to convert Acrostic puzzles into JPZ files. */
+/** Form to convert Acrostic puzzles into digital puzzle files. */
 @JsExport
 @KotwordsInternal
 class AcrosticForm {
@@ -26,6 +26,8 @@ class AcrosticForm {
         ::createPuzzleFromManualEntry,
         id = "manual-entry",
         includeCompletionMessage = false,
+        // TODO: Remove once Ipuz supports Acrostics.
+        supportsIpuz = false,
     )
     private val suggestedWidth: FormFields.InputField = FormFields.InputField("suggested-width")
     private val solution: FormFields.TextBoxField = FormFields.TextBoxField("solution")
@@ -44,6 +46,8 @@ class AcrosticForm {
         completionMessageHelpText = "If blank, will be generated from the quote and source.",
         enableSaveData = false,
         enableMetadataInput = false,
+        // TODO: Remove once Ipuz supports Acrostics.
+        supportsIpuz = false,
     )
     private val file: FormFields.FileField = FormFields.FileField("file")
     private val apzFileIncludeAttribution: FormFields.CheckBoxField =

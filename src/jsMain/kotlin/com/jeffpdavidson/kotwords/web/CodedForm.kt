@@ -9,11 +9,11 @@ import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
 import kotlinx.html.classes
 
-/** Form to convert Coded puzzles into JPZ files. */
+/** Form to convert Coded puzzles into digital puzzle files. */
 @JsExport
 @KotwordsInternal
 class CodedForm {
-    private val form = PuzzleFileForm("coded", ::createPuzzle)
+    private val form = PuzzleFileForm("coded", ::createPuzzle, supportsIpuz = false)
     private val grid: FormFields.TextBoxField = FormFields.TextBoxField("grid")
     private val assignments: FormFields.InputField = FormFields.InputField("assignments")
     private val givens: FormFields.InputField = FormFields.InputField("givens")

@@ -7,9 +7,7 @@ import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 import kotlinx.html.InputType
-import kotlinx.html.classes
 import kotlinx.html.div
-import kotlinx.html.small
 
 @JsExport
 @KotwordsInternal

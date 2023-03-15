@@ -32,10 +32,10 @@ data class TwoTone(
             "Even square answers do not match the even squares of the all squares answers"
         }
         if (dimensions.first > 0 || dimensions.second > 0) {
-            require (dimensions.first > 0 && dimensions.second > 0) {
+            require(dimensions.first > 0 && dimensions.second > 0) {
                 "Either neither or both of width and height must be specified"
             }
-            require (dimensions.first * dimensions.second >= allSquaresAnswers.sumOf { it.length }) {
+            require(dimensions.first * dimensions.second >= allSquaresAnswers.sumOf { it.length }) {
                 "Grid size not large enough to fit all cells"
             }
         }
