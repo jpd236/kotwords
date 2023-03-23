@@ -3,9 +3,7 @@ package com.jeffpdavidson.kotwords.formats
 import com.jeffpdavidson.kotwords.model.Acrostic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.core.XmlVersion
-import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
@@ -56,10 +54,8 @@ data class Apz(
 
     companion object {
         fun fromXmlString(apzContents: String): Apz {
-            @OptIn(ExperimentalXmlUtilApi::class)
             return XML {
-                // Ignore unknown elements
-                unknownChildHandler = UnknownChildHandler { _, _, _, _, _ -> listOf() }
+                defaultPolicy { ignoreUnknownChildren() }
                 xmlVersion = XmlVersion.XML10
             }.decodeFromString(serializer(), apzContents)
         }
