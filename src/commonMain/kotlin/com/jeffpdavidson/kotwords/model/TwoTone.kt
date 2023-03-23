@@ -15,6 +15,7 @@ data class TwoTone(
     val evenSquaresClues: List<String>,
     val oddSquareBackgroundColor: String,
     val evenSquareBackgroundColor: String,
+    val dimensions: Pair<Int, Int> = 0 to 0,
 ) : Puzzleable() {
 
     init {
@@ -30,6 +31,14 @@ data class TwoTone(
         require(evenSquaresAnswers.joinToString("") == splitAnswers[1]) {
             "Even square answers do not match the even squares of the all squares answers"
         }
+        if (dimensions.first > 0 || dimensions.second > 0) {
+            require (dimensions.first > 0 && dimensions.second > 0) {
+                "Either neither or both of width and height must be specified"
+            }
+            require (dimensions.first * dimensions.second >= allSquaresAnswers.sumOf { it.length }) {
+                "Grid size not large enough to fit all cells"
+            }
+        }
     }
 
     override suspend fun createPuzzle(): Puzzle {
@@ -44,8 +53,13 @@ data class TwoTone(
         addNumberedSquares(oddSquaresAnswers, 0, true)
         addNumberedSquares(evenSquaresAnswers, 1, true)
 
-        val sideLength = SpiralGrid.getSideLength(allSquaresAnswers.sumOf { it.length })
-        val squareList = SpiralGrid.createSquareList(sideLength)
+        val (width, height) = if (dimensions.first > 0 || dimensions.second > 0) {
+            dimensions
+        } else {
+            val sideLength = SpiralGrid.getSideLength(allSquaresAnswers.sumOf { it.length })
+            sideLength to sideLength
+        }
+        val squareList = SpiralGrid.createSquareList(width, height)
         val letters = allSquaresAnswers.joinToString("")
         var currentNumber = 1
         val gridMap = squareList.mapIndexed { i, (x, y) ->
@@ -61,8 +75,8 @@ data class TwoTone(
                         Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                     }
         }.toMap()
-        val grid = (0 until sideLength).map { y ->
-            (0 until sideLength).map { x ->
+        val grid = (0 until height).map { y ->
+            (0 until width).map { x ->
                 gridMap[x to y] ?: throw IllegalStateException()
             }
         }

@@ -34,7 +34,7 @@ class SpiralTest {
     }
 
     @Test
-    fun jpzGeneration_nonSquare() = runTest {
+    fun jpzGeneration_nonPerfectSquare() = runTest {
         val spiral = Spiral(
             title = "Test title",
             creator = "Test creator",
@@ -48,6 +48,33 @@ class SpiralTest {
         val puzzle = spiral.asPuzzle()
 
         val expected = readStringResource(SpiralTest::class, "spiral/spiral-nonsquare.jpz")
+        assertEquals(
+            expected, puzzle.asJpz(
+                appletSettings = CrosswordCompilerApplet.AppletSettings(
+                    cursorColor = "#00b100",
+                    selectedCellsColor = "#80ff80",
+                    completion = CrosswordCompilerApplet.AppletSettings.Completion(message = "All done!"),
+                )
+            ).toXmlString()
+        )
+    }
+
+    @Test
+    fun jpzGeneration_rectangle() = runTest {
+        val spiral = Spiral(
+            title = "Test title",
+            creator = "Test creator",
+            copyright = "Test copyright",
+            description = "Test description",
+            inwardAnswers = listOf("ABCDE", "FGH"),
+            inwardClues = listOf("Clue 1", "Clue 2"),
+            outwardAnswers = listOf("HG", "FED", "CBA"),
+            outwardClues = listOf("Clue 1", "Clue 2", "Clue 3"),
+            dimensions = 4 to 3,
+        )
+        val puzzle = spiral.asPuzzle()
+
+        val expected = readStringResource(SpiralTest::class, "spiral/spiral-rectangular.jpz")
         assertEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(

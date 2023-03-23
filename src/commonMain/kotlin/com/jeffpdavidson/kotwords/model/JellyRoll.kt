@@ -17,6 +17,7 @@ data class JellyRoll(
     val lightSquareBackgroundColor: String,
     val darkSquareBackgroundColor: String,
     val combineJellyRollClues: Boolean,
+    val dimensions: Pair<Int, Int> = 0 to 0,
 ) : Puzzleable() {
 
     init {
@@ -31,6 +32,14 @@ data class JellyRoll(
         }
         require(darkSquaresAnswers.joinToString("") == splitAnswers[1]) {
             "Dark square answers do not match the jelly roll answers"
+        }
+        if (dimensions.first > 0 || dimensions.second > 0) {
+            require (dimensions.first > 0 && dimensions.second > 0) {
+                "Either neither or both of width and height must be specified"
+            }
+            require (dimensions.first * dimensions.second >= jellyRollAnswers.sumOf { it.length }) {
+                "Grid size not large enough to fit all cells"
+            }
         }
     }
 
@@ -56,8 +65,13 @@ data class JellyRoll(
         addNumberedSquares(lightSquaresAnswers, 0, LIGHT_SQUARE_MODULOS)
         addNumberedSquares(darkSquaresAnswers, 1, DARK_SQUARE_MODULOS)
 
-        val sideLength = SpiralGrid.getSideLength(jellyRollAnswers.sumOf { it.length })
-        val squareList = SpiralGrid.createSquareList(sideLength)
+        val (width, height) = if (dimensions.first > 0 || dimensions.second > 0) {
+            dimensions
+        } else {
+            val sideLength = SpiralGrid.getSideLength(jellyRollAnswers.sumOf { it.length })
+            sideLength to sideLength
+        }
+        val squareList = SpiralGrid.createSquareList(width, height)
         val letters = jellyRollAnswers.joinToString("")
         var currentNumber = 1
         val gridMap = squareList.mapIndexed { i, (x, y) ->
@@ -78,8 +92,8 @@ data class JellyRoll(
                         Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                     }
         }.toMap()
-        val grid = (0 until sideLength).map { y ->
-            (0 until sideLength).map { x ->
+        val grid = (0 until height).map { y ->
+            (0 until width).map { x ->
                 gridMap[x to y] ?: throw IllegalStateException()
             }
         }

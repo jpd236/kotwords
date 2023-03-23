@@ -12,6 +12,7 @@ data class Spiral(
     val outwardAnswers: List<String>,
     val outwardClues: List<String>,
     val inwardCellsInput: List<String> = listOf(),
+    val dimensions: Pair<Int, Int> = 0 to 0,
 ) : Puzzleable() {
 
     private val inwardCells = inwardCellsInput.ifEmpty { inwardAnswers.joinToString("").chunked(1) }
@@ -30,11 +31,24 @@ data class Spiral(
         require(outwardClues.size == outwardAnswers.size) {
             "Different number of outward clues (${outwardClues.size}) than answers (${outwardAnswers.size})"
         }
+        if (dimensions.first > 0 || dimensions.second > 0) {
+            require (dimensions.first > 0 && dimensions.second > 0) {
+                "Either neither or both of width and height must be specified"
+            }
+            require (dimensions.first * dimensions.second >= inwardCells.size) {
+                "Grid size not large enough to fit all cells"
+            }
+        }
     }
 
     override suspend fun createPuzzle(): Puzzle {
-        val sideLength = SpiralGrid.getSideLength(inwardCells.size)
-        val squareList = SpiralGrid.createSquareList(sideLength)
+        val (width, height) = if (dimensions.first > 0 || dimensions.second > 0) {
+            dimensions
+        } else {
+            val sideLength = SpiralGrid.getSideLength(inwardCells.size)
+            sideLength to sideLength
+        }
+        val squareList = SpiralGrid.createSquareList(width, height)
         val gridMap = squareList.mapIndexed { i, (x, y) ->
             (x to y) to
                     if (i < inwardCells.size) {
@@ -47,8 +61,8 @@ data class Spiral(
                         Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                     }
         }.toMap()
-        val grid = (0 until sideLength).map { y ->
-            (0 until sideLength).map { x ->
+        val grid = (0 until height).map { y ->
+            (0 until width).map { x ->
                 gridMap[x to y] ?: throw IllegalStateException()
             }
         }

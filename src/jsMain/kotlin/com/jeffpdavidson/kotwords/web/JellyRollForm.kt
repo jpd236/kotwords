@@ -22,6 +22,8 @@ class JellyRollForm {
     private val darkSquaresClues: FormFields.TextBoxField = FormFields.TextBoxField("dark-squares-clues")
     private val darkSquaresColor: FormFields.InputField = FormFields.InputField("dark-squares-color")
     private val combineJellyRollClues: FormFields.CheckBoxField = FormFields.CheckBoxField("combine-jelly-roll-clues")
+    private val width: FormFields.InputField = FormFields.InputField("width")
+    private val height: FormFields.InputField = FormFields.InputField("height")
 
     init {
         Html.renderPage {
@@ -54,6 +56,26 @@ class JellyRollForm {
                     rows = "10"
                 }
             }, advancedOptionsBlock = {
+                div(classes = "form-group") {
+                    div(classes = "form-row mb-0") {
+                        width.render(
+                            this,
+                            "Width (optional)",
+                            help = "Width of the grid. By default, the smallest possible square grid is used.",
+                            flexCols = 6,
+                        ) {
+                            type = InputType.number
+                        }
+                        height.render(
+                            this,
+                            "Height (optional)",
+                            help = "Height of the grid. By default, the smallest possible square grid is used.",
+                            flexCols = 6,
+                        ) {
+                            type = InputType.number
+                        }
+                    }
+                }
                 combineJellyRollClues.render(this, "Combine Jelly Roll clues into one large clue")
                 div(classes = "form-row") {
                     lightSquaresColor.render(this, "Light squares color", flexCols = 6) {
@@ -84,6 +106,7 @@ class JellyRollForm {
             lightSquareBackgroundColor = lightSquaresColor.value,
             darkSquareBackgroundColor = darkSquaresColor.value,
             combineJellyRollClues = combineJellyRollClues.value,
+            dimensions = width.value.ifEmpty { "0" }.toInt() to height.value.ifEmpty { "0" }.toInt(),
         )
         return jellyRoll.asPuzzle()
     }

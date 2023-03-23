@@ -6,6 +6,10 @@ import com.jeffpdavidson.kotwords.model.Spiral
 import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
+import kotlinx.html.InputType
+import kotlinx.html.classes
+import kotlinx.html.div
+import kotlinx.html.small
 
 @JsExport
 @KotwordsInternal
@@ -16,6 +20,8 @@ class SpiralForm {
     private val outwardAnswers: FormFields.TextBoxField = FormFields.TextBoxField("outward-answers")
     private val outwardClues: FormFields.TextBoxField = FormFields.TextBoxField("outward-clues")
     private val inwardCells: FormFields.TextBoxField = FormFields.TextBoxField("inward-cells")
+    private val width: FormFields.InputField = FormFields.InputField("width")
+    private val height: FormFields.InputField = FormFields.InputField("height")
 
     init {
         Html.renderPage {
@@ -46,6 +52,27 @@ class SpiralForm {
                             "e.g. for a Crushword Spiral."
                     rows = "5"
                 }
+            }, advancedOptionsBlock = {
+                div(classes = "form-group") {
+                    div(classes = "form-row mb-0") {
+                        width.render(
+                            this,
+                            "Width (optional)",
+                            help = "Width of the grid. By default, the smallest possible square grid is used.",
+                            flexCols = 6,
+                        ) {
+                            type = InputType.number
+                        }
+                        height.render(
+                            this,
+                            "Height (optional)",
+                            help = "Height of the grid. By default, the smallest possible square grid is used.",
+                            flexCols = 6,
+                        ) {
+                            type = InputType.number
+                        }
+                    }
+                }
             })
         }
     }
@@ -65,6 +92,7 @@ class SpiralForm {
             } else {
                 inwardCells.value.uppercase().split("\\s+".toRegex())
             },
+            dimensions = width.value.ifEmpty { "0" }.toInt() to height.value.ifEmpty { "0" }.toInt(),
         )
         return spiral.asPuzzle()
     }

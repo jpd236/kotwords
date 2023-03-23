@@ -21,6 +21,8 @@ class TwoToneForm {
     private val evenSquaresAnswers: FormFields.TextBoxField = FormFields.TextBoxField("even-squares-answers")
     private val evenSquaresClues: FormFields.TextBoxField = FormFields.TextBoxField("even-squares-clues")
     private val evenSquaresColor: FormFields.InputField = FormFields.InputField("even-squares-color")
+    private val width: FormFields.InputField = FormFields.InputField("width")
+    private val height: FormFields.InputField = FormFields.InputField("height")
 
     init {
         Html.renderPage {
@@ -53,6 +55,26 @@ class TwoToneForm {
                     rows = "10"
                 }
             }, advancedOptionsBlock = {
+                div(classes = "form-group") {
+                    div(classes = "form-row mb-0") {
+                        width.render(
+                            this,
+                            "Width (optional)",
+                            help = "Width of the grid. By default, the smallest possible square grid is used.",
+                            flexCols = 6,
+                        ) {
+                            type = InputType.number
+                        }
+                        height.render(
+                            this,
+                            "Height (optional)",
+                            help = "Height of the grid. By default, the smallest possible square grid is used.",
+                            flexCols = 6,
+                        ) {
+                            type = InputType.number
+                        }
+                    }
+                }
                 div(classes = "form-row") {
                     oddSquaresColor.render(this, "Odd squares color", flexCols = 6) {
                         type = InputType.color
@@ -81,6 +103,7 @@ class TwoToneForm {
             evenSquaresClues = evenSquaresClues.value.trimmedLines(),
             oddSquareBackgroundColor = oddSquaresColor.value,
             evenSquareBackgroundColor = evenSquaresColor.value,
+            dimensions = width.value.ifEmpty { "0" }.toInt() to height.value.ifEmpty { "0" }.toInt(),
         )
         return twoTone.asPuzzle()
     }
