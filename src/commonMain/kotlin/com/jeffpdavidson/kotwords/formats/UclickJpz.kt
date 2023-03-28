@@ -16,7 +16,14 @@ class UclickJpz(
 ) : Puzzleable() {
 
     override suspend fun createPuzzle(): Puzzle {
-        val puzzle = JpzFile(jpzXml.encodeToByteArray(), stripFormats = true).asPuzzle()
+        // Try URL decoding the text, but leave it untouched if it contains invalid sequences.
+        val decodedXml = try {
+            Encodings.decodeUrl(jpzXml)
+        } catch (e: Exception) {
+            jpzXml
+        }
+
+        val puzzle = JpzFile(decodedXml.encodeToByteArray(), stripFormats = true).asPuzzle()
 
         // Add date to title if provided.
         val rawTitle = puzzle.title

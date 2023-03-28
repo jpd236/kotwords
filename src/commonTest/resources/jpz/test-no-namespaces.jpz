@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<crossword-compiler xmlns="http://crossword.info/xml/crossword-compiler">
-  <rectangular-puzzle xmlns="http://crossword.info/xml/rectangular-puzzle">
-    <metadata>
+<crossword-compiler-applet>
+  <applet-settings>
       <title>Example Puzzle for Kotwords</title>
-      <creator>Jeff Davidson</creator>
       <copyright>© 2018 Jeff Davidson</copyright>
+  </applet-settings>
+  <rectangular-puzzle>
+    <metadata>
+      <title />
+      <creator>Jeff Davidson</creator>
+      <copyright />
       <description>Notepad text goes here.</description>
     </metadata>
     <crossword>
@@ -99,15 +103,19 @@
         <cells x="5" y="5"/>
       </word>
       <clues ordering="normal">
-        <title><b>Across</b></title>
+        <title>
+          <b>Across</b>
+        </title>
         <clue word="1" number="1">First across clue with special characters &#945;&#946;&#947;&#948;&#949;</clue>
-        <clue word="5" number="5">Second across clue || This is an alternate clue that should be ignored</clue>
-        <clue word="6" number="6">Third across clue @@ This is a footnote that should be ignored</clue>
-        <clue word="8" number="8">Fourth%20across%20clue</clue>
+        <clue word="5" number="5">Second across clue</clue>
+        <clue word="6" number="6">Third across clue</clue>
+        <clue word="8" number="8">Fourth across clue</clue>
         <clue word="9" number="9">Fifth across clue</clue>
       </clues>
       <clues ordering="normal">
-        <title><b>Down</b></title>
+        <title>
+          <b>Down</b>
+        </title>
         <clue word="1001" number="1">First down clue</clue>
         <clue word="1002" number="2">Second down clue</clue>
         <clue word="1003" number="3">Third down clue</clue>
@@ -116,4 +124,4 @@
       </clues>
     </crossword>
   </rectangular-puzzle>
-</crossword-compiler>
+</crossword-compiler-applet>

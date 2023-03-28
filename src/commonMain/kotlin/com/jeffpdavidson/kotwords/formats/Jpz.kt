@@ -16,6 +16,7 @@ import nl.adaptivity.xmlutil.serialization.XmlValue
 import okio.ByteString.Companion.decodeBase64
 
 private const val CCA_NS = "http://crossword.info/xml/crossword-compiler-applet"
+private const val CC_NS = "http://crossword.info/xml/crossword-compiler"
 private const val PUZZLE_NS = "http://crossword.info/xml/rectangular-puzzle"
 
 // TODO: Is it possible to restrict the types of the elements of this list at compile time?
@@ -332,16 +333,29 @@ sealed class Jpz : Puzzleable() {
          */
         fun fromXmlString(xml: String, stripFormats: Boolean = false): Jpz {
             // Clean up invalid xmlns as saved by Xword.
-            val cleanedXml = if (
-                xml.contains("<crossword-compiler-applet") &&
-                xml.contains("xmlns=\"http://crossword.info/xml/crossword-compiler\"")
+            var cleanedXml = xml
+            if (
+                cleanedXml.contains("<crossword-compiler-applet") &&
+                cleanedXml.contains("xmlns=\"http://crossword.info/xml/crossword-compiler\"")
             ) {
-                xml.replace(
+                cleanedXml = cleanedXml.replace(
                     "xmlns=\"http://crossword.info/xml/crossword-compiler\"",
                     "xmlns=\"http://crossword.info/xml/crossword-compiler-applet\""
                 )
-            } else {
-                xml
+            }
+            // Clean up missing xmlns values as observed in Puzzle Society.
+            if (
+                cleanedXml.contains("<crossword-compiler-applet>") ||
+                cleanedXml.contains("<crossword-compiler>") ||
+                cleanedXml.contains("<rectangular-puzzle>")
+            ) {
+                cleanedXml = cleanedXml.replace(
+                    "<crossword-compiler-applet>", "<crossword-compiler-applet xmlns=\"$CCA_NS\">"
+                ).replace(
+                    "<crossword-compiler>", "<crossword-compiler xmlns=\"$CC_NS\">"
+                ).replace(
+                    "<rectangular-puzzle>", "<rectangular-puzzle xmlns=\"$PUZZLE_NS\">"
+                )
             }
 
             // Try to parse as a <crossword-compiler-applet>; if it fails, fall back to <crossword-compiler>.
@@ -610,7 +624,7 @@ sealed class Jpz : Puzzleable() {
 }
 
 @Serializable
-@XmlSerialName("crossword-compiler", "http://crossword.info/xml/crossword-compiler", "")
+@XmlSerialName("crossword-compiler", CC_NS, "")
 data class CrosswordCompiler(override val rectangularPuzzle: RectangularPuzzle) : Jpz() {
     override fun toXmlString(prettyPrint: Boolean): String {
         return getXmlSerializer(prettyPrint).encodeToString(serializer(), this)
