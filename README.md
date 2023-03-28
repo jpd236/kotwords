@@ -12,16 +12,16 @@ This project also includes a [web interface](https://jpd236.github.io/kotwords/)
 ## Features
 * Read crosswords in a variety of file formats, including formats used by online puzzle sites
 * Remove a direction of clues to make puzzles more challenging
-* Write crosswords in .puz and .jpz format
+* Write crosswords in .puz, .jpz, or .ipuz format
 * Generate PDFs for crosswords
-* Create .jpz files for variety crossword puzzles
+* Create .jpz and .ipuz files for variety crossword puzzles
 
 ## How To Use
 In your `build.gradle`:
 
 ```groovy
 dependencies {
-  implementation "com.jeffpdavidson.kotwords:kotwords:1.2.18"
+  implementation "com.jeffpdavidson.kotwords:kotwords:1.3.0"
 }
 ```
 
