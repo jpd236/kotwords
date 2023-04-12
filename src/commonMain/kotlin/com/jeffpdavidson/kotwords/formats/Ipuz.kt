@@ -154,7 +154,8 @@ class Ipuz(private val json: String) : Puzzleable() {
             grid = grid,
             clues = clueLists,
             words = words,
-            diagramless = ipuzKind == IpuzKind.DIAGRAMLESS
+            diagramless = ipuzKind == IpuzKind.DIAGRAMLESS,
+            hasHtmlClues = true,
         )
     }
 
@@ -311,8 +312,8 @@ internal data class IpuzJson @OptIn(ExperimentalSerializationApi::class) constru
     val author: String = "",
     val notes: String = "",
     val explanation: String = "",
-    val block: String = "#",
-    val empty: String = "0",
+    @Serializable(with = NumericStringSerializer::class) val block: String = "#",
+    @Serializable(with = NumericStringSerializer::class) val empty: String = "0",
     val styles: Map<String, StyleSpec> = mapOf(),
     val dimensions: Dimensions = Dimensions(),
     @Serializable(with = LabeledCellGridSerializer::class)
@@ -479,6 +480,14 @@ internal data class IpuzJson @OptIn(ExperimentalSerializationApi::class) constru
     object ClueMapSerializer : JsonTransformingSerializer<Map<String, List<Clue>>>(
         MapSerializer(String.serializer(), ListSerializer(Clue.ClueSerializer))
     )
+
+    object NumericStringSerializer : JsonTransformingSerializer<String>(String.serializer()) {
+        override fun transformDeserialize(element: JsonElement): JsonElement {
+            // Normalize numeric values to strings.
+            val intValue = element.jsonPrimitive.intOrNull ?: return element
+            return JsonPrimitive(intValue.toString())
+        }
+    }
 
     fun toJsonString(prettyPrint: Boolean = false): String {
         val json = if (prettyPrint) {

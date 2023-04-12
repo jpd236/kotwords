@@ -255,7 +255,7 @@ sealed class Jpz : Puzzleable() {
         for (y in 0 until height) {
             val row = mutableListOf<Puzzle.Cell>()
             for (x in 0 until width) {
-                row.add(gridMap[Pair(x, y)]!!)
+                row.add(gridMap[Pair(x, y)] ?: Puzzle.Cell(cellType = Puzzle.CellType.VOID))
             }
             grid.add(row)
         }
