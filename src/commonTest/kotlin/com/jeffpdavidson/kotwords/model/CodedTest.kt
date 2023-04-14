@@ -29,7 +29,7 @@ class CodedTest {
             givens = listOf('B', 'Q'),
         )
 
-        val expected = readStringResource(CodedTest::class, "coded.jpz")
+        val expected = readStringResource(CodedTest::class, "coded/coded.jpz")
         assertEquals(expected, coded.asPuzzle().asJpz().toXmlString())
     }
 }

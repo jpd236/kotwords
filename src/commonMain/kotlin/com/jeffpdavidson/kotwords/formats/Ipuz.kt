@@ -36,6 +36,8 @@ class Ipuz(private val json: String) : Puzzleable() {
                 IpuzKind.DIAGRAMLESS
             } else if (IpuzKind.CROSSWORD.isKind(uri)) {
                 IpuzKind.CROSSWORD
+            } else if (IpuzKind.CODED.isKind(uri)) {
+                IpuzKind.CODED
             } else {
                 null
             }
@@ -131,16 +133,18 @@ class Ipuz(private val json: String) : Puzzleable() {
                 acrossClues = acrossClueMap,
                 downClues = downClueMap,
             ).asPuzzle()
+            // Skip empty lists.
+            val crosswordClues = crossword.clues.filterNot { it.clues.isEmpty() }
             // Copy the enumerations into the generated clue lists, if they're meant to be shown.
             if (ipuz.showEnumerations) {
-                crossword.clues.forEach { clueList ->
+                crosswordClues.forEach { clueList ->
                     clueLists.add(clueList.copy(clues = clueList.clues.mapIndexed { i, clue ->
                         val originalClues = if (clueList.title.contains("Across")) acrossClues else downClues
                         clue.copy(format = originalClues[i].enumeration)
                     }))
                 }
             } else {
-                clueLists.addAll(crossword.clues)
+                clueLists.addAll(crosswordClues)
             }
             words.addAll(crossword.words)
         }
@@ -155,6 +159,7 @@ class Ipuz(private val json: String) : Puzzleable() {
             clues = clueLists,
             words = words,
             diagramless = ipuzKind == IpuzKind.DIAGRAMLESS,
+            puzzleType = if (ipuzKind == IpuzKind.CODED) Puzzle.PuzzleType.CODED else Puzzle.PuzzleType.CROSSWORD,
             hasHtmlClues = true,
         )
     }
@@ -185,12 +190,16 @@ class Ipuz(private val json: String) : Puzzleable() {
     companion object {
         internal fun asIpuzJson(puzzle: Puzzle, solved: Boolean = false): IpuzJson {
             // TODO: Add Acrostic support
-            require(puzzle.puzzleType == Puzzle.PuzzleType.CROSSWORD) { "Unsupported puzzle type" }
-            val kind =
+            require(puzzle.puzzleType in listOf(Puzzle.PuzzleType.CROSSWORD, Puzzle.PuzzleType.CODED)) {
+                "Unsupported puzzle type"
+            }
+            val kinds =
                 if (puzzle.diagramless) {
-                    "http://ipuz.org/crossword/diagramless#1"
+                    listOf("${IpuzKind.DIAGRAMLESS.uri}#1")
+                } else if (puzzle.puzzleType == Puzzle.PuzzleType.CODED) {
+                    listOf("${IpuzKind.CROSSWORD.uri}#1","${IpuzKind.CODED.uri}#1")
                 } else {
-                    "http://ipuz.org/crossword#1"
+                    listOf("${IpuzKind.CROSSWORD.uri}#1")
                 }
             // To find suitable block/empty characters, pick the first character starting from the default choice which
             // doesn't appear in the solution.
@@ -200,7 +209,7 @@ class Ipuz(private val json: String) : Puzzleable() {
             val empty = generateSequence('0') { it + 1 }.first { !solutionChars.contains(it) }
             val wordsByWordId = puzzle.words.associate { it.id to it.cells }
             return IpuzJson(
-                kind = listOf(kind),
+                kind = kinds,
                 title = puzzle.title,
                 copyright = puzzle.copyright,
                 author = puzzle.creator,
@@ -294,9 +303,11 @@ class Ipuz(private val json: String) : Puzzleable() {
     }
 }
 
-private enum class IpuzKind(private var uri: String) {
+private enum class IpuzKind(val uri: String) {
     CROSSWORD("http://ipuz.org/crossword"),
-    DIAGRAMLESS("http://ipuz.org/crossword/diagramless");
+    DIAGRAMLESS("http://ipuz.org/crossword/diagramless"),
+    // Proprietary extension unless/until this is officially supported.
+    CODED("http://crosswordnexus.com/ipuz/coded");
 
     fun isKind(puzzleUri: String): Boolean {
         return uri == puzzleUri || puzzleUri.startsWith("$uri/")
@@ -323,7 +334,7 @@ internal data class IpuzJson @OptIn(ExperimentalSerializationApi::class) constru
     @Serializable(with = CrosswordValueGridSerializer::class)
     val solution: List<List<CrosswordValue>> = listOf(),
     @Serializable(with = ClueMapSerializer::class)
-    val clues: Map<String, List<Clue>> = mapOf(),
+    @EncodeDefault val clues: Map<String, List<Clue>> = mapOf(),
     @SerialName("showenumerations") val showEnumerations: Boolean = false,
 ) {
     @Serializable

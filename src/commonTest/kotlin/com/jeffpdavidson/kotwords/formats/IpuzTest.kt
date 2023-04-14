@@ -51,6 +51,9 @@ class IpuzTest {
     fun puzzleConversion_aroundTheBend() = runTest { assertConversionIsEqual("around-the-bend/around-the-bend.ipuz") }
 
     @Test
+    fun puzzleConversion_coded() = runTest { assertConversionIsEqual("coded/coded.ipuz") }
+
+    @Test
     fun puzzleConversion_eightTracks() = runTest { assertConversionIsEqual("eight-tracks/annotations.ipuz") }
 
     @Test

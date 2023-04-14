@@ -13,7 +13,7 @@ import kotlinx.html.classes
 @JsExport
 @KotwordsInternal
 class CodedForm {
-    private val form = PuzzleFileForm("coded", ::createPuzzle, supportsIpuz = false)
+    private val form = PuzzleFileForm("coded", ::createPuzzle)
     private val grid: FormFields.TextBoxField = FormFields.TextBoxField("grid")
     private val assignments: FormFields.InputField = FormFields.InputField("assignments")
     private val givens: FormFields.InputField = FormFields.InputField("givens")
