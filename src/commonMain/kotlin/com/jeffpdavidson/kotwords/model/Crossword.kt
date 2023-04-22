@@ -60,10 +60,8 @@ data class Crossword(
                 do {
                     word.add(Puzzle.Coordinate(x = i, y = y))
                 } while (!hasBorder(grid, i++, y, Puzzle.BorderDirection.RIGHT, useBorders = true))
-                if (clueNumber != null && acrossClues.containsKey(clueNumber)) {
-                    acrossPuzzleClues.add(
-                        Puzzle.Clue(clueNumber, "$clueNumber", acrossClues[clueNumber]!!)
-                    )
+                if (clueNumber != null) {
+                    acrossPuzzleClues.add(Puzzle.Clue(clueNumber, "$clueNumber", acrossClues[clueNumber] ?: ""))
                     words.add(Puzzle.Word(clueNumber, word))
                 }
             }
@@ -73,10 +71,8 @@ data class Crossword(
                 do {
                     word.add(Puzzle.Coordinate(x = x, y = j))
                 } while (!hasBorder(grid, x, j++, Puzzle.BorderDirection.BOTTOM, useBorders = true))
-                if (clueNumber != null && downClues.containsKey(clueNumber)) {
-                    downPuzzleClues.add(
-                        Puzzle.Clue(1000 + clueNumber, "$clueNumber", downClues[clueNumber]!!)
-                    )
+                if (clueNumber != null) {
+                    downPuzzleClues.add(Puzzle.Clue(1000 + clueNumber, "$clueNumber", downClues[clueNumber] ?: ""))
                     words.add(Puzzle.Word(1000 + clueNumber, word))
                 }
             }

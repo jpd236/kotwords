@@ -133,8 +133,9 @@ class Ipuz(private val json: String) : Puzzleable() {
                 acrossClues = acrossClueMap,
                 downClues = downClueMap,
             ).asPuzzle()
-            // Skip empty lists.
-            val crosswordClues = crossword.clues.filterNot { it.clues.isEmpty() }
+            // Skip empty lists, or lists consisting entirely of empty clues.
+            val crosswordClues =
+                crossword.clues.filterNot { it.clues.isEmpty() || it.clues.all { clue -> clue.text.isEmpty() } }
             // Copy the enumerations into the generated clue lists, if they're meant to be shown.
             if (ipuz.showEnumerations) {
                 crosswordClues.forEach { clueList ->
