@@ -5,6 +5,7 @@ import com.jeffpdavidson.kotwords.readStringResource
 import com.soywiz.klock.Date
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class UclickJpzTest {
@@ -19,5 +20,30 @@ class UclickJpzTest {
                 ).asPuzzle().asAcrossLiteBinary()
             )
         )
+    }
+
+    @Test
+    fun decode_normalClue() {
+        assertEquals("Normal clue", UclickJpz.decodeClue("Normal clue"))
+    }
+
+    @Test
+    fun decode_clueWithUrlEscaping() {
+        assertEquals("URL escaped clue", UclickJpz.decodeClue("URL%20escaped%20clue"))
+    }
+
+    @Test
+    fun decode_clueWithInvalidUrlEscaping() {
+        assertEquals("Clue with % sign", UclickJpz.decodeClue("Clue with % sign"))
+    }
+
+    @Test
+    fun decode_clueWithAnnotation() {
+        assertEquals("Clue with annotation", UclickJpz.decodeClue("Clue with annotation @@ Annotation"))
+    }
+
+    @Test
+    fun decode_clueWithAlternate() {
+        assertEquals("Clue with alternate", UclickJpz.decodeClue("Clue with alternate || Alternate"))
     }
 }

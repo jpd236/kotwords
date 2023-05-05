@@ -16,14 +16,9 @@ class UclickJpz(
 ) : Puzzleable() {
 
     override suspend fun createPuzzle(): Puzzle {
-        // Try URL decoding the text, but leave it untouched if it contains invalid sequences.
-        val decodedXml = try {
-            Encodings.decodeUrl(jpzXml)
-        } catch (e: Exception) {
-            jpzXml
-        }
-
-        val puzzle = JpzFile(decodedXml.encodeToByteArray(), stripFormats = true).asPuzzle()
+        // Try to URL-decode the whole file in case there are URL-encoded fields in the metadata. If it fails due to
+        // invalid sequences, we leave it untouched; we'll still try decoding each individual clue below.
+        val puzzle = JpzFile(tryDecodeUrl(jpzXml).encodeToByteArray(), stripFormats = true).asPuzzle()
 
         // Add date to title if provided.
         val rawTitle = puzzle.title
@@ -36,12 +31,24 @@ class UclickJpz(
             clues = puzzle.clues.map { clueList ->
                 clueList.copy(
                     clues = clueList.clues.map { clue ->
-                        clue.copy(
-                            text = clue.text.replace(CLUE_ANNOTATION_REGEX, "")
-                        )
+                        clue.copy(text = decodeClue(clue.text))
                     }
                 )
             }
         )
+    }
+
+    companion object {
+        internal fun decodeClue(text: String): String =
+            tryDecodeUrl(text).replace(CLUE_ANNOTATION_REGEX, "")
+
+        /** Try URL decoding the text, but leave it untouched if it contains invalid sequences. */
+        private fun tryDecodeUrl(text: String): String {
+            return try {
+                Encodings.decodeUrl(text)
+            } catch (e: Throwable) {
+                text
+            }
+        }
     }
 }
