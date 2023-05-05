@@ -459,8 +459,7 @@ internal data class IpuzJson @OptIn(ExperimentalSerializationApi::class) constru
 
     @Serializable
     data class Clue(
-        /** Clue number. Integers are normalized into strings. */
-        val number: String = "",
+        @Serializable(with = NumericStringSerializer::class) val number: String = "",
         val cells: List<List<Int>> = listOf(),
         val clue: String = "",
         val enumeration: String = "",
@@ -470,7 +469,7 @@ internal data class IpuzJson @OptIn(ExperimentalSerializationApi::class) constru
                 return when (element) {
                     is JsonPrimitive -> buildJsonObject { put("clue", element) }
                     is JsonArray -> buildJsonObject {
-                        put("number", JsonPrimitive(element[0].jsonPrimitive.content))
+                        put("number", element[0].jsonPrimitive)
                         put("clue", element[1].jsonPrimitive)
                     }
                     is JsonObject -> element
