@@ -102,11 +102,16 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
             val rebusTable = mutableMapOf<Int, String>()
             val rebusEntries = mutableMapOf<Pair<Int, Int>, String>()
             val circles = mutableSetOf<Pair<Int, Int>>()
-            while (!exhausted()) {
+            while (request(8)) {
                 val sectionTitle = readString(length = 4, charset = Charset.CP_1252)
                 val sectionLength = readShortLe()
                 // Skip the checksum
                 skip(2)
+
+                // Ensure there are enough bytes remaining for the given length, or else skip the section.
+                if (!request(sectionLength + 1L)) {
+                    break
+                }
 
                 when (sectionTitle) {
                     "GRBS" -> {
@@ -123,12 +128,17 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
                     }
                     "RTBL" -> {
                         val data = readNullTerminatedString(Charset.CP_1252)
-                        data.substringBeforeLast(';').split(';').forEach {
+                        data.split(';').filterNot { it.isEmpty() }.forEach {
                             val parts = it.split(':')
                             rebusTable[parts[0].trim().toInt()] = parts[1]
                         }
                     }
                     "RUSR" -> {
+                        // Handle invalid/empty RUSR sections gracefully.
+                        if (sectionLength == 0.toShort()) {
+                            skip(1)
+                            continue
+                        }
                         for (y in 0 until height) {
                             for (x in 0 until width) {
                                 val entryRebus = readNullTerminatedString(Charset.CP_1252)
