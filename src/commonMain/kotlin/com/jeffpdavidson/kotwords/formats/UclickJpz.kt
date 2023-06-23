@@ -45,7 +45,8 @@ class UclickJpz(
         /** Try URL decoding the text, but leave it untouched if it contains invalid sequences. */
         private fun tryDecodeUrl(text: String): String {
             return try {
-                Encodings.decodeUrl(text)
+                // Manually decode ampersands so they can be properly escaped.
+                Encodings.decodeUrl(text.replace("%26", "&amp;"))
             } catch (e: Throwable) {
                 text
             }
