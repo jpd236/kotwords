@@ -198,7 +198,7 @@ class Ipuz(private val json: String) : Puzzleable() {
                 if (puzzle.diagramless) {
                     listOf("${IpuzKind.DIAGRAMLESS.uri}#1")
                 } else if (puzzle.puzzleType == Puzzle.PuzzleType.CODED) {
-                    listOf("${IpuzKind.CROSSWORD.uri}#1","${IpuzKind.CODED.uri}#1")
+                    listOf("${IpuzKind.CROSSWORD.uri}#1", "${IpuzKind.CODED.uri}#1")
                 } else {
                     listOf("${IpuzKind.CROSSWORD.uri}#1")
                 }
@@ -307,6 +307,7 @@ class Ipuz(private val json: String) : Puzzleable() {
 private enum class IpuzKind(val uri: String) {
     CROSSWORD("http://ipuz.org/crossword"),
     DIAGRAMLESS("http://ipuz.org/crossword/diagramless"),
+
     // Proprietary extension unless/until this is officially supported.
     CODED("http://crosswordnexus.com/ipuz/coded");
 
