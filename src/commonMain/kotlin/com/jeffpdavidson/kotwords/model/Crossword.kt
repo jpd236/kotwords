@@ -1,7 +1,5 @@
 package com.jeffpdavidson.kotwords.model
 
-import com.jeffpdavidson.kotwords.formats.FONT_FAMILY_TIMES_ROMAN
-import com.jeffpdavidson.kotwords.formats.PdfFontFamily
 import com.jeffpdavidson.kotwords.formats.Puzzleable
 
 /**
@@ -101,19 +99,6 @@ data class Crossword(
             diagramless = diagramless,
         )
     }
-
-    /**
-     * Render this crossword as a PDF document.
-     *
-     * @param fontFamily Font family to use for the PDF.
-     * @param blackSquareLightnessAdjustment Percentage (from 0 to 1) indicating how much to brighten black/colored
-     *                                       squares (i.e. to save ink). 0 indicates no adjustment; 1 would be fully
-     *                                       white.
-     */
-    suspend fun asPdf(
-        fontFamily: PdfFontFamily = FONT_FAMILY_TIMES_ROMAN,
-        blackSquareLightnessAdjustment: Float = 0f
-    ): ByteArray = asPuzzle().asPdf(fontFamily, blackSquareLightnessAdjustment)
 
     companion object {
         /**

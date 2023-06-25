@@ -89,11 +89,11 @@ object Pdf {
      * Inspired by [puz2pdf](https://sourceforge.net/projects/puz2pdf) and
      * [Crossword Nexus's PDF converter](https://crosswordnexus.com/js/puz_functions.js).
      */
-    internal fun asPdf(
+    internal suspend fun asPdf(
         puzzle: Puzzle,
         fontFamily: PdfFontFamily,
         blackSquareLightnessAdjustment: Float,
-        gridRenderer: (
+        gridRenderer: suspend (
             document: PdfDocument,
             puzzle: Puzzle,
             blackSquareLightnessAdjustment: Float,
@@ -103,7 +103,7 @@ object Pdf {
             fontFamily: PdfFontFamily,
         ) -> DrawGridResult,
     ): ByteArray = with(puzzle) {
-        PdfDocument().run {
+        PdfDocument.create().run {
             val pageWidth = width
             val pageHeight = height
             val headerWidth = pageWidth - 2 * MARGIN
@@ -217,7 +217,7 @@ object Pdf {
     }
 
     /** Default grid drawing function for [asPdf]. */
-    fun drawGrid(
+    suspend fun drawGrid(
         document: PdfDocument,
         puzzle: Puzzle,
         blackSquareLightnessAdjustment: Float,
@@ -242,7 +242,6 @@ object Pdf {
 
                 // Fill in the square background if a background color is specified, or if this is a black square.
                 // Otherwise, use a white background.
-                addRect(squareX, squareY, gridSquareSize, gridSquareSize)
                 val backgroundColor = when {
                     square.backgroundColor.isNotBlank() ->
                         getAdjustedColor(RGB(square.backgroundColor), blackSquareLightnessAdjustment)
@@ -251,21 +250,20 @@ object Pdf {
                 }
                 setFillColor(backgroundColor.r, backgroundColor.g, backgroundColor.b)
                 if (square.cellType == Puzzle.CellType.VOID) {
-                    fill()
+                    drawRect(squareX, squareY, gridSquareSize, gridSquareSize, fill = true)
                 } else {
                     setStrokeColor(gridBlackColor.r, gridBlackColor.g, gridBlackColor.b)
-                    fillAndStroke()
+                    drawRect(squareX, squareY, gridSquareSize, gridSquareSize, fill = true, stroke = true)
                 }
 
+
                 if (square.backgroundImage is Puzzle.Image.Data) {
-                    val imageBytes = square.backgroundImage.bytes.toByteArray()
-                    drawImage(squareX, squareY, gridSquareSize, gridSquareSize, imageBytes)
+                    drawImage(squareX, squareY, gridSquareSize, gridSquareSize, square.backgroundImage)
                 }
 
                 if (!square.cellType.isBlack()) {
                     if (square.backgroundShape == Puzzle.BackgroundShape.CIRCLE) {
-                        addCircle(squareX, squareY, gridSquareSize / 2)
-                        stroke()
+                        drawCircle(squareX, squareY, gridSquareSize / 2, stroke = true)
                     }
 
                     if (square.number.isNotBlank() && !puzzle.diagramless) {
@@ -337,12 +335,11 @@ object Pdf {
                         val squareXEnd = squareX + gridSquareSize
                         val squareYEnd = squareY + gridSquareSize
                         when (borderDirection) {
-                            Puzzle.BorderDirection.TOP -> addLine(squareX, squareYEnd, squareXEnd, squareYEnd)
-                            Puzzle.BorderDirection.BOTTOM -> addLine(squareX, squareY, squareXEnd, squareY)
-                            Puzzle.BorderDirection.LEFT -> addLine(squareX, squareY, squareX, squareYEnd)
-                            Puzzle.BorderDirection.RIGHT -> addLine(squareXEnd, squareY, squareXEnd, squareYEnd)
+                            Puzzle.BorderDirection.TOP -> drawLine(squareX, squareYEnd, squareXEnd, squareYEnd)
+                            Puzzle.BorderDirection.BOTTOM -> drawLine(squareX, squareY, squareXEnd, squareY)
+                            Puzzle.BorderDirection.LEFT -> drawLine(squareX, squareY, squareX, squareYEnd)
+                            Puzzle.BorderDirection.RIGHT -> drawLine(squareXEnd, squareY, squareXEnd, squareYEnd)
                         }
-                        stroke()
                     }
                     setLineWidth(1f)
                 }
@@ -357,7 +354,7 @@ object Pdf {
         return HSL(hsl.h, hsl.s, (hsl.l + (1.0 - hsl.l) * lightnessAdjustment)).toSRGB()
     }
 
-    private fun PdfDocument.drawSquareNumber(
+    private suspend fun PdfDocument.drawSquareNumber(
         x: Float,
         y: Float,
         text: String,
@@ -368,13 +365,13 @@ object Pdf {
     ) {
         // Erase a rectangle around the number to make sure it stands out if there is a circle.
         setFillColor(backgroundColor.r, backgroundColor.g, backgroundColor.b)
-        addRect(
+        drawRect(
             x,
             y,
             textWidth,
-            gridNumberSize - 2f
+            gridNumberSize - 2f,
+            fill = true,
         )
-        fill()
 
         setFillColor(0f, 0f, 0f)
         beginText()
@@ -389,7 +386,7 @@ object Pdf {
      *
      * @return the updated Y position after all text has been drawn
      */
-    private fun PdfDocument.drawMultiLineText(
+    private suspend fun PdfDocument.drawMultiLineText(
         text: String,
         fontFamily: PdfFontFamily,
         fontSize: Float,
@@ -439,7 +436,7 @@ object Pdf {
 
     private data class FormattedChar(val char: Char, val format: Format)
 
-    internal fun splitTextToLines(
+    internal suspend fun splitTextToLines(
         document: PdfDocument,
         rawText: String,
         fontFamily: PdfFontFamily,
@@ -450,7 +447,7 @@ object Pdf {
         splitParagraphToLines(document, line, fontFamily, fontSize, lineWidth, isHtml)
     }
 
-    private fun splitParagraphToLines(
+    private suspend fun splitParagraphToLines(
         document: PdfDocument,
         rawText: String,
         fontFamily: PdfFontFamily,
@@ -543,9 +540,9 @@ object Pdf {
     }
 
     /** Run the given function on each word, using space as a separator. */
-    private fun forEachWord(
+    private suspend fun forEachWord(
         text: List<FormattedChar>,
-        fn: (word: List<FormattedChar>, nextSeparator: FormattedChar?) -> Unit
+        fn: suspend (word: List<FormattedChar>, nextSeparator: FormattedChar?) -> Unit
     ) {
         val currentWord = mutableListOf<FormattedChar>()
         text.forEach { formattedChar ->
@@ -562,7 +559,7 @@ object Pdf {
     }
 
     /** Run the given function for each chunk of the given string which has the same format. */
-    private fun forEachFormat(text: List<FormattedChar>, fn: (text: String, format: Format) -> Unit) {
+    private suspend fun forEachFormat(text: List<FormattedChar>, fn: suspend (text: String, format: Format) -> Unit) {
         val currentString = StringBuilder()
         var currentFormat: Format? = null
         text.forEach { formattedChar ->
@@ -579,7 +576,7 @@ object Pdf {
     }
 
     /** Split formatted [text] into lines (using spaces as word separators) to fit the given [lineWidth]. */
-    private fun splitTextToLines(
+    private suspend fun splitTextToLines(
         document: PdfDocument,
         text: List<FormattedChar>,
         baseFont: PdfFont,
@@ -642,7 +639,7 @@ object Pdf {
         val columnBottomY: Float,
     )
 
-    private fun PdfDocument.showClueLists(
+    private suspend fun PdfDocument.showClueLists(
         puzzle: Puzzle,
         fontFamily: PdfFontFamily,
         columnWidth: Float,
@@ -702,7 +699,7 @@ object Pdf {
      *
      * @return the updated Y position after all text has been drawn
      */
-    private fun PdfDocument.drawRichText(
+    private suspend fun PdfDocument.drawRichText(
         richTextElements: List<RichTextElement>,
         baseFont: PdfFont,
         fontSize: Float,
@@ -767,7 +764,7 @@ object Pdf {
         return positionY
     }
 
-    private fun PdfDocument.showClueList(
+    private suspend fun PdfDocument.showClueList(
         puzzle: Puzzle,
         clues: Puzzle.ClueList,
         isHtml: Boolean,
@@ -860,13 +857,48 @@ object Pdf {
         return true to CluePosition(positionY = positionY, column = column, columnBottomY = columnBottomY)
     }
 
-    private fun findBestFontSize(minSize: Float, maxSize: Float, testFn: (Float) -> Boolean): Float? {
+    private suspend fun findBestFontSize(minSize: Float, maxSize: Float, testFn: suspend (Float) -> Boolean): Float? {
         val textSizes = generateSequence(maxSize) { it - TEXT_SIZE_DELTA }.takeWhile { it >= minSize }.toList()
-        val insertionIndex = -textSizes.binarySearch { size -> if (testFn(size)) 1 else -1 } - 1
+        val insertionIndex = -textSizes.binarySearchAsync { size -> if (testFn(size)) 1 else -1 } - 1
         return if (insertionIndex > textSizes.lastIndex) null else textSizes[insertionIndex]
     }
 
-    private fun PdfDocument.getTextWidth(text: String, format: Format, fontSize: Float): Float {
+    private suspend fun PdfDocument.getTextWidth(text: String, format: Format, fontSize: Float): Float {
         return getTextWidth(text, format.font, format.script.getScaledFontSize(fontSize))
+    }
+
+    /** Copy of [binarySearch] with a suspending comparison function. */
+    // TODO: Remove when https://youtrack.jetbrains.com/issue/KT-17192 is resolved.
+    private suspend fun <T> List<T>.binarySearchAsync(
+        fromIndex: Int = 0,
+        toIndex: Int = size,
+        comparison: suspend (T) -> Int
+    ): Int {
+        rangeCheck(size, fromIndex, toIndex)
+
+        var low = fromIndex
+        var high = toIndex - 1
+
+        while (low <= high) {
+            val mid = (low + high).ushr(1) // safe from overflows
+            val midVal = get(mid)
+            val cmp = comparison(midVal)
+
+            if (cmp < 0)
+                low = mid + 1
+            else if (cmp > 0)
+                high = mid - 1
+            else
+                return mid // key found
+        }
+        return -(low + 1)  // key not found
+    }
+
+    private fun rangeCheck(size: Int, fromIndex: Int, toIndex: Int) {
+        when {
+            fromIndex > toIndex -> throw IllegalArgumentException("fromIndex ($fromIndex) is greater than toIndex ($toIndex).")
+            fromIndex < 0 -> throw IndexOutOfBoundsException("fromIndex ($fromIndex) is less than zero.")
+            toIndex > size -> throw IndexOutOfBoundsException("toIndex ($toIndex) is greater than size ($size).")
+        }
     }
 }

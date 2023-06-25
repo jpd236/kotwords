@@ -1,12 +1,14 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.model.Puzzle
+
 /**
  * A document canvas which can be rendered as a PDF.
  *
  * Implementations should assume one-page, letter-sized documents. All units are in points. Coordinates are measured as
  * distance from the bottom-left corner of the document.
  */
-expect class PdfDocument() {
+expect class PdfDocument private constructor() {
     val width: Float
     val height: Float
 
@@ -20,10 +22,10 @@ expect class PdfDocument() {
     fun newLineAtOffset(offsetX: Float, offsetY: Float)
 
     /** Set the font to be used for text. */
-    fun setFont(font: PdfFont, size: Float)
+    suspend fun setFont(font: PdfFont, size: Float)
 
     /** Get the width of the given [text] with font [font] and font size [size]. */
-    fun getTextWidth(text: String, font: PdfFont, size: Float): Float
+    suspend fun getTextWidth(text: String, font: PdfFont, size: Float): Float
 
     /** Draw and stroke the given [text]. */
     fun drawText(text: String)
@@ -37,27 +39,22 @@ expect class PdfDocument() {
     /** Set the fill color. */
     fun setFillColor(r: Float, g: Float, b: Float)
 
-    /** Add a line path from ([x1], [y1]) to ([x2], [y2]). */
-    fun addLine(x1: Float, y1: Float, x2: Float, y2: Float)
+    /** Draw a line from ([x1], [y1]) to ([x2], [y2]). */
+    fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float)
 
-    /** Add a rectangular path from bottom-left coordinates ([x], [y]). */
-    fun addRect(x: Float, y: Float, width: Float, height: Float)
+    /** Draw a rectangle from bottom-left coordinates ([x], [y]). */
+    fun drawRect(x: Float, y: Float, width: Float, height: Float, stroke: Boolean = false, fill: Boolean = false)
 
-    /** Add a circular path of radius [r] from bottom-left coordinates ([x], [y]). */
-    fun addCircle(x: Float, y: Float, radius: Float)
-
-    /** Draw a stroke around the current path. */
-    fun stroke()
-
-    /** Fill the current path. */
-    fun fill()
-
-    /** Draw a stroke around the current path and fill it. */
-    fun fillAndStroke()
+    /** Draw a circle of radius [radius] from bottom-left coordinates ([x], [y]). */
+    fun drawCircle(x: Float, y: Float, radius: Float, stroke: Boolean = false, fill: Boolean = false)
 
     /** Draw the given image from bottom-left coordinates ([x], [y]). */
-    fun drawImage(x: Float, y: Float, width: Float, height: Float, imageData: ByteArray)
+    suspend fun drawImage(x: Float, y: Float, width: Float, height: Float, image: Puzzle.Image.Data)
 
     /** Return this document as a PDF [ByteArray]. */
-    fun toByteArray(): ByteArray
+    suspend fun toByteArray(): ByteArray
+
+    companion object {
+        suspend fun create(): PdfDocument
+    }
 }

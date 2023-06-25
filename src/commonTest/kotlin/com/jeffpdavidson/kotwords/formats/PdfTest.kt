@@ -147,8 +147,8 @@ class PdfTest {
         )
     }
 
-    private fun withDocument(fn: (PdfDocument) -> Unit) {
-        val document = PdfDocument()
+    private fun withDocument(fn: suspend (PdfDocument) -> Unit) = runTest {
+        val document = PdfDocument.create()
         try {
             fn(document)
         } finally {

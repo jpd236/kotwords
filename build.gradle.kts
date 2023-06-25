@@ -5,8 +5,8 @@ plugins {
     signing
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
     id("org.jetbrains.dokka") version "1.7.20"
-    kotlin("multiplatform") version "1.8.10"
-    kotlin("plugin.serialization") version "1.8.10"
+    kotlin("multiplatform") version "1.8.22"
+    kotlin("plugin.serialization") version "1.8.22"
 }
 
 group = "com.jeffpdavidson.kotwords"
@@ -86,7 +86,8 @@ kotlin {
         val jsMain by getting {
             dependencies {
                 implementation(npm("jszip", "3.10.1"))
-                implementation(npm("jspdf", "2.5.1"))
+                implementation(npm("pdf-lib", "1.17.1"))
+                implementation(npm("@pdf-lib/fontkit", "1.1.1"))
                 implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.8.0")
             }
         }

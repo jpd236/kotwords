@@ -1,6 +1,5 @@
 package com.jeffpdavidson.kotwords.model
 
-import com.jeffpdavidson.kotwords.formats.FONT_FAMILY_TIMES_ROMAN
 import com.jeffpdavidson.kotwords.formats.Pdf
 import com.jeffpdavidson.kotwords.formats.PdfDocument
 import com.jeffpdavidson.kotwords.formats.PdfFontFamily
@@ -114,15 +113,14 @@ data class TwistsAndTurns(
         )
     }
 
-    suspend fun asPdf(
-        fontFamily: PdfFontFamily = FONT_FAMILY_TIMES_ROMAN,
-        blackSquareLightnessAdjustment: Float = 0f,
+    override suspend fun asPdf(
+        fontFamily: PdfFontFamily,
+        blackSquareLightnessAdjustment: Float,
     ): ByteArray {
-        val puzzle = asPuzzle()
-        return puzzle.asPdf(fontFamily, blackSquareLightnessAdjustment, ::drawGrid)
+        return Pdf.asPdf(asPuzzle(), fontFamily, blackSquareLightnessAdjustment, ::drawGrid)
     }
 
-    private fun drawGrid(
+    private suspend fun drawGrid(
         document: PdfDocument,
         puzzle: Puzzle,
         blackSquareLightnessAdjustment: Float,
@@ -253,13 +251,12 @@ data class TwistsAndTurns(
     private fun PdfDocument.drawArrow(x: Float, y: Float, width: Float, height: Float, leftSide: Boolean) {
         val midX = if (leftSide) x - width else x + width
         val endY = y - height
-        addLine(x, y, midX, y)
-        addLine(midX, y, midX, endY)
-        addLine(midX, endY, x, endY)
+        drawLine(x, y, midX, y)
+        drawLine(midX, y, midX, endY)
+        drawLine(midX, endY, x, endY)
         val arrowWidth = width / 4f
         val arrowEndX = if (leftSide) x - arrowWidth else x + arrowWidth
-        addLine(x, endY, arrowEndX, endY - arrowWidth)
-        addLine(x, endY, arrowEndX, endY + arrowWidth)
-        stroke()
+        drawLine(x, endY, arrowEndX, endY - arrowWidth)
+        drawLine(x, endY, arrowEndX, endY + arrowWidth)
     }
 }

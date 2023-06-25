@@ -1,132 +1,187 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.js.FontkitModule
+import com.jeffpdavidson.kotwords.js.Interop.toArrayBuffer
 import com.jeffpdavidson.kotwords.js.Interop.toByteArray
-import com.jeffpdavidson.kotwords.js.JsPDF
-import com.jeffpdavidson.kotwords.js.newJsPdfOptions
-import okio.ByteString.Companion.toByteString
-import org.khronos.webgl.ArrayBuffer
+import com.jeffpdavidson.kotwords.js.PDFDocument
+import com.jeffpdavidson.kotwords.js.PDFFont
+import com.jeffpdavidson.kotwords.js.PDFPage
+import com.jeffpdavidson.kotwords.js.PageSizes
+import com.jeffpdavidson.kotwords.js.RGB
+import com.jeffpdavidson.kotwords.js.StandardFonts
+import com.jeffpdavidson.kotwords.js.newEmbedFontOptions
+import com.jeffpdavidson.kotwords.js.newPDFPageDrawCircleOptions
+import com.jeffpdavidson.kotwords.js.newPDFPageDrawImageOptions
+import com.jeffpdavidson.kotwords.js.newPDFPageDrawLineOptions
+import com.jeffpdavidson.kotwords.js.newPDFPageDrawRectangleOptions
+import com.jeffpdavidson.kotwords.js.newPoint
+import com.jeffpdavidson.kotwords.js.rgb
+import com.jeffpdavidson.kotwords.model.Puzzle
+import kotlinx.coroutines.await
 
-/**
- * Javascript implementation of [PdfDocument], built atop jsPDF.
- *
- * Note that jsPDF uses a different coordinate system where (0,0) is the top-left instead of the bottom-left. When
- * rendering, we should always invert the provided y coordinate against the height of the document.
- */
+/** Javascript implementation of [PdfDocument], built atop pdf-lib. */
 actual class PdfDocument {
-    private val pdf = JsPDF(newJsPdfOptions())
 
-    init {
-        setLineWidth(1.0f)
+    private lateinit var pdf: PDFDocument
+    private lateinit var page: PDFPage
+
+    private var currentFont: PDFFont? = null
+    private val loadedFonts = mutableMapOf<PdfFont, PDFFont>()
+
+    private var lineWidth: Float = 1f
+    private var strokeColor: RGB = rgb(0f, 0f, 0f)
+    private var fillColor: RGB = rgb(1f, 1f, 1f)
+
+    private suspend fun init() {
+        pdf = PDFDocument.create().await()
+        pdf.registerFontkit(FontkitModule.default)
+        page = pdf.addPage(PageSizes.Letter)
     }
 
-    actual val width: Float = pdf.internal.pageSize.getWidth()
-    actual val height: Float = pdf.internal.pageSize.getHeight()
-
-    // Track the current offset, since jsPDF doesn't do this.
-    private var textOffsetX = 0f
-    private var lineOffsetX = 0f
-    private var textOffsetY = 0f
-
-    private val loadedTtfFonts: MutableSet<Pair<String, String>> = mutableSetOf()
-    private var currentFont: PdfFont? = null
-    private var currentFontSize: Float? = null
+    actual val width: Float get() = page.getWidth()
+    actual val height: Float get() = page.getHeight()
 
     actual fun beginText() {
-        textOffsetX = 0f
-        textOffsetY = 0f
-        lineOffsetX = 0f
+        page.moveTo(0f, 0f)
     }
 
     actual fun endText() {}
 
     actual fun newLineAtOffset(offsetX: Float, offsetY: Float) {
-        this.textOffsetX += offsetX
-        this.textOffsetY += offsetY
-        this.lineOffsetX = 0f
+        page.moveRight(offsetX)
+        page.moveUp(offsetY)
     }
 
-    actual fun setFont(font: PdfFont, size: Float) {
+    actual suspend fun setFont(font: PdfFont, size: Float) {
         setFont(font)
-        pdf.setFontSize(size)
-        currentFont = font
-        currentFontSize = size
+        page.setFontSize(size)
     }
 
-    private fun setFont(font: PdfFont) {
-        val (fontName, fontStyle) = when (font) {
+    private suspend fun setFont(font: PdfFont) {
+        val newFont = loadFont(font)
+        if (currentFont == newFont) {
+            return
+        }
+        page.setFont(newFont)
+        currentFont = newFont
+    }
+
+    private suspend fun loadFont(font: PdfFont): PDFFont = loadedFonts.getOrPut(font) {
+        when (font) {
             is PdfFont.BuiltInFont -> {
-                when (font.fontName) {
-                    BuiltInFontName.COURIER -> "courier" to "normal"
-                    BuiltInFontName.COURIER_BOLD -> "courier" to "bold"
-                    BuiltInFontName.COURIER_ITALIC -> "courier" to "italic"
-                    BuiltInFontName.COURIER_BOLD_ITALIC -> "courier" to "bolditalic"
-                    BuiltInFontName.TIMES_ROMAN -> "times" to "normal"
-                    BuiltInFontName.TIMES_BOLD -> "times" to "bold"
-                    BuiltInFontName.TIMES_ITALIC -> "times" to "italic"
-                    BuiltInFontName.TIMES_BOLD_ITALIC -> "times" to "bolditalic"
+                val standardFont = when (font.fontName) {
+                    BuiltInFontName.COURIER -> StandardFonts.Courier
+                    BuiltInFontName.COURIER_BOLD -> StandardFonts.CourierBold
+                    BuiltInFontName.COURIER_ITALIC -> StandardFonts.CourierOblique
+                    BuiltInFontName.COURIER_BOLD_ITALIC -> StandardFonts.CourierBoldOblique
+                    BuiltInFontName.TIMES_ROMAN -> StandardFonts.TimesRoman
+                    BuiltInFontName.TIMES_BOLD -> StandardFonts.TimesRomanBold
+                    BuiltInFontName.TIMES_ITALIC -> StandardFonts.TimesRomanItalic
+                    BuiltInFontName.TIMES_BOLD_ITALIC -> StandardFonts.TimesRomanBoldItalic
                 }
+                pdf.embedStandardFont(standardFont)
             }
             is PdfFont.TtfFont -> {
-                if (!loadedTtfFonts.contains(font.fontName to font.fontStyle)) {
-                    val fileName = "${font.fontName}-${font.fontStyle}.ttf"
-                    pdf.addFileToVFS(fileName, font.fontData.toByteString().base64())
-                    pdf.addFont(fileName, font.fontName, font.fontStyle)
-                    loadedTtfFonts.add(font.fontName to font.fontStyle)
-                }
-                font.fontName to font.fontStyle
+                pdf.embedFont(font.fontData.toArrayBuffer(), newEmbedFontOptions(subset = true)).await()
             }
         }
-        pdf.setFont(fontName, fontStyle)
     }
 
-    actual fun getTextWidth(text: String, font: PdfFont, size: Float): Float {
-        // getStringUnitWidth uses the current font, so temporarily set it to the desired value.
-        setFont(font)
-        val result = pdf.getStringUnitWidth(text) * size
-        currentFont?.let { setFont(it) }
-        return result
+    actual suspend fun getTextWidth(text: String, font: PdfFont, size: Float): Float {
+        return loadFont(font).widthOfTextAtSize(text, size)
     }
 
     actual fun drawText(text: String) {
-        pdf.text(text, textOffsetX + lineOffsetX, height - textOffsetY)
-        lineOffsetX += getTextWidth(text, currentFont!!, currentFontSize!!)
-    }
-
-    actual fun setStrokeColor(r: Float, g: Float, b: Float) {
-        pdf.setDrawColor(r.toString(), g.toString(), b.toString())
-    }
-
-    actual fun setFillColor(r: Float, g: Float, b: Float) {
-        pdf.setFillColor(r.toString(), g.toString(), b.toString())
+        page.drawText(text)
     }
 
     actual fun setLineWidth(width: Float) {
-        pdf.setLineWidth(width)
+        lineWidth = width
     }
 
-    actual fun addLine(x1: Float, y1: Float, x2: Float, y2: Float) {
-        pdf.line(x1, this.height - y1, x2, this.height - y2, style = null)
+    actual fun setStrokeColor(r: Float, g: Float, b: Float) {
+        strokeColor = rgb(r, g, b)
     }
 
-    actual fun addRect(x: Float, y: Float, width: Float, height: Float) {
-        pdf.rect(x, this.height - y - height, width, height, style = null)
+    actual fun setFillColor(r: Float, g: Float, b: Float) {
+        fillColor = rgb(r, g, b)
     }
 
-    actual fun addCircle(x: Float, y: Float, radius: Float) {
-        pdf.circle(x + radius, height - y - radius, radius, style = null)
+    actual fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float) {
+        page.drawLine(
+            newPDFPageDrawLineOptions(
+                start = newPoint(x1, y1),
+                end = newPoint(x2, y2),
+                thickness = lineWidth,
+                color = strokeColor,
+            )
+        )
     }
 
-    actual fun stroke() = pdf.stroke()
-    actual fun fill() = pdf.fill()
-    actual fun fillAndStroke() = pdf.fillStroke()
-
-    actual fun drawImage(x: Float, y: Float, width: Float, height: Float, imageData: ByteArray) {
-        // jsPDF takes a data URI, though it only parses out the base64 at the end.
-        val dataUri = "data:image/xxx;base64,${imageData.toByteString().base64()}"
-        pdf.addImage(dataUri, x = x, y = this.height - y - height, width = width, height = height)
+    actual fun drawRect(
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float,
+        stroke: Boolean,
+        fill: Boolean
+    ) {
+        page.drawRectangle(
+            newPDFPageDrawRectangleOptions(
+                x = x,
+                y = y,
+                width = width,
+                height = height,
+                borderWidth = if (stroke) lineWidth else undefined,
+                borderColor = if (stroke) strokeColor else undefined,
+                color = if (fill) fillColor else undefined,
+            )
+        )
     }
 
-    actual fun toByteArray(): ByteArray {
-        return (pdf.output("arraybuffer") as ArrayBuffer).toByteArray()
+    actual fun drawCircle(
+        x: Float,
+        y: Float,
+        radius: Float,
+        stroke: Boolean,
+        fill: Boolean
+    ) {
+        page.drawCircle(
+            newPDFPageDrawCircleOptions(
+                x = x + radius,
+                y = y + radius,
+                size = radius,
+                borderWidth = if (stroke) lineWidth else undefined,
+                borderColor = if (stroke) strokeColor else undefined,
+                color = if (fill) fillColor else undefined,
+            )
+        )
+    }
+
+    actual suspend fun drawImage(
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float,
+        image: Puzzle.Image.Data,
+    ) {
+        val pdfImage = when (image.format) {
+            Puzzle.ImageFormat.PNG -> pdf.embedPng(image.bytes.toByteArray().toArrayBuffer())
+            Puzzle.ImageFormat.JPG -> pdf.embedJpg(image.bytes.toByteArray().toArrayBuffer())
+            else -> throw UnsupportedOperationException("Unsupported image format for PDFs: ${image.format}")
+        }.await()
+        page.drawImage(pdfImage, newPDFPageDrawImageOptions(x = x, y = y, width = width, height = height))
+    }
+
+    actual suspend fun toByteArray(): ByteArray {
+        return pdf.save().await().buffer.toByteArray()
+    }
+
+    actual companion object {
+        actual suspend fun create(): PdfDocument {
+            return PdfDocument().also {
+                it.init()
+            }
+        }
     }
 }

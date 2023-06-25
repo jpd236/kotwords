@@ -87,24 +87,12 @@ abstract class Puzzleable {
      * @param blackSquareLightnessAdjustment Percentage (from 0 to 1) indicating how much to brighten black/colored
      *                                       squares (i.e. to save ink). 0 indicates no adjustment; 1 would be fully
      *                                       white.
-     * @param gridRenderer Optional function to render the grid, if custom rendering is desired. The default rendering
-     *                     draws a rectangular grid with square cells. Custom functions should fill a maximum width of
-     *                     gridWidth and return the resulting maximum height of the grid.
      */
     open suspend fun asPdf(
         fontFamily: PdfFontFamily = FONT_FAMILY_TIMES_ROMAN,
         blackSquareLightnessAdjustment: Float = 0f,
-        gridRenderer: (
-            document: PdfDocument,
-            puzzle: Puzzle,
-            blackSquareLightnessAdjustment: Float,
-            gridWidth: Float,
-            gridX: Float,
-            gridY: Float,
-            fontFamily: PdfFontFamily,
-        ) -> Pdf.DrawGridResult = Pdf::drawGrid,
     ): ByteArray {
-        return Pdf.asPdf(asPuzzle(), fontFamily, blackSquareLightnessAdjustment, gridRenderer)
+        return Pdf.asPdf(asPuzzle(), fontFamily, blackSquareLightnessAdjustment, Pdf::drawGrid)
     }
 }
 
@@ -124,14 +112,5 @@ abstract class DelegatingPuzzleable : Puzzleable() {
     override suspend fun asPdf(
         fontFamily: PdfFontFamily,
         blackSquareLightnessAdjustment: Float,
-        gridRenderer: (
-            document: PdfDocument,
-            puzzle: Puzzle,
-            blackSquareLightnessAdjustment: Float,
-            gridWidth: Float,
-            gridX: Float,
-            gridY: Float,
-            fontFamily: PdfFontFamily
-        ) -> Pdf.DrawGridResult
-    ): ByteArray = getPuzzleable().asPdf(fontFamily, blackSquareLightnessAdjustment, gridRenderer)
+    ): ByteArray = getPuzzleable().asPdf(fontFamily, blackSquareLightnessAdjustment)
 }
