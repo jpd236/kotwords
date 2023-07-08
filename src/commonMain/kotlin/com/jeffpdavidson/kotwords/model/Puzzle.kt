@@ -108,4 +108,20 @@ data class Puzzle(
     /** Returns the clue list whose title contains the given text (case-insensitive), if one exists. */
     fun getClues(titleText: String): ClueList? =
         clues.find { it.title.contains(titleText.toRegex(RegexOption.IGNORE_CASE)) }
+
+    /**
+     * Returns whether there are unclued words in the puzzle.
+     *
+     * This is true if any clue has text (to ignore puzzles with no text clues, like coded crosswords) and if the set of
+     * entries in the puzzle isn't a 1-1 match with the set of clues.
+     */
+    fun hasUncluedWords(): Boolean {
+        val anyClueHasText = clues.any { clueList -> clueList.clues.any { it.text.isNotEmpty() } }
+        if (!anyClueHasText) {
+            return false
+        }
+        val wordsByWordId = words.associate { it.id to it.cells }
+        val clueWordIds = clues.map { it.clues }.flatten().map { it.wordId }.toSet()
+        return wordsByWordId.keys != clueWordIds
+    }
 }

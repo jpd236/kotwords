@@ -22,6 +22,7 @@ object Index {
         "Jelly Roll",
         "Labyrinth",
         "Marching Bands",
+        "Patchwork",
         "Rows Garden",
         "Snake Charmer",
         "Spell Weaving",

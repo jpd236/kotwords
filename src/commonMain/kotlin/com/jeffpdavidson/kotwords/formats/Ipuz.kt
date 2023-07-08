@@ -298,7 +298,9 @@ class Ipuz(private val json: String) : Puzzleable() {
                         )
                     }
                 },
-                showEnumerations = puzzle.clues.any { clueList -> clueList.clues.any { it.format.isNotEmpty() } }
+                showEnumerations = puzzle.clues.any { clueList -> clueList.clues.any { it.format.isNotEmpty() } },
+                // Set fakeClues = true if there are any unclued words.
+                fakeClues = puzzle.hasUncluedWords()
             )
         }
     }
@@ -338,6 +340,8 @@ internal data class IpuzJson @OptIn(ExperimentalSerializationApi::class) constru
     @Serializable(with = ClueMapSerializer::class)
     @EncodeDefault val clues: Map<String, List<Clue>> = mapOf(),
     @SerialName("showenumerations") val showEnumerations: Boolean = false,
+    // Proprietary extension introduced by squares.io for when some clue lists are unassociated with answers.
+    @SerialName("fakeclues") val fakeClues: Boolean = false,
 ) {
     @Serializable
     sealed class Style

@@ -388,6 +388,9 @@ sealed class Jpz : Puzzleable() {
             solved: Boolean,
             appletSettings: CrosswordCompilerApplet.AppletSettings?,
         ): Jpz = with(puzzle) {
+            if (hasUncluedWords()) {
+                throw UnsupportedOperationException("JPZ files do not support unclued words.")
+            }
             val jpzGrid = RectangularPuzzle.Crossword.Grid(
                 width = grid[0].size,
                 height = grid.size,
