@@ -26,11 +26,14 @@ actual class PdfDocument {
     private lateinit var page: PDFPage
 
     private var currentFont: PDFFont? = null
+    private var fontSize: Float = 0f
     private val loadedFonts = mutableMapOf<PdfFont, PDFFont>()
 
     private var lineWidth: Float = 1f
     private var strokeColor: RGB = rgb(0f, 0f, 0f)
     private var fillColor: RGB = rgb(1f, 1f, 1f)
+
+    private var xOffset: Float = 0f
 
     private suspend fun init() {
         pdf = PDFDocument.create().await()
@@ -42,18 +45,21 @@ actual class PdfDocument {
     actual val height: Float get() = page.getHeight()
 
     actual fun beginText() {
+        xOffset = 0f
         page.moveTo(0f, 0f)
     }
 
     actual fun endText() {}
 
     actual fun newLineAtOffset(offsetX: Float, offsetY: Float) {
-        page.moveRight(offsetX)
+        page.moveRight(offsetX - xOffset)
+        xOffset = 0f
         page.moveUp(offsetY)
     }
 
     actual suspend fun setFont(font: PdfFont, size: Float) {
         setFont(font)
+        fontSize = size
         page.setFontSize(size)
     }
 
@@ -91,8 +97,11 @@ actual class PdfDocument {
         return loadFont(font).widthOfTextAtSize(text, size)
     }
 
-    actual fun drawText(text: String) {
+    actual suspend fun drawText(text: String) {
         page.drawText(text)
+        val width = currentFont!!.widthOfTextAtSize(text, fontSize)
+        xOffset += width
+        page.moveRight(width)
     }
 
     actual fun setLineWidth(width: Float) {

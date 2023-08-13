@@ -48,7 +48,7 @@ actual class PdfDocument {
         return font.toPdfFont().getStringWidth(text) * size / 1000
     }
 
-    actual fun drawText(text: String) {
+    actual suspend fun drawText(text: String) {
         content.showText(text)
     }
 

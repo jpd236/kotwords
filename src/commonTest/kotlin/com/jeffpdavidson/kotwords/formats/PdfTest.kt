@@ -34,6 +34,15 @@ class PdfTest {
         )
     }
 
+    @Test
+    fun asPdf_html() = runTest {
+        ImageComparator.assertPdfEquals(
+            readBinaryResource(ImageComparator::class, "pdf/test-html.pdf"),
+            JpzFile(readBinaryResource(PdfTest::class, "jpz/test-html.jpz"))
+                .asPuzzle().asPdf(blackSquareLightnessAdjustment = 0.75f, fontFamily = getNotoSerifFontFamily())
+        )
+    }
+
     // Note for splitTextToLines tests: a 100 pt line fits 16 10pt Courier characters.
 
     @Test

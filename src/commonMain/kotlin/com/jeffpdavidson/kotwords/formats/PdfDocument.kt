@@ -28,7 +28,7 @@ expect class PdfDocument private constructor() {
     suspend fun getTextWidth(text: String, font: PdfFont, size: Float): Float
 
     /** Draw and stroke the given [text]. */
-    fun drawText(text: String)
+    suspend fun drawText(text: String)
 
     /** Set the line width. */
     fun setLineWidth(width: Float)
