@@ -12,6 +12,7 @@ import kotlin.math.roundToInt
 
 private val PUZZLE_DATA_REGEX = """\bwindow\.(?:puzzleEnv\.)?rawc\s*=\s*'([^']+)'""".toRegex()
 private val KEY_REGEX = """var [a-zA-Z]+\s*=\s*"([0-9a-f]{7,})"""".toRegex()
+private val KEY_DIGIT_REGEX = """.push\((\d+)\)""".toRegex()
 
 private val ROWS_REGEX = """Row \d+: """.toRegex(RegexOption.IGNORE_CASE)
 private val BANDS_REGEX = """[^:]*band: """.toRegex(RegexOption.IGNORE_CASE)
@@ -203,8 +204,13 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
         }
 
         private fun deobfuscateRawc(rawc: String, keyStr: String): String {
+            return deobfuscateRawc(rawc, convertKeyStrToKey(keyStr))
+        }
+
+        private fun convertKeyStrToKey(keyStr: String): List<Int> = keyStr.map { it.digitToInt(16) + 2 }
+
+        private fun deobfuscateRawc(rawc: String, key: List<Int>): String {
             val buffer = rawc.toCharArray()
-            val key = keyStr.map { it.digitToInt(16) + 2 }
             var i = 0
             var segmentCount = 0
             while (i < buffer.size - 1) {
@@ -222,21 +228,33 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
 
         internal fun decodeRawcWithCrosswordJs(rawc: String, crosswordJs: String): String {
             if (!rawc.contains('.') && crosswordJs.isNotEmpty()) {
+                // Try to find the individual numbers of the key in the Javascript.
+                val keyDigits = KEY_DIGIT_REGEX.findAll(crosswordJs).toList()
+                if (keyDigits.isNotEmpty()) {
+                    val key = keyDigits.map { matchResult -> matchResult.groupValues[1].toInt() }
+                    try {
+                        return decodeRawc(rawc, key)
+                    } catch (e: InvalidFormatException) {
+                        // Assume this is an invalid key; try the next technique.
+                    }
+                }
+
                 // Try to find the key variable in the Javascript.
                 KEY_REGEX.findAll(crosswordJs).forEach { matchResult ->
                     val decodedRawc = try {
-                        decodeRawc(rawc, matchResult.groupValues[1])
+                        decodeRawc(rawc, convertKeyStrToKey(matchResult.groupValues[1]))
                     } catch (e: InvalidFormatException) {
                         // Assume this is an invalid key; try the next match.
                         return@forEach
                     }
                     return decodedRawc
                 }
+
             }
             return decodeRawc(rawc)
         }
 
-        private fun decodeRawc(rawc: String, key: String = ""): String {
+        private fun decodeRawc(rawc: String, key: List<Int> = listOf()): String {
             val deobfuscatedRawc = if (rawc.contains(".")) {
                 deobfuscateRawc(rawc)
             } else if (key.isNotEmpty()) {
