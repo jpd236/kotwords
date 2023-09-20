@@ -1,0 +1,33 @@
+TEST
+
+230920
+
+Example Puzzle for Kotwords
+
+<NOTEPAD>Notepad text goes here.</NOTEPAD>Jeff Davidson
+
+5
+
+5
+
+5
+
+5
+
+ABCD#
+EFGH#
+%IJX,Y,ZL%M
+#NOPQ
+#12$@
+
+First across clue with special characters αβγδε
+Second across clue
+Third across clue
+Fourth across clue
+Fifth across clue
+
+First down clue
+Second down clue
+Third down clue
+Fourth down clue
+Fifth down clue
