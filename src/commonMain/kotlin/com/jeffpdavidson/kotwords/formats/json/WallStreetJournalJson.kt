@@ -20,7 +20,7 @@ internal object WallStreetJournalJson {
     internal data class Copy(
         val title: String,
         val byline: String,
-        val description: String,
+        val description: String?,
         @SerialName("date-publish") val datePublish: String,
         val publisher: String,
         val gridsize: Gridsize,

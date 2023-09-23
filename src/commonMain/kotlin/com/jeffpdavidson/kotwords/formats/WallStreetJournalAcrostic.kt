@@ -36,7 +36,7 @@ class WallStreetJournalAcrostic(private val json: String) : DelegatingPuzzleable
                 gridKey[wordKey]!!.entries.sortedBy { it.key }.map { it.value }
             },
             clues = response.settings.clues.map { decodeHtmlEntities(it.clue) },
-            completionMessage = decodeHtmlEntities(response.copy.description),
+            completionMessage = decodeHtmlEntities(response.copy.description ?: ""),
             includeAttribution = true,
         )
     }

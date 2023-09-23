@@ -49,7 +49,7 @@ class WallStreetJournal(
             title = title,
             creator = response.data.copy.byline.unescapeEntities(),
             copyright = "\u00a9 ${date.yearInt} ${response.data.copy.publisher.unescapeEntities()}",
-            description = response.data.copy.description.unescapeEntities(),
+            description = response.data.copy.description?.unescapeEntities() ?: "",
             grid = grid,
             acrossClues = getClueMap(response, "Across"),
             downClues = getClueMap(response, "Down")
