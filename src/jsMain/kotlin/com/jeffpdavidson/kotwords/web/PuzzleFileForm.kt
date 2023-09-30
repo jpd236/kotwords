@@ -392,6 +392,7 @@ internal class PuzzleFileForm(
         return CrosswordCompilerApplet.AppletSettings(
             cursorColor = cursorColorField.value,
             selectedCellsColor = selectionColorField.value,
+            actions = CrosswordCompilerApplet.AppletSettings.Actions.DEFAULT_ACTIONS,
             completion = CrosswordCompilerApplet.AppletSettings.Completion(
                 message = completionMessageField?.value ?: ""
             )

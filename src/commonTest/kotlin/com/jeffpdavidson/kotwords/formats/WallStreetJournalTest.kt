@@ -18,4 +18,16 @@ class WallStreetJournalTest {
             )
         )
     }
+
+    @Test
+    fun noSolution() = runTest {
+        assertTrue(
+            readBinaryResource(WallStreetJournalTest::class, "puz/test-no-solution.puz").contentEquals(
+                WallStreetJournal(
+                    readStringResource(WallStreetJournalTest::class, "wsj/test-no-solution.json"),
+                    includeDateInTitle = false
+                ).asPuzzle().asAcrossLiteBinary()
+            )
+        )
+    }
 }

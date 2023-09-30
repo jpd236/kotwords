@@ -124,4 +124,15 @@ data class Puzzle(
         val clueWordIds = clues.map { it.clues }.flatten().map { it.wordId }.toSet()
         return wordsByWordId.keys != clueWordIds
     }
+
+    /**
+     * Returns whether the grid's solution is provided.
+     *
+     * This is true if any regular cell has non-empty solution text.
+     */
+    fun hasSolution(): Boolean {
+        return grid.flatten().any {
+            it.cellType == Puzzle.CellType.REGULAR && it.solution.isNotEmpty()
+        }
+    }
 }

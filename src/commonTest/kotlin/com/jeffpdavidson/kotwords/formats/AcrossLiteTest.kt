@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.formats
 import com.jeffpdavidson.kotwords.readBinaryResource
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class AcrossLiteTest {
@@ -16,6 +17,14 @@ class AcrossLiteTest {
     fun readAndWrite_diagramless() = runTest {
         val data = readBinaryResource(AcrossLiteTest::class, "puz/test-diagramless.puz")
         assertTrue(data.contentEquals(AcrossLite(data).asPuzzle().asAcrossLiteBinary()))
+    }
+
+    @Test
+    fun readAndWrite_noSolution() = runTest {
+        val data = readBinaryResource(AcrossLiteTest::class, "puz/test-no-solution.puz")
+        val puzzle = AcrossLite(data).asPuzzle()
+        assertFalse(puzzle.hasSolution())
+        assertTrue(data.contentEquals(puzzle.asAcrossLiteBinary()))
     }
 
     @Test

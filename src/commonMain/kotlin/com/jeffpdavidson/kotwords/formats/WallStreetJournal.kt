@@ -19,7 +19,7 @@ class WallStreetJournal(
         val response = JsonSerializer.fromJson<WallStreetJournalJson.CrosswordJson>(json)
         val grid = response.data.grid.map { row ->
             row.map { square ->
-                if (square.letter == "") {
+                if (square.blank != "") {
                     Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                 } else {
                     // Treat any kind of special square style as circled, since that's all Across
@@ -45,11 +45,14 @@ class WallStreetJournal(
             response.data.copy.title.unescapeEntities()
         }
         val date = PUBLISH_DATE_FORMAT.parse(publishDate)
+        val description = (response.data.copy.crosswordAdditionalCopy ?: "").ifBlank {
+            response.data.copy.description ?: ""
+        }.unescapeEntities()
         return Crossword(
             title = title,
             creator = response.data.copy.byline.unescapeEntities(),
             copyright = "\u00a9 ${date.yearInt} ${response.data.copy.publisher.unescapeEntities()}",
-            description = response.data.copy.description?.unescapeEntities() ?: "",
+            description = description,
             grid = grid,
             acrossClues = getClueMap(response, "Across"),
             downClues = getClueMap(response, "Down")

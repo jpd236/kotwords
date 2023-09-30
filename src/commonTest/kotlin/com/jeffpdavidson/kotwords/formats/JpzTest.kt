@@ -5,6 +5,7 @@ import com.jeffpdavidson.kotwords.readStringResource
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class JpzTest {
@@ -41,6 +42,15 @@ class JpzTest {
     fun jpzReadAndWrite_bgImages() = runTest {
         val jpzFile = JpzFile(readBinaryResource(JpzTest::class, "jpz/test-bgimage.jpz"))
         val convertedJpz = jpzFile.asPuzzle().asJpz(appletSettings = null)
+        assertEquals(jpzFile.getPuzzleable(), convertedJpz)
+    }
+
+    @Test
+    fun jpzReadAndWrite_noSolution() = runTest {
+        val jpzFile = JpzFile(readBinaryResource(JpzTest::class, "jpz/test-no-solution.jpz"))
+        val puzzle = jpzFile.asPuzzle()
+        assertFalse(puzzle.hasSolution())
+        val convertedJpz = puzzle.asJpz(appletSettings = null)
         assertEquals(jpzFile.getPuzzleable(), convertedJpz)
     }
 

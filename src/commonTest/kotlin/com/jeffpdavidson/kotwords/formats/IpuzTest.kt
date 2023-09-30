@@ -6,6 +6,7 @@ import com.jeffpdavidson.kotwords.readStringResource
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class IpuzTest {
@@ -15,6 +16,16 @@ class IpuzTest {
         val ipuz = Ipuz(readStringResource(IpuzTest::class, "ipuz/test.ipuz"))
         val convertedIpuz = ipuz.asIpuzFile(solved = true).decodeToString()
         assertEquals(readStringResource(IpuzTest::class, "ipuz/test-solved.ipuz"), convertedIpuz)
+    }
+
+    @Test
+    fun readAndWrite_noSolution() = runTest {
+        val ipuzFile = readStringResource(IpuzTest::class, "ipuz/test-no-solution.ipuz")
+        val ipuz = Ipuz(ipuzFile)
+        val puzzle = ipuz.asPuzzle()
+        assertFalse(puzzle.hasSolution())
+        val convertedIpuz = puzzle.asIpuzFile().decodeToString()
+        assertEquals(ipuzFile, convertedIpuz)
     }
 
     @Test

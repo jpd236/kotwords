@@ -21,6 +21,7 @@ internal object WallStreetJournalJson {
         val title: String,
         val byline: String,
         val description: String?,
+        @SerialName("crosswordadditionalcopy") val crosswordAdditionalCopy: String? = null,
         @SerialName("date-publish") val datePublish: String,
         val publisher: String,
         val gridsize: Gridsize,
@@ -33,6 +34,7 @@ internal object WallStreetJournalJson {
     @Serializable
     internal data class Square(
         @SerialName("Letter") val letter: String,
+        @SerialName("Blank") val blank: String,
         val style: Style = Style(shapebg = "", highlight = false)
     )
 

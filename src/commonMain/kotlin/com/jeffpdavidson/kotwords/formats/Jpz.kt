@@ -501,22 +501,29 @@ sealed class Jpz : Puzzleable() {
                 alphabet = if (puzzleType == Puzzle.PuzzleType.CODED) getAlphabet(grid) else null,
             )
 
+            val hasSolution = hasSolution()
             return if (
                 completionMessage.isNotEmpty() ||
                 appletSettings != null ||
-                puzzleType == Puzzle.PuzzleType.CODED
+                puzzleType == Puzzle.PuzzleType.CODED ||
+                !hasSolution
             ) {
                 val settings = appletSettings ?: CrosswordCompilerApplet.AppletSettings()
-                val completion =
-                    if (completionMessage.isEmpty()) {
-                        settings.completion
+                val completion = settings.completion.copy(
+                    message = completionMessage.ifEmpty { settings.completion.message },
+                    onlyIfCorrect = hasSolution
+                )
+                val actions =
+                    if (hasSolution) {
+                        CrosswordCompilerApplet.AppletSettings.Actions.DEFAULT_ACTIONS
                     } else {
-                        settings.completion.copy(message = completionMessage)
+                        CrosswordCompilerApplet.AppletSettings.Actions.NO_SOLUTION_ACTIONS
                     }
                 CrosswordCompilerApplet(
                     appletSettings = settings.copy(
                         completion = completion,
-                        showAlphabet = if (puzzleType == Puzzle.PuzzleType.CODED) true else null
+                        showAlphabet = if (puzzleType == Puzzle.PuzzleType.CODED) true else null,
+                        actions = actions,
                     ),
                     rectangularPuzzle = rectangularPuzzle
                 )
@@ -663,16 +670,32 @@ data class CrosswordCompilerApplet(
         @Serializable
         @SerialName("actions")
         data class Actions(
-            @SerialName("buttons-layout") val buttonsLayout: String = "left",
-            @XmlSerialName("reveal-word", CCA_NS, "") val revealWord: Action? = Action("Reveal Word"),
-            @XmlSerialName("reveal-letter", CCA_NS, "") val revealLetter: Action? = Action("Reveal Letter"),
-            @XmlSerialName("check", CCA_NS, "") val check: Action? = Action("Check"),
-            @XmlSerialName("solution", CCA_NS, "") val solution: Action? = Action("Solution"),
-            @XmlSerialName("pencil", CCA_NS, "") val pencil: Action? = Action("Pencil")
+            @SerialName("buttons-layout") val buttonsLayout: String? = null,
+            @XmlSerialName("reveal-word", CCA_NS, "") val revealWord: Action? = null,
+            @XmlSerialName("reveal-letter", CCA_NS, "") val revealLetter: Action? = null,
+            @XmlSerialName("check", CCA_NS, "") val check: Action? = null,
+            @XmlSerialName("solution", CCA_NS, "") val solution: Action? = null,
+            @XmlSerialName("pencil", CCA_NS, "") val pencil: Action? = null,
         ) {
 
             @Serializable
             data class Action(@SerialName("label") val label: String)
+
+            companion object {
+                val DEFAULT_ACTIONS = Actions(
+                    buttonsLayout = "left",
+                    revealWord = Action("Reveal Word"),
+                    revealLetter = Action("Reveal Letter"),
+                    check = Action("Check"),
+                    solution = Action("Solution"),
+                    pencil = Action("Pencil"),
+                )
+
+                val NO_SOLUTION_ACTIONS = Actions(
+                    buttonsLayout = "left",
+                    pencil = Action("Pencil"),
+                )
+            }
         }
     }
 

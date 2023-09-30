@@ -46,6 +46,9 @@ class Ipuz(private val json: String) : Puzzleable() {
 
         val grid = (0 until ipuz.dimensions.height).map { y ->
             (0 until ipuz.dimensions.width).map { x ->
+                val solution =
+                    (if (ipuz.solution.isNotEmpty()) ipuz.getValueIfValid(ipuz.solution[y][x].value) else "")
+                        .ifEmpty { ipuz.puzzle[y][x].value }
                 val style = when (val style = ipuz.puzzle[y][x].style) {
                     is IpuzJson.StyleRef -> {
                         ipuz.styles.getOrElse(style.style) { IpuzJson.StyleSpec() }
@@ -77,7 +80,7 @@ class Ipuz(private val json: String) : Puzzleable() {
                     else -> ""
                 }
                 Puzzle.Cell(
-                    solution = ipuz.getValueIfValid(ipuz.solution[y][x].value).ifEmpty { ipuz.puzzle[y][x].value },
+                    solution = solution,
                     entry = if (ipuz.saved.isEmpty()) "" else ipuz.getValueIfValid(ipuz.saved[y][x].value),
                     foregroundColor = if (style.colorText.isEmpty()) "" else "#${style.colorText}",
                     backgroundColor = backgroundColor,
@@ -277,11 +280,14 @@ class Ipuz(private val json: String) : Puzzleable() {
                 } else {
                     listOf()
                 },
-                solution =
-                puzzle.grid.map { row ->
-                    row.map { cell ->
-                        IpuzJson.CrosswordValue(value = if (cell.cellType.isBlack()) null else cell.solution)
+                solution = if (puzzle.hasSolution()) {
+                    puzzle.grid.map { row ->
+                        row.map { cell ->
+                            IpuzJson.CrosswordValue(value = if (cell.cellType.isBlack()) null else cell.solution)
+                        }
                     }
+                } else {
+                    listOf()
                 },
                 clues =
                 puzzle.clues.associate { clueList ->

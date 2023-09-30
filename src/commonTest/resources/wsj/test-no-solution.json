@@ -66,19 +66,19 @@
     "grid": [
       [
         {
-          "Letter": "A",
+          "Letter": "",
           "Blank": ""
         },
         {
-          "Letter": "B",
+          "Letter": "",
           "Blank": ""
         },
         {
-          "Letter": "C",
+          "Letter": "",
           "Blank": ""
         },
         {
-          "Letter": "D",
+          "Letter": "",
           "Blank": ""
         },
         {
@@ -88,19 +88,19 @@
       ],
       [
         {
-          "Letter": "E",
+          "Letter": "",
           "Blank": ""
         },
         {
-          "Letter": "F",
+          "Letter": "",
           "Blank": ""
         },
         {
-          "Letter": "G",
+          "Letter": "",
           "Blank": ""
         },
         {
-          "Letter": "H",
+          "Letter": "",
           "Blank": ""
         },
         {
@@ -110,7 +110,7 @@
       ],
       [
         {
-          "Letter": "I",
+          "Letter": "",
           "style": {
             "shapebg": "circle",
             "highlight": false
@@ -118,19 +118,19 @@
           "Blank": ""
         },
         {
-          "Letter": "J",
+          "Letter": "",
           "Blank": ""
         },
         {
-          "Letter": "XYZ",
+          "Letter": "",
           "Blank": ""
         },
         {
-          "Letter": "L",
+          "Letter": "",
           "Blank": ""
         },
         {
-          "Letter": "M",
+          "Letter": "",
           "style": {
             "shapebg": "circle",
             "highlight": false
@@ -144,19 +144,19 @@
           "Blank": "blank"
         },
         {
-          "Letter": "N",
+          "Letter": "",
           "Blank": ""
         },
         {
-          "Letter": "O",
+          "Letter": "",
           "Blank": ""
         },
         {
-          "Letter": "P",
+          "Letter": "",
           "Blank": ""
         },
         {
-          "Letter": "Q",
+          "Letter": "",
           "Blank": ""
         }
       ],
@@ -166,19 +166,19 @@
           "Blank": "blank"
         },
         {
-          "Letter": "1",
+          "Letter": "",
           "Blank": ""
         },
         {
-          "Letter": "2",
+          "Letter": "",
           "Blank": ""
         },
         {
-          "Letter": "$",
+          "Letter": "",
           "Blank": ""
         },
         {
-          "Letter": "@",
+          "Letter": "",
           "Blank": ""
         }
       ]

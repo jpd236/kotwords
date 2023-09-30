@@ -14,6 +14,9 @@ private const val UTF8_FORMAT_VERSION = "2.0"
 private const val TYPE_NORMAL = 0x0001
 private const val TYPE_DIAGRAMLESS = 0x0401
 
+private const val SOLUTION_NORMAL = 0x0000
+private const val SOLUTION_NONE = 0x0002
+
 private val validSymbolRegex = "[@#$%&+?A-Z0-9]".toRegex()
 
 /**
@@ -70,7 +73,8 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
 
             val diagramless = readShortLe().toInt() == TYPE_DIAGRAMLESS
 
-            skip(2)
+            // 0 is normal, 2 is no solution, 4 is scrambled.
+            val normalSolution = readShortLe().toInt() == SOLUTION_NORMAL
 
             val solutions = readString(length = width * height, charset = Charset.CP_1252)
             val entries = readString(length = width * height, charset = Charset.CP_1252)
@@ -181,7 +185,7 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
                                 Puzzle.BackgroundShape.NONE
                             }
                         Puzzle.Cell(
-                            solution = solution,
+                            solution = if (normalSolution) solution else "",
                             backgroundShape = backgroundShape,
                             entry = if (entry == "-") "" else entry,
                         )
@@ -239,8 +243,11 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
                             if (sanitizedSolution != null) {
                                 sanitizedSolution
                             } else {
-                                // Show a warning about unsupported features, and fall back to "X".
-                                unsupportedFeatures = true
+                                if (hasSolution()) {
+                                    // Show a warning about unsupported features.
+                                    unsupportedFeatures = true
+                                }
+                                // Fall back to "X".
                                 "X"
                             }
                         require(cell.entry.isEmpty() || isValidGridString(cell.entry)) {
@@ -319,7 +326,7 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
                 writeShortLe(if (diagramless) TYPE_DIAGRAMLESS else TYPE_NORMAL)
 
                 // 0x32-0x33: scrambled tag (unscrambled vs. scrambled vs. no solution)
-                writeShortLe(0)
+                writeShortLe(if (hasSolution()) SOLUTION_NORMAL else SOLUTION_NONE)
 
                 // Board solution, reading left to right, top to bottom
                 writeGrid(cleanedGrid, '.') {
