@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.jeffpdavidson.kotwords"
-version = "1.3.9-SNAPSHOT"
+version = "1.3.9"
 
 repositories {
     mavenCentral()
