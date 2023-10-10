@@ -45,12 +45,15 @@ class WallStreetJournal(
             response.data.copy.title.unescapeEntities()
         }
         val date = PUBLISH_DATE_FORMAT.parse(publishDate)
+        val creator = (response.data.meta.author ?: "").ifBlank {
+            response.data.copy.byline ?: ""
+        }.unescapeEntities()
         val description = (response.data.copy.crosswordAdditionalCopy ?: "").ifBlank {
             response.data.copy.description ?: ""
         }.unescapeEntities()
         return Crossword(
             title = title,
-            creator = response.data.copy.byline.unescapeEntities(),
+            creator = creator,
             copyright = "\u00a9 ${date.yearInt} ${response.data.copy.publisher.unescapeEntities()}",
             description = description,
             grid = grid,

@@ -3,12 +3,14 @@
     "title": "Test title",
     "description": "Quote author, &ldquo;Quote&rdquo;",
     "publisher": "Test publisher",
-    "byline": "Test byline",
     "date-publish": "Saturday, 31 July 2021",
     "gridsize": {
       "cols": "20",
       "rows": "0"
     }
+  },
+  "meta": {
+    "byline": "Test byline"
   },
   "settings": {
     "solution": "ACRO-ST IC",

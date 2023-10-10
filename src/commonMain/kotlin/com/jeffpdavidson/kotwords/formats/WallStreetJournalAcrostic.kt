@@ -25,9 +25,12 @@ class WallStreetJournalAcrostic(private val json: String) : DelegatingPuzzleable
         val publishDate = decodeHtmlEntities(response.copy.datePublish)
         val title = decodeHtmlEntities(response.copy.title)
         val date = PUBLISH_DATE_FORMAT.parse(publishDate)
+        val creator = decodeHtmlEntities((response.meta.byline ?: "").ifBlank {
+            response.copy.byline ?: ""
+        })
         return Acrostic(
             title = title,
-            creator = decodeHtmlEntities(response.copy.byline),
+            creator = creator,
             copyright = "\u00a9 ${date.yearInt} ${decodeHtmlEntities(response.copy.publisher)}",
             description = "",
             suggestedWidth = response.copy.gridsize.cols,

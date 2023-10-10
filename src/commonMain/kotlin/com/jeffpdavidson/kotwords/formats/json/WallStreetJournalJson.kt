@@ -19,13 +19,19 @@ internal object WallStreetJournalJson {
     @Serializable
     internal data class Copy(
         val title: String,
-        val byline: String,
+        val byline: String? = null,
         val description: String?,
         @SerialName("crosswordadditionalcopy") val crosswordAdditionalCopy: String? = null,
         @SerialName("date-publish") val datePublish: String,
         val publisher: String,
         val gridsize: Gridsize,
         val clues: List<ClueSet> = listOf(),
+    )
+
+    @Serializable
+    internal data class Meta(
+        val author: String? = null,
+        val byline: String? = null,
     )
 
     @Serializable
@@ -39,7 +45,7 @@ internal object WallStreetJournalJson {
     )
 
     @Serializable
-    internal data class Data(val copy: Copy, val grid: List<List<Square>>)
+    internal data class Data(val copy: Copy, val meta: Meta = Meta(), val grid: List<List<Square>>)
 
     @Serializable
     internal data class CrosswordJson(val data: Data)
@@ -53,6 +59,7 @@ internal object WallStreetJournalJson {
     @Serializable
     internal data class AcrosticJson(
         val copy: Copy,
+        val meta: Meta = Meta(),
         val settings: Settings,
         val celldata: String,
         val cluedata: String,

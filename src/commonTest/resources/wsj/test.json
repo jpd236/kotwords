@@ -4,7 +4,6 @@
       "title": "Example Puzzle for Kotwords",
       "description": "Notepad&#32;text goes here.",
       "publisher": "Jeff Davidson",
-      "byline": "Jeff Davidson",
       "date-publish": "Tuesday, 10 April 2018",
       "gridsize": {
         "cols": "5",
@@ -62,6 +61,9 @@
           ]
         }
       ]
+    },
+    "meta": {
+      "author": "Jeff Davidson"
     },
     "grid": [
       [
