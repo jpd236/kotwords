@@ -19,7 +19,7 @@ internal object WallStreetJournalJson {
     @Serializable
     internal data class Copy(
         val title: String,
-        val byline: String,
+        val byline: String? = null,
         val description: String?,
         @SerialName("crosswordadditionalcopy") val crosswordAdditionalCopy: String? = null,
         @SerialName("date-publish") val datePublish: String,

@@ -50,7 +50,7 @@ class WallStreetJournal(
         }.unescapeEntities()
         return Crossword(
             title = title,
-            creator = response.data.copy.byline.unescapeEntities(),
+            creator = response.data.copy.byline?.unescapeEntities() ?: "",
             copyright = "\u00a9 ${date.yearInt} ${response.data.copy.publisher.unescapeEntities()}",
             description = description,
             grid = grid,

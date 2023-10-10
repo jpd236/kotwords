@@ -1,0 +1,186 @@
+{
+  "data": {
+    "copy": {
+      "title": "Example Puzzle for Kotwords",
+      "description": "Notepad&#32;text goes here.",
+      "publisher": "Jeff Davidson",
+      "date-publish": "Tuesday, 10 April 2018",
+      "gridsize": {
+        "cols": "5",
+        "rows": "5"
+      },
+      "clues": [
+        {
+          "title": "Across",
+          "clues": [
+            {
+              "number": "1",
+              "clue": "First across clue with special characters αβγδε"
+            },
+            {
+              "number": "5",
+              "clue": "Second across clue"
+            },
+            {
+              "number": "6",
+              "clue": "Third across clue"
+            },
+            {
+              "number": "8",
+              "clue": "Fourth across clue"
+            },
+            {
+              "number": "9",
+              "clue": "Fifth across clue"
+            }
+          ]
+        },
+        {
+          "title": "Down",
+          "clues": [
+            {
+              "number": "1",
+              "clue": "First down clue"
+            },
+            {
+              "number": "2",
+              "clue": "Second down clue"
+            },
+            {
+              "number": "3",
+              "clue": "Third down clue"
+            },
+            {
+              "number": "4",
+              "clue": "Fourth down clue"
+            },
+            {
+              "number": "7",
+              "clue": "Fifth&#32;down clue"
+            }
+          ]
+        }
+      ]
+    },
+    "grid": [
+      [
+        {
+          "Letter": "A",
+          "Blank": ""
+        },
+        {
+          "Letter": "B",
+          "Blank": ""
+        },
+        {
+          "Letter": "C",
+          "Blank": ""
+        },
+        {
+          "Letter": "D",
+          "Blank": ""
+        },
+        {
+          "Letter": "",
+          "Blank": "blank"
+        }
+      ],
+      [
+        {
+          "Letter": "E",
+          "Blank": ""
+        },
+        {
+          "Letter": "F",
+          "Blank": ""
+        },
+        {
+          "Letter": "G",
+          "Blank": ""
+        },
+        {
+          "Letter": "H",
+          "Blank": ""
+        },
+        {
+          "Letter": "",
+          "Blank": "blank"
+        }
+      ],
+      [
+        {
+          "Letter": "I",
+          "style": {
+            "shapebg": "circle",
+            "highlight": false
+          },
+          "Blank": ""
+        },
+        {
+          "Letter": "J",
+          "Blank": ""
+        },
+        {
+          "Letter": "XYZ",
+          "Blank": ""
+        },
+        {
+          "Letter": "L",
+          "Blank": ""
+        },
+        {
+          "Letter": "M",
+          "style": {
+            "shapebg": "circle",
+            "highlight": false
+          },
+          "Blank": ""
+        }
+      ],
+      [
+        {
+          "Letter": "",
+          "Blank": "blank"
+        },
+        {
+          "Letter": "N",
+          "Blank": ""
+        },
+        {
+          "Letter": "O",
+          "Blank": ""
+        },
+        {
+          "Letter": "P",
+          "Blank": ""
+        },
+        {
+          "Letter": "Q",
+          "Blank": ""
+        }
+      ],
+      [
+        {
+          "Letter": "",
+          "Blank": "blank"
+        },
+        {
+          "Letter": "1",
+          "Blank": ""
+        },
+        {
+          "Letter": "2",
+          "Blank": ""
+        },
+        {
+          "Letter": "$",
+          "Blank": ""
+        },
+        {
+          "Letter": "@",
+          "Blank": ""
+        }
+      ]
+    ]
+  }
+}

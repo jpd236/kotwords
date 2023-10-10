@@ -30,4 +30,16 @@ class WallStreetJournalTest {
             )
         )
     }
+
+    @Test
+    fun noByline() = runTest {
+        assertTrue(
+            readBinaryResource(WallStreetJournalTest::class, "puz/test-no-byline.puz").contentEquals(
+                WallStreetJournal(
+                    readStringResource(WallStreetJournalTest::class, "wsj/test-no-byline.json"),
+                    includeDateInTitle = false
+                ).asPuzzle().asAcrossLiteBinary()
+            )
+        )
+    }
 }
