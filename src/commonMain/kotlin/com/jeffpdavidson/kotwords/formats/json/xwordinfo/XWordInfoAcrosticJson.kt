@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.formats.json.xwordinfo
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 internal object XWordInfoAcrosticJson {
@@ -13,4 +14,7 @@ internal object XWordInfoAcrosticJson {
         val clueData: List<String>,
         val cols: Int,
     )
+
+    @Serializable
+    data class EncodedResponse(@SerialName("Data") val data: String)
 }

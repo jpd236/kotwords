@@ -27,8 +27,17 @@ package com.jeffpdavidson.kotwords.formats
  *
  */
 internal object LzString {
+    private const val keyStrUri = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$"
+
     fun decompress(compressed: String): String =
         if (compressed.isBlank()) "" else decompress(compressed.length, 32768) { compressed[it] }
+
+    fun decompressFromEncodedURIComponent(compressed: String): String = when {
+        compressed.isBlank() -> ""
+        else -> decompress(compressed.length, 32) {
+            keyStrUri.indexOf(compressed[it]).toChar()
+        }
+    }
 
     private fun decompress(length: Int, resetValue: Int, getNextValue: (idx: Int) -> Char): String {
         data class Data(

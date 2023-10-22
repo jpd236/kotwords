@@ -14,7 +14,10 @@ private val TITLE_DATE_FORMAT = DateFormat("EEEE, MMMM d, yyyy")
 class XWordInfoAcrostic(private val json: String, private val author: String) : DelegatingPuzzleable() {
 
     override suspend fun getPuzzleable(): Acrostic {
-        val response = JsonSerializer.fromJson<XWordInfoAcrosticJson.Response>(json)
+        val data = LzString.decompressFromEncodedURIComponent(
+            JsonSerializer.fromJson<XWordInfoAcrosticJson.EncodedResponse>(json).data
+        )
+        val response = JsonSerializer.fromJson<XWordInfoAcrosticJson.Response>(data)
         val date = DATE_FORMAT.parse(response.date)
         return Acrostic(
             title = "Acrostic for ${TITLE_DATE_FORMAT.format(date)}",
