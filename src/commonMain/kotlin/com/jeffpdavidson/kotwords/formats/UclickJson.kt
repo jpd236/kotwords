@@ -4,9 +4,9 @@ import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.formats.json.UclickJson
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Puzzle
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.format
-import com.soywiz.klock.parseDate
+import korlibs.time.DateFormat
+import korlibs.time.format
+import korlibs.time.parseDate
 
 private val JSON_DATE_FORMAT = DateFormat("yyyyMMdd")
 private val TITLE_DATE_FORMAT = DateFormat("EEEE, MMMM d, yyyy")

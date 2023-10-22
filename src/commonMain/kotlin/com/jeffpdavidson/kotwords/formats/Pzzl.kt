@@ -2,7 +2,7 @@ package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Puzzle
-import com.soywiz.klock.DateFormat
+import korlibs.time.DateFormat
 
 private val DATE_FORMAT = DateFormat("yyMMdd")
 private val CREATOR_DESCRIPTION_PATTERN = "(?:<NOTEPAD>(.*)</NOTEPAD>)?(.*)".toRegex()

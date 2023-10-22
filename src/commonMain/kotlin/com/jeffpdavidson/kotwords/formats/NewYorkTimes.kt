@@ -4,9 +4,9 @@ import com.jeffpdavidson.kotwords.formats.json.nyt.NewYorkTimesApiJson
 import com.jeffpdavidson.kotwords.formats.json.nyt.NewYorkTimesJson
 import com.jeffpdavidson.kotwords.formats.json.nyt.NewYorkTimesPluribusJson
 import com.jeffpdavidson.kotwords.model.Puzzle
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.format
-import com.soywiz.klock.parseDate
+import korlibs.time.DateFormat
+import korlibs.time.format
+import korlibs.time.parseDate
 import okio.ByteString
 import okio.ByteString.Companion.toByteString
 import okio.use

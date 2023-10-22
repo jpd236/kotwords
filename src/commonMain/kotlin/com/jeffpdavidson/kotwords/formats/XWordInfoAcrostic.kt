@@ -4,8 +4,8 @@ import com.jeffpdavidson.kotwords.formats.Encodings.decodeHtmlEntities
 import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.formats.json.xwordinfo.XWordInfoAcrosticJson
 import com.jeffpdavidson.kotwords.model.Acrostic
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.parse
+import korlibs.time.DateFormat
+import korlibs.time.parse
 
 private val DATE_FORMAT = DateFormat("M/d/yyyy")
 private val TITLE_DATE_FORMAT = DateFormat("EEEE, MMMM d, yyyy")

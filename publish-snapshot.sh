@@ -19,6 +19,6 @@ elif [ "$GITHUB_BRANCH" != "$BRANCH" ]; then
   echo "Not publishing snapshot; wrong branch. Expected '$BRANCH' but was '$GITHUB_BRANCH'."
 else
   echo "Publishing snapshot..."
-  ./gradlew publishToSonatype
+  ./gradlew publishToSonatype closeSonatypeStagingRepository
   echo "Published build!"
 fi

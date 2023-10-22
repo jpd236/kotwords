@@ -1,6 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
-import org.apache.pdfbox.pdmodel.PDDocument
+import org.apache.pdfbox.Loader
 import org.apache.pdfbox.rendering.PDFRenderer
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
@@ -27,7 +27,7 @@ actual object ImageComparator {
     }
 
     private fun render(pdfBytes: ByteArray): BufferedImage {
-        PDDocument.load(pdfBytes).use {
+        Loader.loadPDF(pdfBytes).use {
             assertEquals(1, it.numberOfPages)
             val renderer = PDFRenderer(it)
             return renderer.renderImage(0)

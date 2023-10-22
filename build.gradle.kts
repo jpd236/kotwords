@@ -3,10 +3,10 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 plugins {
     `maven-publish`
     signing
-    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
-    id("org.jetbrains.dokka") version "1.7.20"
-    kotlin("multiplatform") version "1.8.22"
-    kotlin("plugin.serialization") version "1.8.22"
+    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
+    id("org.jetbrains.dokka") version "1.9.10"
+    kotlin("multiplatform") version "1.9.10"
+    kotlin("plugin.serialization") version "1.9.10"
 }
 
 group = "com.jeffpdavidson.kotwords"
@@ -40,16 +40,17 @@ kotlin {
 
         val commonMain by getting {
             dependencies {
-                implementation("com.squareup.okio:okio:3.3.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
-                implementation("net.mamoe.yamlkt:yamlkt:0.12.0")
-                implementation("io.github.pdvrieze.xmlutil:serialization:0.85.0")
-                implementation("com.github.ajalt.colormath:colormath:3.2.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+                implementation("com.squareup.okio:okio:3.6.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+                implementation("net.mamoe.yamlkt:yamlkt:0.13.0")
+                // TODO: Update once https://github.com/pdvrieze/xmlutil/discussions/186 is resolved.
+                implementation("io.github.pdvrieze.xmlutil:serialization:0.86.0")
+                implementation("com.github.ajalt.colormath:colormath:3.3.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
                 // TODO: Migrate to kotlinx-datetime if parsing/formatting support is added.
-                implementation("com.soywiz.korlibs.klock:klock:3.4.0")
+                implementation("com.soywiz.korlibs.klock:klock:4.0.10")
             }
         }
 
@@ -57,7 +58,7 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-test-annotations-common")
                 implementation("org.jetbrains.kotlin:kotlin-test-common")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
             }
 
             languageSettings {
@@ -67,9 +68,8 @@ kotlin {
 
         val jvmMain by getting {
             dependencies {
-                implementation("org.apache.pdfbox:pdfbox:2.0.27")
-                implementation("org.glassfish:javax.json:1.1.4")
-                implementation("org.jsoup:jsoup:1.15.3")
+                implementation("org.apache.pdfbox:pdfbox:3.0.0")
+                implementation("org.jsoup:jsoup:1.16.2")
             }
         }
 
@@ -88,14 +88,14 @@ kotlin {
                 implementation(npm("jszip", "3.10.1"))
                 implementation(npm("pdf-lib", "1.17.1"))
                 implementation(npm("@pdf-lib/fontkit", "1.1.1"))
-                implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.8.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.9.1")
             }
         }
 
         val jsTest by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-test-js")
-                implementation(npm("pdfjs-dist", "3.3.122"))
+                implementation(npm("pdfjs-dist", "3.11.174"))
             }
 
             languageSettings {
@@ -123,8 +123,8 @@ tasks {
     @Suppress("UNUSED_VARIABLE") // https://youtrack.jetbrains.com/issue/KT-38871
     val browserDistributionZip by creating(Zip::class) {
         dependsOn(browserProductionWebpackTask)
-        from (browserProductionWebpackTask.destinationDirectory)
-        destinationDirectory.set(file("${buildDir}/zip"))
+        from (browserProductionWebpackTask.outputDirectory)
+        destinationDirectory.set(layout.buildDirectory.dir("zip").get().getAsFile())
         archiveAppendix.set("browser-distribution")
     }
 
@@ -184,3 +184,4 @@ nexusPublishing {
         }
     }
 }
+

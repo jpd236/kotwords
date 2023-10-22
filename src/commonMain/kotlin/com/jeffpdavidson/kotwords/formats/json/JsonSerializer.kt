@@ -1,6 +1,5 @@
 package com.jeffpdavidson.kotwords.formats.json
 
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 /** Utility class for serializing to Json. */

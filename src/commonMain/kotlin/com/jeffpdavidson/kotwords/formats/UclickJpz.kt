@@ -1,9 +1,9 @@
 package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.model.Puzzle
-import com.soywiz.klock.Date
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.format
+import korlibs.time.Date
+import korlibs.time.DateFormat
+import korlibs.time.format
 
 private val TITLE_DATE_FORMAT = DateFormat("EEEE, MMMM d, yyyy")
 private val CLUE_ANNOTATION_REGEX = """ (?:@@|\|\|).*$""".toRegex()

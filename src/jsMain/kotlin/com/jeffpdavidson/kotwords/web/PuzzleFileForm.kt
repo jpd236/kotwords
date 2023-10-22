@@ -8,8 +8,8 @@ import com.jeffpdavidson.kotwords.js.Interop.toArrayBuffer
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.DateTime
+import korlibs.time.DateFormat
+import korlibs.time.DateTime
 import kotlinx.browser.document
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
