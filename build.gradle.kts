@@ -185,3 +185,8 @@ nexusPublishing {
     }
 }
 
+// TODO: Remove workaround once https://github.com/gradle/gradle/issues/26091 is resolved.
+tasks.withType<AbstractPublishToMaven>().configureEach {
+    val signingTasks = tasks.withType<Sign>()
+    mustRunAfter(signingTasks)
+}

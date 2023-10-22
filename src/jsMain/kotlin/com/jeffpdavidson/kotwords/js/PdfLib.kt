@@ -42,19 +42,19 @@ internal external class PDFFont {
 
 internal external class PDFImage
 
-internal external enum class PageSizes {
-    Letter
+internal external sealed class PageSizes {
+    object Letter: PageSizes
 }
 
-internal external enum class StandardFonts {
-    Courier,
-    CourierBold,
-    CourierBoldOblique,
-    CourierOblique,
-    TimesRoman,
-    TimesRomanBold,
-    TimesRomanBoldItalic,
-    TimesRomanItalic
+internal external sealed class StandardFonts {
+    object Courier: StandardFonts
+    object CourierBold: StandardFonts
+    object CourierBoldOblique: StandardFonts
+    object CourierOblique: StandardFonts
+    object TimesRoman: StandardFonts
+    object TimesRomanBold: StandardFonts
+    object TimesRomanBoldItalic: StandardFonts
+    object TimesRomanItalic: StandardFonts
 }
 
 internal external interface EmbedFontOptions {
