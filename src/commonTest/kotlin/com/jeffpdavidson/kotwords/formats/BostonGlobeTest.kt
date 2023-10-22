@@ -57,6 +57,14 @@ class BostonGlobeTest {
     }
 
     @Test
+    fun parseSubHeader_copyright() {
+        assertEquals(
+            BostonGlobe.Companion.SubHeader("Test Title", "Test Author", "\u00a9 Test Copyright"),
+            BostonGlobe.parseSubHeader("Test Title By Test Author, (c) Test Copyright")
+        )
+    }
+
+    @Test
     fun parseSubHeader_noCopyright() {
         assertEquals(
             BostonGlobe.Companion.SubHeader("Test Title", "Test Author", ""),

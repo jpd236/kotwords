@@ -73,7 +73,7 @@ class BostonGlobe(private val html: String) : DelegatingPuzzleable() {
             // Subheaders should be of the form: [Title + Author], [Copyright]
             val (titleAuthor, copyright) = if (subHeader.contains(COMMA_REGEX)) {
                 val parts = subHeader.split(COMMA_REGEX, limit = 2)
-                parts[0] to "\u00a9 ${parts[1]}"
+                parts[0] to "\u00a9 ${parts[1].substringAfter("(c) ")}"
             } else {
                 // Just assume the whole thing is the title + author as a fallback.
                 subHeader to ""
