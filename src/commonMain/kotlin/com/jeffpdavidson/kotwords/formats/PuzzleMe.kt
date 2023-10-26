@@ -14,6 +14,9 @@ private val PUZZLE_DATA_REGEX = """\bwindow\.(?:puzzleEnv\.)?rawc\s*=\s*'([^']+)
 private val KEY_REGEX = """var [a-zA-Z]+\s*=\s*"([0-9a-f]{7,})"""".toRegex()
 private val KEY_DIGIT_REGEX = """.push\((\d+)\)""".toRegex()
 
+private val KEY_2_ORDER_REGEX = """i=(\d+);i<t.length;i\+=""".toRegex()
+private val KEY_2_DIGIT_REGEX = """t.length\?(\d+)""".toRegex()
+
 private val ROWS_REGEX = """Row \d+: """.toRegex(RegexOption.IGNORE_CASE)
 private val BANDS_REGEX = """[^:]*band: """.toRegex(RegexOption.IGNORE_CASE)
 
@@ -228,7 +231,21 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
 
         internal fun decodeRawcWithCrosswordJs(rawc: String, crosswordJs: String): String {
             if (!rawc.contains('.') && crosswordJs.isNotEmpty()) {
-                // Try to find the individual numbers of the key in the Javascript.
+                // Try to find the individual numbers of the key and their order in the Javascript.
+                val keyDigitMatches = KEY_2_DIGIT_REGEX.findAll(crosswordJs).toList()
+                val keyOrderMatches = KEY_2_ORDER_REGEX.findAll(crosswordJs).toList()
+                if (keyDigitMatches.isNotEmpty() && keyDigitMatches.size == keyOrderMatches.size) {
+                    val keyDigits = keyDigitMatches.map { it.groupValues[1].toInt() }
+                    val keyOrders = keyOrderMatches.map { it.groupValues[1].toInt() }
+                    val key = keyDigits.zip(keyOrders).sortedBy { it.second }.map { it.first }
+                    try {
+                        return decodeRawc(rawc, key)
+                    } catch (e: InvalidFormatException) {
+                        // Assume this is an invalid key; try the next technique.
+                    }
+                }
+
+                // Try another way to find the individual numbers of the key in the Javascript.
                 val keyDigits = KEY_DIGIT_REGEX.findAll(crosswordJs).toList()
                 if (keyDigits.isNotEmpty()) {
                     val key = keyDigits.map { matchResult -> matchResult.groupValues[1].toInt() }
@@ -249,7 +266,6 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
                     }
                     return decodedRawc
                 }
-
             }
             return decodeRawc(rawc)
         }
