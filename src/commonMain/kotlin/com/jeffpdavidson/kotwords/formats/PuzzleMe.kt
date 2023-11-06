@@ -14,8 +14,8 @@ private val PUZZLE_DATA_REGEX = """\bwindow\.(?:puzzleEnv\.)?rawc\s*=\s*'([^']+)
 private val KEY_REGEX = """var [a-zA-Z]+\s*=\s*"([0-9a-f]{7,})"""".toRegex()
 private val KEY_DIGIT_REGEX = """.push\((\d+)\)""".toRegex()
 
-private val KEY_2_ORDER_REGEX = """i=(\d+);i<t.length;i\+=""".toRegex()
-private val KEY_2_DIGIT_REGEX = """t.length\?(\d+)""".toRegex()
+private val KEY_2_ORDER_REGEX = """[a-z]+=(\d+);[a-z]+<[a-z]+.length;[a-z]+\+=""".toRegex()
+private val KEY_2_DIGIT_REGEX = """<[a-z]+.length\?(\d+)""".toRegex()
 
 private val ROWS_REGEX = """Row \d+: """.toRegex(RegexOption.IGNORE_CASE)
 private val BANDS_REGEX = """[^:]*band: """.toRegex(RegexOption.IGNORE_CASE)
