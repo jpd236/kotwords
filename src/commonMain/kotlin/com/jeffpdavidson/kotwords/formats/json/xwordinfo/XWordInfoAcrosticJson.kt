@@ -16,5 +16,5 @@ internal object XWordInfoAcrosticJson {
     )
 
     @Serializable
-    data class EncodedResponse(@SerialName("Data") val data: String)
+    data class EncodedResponse(val data: String)
 }
