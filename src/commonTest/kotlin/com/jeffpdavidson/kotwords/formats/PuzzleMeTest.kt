@@ -10,6 +10,7 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class PuzzleMeTest {
+
     @Test
     fun extractPuzzleJson() = runTest {
         assertEquals(
@@ -168,5 +169,12 @@ class PuzzleMeTest {
         assertEquals(
             "test link and <b>test bold link</b>",
             PuzzleMe.toHtml("<a href=\"abc\">test link</a> and <a href=\"def\"><b>test bold link</b></a>")
+        )
+
+    @Test
+    fun toHtml_htmlEntities() =
+        assertEquals(
+            "Test with \"Quotes\" ' &lt; &amp; &amp;",
+            PuzzleMe.toHtml("Test with &#34;Quotes&#34; &#39; < & &amp;")
         )
 }

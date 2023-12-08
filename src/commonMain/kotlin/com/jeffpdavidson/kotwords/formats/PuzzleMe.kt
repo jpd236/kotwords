@@ -335,12 +335,12 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
         /**
          * Convert a PuzzleMe JSON string to HTML.
          *
-         * PuzzleMe mixes unescaped special XML characters (&, <) with HTML tags. This method escapes the special
-         * characters while leaving supported HTML tags untouched. <br> tags are replaced with newlines. Attributes
-         * are stripped out.
+         * PuzzleMe mixes unescaped special XML characters (&, <) with HTML tags. Sometimes there are real HTML escape
+         * sequences as well. This method escapes the special characters while leaving supported HTML tags untouched.
+         * <br> tags are replaced with newlines. Attributes are stripped out.
          */
         internal fun toHtml(clue: String): String {
-            return clue
+            return Encodings.decodeHtmlEntities(clue)
                 .replace("&", "&amp;")
                 .replace("\\s*<br/?>\\s*".toRegex(RegexOption.IGNORE_CASE), "\n")
                 // Strip other unsupported tags.
