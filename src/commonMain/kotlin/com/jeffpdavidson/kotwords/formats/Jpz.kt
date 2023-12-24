@@ -6,6 +6,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlException
 import nl.adaptivity.xmlutil.core.XmlVersion
@@ -63,6 +65,7 @@ class JpzFile(private val data: ByteArray, private val stripFormats: Boolean = f
 }
 
 /** Container for JPZ XML data. */
+@Serializable
 sealed class Jpz : Puzzleable() {
     abstract val rectangularPuzzle: RectangularPuzzle
 
@@ -358,12 +361,7 @@ sealed class Jpz : Puzzleable() {
                 )
             }
 
-            // Try to parse as a <crossword-compiler-applet>; if it fails, fall back to <crossword-compiler>.
-            val jpz = try {
-                getXmlSerializer().decodeFromString(CrosswordCompilerApplet.serializer(), cleanedXml)
-            } catch (e: XmlException) {
-                getXmlSerializer().decodeFromString(CrosswordCompiler.serializer(), cleanedXml)
-            }
+            val jpz = getXmlSerializer().decodeFromString(Jpz.serializer(), cleanedXml)
             if (!stripFormats || jpz.rectangularPuzzle.crossword == null) {
                 return jpz
             }
@@ -567,6 +565,10 @@ sealed class Jpz : Puzzleable() {
                 polymorphic(Any::class, Sub::class, Sub.serializer())
                 polymorphic(Any::class, Sup::class, Sup.serializer())
                 polymorphic(Any::class, Span::class, Span.serializer())
+                polymorphic(Jpz::class) {
+                    subclass(CrosswordCompiler::class)
+                    subclass(CrosswordCompilerApplet::class)
+                }
             }
         }
 

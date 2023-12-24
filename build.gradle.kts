@@ -5,8 +5,8 @@ plugins {
     signing
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
     id("org.jetbrains.dokka") version "1.9.10"
-    kotlin("multiplatform") version "1.9.10"
-    kotlin("plugin.serialization") version "1.9.10"
+    kotlin("multiplatform") version "1.9.22"
+    kotlin("plugin.serialization") version "1.9.22"
 }
 
 group = "com.jeffpdavidson.kotwords"
@@ -28,7 +28,6 @@ kotlin {
         binaries.executable()
     }
 
-    @Suppress("UNUSED_VARIABLE") // https://youtrack.jetbrains.com/issue/KT-38871
     sourceSets {
         all {
             languageSettings {
@@ -40,12 +39,11 @@ kotlin {
 
         val commonMain by getting {
             dependencies {
-                implementation("com.squareup.okio:okio:3.6.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+                implementation("com.squareup.okio:okio:3.7.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
                 implementation("net.mamoe.yamlkt:yamlkt:0.13.0")
-                // TODO: Update once https://github.com/pdvrieze/xmlutil/discussions/186 is resolved.
-                implementation("io.github.pdvrieze.xmlutil:serialization:0.86.0")
+                implementation("io.github.pdvrieze.xmlutil:serialization:0.86.3")
                 implementation("com.github.ajalt.colormath:colormath:3.3.3")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
@@ -68,8 +66,8 @@ kotlin {
 
         val jvmMain by getting {
             dependencies {
-                implementation("org.apache.pdfbox:pdfbox:3.0.0")
-                implementation("org.jsoup:jsoup:1.16.2")
+                implementation("org.apache.pdfbox:pdfbox:3.0.1")
+                implementation("org.jsoup:jsoup:1.17.1")
             }
         }
 
@@ -88,18 +86,28 @@ kotlin {
                 implementation(npm("jszip", "3.10.1"))
                 implementation(npm("pdf-lib", "1.17.1"))
                 implementation(npm("@pdf-lib/fontkit", "1.1.1"))
-                implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.9.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.10.1")
             }
         }
 
         val jsTest by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-test-js")
+                // TODO: Find out how to use newer versions - 4.x seems to use ES6 modules which are not handled
+                // smoothly. Note also that PdfJs.kt and ImageComparator.kt will need updates.
                 implementation(npm("pdfjs-dist", "3.11.174"))
             }
 
             languageSettings {
                 optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+            }
+        }
+    }
+
+    targets.configureEach {
+        compilations.configureEach {
+            compilerOptions.configure {
+                freeCompilerArgs.add("-Xexpect-actual-classes")
             }
         }
     }
@@ -120,7 +128,6 @@ tasks {
 
     val browserProductionWebpackTask = getByName("jsBrowserProductionWebpack", KotlinWebpack::class)
 
-    @Suppress("UNUSED_VARIABLE") // https://youtrack.jetbrains.com/issue/KT-38871
     val browserDistributionZip by creating(Zip::class) {
         dependsOn(browserProductionWebpackTask)
         from (browserProductionWebpackTask.outputDirectory)
@@ -133,14 +140,16 @@ tasks {
     }
 }
 
-val dokkaJar by tasks.creating(Jar::class) {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    archiveClassifier.set("javadoc")
-    from(tasks.dokkaHtml)
-}
-
 publishing {
     publications.withType<MavenPublication> {
+        val dokkaJar by tasks.register<Jar>("${name}DokkaJar") {
+            group = JavaBasePlugin.DOCUMENTATION_GROUP
+            // TODO: Determine from https://github.com/gradle/gradle/issues/26091 whether this will always be needed
+            archiveBaseName.set("${archiveBaseName.get()}-${name}")
+            archiveClassifier.set("javadoc")
+            from(tasks.dokkaHtml)
+        }
+
         artifact(dokkaJar)
         pom {
             name.set("Kotwords")
@@ -183,10 +192,4 @@ nexusPublishing {
             password.set(System.getenv("OSSRH_DEPLOY_PASSWORD"))
         }
     }
-}
-
-// TODO: Remove workaround once https://github.com/gradle/gradle/issues/26091 is resolved.
-tasks.withType<AbstractPublishToMaven>().configureEach {
-    val signingTasks = tasks.withType<Sign>()
-    mustRunAfter(signingTasks)
 }

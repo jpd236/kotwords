@@ -1,4 +1,3 @@
-// TODO(#7): Use pdfjs-dist directly after updating to Webpack 5 (Kotlin 1.5).
 @file:JsModule("pdfjs-dist/legacy/build/pdf.min.js")
 @file:JsNonModule
 
