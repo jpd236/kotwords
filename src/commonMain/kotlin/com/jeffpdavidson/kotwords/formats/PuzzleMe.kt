@@ -180,19 +180,38 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
     }
 
     companion object {
-        fun fromHtml(html: String): PuzzleMe = PuzzleMe(extractPuzzleJson(html))
+        /**
+         * Returns the URL containing the crosswordJs to be passed to [fromHtml], or null if it couldn't be determined.
+         */
+        fun getCrosswordJsUrl(html: String, baseUri: String): String? {
+            return Xml.parse(html, baseUri, format = DocumentFormat.HTML)
+                .selectFirst("script[src*='c-min.js']")?.attr("abs:src")
+        }
+
+        fun fromHtml(html: String, crosswordJs: String = ""): PuzzleMe = PuzzleMe(extractPuzzleJson(html, crosswordJs))
 
         fun fromRawc(rawc: String, crosswordJs: String = ""): PuzzleMe =
-            PuzzleMe(decodeRawcWithCrosswordJs(rawc, crosswordJs))
+            PuzzleMe(decodeRawc(rawc, crosswordJs))
 
-        internal fun extractPuzzleJson(html: String): String {
-            return decodeRawc(extractRawc(html))
+        internal fun extractPuzzleJson(html: String, crosswordJs: String = ""): String {
+            return decodeRawc(extractRawc(html), crosswordJs)
         }
 
         internal fun extractRawc(html: String): String {
-            // Look for "window.rawc = '[data]'" inside <script> tags; this is JSON puzzle data
+            val document = Xml.parse(html, format = DocumentFormat.HTML)
+
+            // Newer mechanism: parameters are embedded in <script id="params"> JSON.
+            val params = document.selectFirst("script#params")
+            if (params != null) {
+                val puzzleParams = JsonSerializer.fromJson<PuzzleMeJson.PuzzleParams>(params.data)
+                if (puzzleParams.rawc != null) {
+                    return puzzleParams.rawc
+                }
+            }
+
+            // Older mechanism: look for "window.rawc = '[data]'" inside <script> tags; this is JSON puzzle data
             // encoded as Base64.
-            Xml.parse(html, format = DocumentFormat.HTML).select("script").forEach {
+            document.select("script").forEach {
                 val matchResult = PUZZLE_DATA_REGEX.find(it.data)
                 if (matchResult != null) {
                     return matchResult.groupValues[1]
@@ -229,7 +248,7 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
             return buffer.joinToString("")
         }
 
-        internal fun decodeRawcWithCrosswordJs(rawc: String, crosswordJs: String): String {
+        internal fun decodeRawc(rawc: String, crosswordJs: String): String {
             if (!rawc.contains('.') && crosswordJs.isNotEmpty()) {
                 // Try to find the individual numbers of the key and their order in the Javascript.
                 val keyDigitMatches = KEY_2_DIGIT_REGEX.findAll(crosswordJs).toList()

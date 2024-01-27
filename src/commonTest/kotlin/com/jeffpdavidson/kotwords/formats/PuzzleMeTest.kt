@@ -23,6 +23,17 @@ class PuzzleMeTest {
     }
 
     @Test
+    fun extractPuzzleJson_newFormat() = runTest {
+        assertEquals(
+            readStringResource(PuzzleMeTest::class, "puzzleme/test.json")
+                .replace("\r\n", "\n"),
+            PuzzleMe.extractPuzzleJson(
+                readStringResource(PuzzleMeTest::class, "puzzleme/test-new-rawc.html")
+            )
+        )
+    }
+
+    @Test
     fun extractPuzzleJson_invalid() {
         try {
             PuzzleMe.extractPuzzleJson("nothing to see here <script>empty</script>")
@@ -39,7 +50,18 @@ class PuzzleMeTest {
         val key = rawcParts[1].reversed()
         assertEquals(
             readStringResource(PuzzleMeTest::class, "puzzleme/test.json").replace("\r\n", "\n"),
-            PuzzleMe.decodeRawcWithCrosswordJs(rawc, """function(){function a(){var x="$key";}}""")
+            PuzzleMe.decodeRawc(rawc, """function(){function a(){var x="$key";}}""")
+        )
+    }
+
+    @Test
+    fun getCrosswordJsUrl() = runTest {
+        assertEquals(
+            "http://example.com/js/c-min.js?v=123456789",
+            PuzzleMe.getCrosswordJsUrl(
+                readStringResource(PuzzleMeTest::class, "puzzleme/test-new-rawc.html"),
+                "http://example.com/puzzle.html"
+            )
         )
     }
 

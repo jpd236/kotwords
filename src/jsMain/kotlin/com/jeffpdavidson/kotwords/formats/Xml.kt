@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.formats
 import org.w3c.dom.Text
 import org.w3c.dom.asList
 import org.w3c.dom.parsing.DOMParser
+import org.w3c.dom.url.URL
 
 private class ElementImpl(private val jsElement: org.w3c.dom.Element) : Element {
     override val tag: String = jsElement.tagName
@@ -16,7 +17,13 @@ private class ElementImpl(private val jsElement: org.w3c.dom.Element) : Element 
         }
     }
 
-    override fun attr(key: String): String = jsElement.getAttribute(key) ?: ""
+    override fun attr(key: String): String {
+        if (key.startsWith("abs:")) {
+            val relativeValue = jsElement.getAttribute(key.substringAfter("abs:")) ?: ""
+            return URL(relativeValue, jsElement.baseURI).href
+        }
+        return jsElement.getAttribute(key) ?: ""
+    }
 
     override fun select(selector: String): Iterable<Element> =
         jsElement.querySelectorAll(selector).asList().map { ElementImpl(it as org.w3c.dom.Element) }

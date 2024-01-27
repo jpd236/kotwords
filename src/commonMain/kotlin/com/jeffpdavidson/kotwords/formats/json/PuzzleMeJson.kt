@@ -86,4 +86,7 @@ internal object PuzzleMeJson {
         val clueSections: List<String> = listOf(),
         val wordLengthsEnabled: Boolean = false,
     )
+
+    @Serializable
+    internal data class PuzzleParams(val rawc: String? = null)
 }
