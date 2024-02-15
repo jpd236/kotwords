@@ -18,6 +18,7 @@ object Index {
         "Crossword",
         "Crosswordle",
         "Eight Tracks",
+        "Hearts and Arrows",
         "Helter Skelter",
         "Jelly Roll",
         "Labyrinth",
