@@ -19,9 +19,10 @@ data class HeartsAndArrows(
     val lightHeartColor: String = "#FFFFFF",
     val mediumHeartColor: String = "#F4BABA",
     val darkHeartColor: String = "#E06666",
-    val addWordCount: Boolean = true,
-    val addHyphenated: Boolean = true,
+    val addWordCount: Boolean = false,
+    val addHyphenated: Boolean = false,
     val hasHtmlClues: Boolean = false,
+    val labelHearts: Boolean = true,
 ) : Puzzleable() {
     override suspend fun createPuzzle(): Puzzle {
         val originX = solutionGrid[0].indexOfFirst { it != '.' }
@@ -42,6 +43,7 @@ data class HeartsAndArrows(
             addWordCount = addWordCount,
             addHyphenated = addHyphenated,
             hasHtmlClues = hasHtmlClues,
+            labelBlooms = labelHearts,
             rowsListTitle = "Arrows",
             bloomsListTitle = "Hearts",
             emptyCellType = Puzzle.CellType.VOID,

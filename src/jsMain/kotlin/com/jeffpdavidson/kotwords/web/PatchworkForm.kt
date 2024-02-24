@@ -41,11 +41,11 @@ class PatchworkForm {
                     rows = "13"
                 }
             }, advancedOptionsBlock = {
-                labelPieces.render(this, "Label pieces (unlabeled requires Ipuz and the squares.io solver)") {
+                labelPieces.render(
+                    this,
+                    "Label pieces (unlabeled requires Ipuz and the Crossword Nexus or squares.io solver)"
+                ) {
                     checked = true
-                    onChangeFunction = {
-
-                    }
                 }
             })
         }

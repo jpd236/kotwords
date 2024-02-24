@@ -1,6 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
+import com.jeffpdavidson.kotwords.formats.Ipuz
 import com.jeffpdavidson.kotwords.readStringResource
 import com.jeffpdavidson.kotwords.util.trimmedLines
 import kotlinx.coroutines.test.runTest
@@ -10,7 +11,30 @@ import kotlin.test.assertEquals
 class HeartsAndArrowsTest {
     @Test
     fun jpzGeneration() = runTest {
-        val heartsAndArrows = HeartsAndArrows(
+        val puzzle = PUZZLE.asPuzzle()
+        val expected = readStringResource(HeartsAndArrowsTest::class, "hearts-and-arrows/hearts-and-arrows.jpz")
+        assertEquals(expected, puzzle.asJpz().toXmlString())
+    }
+
+    @Test
+    fun ipuzGeneration() = runTest {
+        val puzzle = PUZZLE.asPuzzle()
+        val expected = readStringResource(HeartsAndArrowsTest::class, "hearts-and-arrows/hearts-and-arrows.ipuz")
+        assertEquals(expected, Ipuz.asIpuzJson(puzzle).toJsonString())
+    }
+
+    @Test
+    fun ipuzGeneration_unlabeledHearts() = runTest {
+        val puzzle = PUZZLE.copy(labelHearts = false).asPuzzle()
+        val expected = readStringResource(
+            HeartsAndArrowsTest::class,
+            "hearts-and-arrows/hearts-and-arrows-unlabeled.ipuz"
+        )
+        assertEquals(expected, Ipuz.asIpuzJson(puzzle).toJsonString())
+    }
+
+    companion object {
+        private val PUZZLE = HeartsAndArrows(
             title = "Test title",
             creator = "Test creator",
             copyright = "Test copyright",
@@ -41,9 +65,5 @@ class HeartsAndArrowsTest {
                 RowsGarden.Entry("Dark 1 Clue", "AAAAAAAA"),
             ),
         )
-        val puzzle = heartsAndArrows.asPuzzle()
-
-        val expected = readStringResource(HeartsAndArrowsTest::class, "hearts-and-arrows/hearts-and-arrows.jpz")
-        assertEquals(expected, puzzle.asJpz().toXmlString())
     }
 }

@@ -80,6 +80,7 @@ data class RowsGarden(
             addWordCount = addWordCount,
             addHyphenated = addHyphenated,
             hasHtmlClues = hasHtmlClues,
+            labelBlooms = true,
             rowsListTitle = "Rows",
             bloomsListTitle = "Blooms",
             emptyCellType = Puzzle.CellType.BLOCK,
@@ -132,6 +133,7 @@ data class RowsGarden(
             addWordCount: Boolean,
             addHyphenated: Boolean,
             hasHtmlClues: Boolean,
+            labelBlooms: Boolean,
             rowsListTitle: String,
             bloomsListTitle: String,
             emptyCellType: Puzzle.CellType,
@@ -161,20 +163,22 @@ data class RowsGarden(
                         Puzzle.Cell(cellType = emptyCellType)
                     } else {
                         var bloomIndex = 0
-                        val number = when {
-                            (x == solutionGrid[y].indexOfFirst { it != '.' }) -> {
-                                // Start of a row
-                                "${'A' + y}"
-                            }
-                            isStartOfBloom(x, y) -> {
-                                // Start of a bloom
-                                bloomIndex = blooms.getValue(bloomType).puzzleClues.size + 1
-                                "${bloomType.name[0]}${bloomIndex}"
-                            }
-                            else -> ""
+                        val number = if (x == solutionGrid[y].indexOfFirst { it != '.' }) {
+                            // Start of a row
+                            "${'A' + y}"
+                        } else {
+                            ""
+                        }
+                        val topRightNumber = if (isStartOfBloom(x, y)) {
+                            // Start of a bloom
+                            bloomIndex = blooms.getValue(bloomType).puzzleClues.size + 1
+                            "${bloomType.name[0]}${bloomIndex}"
+                        } else {
+                            ""
                         }
                         val cell = Puzzle.Cell(
                             number = number,
+                            topRightNumber = if (labelBlooms) topRightNumber else "",
                             solution = "${solutionGrid[y][x]}",
                             backgroundColor = blooms.getValue(bloomType).color
                         )
@@ -184,7 +188,7 @@ data class RowsGarden(
                             blooms[bloomType]?.puzzleClues!!.add(
                                 Puzzle.Clue(
                                     wordId,
-                                    number,
+                                    if (labelBlooms) topRightNumber else "${topRightNumber[0]}",
                                     formatClue(
                                         blooms.getValue(bloomType).clues[bloomIndex - 1],
                                         addWordCount, addHyphenated
@@ -206,10 +210,13 @@ data class RowsGarden(
                 }) to Puzzle.Word(y + 1, letters)
             }.unzip()
 
+            fun orderBloomClues(clues: List<Puzzle.Clue>) =
+                if (labelBlooms) clues else clues.sortedBy { it.text }
+
             val bloomClues = listOf(
-                blooms.getValue(BloomType.LIGHT).puzzleClues,
-                blooms.getValue(BloomType.MEDIUM).puzzleClues,
-                blooms.getValue(BloomType.DARK).puzzleClues
+                orderBloomClues(blooms.getValue(BloomType.LIGHT).puzzleClues),
+                orderBloomClues(blooms.getValue(BloomType.MEDIUM).puzzleClues),
+                orderBloomClues(blooms.getValue(BloomType.DARK).puzzleClues),
             ).flatten()
 
             return Puzzle(
@@ -222,7 +229,7 @@ data class RowsGarden(
                     Puzzle.ClueList(if (hasHtmlClues) "<b>$rowsListTitle</b>" else rowsListTitle, rowClues),
                     Puzzle.ClueList(if (hasHtmlClues) "<b>$bloomsListTitle</b>" else bloomsListTitle, bloomClues)
                 ),
-                words = rowsWords + bloomsWords.sortedBy { it.id },
+                words = rowsWords + (if (labelBlooms) bloomsWords.sortedBy { it.id } else listOf()),
                 hasHtmlClues = hasHtmlClues,
             )
         }

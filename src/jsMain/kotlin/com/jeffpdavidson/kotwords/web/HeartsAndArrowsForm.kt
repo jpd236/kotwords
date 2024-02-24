@@ -30,6 +30,7 @@ class HeartsAndArrowsForm {
     private val lightHeartColor: FormFields.InputField = FormFields.InputField("light-heart-color")
     private val mediumHeartColor: FormFields.InputField = FormFields.InputField("medium-heart-color")
     private val darkHeartColor: FormFields.InputField = FormFields.InputField("dark-heart-color")
+    private val labelHearts: FormFields.CheckBoxField = FormFields.CheckBoxField("label-hearts")
 
     init {
         Html.renderPage {
@@ -94,8 +95,14 @@ class HeartsAndArrowsForm {
                     }
                 }
             }, advancedOptionsBlock = {
-                addAnnotations.render(this, "Add clue annotations (e.g. \"hyph.\", \"2 wds.\")") {
+                labelHearts.render(
+                    this,
+                    "Label hearts (unlabeled requires Ipuz and the Crossword Nexus or squares.io solver)"
+                ) {
                     checked = true
+                }
+                addAnnotations.render(this, "Add clue annotations (e.g. \"hyph.\", \"2 wds.\")") {
+                    checked = false
                 }
                 div(classes = "form-row") {
                     lightHeartColor.render(this, "Light heart color", flexCols = 4) {
@@ -139,6 +146,7 @@ class HeartsAndArrowsForm {
             darkHeartColor = darkHeartColor.value,
             addHyphenated = addAnnotations.value,
             addWordCount = addAnnotations.value,
+            labelHearts = labelHearts.value,
         )
         return heartsAndArrows.asPuzzle()
     }
