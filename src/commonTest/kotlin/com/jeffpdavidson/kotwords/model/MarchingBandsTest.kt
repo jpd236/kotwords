@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.IgnoreNative
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.formats.ImageComparator
 import com.jeffpdavidson.kotwords.formats.ImageComparator.assertPdfEquals
@@ -8,16 +9,16 @@ import com.jeffpdavidson.kotwords.formats.PdfTest
 import com.jeffpdavidson.kotwords.formats.getNotoSerifFontFamily
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class MarchingBandsTest {
     @Test
     fun jpzGeneration() = runTest {
         val puzzle = MARCHING_BANDS.asPuzzle()
         val expected = readStringResource(MarchingBandsTest::class, "marching-bands/marching-bands.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
@@ -32,7 +33,7 @@ class MarchingBandsTest {
     fun jpzGeneration_withoutRowNumbers() = runTest {
         val puzzle = MARCHING_BANDS.copy(includeRowNumbers = false).asPuzzle()
         val expected = readStringResource(MarchingBandsTest::class, "marching-bands/marching-bands-without-rows.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
@@ -44,6 +45,7 @@ class MarchingBandsTest {
     }
 
     @Test
+    @IgnoreNative  // Depends on PDF support
     fun pdfGeneration() = runTest {
         assertPdfEquals(
             readBinaryResource(ImageComparator::class, "marching-bands/marching-bands.pdf"),

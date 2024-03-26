@@ -18,3 +18,6 @@ private fun <T : Any> getResourceAsStream(clazz: KClass<T>, resourceName: String
     return clazz.java.classLoader.getResourceAsStream(resourceName)
         ?: throw IllegalArgumentException("Error loading resource $resourceName")
 }
+
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+actual annotation class IgnoreNative

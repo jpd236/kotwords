@@ -2,9 +2,9 @@ package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.readStringResource
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class LabyrinthTest {
     @Test
@@ -31,7 +31,7 @@ class LabyrinthTest {
         val puzzle = labyrinth.asPuzzle()
 
         val expected = readStringResource(LabyrinthTest::class, "labyrinth/labyrinth.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",

@@ -245,6 +245,7 @@ object Pdf {
                 val backgroundColor = when {
                     square.backgroundColor.isNotBlank() ->
                         getAdjustedColor(RGB(square.backgroundColor), blackSquareLightnessAdjustment)
+
                     square.cellType == Puzzle.CellType.BLOCK && !puzzle.diagramless -> gridBlackColor
                     else -> RGB("#ffffff")
                 }
@@ -492,6 +493,7 @@ object Pdf {
                         )
                     }
                 }
+
                 is TextNode -> {
                     val currentFont = getFont(fontFamily, nodeState.boldTagLevel, nodeState.italicTagLevel)
                     val currentScript = getScript(nodeState.subTagLevel, nodeState.supTagLevel)
@@ -727,6 +729,7 @@ object Pdf {
                         currentLinePosition += getTextWidth(element.text, currentFont, currentFontSize)
                     }
                 }
+
                 is RichTextElement.NewLine -> {
                     val offset = (if (i == lastNewLineIndex) nextFontSize else fontSize) * LINE_SPACING
                     if (render) {
@@ -736,6 +739,7 @@ object Pdf {
                     }
                     positionY -= offset
                 }
+
                 is RichTextElement.SetFormat -> {
                     if (render) {
                         val newFont = element.format.font

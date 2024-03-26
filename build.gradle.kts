@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 
 plugins {
@@ -28,6 +30,20 @@ kotlin {
         binaries.executable()
     }
 
+    mingwX64()
+    linuxX64()
+    macosX64()
+
+    targets.all {
+        if (this is KotlinNativeTarget) {
+            binaries.executable {
+                entryPoint = "com.jeffpdavidson.kotwords.cli.main"
+            }
+        }
+    }
+
+    applyDefaultHierarchyTemplate()
+
     sourceSets {
         all {
             languageSettings {
@@ -47,7 +63,8 @@ kotlin {
                 implementation("com.github.ajalt.colormath:colormath:3.3.3")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
-                // TODO: Migrate to kotlinx-datetime if parsing/formatting support is added.
+                // TODO: Migrate to kotlinx-datetime when it can be done without breaking ksoup.
+                // Ensure any size hit to the JS bundle is acceptable.
                 implementation("com.soywiz.korlibs.klock:klock:4.0.10")
             }
         }
@@ -57,6 +74,7 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-test-annotations-common")
                 implementation("org.jetbrains.kotlin:kotlin-test-common")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+                implementation("io.github.pdvrieze.xmlutil:testutil:0.86.3")
             }
 
             languageSettings {
@@ -102,24 +120,29 @@ kotlin {
                 optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
             }
         }
-    }
 
-    targets.configureEach {
-        compilations.configureEach {
-            compilerOptions.configure {
-                freeCompilerArgs.add("-Xexpect-actual-classes")
+        val nativeMain by getting {
+            dependencies {
+                implementation("com.soywiz.korlibs.korio:korio:4.0.10")
+                implementation("com.fleeksoft.ksoup:ksoup:0.1.2")
+                implementation("net.thauvin.erik.urlencoder:urlencoder-lib:1.4.0")
             }
         }
+    }
+
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 }
 
 tasks {
-    // Omit .web package from documentation
+    // Omit .web and .cli package from documentation
     dokkaHtml.configure {
         dokkaSourceSets {
             configureEach {
                 perPackageOption {
-                    matchingRegex.set("""com.jeffpdavidson\.kotwords\.web.*""")
+                    matchingRegex.set("""com.jeffpdavidson\.kotwords\.(?:web|cli).*""")
                     suppress.set(true)
                 }
             }

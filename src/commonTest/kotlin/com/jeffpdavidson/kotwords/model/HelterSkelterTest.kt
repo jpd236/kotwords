@@ -1,14 +1,14 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.readStringResource
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class HelterSkelterTest {
     @Test
     fun asPuzzle() = runTest {
-        assertEquals(
+        assertXmlEquals(
             readStringResource(HelterSkelterTest::class, "helter-skelter/helter-skelter.jpz"),
             helterSkelter.asPuzzle().asJpz().toXmlString(),
         )
@@ -16,7 +16,7 @@ class HelterSkelterTest {
 
     @Test
     fun asPuzzle_withoutVectors() = runTest {
-        assertEquals(
+        assertXmlEquals(
             readStringResource(HelterSkelterTest::class, "helter-skelter/helter-skelter.jpz"),
             helterSkelter.copy(answerVectors = listOf()).asPuzzle().asJpz().toXmlString(),
         )
@@ -24,7 +24,7 @@ class HelterSkelterTest {
 
     @Test
     fun asPuzzle_extendToEdges() = runTest {
-        assertEquals(
+        assertXmlEquals(
             readStringResource(HelterSkelterTest::class, "helter-skelter/helter-skelter-extend-to-edges.jpz"),
             helterSkelter.copy(extendToEdges = true).asPuzzle().asJpz().toXmlString(),
         )

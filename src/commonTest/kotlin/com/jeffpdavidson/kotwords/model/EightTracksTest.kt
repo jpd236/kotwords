@@ -2,9 +2,9 @@ package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.readStringResource
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class EightTracksTest {
     @Test
@@ -25,7 +25,7 @@ class EightTracksTest {
         val puzzle = eightTracks.asPuzzle()
 
         val expected = readStringResource(EightTracks::class, "eight-tracks/annotations.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
@@ -54,7 +54,7 @@ class EightTracksTest {
         val puzzle = eightTracks.asPuzzle()
 
         val expected = readStringResource(EightTracks::class, "eight-tracks/no-annotations.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",

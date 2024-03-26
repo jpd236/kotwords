@@ -1,8 +1,10 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.IgnoreNative
 import com.jeffpdavidson.kotwords.model.assertPuzzleEquals
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -38,21 +40,21 @@ class NewYorkTimesTest {
     fun toPuzzle() = runTest {
         val json = readStringResource(NewYorkTimesTest::class, "nyt/test.json")
         val puzzle = NewYorkTimes.fromPluribusJson(json).asPuzzle()
-        assertEquals(readStringResource(NewYorkTimesTest::class, "nyt/test.jpz"), puzzle.asJpz().toXmlString())
+        assertXmlEquals(readStringResource(NewYorkTimesTest::class, "nyt/test.jpz"), puzzle.asJpz().toXmlString())
     }
 
     @Test
     fun toPuzzle_api() = runTest {
         val json = readStringResource(NewYorkTimesTest::class, "nyt/test-api.json")
         val puzzle = NewYorkTimes.fromApiJson(json, "daily").asPuzzle()
-        assertEquals(readStringResource(NewYorkTimesTest::class, "nyt/test.jpz"), puzzle.asJpz().toXmlString())
+        assertXmlEquals(readStringResource(NewYorkTimesTest::class, "nyt/test.jpz"), puzzle.asJpz().toXmlString())
     }
 
     @Test
     fun toPuzzle_bgImage_noFetcher() = runTest {
         val json = readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage.json")
         val puzzle = NewYorkTimes.fromPluribusJson(json).asPuzzle()
-        assertEquals(
+        assertXmlEquals(
             readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage-nofetcher.jpz"),
             puzzle.asJpz().toXmlString()
         )
@@ -62,13 +64,14 @@ class NewYorkTimesTest {
     fun toPuzzle_bgImage_api_noFetcher() = runTest {
         val json = readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage-api.json")
         val puzzle = NewYorkTimes.fromApiJson(json, "daily").asPuzzle()
-        assertEquals(
+        assertXmlEquals(
             readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage-nofetcher.jpz"),
             puzzle.asJpz().toXmlString()
         )
     }
 
     @Test
+    @IgnoreNative  // Depends on image support
     fun toPuzzle_bgImage_api() = runTest {
         val puzzle = NewYorkTimes.fromApiJson(
             readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage-api.json"),

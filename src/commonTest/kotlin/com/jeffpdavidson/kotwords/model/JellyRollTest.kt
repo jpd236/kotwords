@@ -2,9 +2,9 @@ package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.readStringResource
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class JellyRollTest {
     @Test
@@ -27,7 +27,7 @@ class JellyRollTest {
         val puzzle = jellyRoll.asPuzzle()
 
         val expected = readStringResource(JellyRollTest::class, "jelly-roll/jelly-roll.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
@@ -58,7 +58,7 @@ class JellyRollTest {
         val puzzle = jellyRoll.asPuzzle()
 
         val expected = readStringResource(JellyRollTest::class, "jelly-roll/jelly-roll-combined.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
@@ -89,7 +89,7 @@ class JellyRollTest {
         val puzzle = jellyRoll.asPuzzle()
 
         val expected = readStringResource(JellyRollTest::class, "jelly-roll/jelly-roll-nonsquare.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",

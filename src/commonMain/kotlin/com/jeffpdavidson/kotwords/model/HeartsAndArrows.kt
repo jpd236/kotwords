@@ -2,8 +2,6 @@ package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.Puzzleable
 import kotlinx.serialization.Serializable
-import kotlin.math.floor
-import kotlin.math.roundToInt
 
 @Serializable
 data class HeartsAndArrows(

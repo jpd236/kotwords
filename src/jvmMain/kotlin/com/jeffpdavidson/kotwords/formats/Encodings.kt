@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.charset.UnsupportedCharsetException
 
 internal actual object Encodings {
-    private val UNESCAPE_PATTERN = "%u([0-9A-Fa-f]{4})|%([0-9A-Fa-f]{2})".toRegex()
     private val WINDOWS_1252_CHARSET = try {
         Charset.forName("windows-1252")
     } catch (e: UnsupportedCharsetException) {
@@ -29,9 +28,6 @@ internal actual object Encodings {
         Parser.unescapeEntities(string, /* inAttribute= */ false)
 
     actual fun unescape(string: String): String {
-        return UNESCAPE_PATTERN.replace(string) { result ->
-            val code = result.groupValues[1].ifEmpty { result.groupValues[2] }
-            code.toInt(16).toChar().toString()
-        }
+        return commonUnescape(string)
     }
 }

@@ -314,6 +314,7 @@ internal class PuzzleFileForm(
                         else -> it.value
                     }
                 }
+
                 is HTMLTextAreaElement -> it.value
                 else -> throw IllegalStateException("")
             }
@@ -354,6 +355,7 @@ internal class PuzzleFileForm(
                     event.initEvent("input", bubbles = true, cancelable = true)
                     element.dispatchEvent(event)
                 }
+
                 is HTMLTextAreaElement -> element.value = value as String
             }
         }

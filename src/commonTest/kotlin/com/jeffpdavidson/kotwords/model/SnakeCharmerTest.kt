@@ -2,9 +2,9 @@ package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.readStringResource
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class SnakeCharmerTest {
     @Test
@@ -21,7 +21,7 @@ class SnakeCharmerTest {
         val puzzle = snakeCharmer.asPuzzle()
 
         val expected = readStringResource(SnakeCharmerTest::class, "snake-charmer/snake-charmer.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",

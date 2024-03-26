@@ -88,6 +88,7 @@ data class Acrostic(
                         quoteWord.add(Puzzle.Coordinate(x = x, y = y))
                         cell
                     }
+
                     ' ' -> Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                     else -> {
                         // Replace hyphen with en-dash for aesthetics.
@@ -250,6 +251,7 @@ data class Acrostic(
                     in 'A'..'Z' -> {
                         solutionWords.add(ch to wordIndex)
                     }
+
                     ' ' -> wordIndex++
                 }
             }

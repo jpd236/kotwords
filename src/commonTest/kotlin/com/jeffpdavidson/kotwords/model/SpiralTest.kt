@@ -2,9 +2,9 @@ package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.readStringResource
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class SpiralTest {
     @Test
@@ -22,7 +22,7 @@ class SpiralTest {
         val puzzle = spiral.asPuzzle()
 
         val expected = readStringResource(SpiralTest::class, "spiral/spiral.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
@@ -48,7 +48,7 @@ class SpiralTest {
         val puzzle = spiral.asPuzzle()
 
         val expected = readStringResource(SpiralTest::class, "spiral/spiral-nonsquare.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
@@ -75,7 +75,7 @@ class SpiralTest {
         val puzzle = spiral.asPuzzle()
 
         val expected = readStringResource(SpiralTest::class, "spiral/spiral-rectangular.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
@@ -102,6 +102,6 @@ class SpiralTest {
         val puzzle = spiral.asPuzzle()
 
         val expected = readStringResource(SpiralTest::class, "spiral/spiral-chunked.jpz")
-        assertEquals(expected, puzzle.asJpz().toXmlString())
+        assertXmlEquals(expected, puzzle.asJpz().toXmlString())
     }
 }

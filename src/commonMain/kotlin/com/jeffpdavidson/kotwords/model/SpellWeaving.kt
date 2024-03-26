@@ -112,18 +112,21 @@ data class SpellWeaving(
                     }
                     return position.copy(x = position.x + 1, direction = Direction.RIGHT)
                 }
+
                 Direction.DOWN -> {
                     if (isPointInGrid(position.x, position.y + 1, middleRowLength)) {
                         return position.copy(y = position.y + 1)
                     }
                     return position.copy(x = position.x - 1, direction = Direction.LEFT)
                 }
+
                 Direction.RIGHT -> {
                     if (isPointInGrid(position.x + 1, position.y, middleRowLength)) {
                         return position.copy(x = position.x + 1)
                     }
                     return position.copy(y = position.y + 1, direction = Direction.DOWN)
                 }
+
                 Direction.LEFT -> {
                     if (isPointInGrid(position.x - 1, position.y, middleRowLength)) {
                         return position.copy(x = position.x - 1)

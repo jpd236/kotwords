@@ -53,6 +53,7 @@ class Ipuz(private val json: String) : Puzzleable() {
                     is IpuzJson.StyleRef -> {
                         ipuz.styles.getOrElse(style.style) { IpuzJson.StyleSpec() }
                     }
+
                     is IpuzJson.StyleSpec -> style
                 }
                 val cellType = when {
@@ -483,6 +484,7 @@ internal data class IpuzJson @OptIn(ExperimentalSerializationApi::class) constru
                         put("number", element[0].jsonPrimitive)
                         put("clue", element[1].jsonPrimitive)
                     }
+
                     is JsonObject -> element
                 }
             }

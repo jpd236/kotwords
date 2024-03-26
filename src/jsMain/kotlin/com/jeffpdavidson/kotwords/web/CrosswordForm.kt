@@ -121,6 +121,7 @@ class CrosswordForm {
                         solution = "",
                         borderDirections = borders.getOrElse(x to y) { setOf() },
                     )
+
                     else -> Puzzle.Cell(
                         solution = col,
                         borderDirections = borders.getOrElse(x to y) { setOf() },

@@ -130,6 +130,7 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
                         // Skip the null terminator.
                         skip(1)
                     }
+
                     "RTBL" -> {
                         val data = readNullTerminatedString(Charset.CP_1252)
                         data.split(';').filterNot { it.isEmpty() }.forEach {
@@ -137,6 +138,7 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
                             rebusTable[parts[0].trim().toInt()] = parts[1]
                         }
                     }
+
                     "RUSR" -> {
                         // Handle invalid/empty RUSR sections gracefully.
                         if (sectionLength == 0.toShort()) {
@@ -152,6 +154,7 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
                             }
                         }
                     }
+
                     "GEXT" -> {
                         for (y in 0 until height) {
                             for (x in 0 until width) {
@@ -164,6 +167,7 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
                         // Skip the null terminator.
                         skip(1)
                     }
+
                     else -> {
                         // Skip section + null terminator.
                         skip(sectionLength + 1L)

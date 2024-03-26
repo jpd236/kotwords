@@ -2,9 +2,9 @@ package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class RowsGardenTest {
 
@@ -19,7 +19,7 @@ class RowsGardenTest {
         ).asPuzzle()
 
         val expected = readStringResource(RowsGardenTest::class, "rows-garden/rows-garden.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
@@ -42,7 +42,7 @@ class RowsGardenTest {
             ).asPuzzle()
 
         val expected = readStringResource(RowsGardenTest::class, "rows-garden/rows-garden-mini.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",

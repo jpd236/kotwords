@@ -2,6 +2,7 @@ package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.Ipuz
 import com.jeffpdavidson.kotwords.readStringResource
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,7 +12,7 @@ class PatchworkTest {
     fun jpzGeneration() = runTest {
         val puzzle = PATCHWORK.asPuzzle()
         val expected = readStringResource(PatchworkTest::class, "patchwork/patchwork.jpz")
-        assertEquals(expected, puzzle.asJpz().toXmlString())
+        assertXmlEquals(expected, puzzle.asJpz().toXmlString())
     }
 
     @Test

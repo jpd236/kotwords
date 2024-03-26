@@ -1,6 +1,5 @@
 package com.jeffpdavidson.kotwords.formats.json.xwordinfo
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 internal object XWordInfoAcrosticJson {

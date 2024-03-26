@@ -11,3 +11,6 @@ actual suspend fun <T : Any> readBinaryResource(clazz: KClass<T>, resourceName: 
 
 actual suspend fun <T : Any> readStringResource(clazz: KClass<T>, resourceName: String): String =
     Http.getString("$BASE_RESOURCE_PATH/$resourceName")
+
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+actual annotation class IgnoreNative

@@ -1,9 +1,9 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.readStringResource
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class CrosswordleTest {
     @Test
@@ -39,6 +39,6 @@ class CrosswordleTest {
         val puzzle = crosswordle.asPuzzle()
 
         val expected = readStringResource(CrosswordleTest::class, "crosswordle.jpz")
-        assertEquals(expected, puzzle.asJpz().toXmlString())
+        assertXmlEquals(expected, puzzle.asJpz().toXmlString())
     }
 }

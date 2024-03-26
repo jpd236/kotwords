@@ -1,11 +1,13 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.IgnoreNative
 import com.jeffpdavidson.kotwords.formats.Pdf.splitTextToLines
 import com.jeffpdavidson.kotwords.readBinaryResource
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@IgnoreNative  // Depends on PDF support
 class PdfTest {
     @Test
     fun asPdf() = runTest {

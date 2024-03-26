@@ -2,9 +2,9 @@ package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.readStringResource
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class TwoToneTest {
     @Test
@@ -26,7 +26,7 @@ class TwoToneTest {
         val puzzle = twoTone.asPuzzle()
 
         val expected = readStringResource(TwoToneTest::class, "two-tone/two-tone.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
@@ -56,7 +56,7 @@ class TwoToneTest {
         val puzzle = twoTone.asPuzzle()
 
         val expected = readStringResource(TwoToneTest::class, "two-tone/two-tone-nonsquare.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",

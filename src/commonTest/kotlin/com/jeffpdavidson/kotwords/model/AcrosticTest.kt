@@ -2,6 +2,7 @@ package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.readStringResource
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -10,7 +11,7 @@ import kotlin.test.fail
 class AcrosticTest {
     @Test
     fun asJpz() = runTest {
-        assertEquals(
+        assertXmlEquals(
             readStringResource(AcrosticTest::class, "acrostic/acrostic.jpz"),
             acrostic.asPuzzle().asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
@@ -24,7 +25,7 @@ class AcrosticTest {
 
     @Test
     fun asJpz_withAttribution() = runTest {
-        assertEquals(
+        assertXmlEquals(
             readStringResource(AcrosticTest::class, "acrostic/acrostic-attribution.jpz"),
             acrostic.copy(includeAttribution = true).asPuzzle().asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(

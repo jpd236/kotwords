@@ -1,9 +1,8 @@
 package com.jeffpdavidson.kotwords.model
 
-import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.formats.Ipuz
 import com.jeffpdavidson.kotwords.readStringResource
-import com.jeffpdavidson.kotwords.util.trimmedLines
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -13,7 +12,7 @@ class HeartsAndArrowsTest {
     fun jpzGeneration() = runTest {
         val puzzle = PUZZLE.asPuzzle()
         val expected = readStringResource(HeartsAndArrowsTest::class, "hearts-and-arrows/hearts-and-arrows.jpz")
-        assertEquals(expected, puzzle.asJpz().toXmlString())
+        assertXmlEquals(expected, puzzle.asJpz().toXmlString())
     }
 
     @Test

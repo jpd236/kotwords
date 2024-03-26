@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.model
 import com.jeffpdavidson.kotwords.formats.JpzFile
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -136,7 +137,7 @@ class CrosswordTest {
             hasHtmlClues = true,
         )
 
-        assertEquals(
+        assertXmlEquals(
             readStringResource(CrosswordTest::class, "jpz/test-barred.jpz"),
             crossword.asPuzzle().asJpz().toXmlString(),
         )

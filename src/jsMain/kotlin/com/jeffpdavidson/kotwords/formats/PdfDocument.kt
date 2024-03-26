@@ -87,6 +87,7 @@ actual class PdfDocument {
                 }
                 pdf.embedStandardFont(standardFont)
             }
+
             is PdfFont.TtfFont -> {
                 pdf.embedFont(font.fontData.toArrayBuffer(), newEmbedFontOptions(subset = true)).await()
             }

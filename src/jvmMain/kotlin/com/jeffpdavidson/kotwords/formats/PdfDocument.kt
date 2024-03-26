@@ -122,6 +122,7 @@ actual class PdfDocument {
                         BuiltInFontName.COURIER_ITALIC -> PDType1Font(Standard14Fonts.FontName.COURIER_OBLIQUE)
                         BuiltInFontName.COURIER_BOLD_ITALIC ->
                             PDType1Font(Standard14Fonts.FontName.COURIER_BOLD_OBLIQUE)
+
                         BuiltInFontName.TIMES_ROMAN -> PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN)
                         BuiltInFontName.TIMES_BOLD -> PDType1Font(Standard14Fonts.FontName.TIMES_BOLD)
                         BuiltInFontName.TIMES_ITALIC -> PDType1Font(Standard14Fonts.FontName.TIMES_ITALIC)
@@ -129,6 +130,7 @@ actual class PdfDocument {
                     }
                 }
             }
+
             is PdfFont.TtfFont -> {
                 loadedTtfFonts.getOrPut(fontName to fontStyle) {
                     PDType0Font.load(document, ByteArrayInputStream(fontData))

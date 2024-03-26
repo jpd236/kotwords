@@ -1,20 +1,21 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.IgnoreNative
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.formats.ImageComparator.assertPdfEquals
 import com.jeffpdavidson.kotwords.formats.getNotoSerifFontFamily
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 // TODO: Expand test coverage
 class TwistsAndTurnsTest {
     @Test
     fun jpzGeneration() = runTest {
         val expected = readStringResource(TwistsAndTurnsTest::class, "twists-and-turns/twists-and-turns.jpz")
-        assertEquals(
+        assertXmlEquals(
             expected, puzzle.asPuzzle().asJpz(
                 appletSettings = CrosswordCompilerApplet.AppletSettings(
                     cursorColor = "#00b100",
@@ -26,6 +27,7 @@ class TwistsAndTurnsTest {
     }
 
     @Test
+    @IgnoreNative  // Depends on PDF support
     fun pdfGeneration_unsortedTwists() = runTest {
         val expected = readBinaryResource(TwistsAndTurnsTest::class, "twists-and-turns/unsorted-twists.pdf")
         assertPdfEquals(
@@ -41,6 +43,7 @@ class TwistsAndTurnsTest {
     }
 
     @Test
+    @IgnoreNative  // Depends on PDF support
     fun pdfGeneration_sortedTwists() = runTest {
         val expected = readBinaryResource(TwistsAndTurnsTest::class, "twists-and-turns/sorted-twists.pdf")
         assertPdfEquals(

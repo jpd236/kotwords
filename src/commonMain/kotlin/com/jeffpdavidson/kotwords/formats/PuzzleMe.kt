@@ -37,6 +37,7 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
                 data.cellInfos.find { it.isCircled } != null -> {
                     cellInfoMap.filterValues { it.isCircled }.keys
                 }
+
                 else -> {
                     data.backgroundShapeBoxes.filter { it.size == 2 }.map { it[0] to it[1] }
                 }

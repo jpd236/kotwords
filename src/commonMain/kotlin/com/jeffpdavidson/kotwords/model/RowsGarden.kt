@@ -51,9 +51,11 @@ data class RowsGarden(
                         }
                         letters.chunked(3).joinToString(separator = "...", prefix = "...", postfix = "...")
                     }
+
                     validWidthLong -> {
                         letters.chunked(3).joinToString(separator = "...")
                     }
+
                     else -> {
                         throw IllegalArgumentException("Outer row length must be $validWidthShort or $validWidthLong")
                     }
