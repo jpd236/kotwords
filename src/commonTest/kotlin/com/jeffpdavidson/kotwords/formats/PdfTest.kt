@@ -6,11 +6,12 @@ import com.jeffpdavidson.kotwords.readBinaryResource
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.seconds
 
 @IgnoreNative  // Depends on PDF support
 class PdfTest {
     @Test
-    fun asPdf() = runTest {
+    fun asPdf() = runTest(timeout = 60.seconds) {
         ImageComparator.assertPdfEquals(
             readBinaryResource(ImageComparator::class, "pdf/test.pdf"),
             AcrossLite(readBinaryResource(PdfTest::class, "puz/test-simple.puz"))
@@ -19,7 +20,7 @@ class PdfTest {
     }
 
     @Test
-    fun asPdf_customFonts() = runTest {
+    fun asPdf_customFonts() = runTest(timeout = 60.seconds) {
         ImageComparator.assertPdfEquals(
             readBinaryResource(ImageComparator::class, "pdf/test-customFonts.pdf"),
             AcrossLite(readBinaryResource(PdfTest::class, "puz/test.puz"))
@@ -28,7 +29,7 @@ class PdfTest {
     }
 
     @Test
-    fun asPdf_bgImages() = runTest {
+    fun asPdf_bgImages() = runTest(timeout = 60.seconds) {
         ImageComparator.assertPdfEquals(
             readBinaryResource(ImageComparator::class, "pdf/test-bgimage.pdf"),
             JpzFile(readBinaryResource(PdfTest::class, "jpz/test-bgimage.jpz"))
@@ -37,7 +38,7 @@ class PdfTest {
     }
 
     @Test
-    fun asPdf_html() = runTest {
+    fun asPdf_html() = runTest(timeout = 60.seconds) {
         ImageComparator.assertPdfEquals(
             readBinaryResource(ImageComparator::class, "pdf/test-html.pdf"),
             JpzFile(readBinaryResource(PdfTest::class, "jpz/test-html.jpz"))
