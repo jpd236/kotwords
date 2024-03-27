@@ -33,9 +33,9 @@ jobs:
       - name: Build with Gradle
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-            ./gradlew --no-daemon jvmJar jsBrowserDistribution linkReleaseExecutableLinuxX64 jvmTest jsTest linuxX64Test
+            ./gradlew --no-daemon linkReleaseExecutableLinuxX64 linuxX64Test
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            ./gradlew --no-daemon linkReleaseExecutableMacosX64 macosX64Test
+            ./gradlew --no-daemon jvmJar browserDistributionZip linkReleaseExecutableMacosX64 jvmTest jsTest macosX64Test
           elif [ "$RUNNER_OS" == "Windows" ]; then
             ./gradlew --no-daemon linkReleaseExecutableMingwX64 mingwX64Test
           else
@@ -44,7 +44,7 @@ jobs:
           fi
         shell: bash
       - name: Publish snapshot
-        if: runner.os == 'Linux'
+        if: runner.os == 'macOS'
         env:
           OSSRH_DEPLOY_USERNAME: ${{ secrets.OSSRH_DEPLOY_USERNAME }}
           OSSRH_DEPLOY_PASSWORD: ${{ secrets.OSSRH_DEPLOY_PASSWORD }}
