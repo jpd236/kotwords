@@ -144,6 +144,10 @@ kotlin {
     }
 }
 
+tasks.withType<Test> {
+    maxHeapSize = "2G"
+}
+
 tasks {
     // Omit .web and .cli package from documentation
     dokkaHtml.configure {
