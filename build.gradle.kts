@@ -69,7 +69,7 @@ kotlin {
                 implementation("net.mamoe.yamlkt:yamlkt:0.13.0")
                 implementation("io.github.pdvrieze.xmlutil:serialization:0.86.3")
                 implementation("com.github.ajalt.colormath:colormath:3.3.3")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
 
                 // TODO: Migrate to kotlinx-datetime when it can be done without breaking ksoup.
                 // Ensure any size hit to the JS bundle is acceptable.
@@ -81,7 +81,7 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-test-annotations-common")
                 implementation("org.jetbrains.kotlin:kotlin-test-common")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
                 implementation("io.github.pdvrieze.xmlutil:testutil:0.86.3")
             }
 
@@ -134,6 +134,7 @@ kotlin {
                 implementation("com.soywiz.korlibs.korio:korio:4.0.10")
                 implementation("com.fleeksoft.ksoup:ksoup:0.1.2")
                 implementation("net.thauvin.erik.urlencoder:urlencoder-lib:1.4.0")
+                implementation("com.github.ajalt.clikt:clikt:4.2.2")
             }
         }
     }
