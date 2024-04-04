@@ -5,7 +5,7 @@
 
 Collection of crossword puzzle file format converters and other utilities, written in Kotlin.
 
-The library uses Kotlin multiplatform and supports Java and Javascript.
+The library uses Kotlin multiplatform and supports Java, Javascript, and native Mac/Windows/Linux.
 
 This project also includes a [web interface](https://jpd236.github.io/kotwords/) for generating digital versions of different variety puzzles.
 
@@ -21,7 +21,7 @@ In your `build.gradle`:
 
 ```groovy
 dependencies {
-  implementation "com.jeffpdavidson.kotwords:kotwords:1.3.13"
+  implementation "com.jeffpdavidson.kotwords:kotwords:1.4.0"
 }
 ```
 
