@@ -18,7 +18,7 @@ class Crosshare(private val json: String) : DelegatingPuzzleable() {
             title = data.title,
             creator = author,
             copyright = data.copyright ?: "",
-            description = data.constructorNotes ?: "",
+            description = data.constructorNotes?.let { extractText(it) } ?: "",
             grid = data.grid.withIndex().chunked(data.size.cols).map { row ->
                 row.map { (i, ch) ->
                     if (ch == ".") {
@@ -40,6 +40,13 @@ class Crosshare(private val json: String) : DelegatingPuzzleable() {
             acrossClues = getClues(data.clues, 0),
             downClues = getClues(data.clues, 1),
         )
+    }
+
+    private fun extractText(htmlTag: CrosshareJson.HtmlTag): String {
+        // For now, just join all text elements together. We can make this more sophisticated if we see more examples of
+        // how this looks in the wild.
+        val myText = if (htmlTag.type == "text" && htmlTag.value != null) listOf(htmlTag.value) else listOf()
+        return (myText + htmlTag.children.map { extractText(it) }).joinToString(" ")
     }
 
     private fun getClues(clues: List<CrosshareJson.Clue>, direction: Int): Map<Int, String> {

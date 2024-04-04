@@ -1,0 +1,101 @@
+{
+  "props": {
+    "pageProps": {
+      "puzzle": {
+        "authorName": "Jeff Davidson",
+        "title": "Example Puzzle for Kotwords",
+        "copyright": "© 2018 Jeff Davidson",
+        "size": {
+          "rows": 5,
+          "cols": 5
+        },
+        "clues": [
+          {
+            "dir": 0,
+            "clue": "First across clue with special characters αβγδε",
+            "num": 1
+          },
+          {
+            "dir": 0,
+            "clue": "Second across clue",
+            "num": 5
+          },
+          {
+            "dir": 0,
+            "clue": "Third across clue",
+            "num": 6
+          },
+          {
+            "dir": 0,
+            "clue": "Fourth across clue",
+            "num": 8
+          },
+          {
+            "dir": 0,
+            "clue": "Fifth across clue",
+            "num": 9
+          },
+
+          {
+            "dir": 1,
+            "clue": "First down clue",
+            "num": 1
+          },
+          {
+            "dir": 1,
+            "clue": "Second down clue",
+            "num": 2
+          },
+          {
+            "dir": 1,
+            "clue": "Third down clue",
+            "num": 3
+          },
+          {
+            "dir": 1,
+            "clue": "Fourth down clue",
+            "num": 4
+          },
+          {
+            "dir": 1,
+            "clue": "Fifth down clue",
+            "num": 7
+          }
+        ],
+        "grid": [
+          "A",
+          "B",
+          "C",
+          "D",
+          ".",
+          "E",
+          "F",
+          "G",
+          "H",
+          ".",
+          "I",
+          "J",
+          "XYZ",
+          "L",
+          "M",
+          ".",
+          "N",
+          "O",
+          "P",
+          "Q",
+          ".",
+          "1",
+          "2",
+          "$",
+          "@"
+        ],
+        "highlighted": [10, 14],
+        "highlight": "circle",
+        "constructorNotes": {
+          "type": "text",
+          "value": "Notepad text goes here."
+        }
+      }
+    }
+  }
+}
