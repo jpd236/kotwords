@@ -33,6 +33,16 @@ data class JellyRoll(
         require(darkSquaresAnswers.joinToString("") == splitAnswers[1]) {
             "Dark square answers do not match the jelly roll answers"
         }
+        require(jellyRollClues.size == jellyRollAnswers.size) {
+            "Different number of jelly roll clues (${jellyRollClues.size}) than answers (${jellyRollAnswers.size})"
+        }
+        require(lightSquaresClues.size == lightSquaresAnswers.size) {
+            "Different number of light square clues (${lightSquaresClues.size}) than answers " +
+                    "(${lightSquaresAnswers.size})"
+        }
+        require(darkSquaresClues.size == darkSquaresAnswers.size) {
+            "Different number of dark square clues (${darkSquaresClues.size}) than answers (${darkSquaresAnswers.size})"
+        }
         if (dimensions.first > 0 || dimensions.second > 0) {
             require(dimensions.first > 0 && dimensions.second > 0) {
                 "Either neither or both of width and height must be specified"

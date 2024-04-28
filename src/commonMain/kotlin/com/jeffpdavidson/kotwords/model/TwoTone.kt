@@ -25,6 +25,15 @@ data class TwoTone(
                 .partition { it.first % 2 == 0 }
                 .toList()
                 .map { it.map { (_, ch) -> ch }.joinToString("") }
+        require(allSquaresClues.size == allSquaresAnswers.size) {
+            "Different number of all square clues (${allSquaresClues.size}) than answers (${allSquaresAnswers.size})"
+        }
+        require(oddSquaresClues.size == oddSquaresAnswers.size) {
+            "Different number of odd square clues (${oddSquaresClues.size}) than answers (${oddSquaresAnswers.size})"
+        }
+        require(evenSquaresClues.size == evenSquaresAnswers.size) {
+            "Different number of even square clues (${evenSquaresClues.size}) than answers (${evenSquaresAnswers.size})"
+        }
         require(oddSquaresAnswers.joinToString("") == splitAnswers[0]) {
             "Odd square answers do not match the odd squares of the all squares answers"
         }
