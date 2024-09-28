@@ -26,6 +26,7 @@ import kotlinx.html.p
 import kotlinx.html.role
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.HTMLSelectElement
 import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.dom.asList
 import org.w3c.files.Blob
@@ -316,6 +317,7 @@ internal class PuzzleFileForm(
                 }
 
                 is HTMLTextAreaElement -> it.value
+                is HTMLSelectElement -> it.value
                 else -> throw IllegalStateException("")
             }
             saveData[id] = value
@@ -333,31 +335,38 @@ internal class PuzzleFileForm(
         errorMessage.setMessage("")
         val ids = (js("Object").keys(saveData) as Array<String>).filterNot { it == KEY_PUZZLE_TYPE }
         ids.forEach { id ->
-            // Map legacy standalone metadata fields from old save data to current fields.
-            val fieldId = when (id) {
-                "title" -> elementId("title")
-                "creator", "author" -> elementId("creator")
-                "copyright" -> elementId("copyright")
-                "description", "notes" -> elementId("description")
-                else -> id
+            // TODO: Provide a way for individual forms to plug in their own field migrations.
+            val fieldIds = when (id) {
+                // Map legacy standalone metadata fields from old save data to current fields.
+                "title" -> listOf(elementId("title"))
+                "creator", "author" -> listOf(elementId("creator"))
+                "copyright" -> listOf(elementId("copyright"))
+                "description", "notes" -> listOf(elementId("description"))
+                // Eight tracks: separate enumeration/direction checkboxes
+                "include-enumerations-and-direction" -> listOf("include-enumerations", "include-directions")
+                else -> listOf(id)
             }
-            val element = document.getElementById(fieldId) ?: return@forEach
 
-            val value = saveData[id]
-            when (element) {
-                is HTMLInputElement -> {
-                    when (element.type) {
-                        InputType.checkBox.realValue -> element.checked = value as Boolean
-                        else -> element.value = value as String
+            fieldIds.forEach(fun(fieldId) {
+                val element = document.getElementById(fieldId) ?: return
+
+                val value = saveData[id]
+                when (element) {
+                    is HTMLInputElement -> {
+                        when (element.type) {
+                            InputType.checkBox.realValue -> element.checked = value as Boolean
+                            else -> element.value = value as String
+                        }
+                        // Invoke the oninput listener, if any, to emulate the user entering the value.
+                        val event = document.createEvent("Event")
+                        event.initEvent("input", bubbles = true, cancelable = true)
+                        element.dispatchEvent(event)
                     }
-                    // Invoke the oninput listener, if any, to emulate the user entering the value.
-                    val event = document.createEvent("Event")
-                    event.initEvent("input", bubbles = true, cancelable = true)
-                    element.dispatchEvent(event)
-                }
 
-                is HTMLTextAreaElement -> element.value = value as String
-            }
+                    is HTMLTextAreaElement -> element.value = value as String
+                    is HTMLSelectElement -> element.value = value as String
+                }
+            })
         }
     }
 

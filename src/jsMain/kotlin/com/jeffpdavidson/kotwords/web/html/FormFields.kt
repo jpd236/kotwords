@@ -20,7 +20,9 @@ import kotlinx.html.input
 import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onInputFunction
 import kotlinx.html.label
+import kotlinx.html.option
 import kotlinx.html.role
+import kotlinx.html.select
 import kotlinx.html.small
 import kotlinx.html.span
 import kotlinx.html.style
@@ -28,6 +30,7 @@ import kotlinx.html.textArea
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.HTMLSelectElement
 import org.w3c.dom.HTMLSpanElement
 import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.files.File
@@ -110,11 +113,12 @@ internal object FormFields {
          *
          * @param parent the parent [FlowContent] to render into
          * @param label the label for the input field
+         * @param flexCols optional number of columns this field should take up in the parent container.
          * @param block optional block run in the scope of the [INPUT] tag for further customization.
          */
-        fun render(parent: FlowContent, label: String, block: INPUT.() -> Unit = {}) {
+        fun render(parent: FlowContent, label: String, flexCols: Int? = null, block: INPUT.() -> Unit = {}) {
             with(parent) {
-                formGroup {
+                formGroup(flexCols) {
                     div(classes = "form-check") {
                         input(classes = "form-check-input") {
                             this.id = htmlId
@@ -336,6 +340,59 @@ internal object FormFields {
         private fun onColorChange() {
             square.style.backgroundColor = colorGetter(value)
             text.innerText = "${value}%"
+        }
+    }
+
+
+    /**
+     * Create an <select> field for a dropdown menu.
+     *
+     * @param htmlId the ID to be used for the input field (and as an ID prefix for associated tags)
+     */
+    class SelectField(private val htmlId: String) : FormField<String> {
+        private val input: HTMLSelectElement by Html.getElementById(htmlId)
+
+        override var value: String
+            get() = input.value
+            set(value) {
+                input.value = value
+            }
+
+        /**
+         * Render the field into the given [FlowContent].
+         *
+         * @param parent the parent [FlowContent] to render into
+         * @param label the label for the select field
+         * @param options the options to show in the menu
+         * @param help optional help text used to describe the field in more detail
+         * @param flexCols optional number of columns this field should take up in the parent container.
+         * @param block optional block run in the scope of the [SELECT] tag for further customization.
+         */
+        fun render(
+            parent: FlowContent, label: String, options: List<String>, help: String = "", flexCols: Int? = null
+        ) {
+            with(parent) {
+                formGroup(flexCols) {
+                    label {
+                        htmlFor = htmlId
+                        +label
+                    }
+                    select(classes = "form-control") {
+                        this.id = htmlId
+                        if (help.isNotBlank()) {
+                            attributes["aria-describedby"] = "$htmlId-help"
+                        }
+                        options.forEach { value ->
+                            option {
+                                +value
+                            }
+                        }
+                    }
+                    if (help.isNotBlank()) {
+                        help(htmlId, help)
+                    }
+                }
+            }
         }
     }
 

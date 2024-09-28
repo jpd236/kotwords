@@ -11,10 +11,17 @@ data class EightTracks(
     val trackStartingOffsets: List<Int>,
     val trackAnswers: List<List<String>>,
     val trackClues: List<List<String>>,
-    val includeEnumerationsAndDirections: Boolean,
+    val includeEnumerations: Boolean,
+    val includeDirections: Boolean,
     val lightTrackColor: String,
     val darkTrackColor: String,
+    val trackLabel: TrackLabel = TrackLabel.TRACKS,
 ) : Puzzleable() {
+
+    enum class TrackLabel(val firstTrack: String, val otherTracks: String) {
+        TRACKS("Track 1", "Other tracks"),
+        RINGS("Ring 1", "Other rings"),
+    }
 
     enum class Direction {
         CLOCKWISE,
@@ -27,6 +34,7 @@ data class EightTracks(
         val clueLists = mutableListOf<Puzzle.ClueList>()
         val otherTracks = mutableListOf<Puzzle.Clue>()
         val words = mutableListOf<Puzzle.Word>()
+        var sectionLetters: Map<Int, List<Char>> = mapOf()
         trackAnswers.forEachIndexed { trackIndex, answers ->
             val trackWidth = gridWidth - 2 * trackIndex
             val trackCoordinates =
@@ -58,15 +66,34 @@ data class EightTracks(
                 wordsCells += word
                 answerIndex + answer.length
             }
+            // Record the letters in each section for validation.
+            val trackSectionLetters = mutableMapOf<Int, MutableList<Char>>()
+            trackCoordinates.forEachIndexed { i, coordinates ->
+                val currentSectionLetters =
+                    trackSectionLetters.getOrPut(8 * i / trackCoordinates.size) { mutableListOf() }
+                currentSectionLetters.add(gridMap[coordinates]!!.solution[0])
+            }
             if (trackIndex == 0) {
+                sectionLetters = trackSectionLetters
                 val (trackClues, trackWords) = wordsCells.mapIndexed { i, cells ->
-                    val clue = enumerateClue(trackClues[0][i], cells.size, includeEnumerationsAndDirections)
+                    val clue = enumerateClue(trackClues[0][i], cells.size, includeEnumerations)
                     val word = Puzzle.Word(101 + i, cells)
                     Puzzle.Clue(101 + i, "${i + 1}", clue) to word
                 }.unzip()
-                clueLists.add(Puzzle.ClueList("Track 1", trackClues))
+                clueLists.add(Puzzle.ClueList(trackLabel.firstTrack, trackClues))
                 words.addAll(trackWords)
             } else {
+                // Validate that each section contains all letters of the outer track's section except one.
+                trackSectionLetters.forEach { (i, currentSectionLetters) ->
+                    val previousSectionLetters = sectionLetters[i]!!.toMutableList()
+                    require(previousSectionLetters.removeAll(currentSectionLetters)) {
+                        "Invalid section in track ${trackIndex + 1}: " +
+                                "previous track letters = ${sectionLetters[i]!!}, " +
+                                "current track letters = ${currentSectionLetters}"
+                    }
+                }
+                sectionLetters = trackSectionLetters
+
                 var word = wordsCells.flatten()
                 if (direction == Direction.COUNTERCLOCKWISE) {
                     word = reverseDirection(word)
@@ -75,14 +102,14 @@ data class EightTracks(
                     word.slice((word.size - startingOffset + 1) until word.size) +
                             word.slice(0 until word.size - startingOffset + 1)
                 var number = "${trackIndex + 1}"
-                if (includeEnumerationsAndDirections) {
+                if (includeDirections) {
                     if (direction == Direction.COUNTERCLOCKWISE) {
                         offsetWord = reverseDirection(offsetWord)
                     }
                     number += "(" + (if (direction == Direction.CLOCKWISE) "+" else "–") + ")"
                 }
                 val clues = trackClues[trackIndex].mapIndexed { i, clue ->
-                    enumerateClue(clue, wordsCells[i].size, includeEnumerationsAndDirections)
+                    enumerateClue(clue, wordsCells[i].size, includeEnumerations)
                 }.joinToString(" / ")
                 val trackWord = Puzzle.Word(trackIndex + 1, offsetWord)
                 otherTracks.add(Puzzle.Clue(trackIndex + 1, number, clues))
@@ -94,7 +121,7 @@ data class EightTracks(
                 gridMap.getOrElse(x to y) { Puzzle.Cell(cellType = Puzzle.CellType.BLOCK) }
             }
         }
-        clueLists.add(Puzzle.ClueList("Other tracks", otherTracks))
+        clueLists.add(Puzzle.ClueList(trackLabel.otherTracks, otherTracks))
 
         return Puzzle(
             title = title,

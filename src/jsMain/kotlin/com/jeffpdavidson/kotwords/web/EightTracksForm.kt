@@ -17,8 +17,9 @@ class EightTracksForm {
     private val trackStartingOffsets: FormFields.InputField = FormFields.InputField("track-starting-offsets")
     private val trackAnswers: FormFields.TextBoxField = FormFields.TextBoxField("track-answers")
     private val trackClues: FormFields.TextBoxField = FormFields.TextBoxField("track-clues")
-    private val includeEnumerationsAndDirection: FormFields.CheckBoxField =
-        FormFields.CheckBoxField("include-enumerations-and-direction")
+    private val includeEnumerations: FormFields.CheckBoxField = FormFields.CheckBoxField("include-enumerations")
+    private val includeDirections: FormFields.CheckBoxField = FormFields.CheckBoxField("include-directions")
+    private val trackLabel: FormFields.SelectField = FormFields.SelectField("track-label")
     private val lightTrackColor: FormFields.InputField = FormFields.InputField("light-track-color")
     private val darkTrackColor: FormFields.InputField = FormFields.InputField("dark-track-color")
 
@@ -44,9 +45,20 @@ class EightTracksForm {
                     rows = "8"
                 }
             }, advancedOptionsBlock = {
-                includeEnumerationsAndDirection.render(this, "Include clue enumerations and track directions") {
-                    checked = true
+                div(classes = "form-row") {
+                    includeEnumerations.render(this, "Include clue enumerations", flexCols = 6) {
+                        checked = true
+                    }
+                    includeDirections.render(this, "Include track directions", flexCols = 6) {
+                        checked = true
+                    }
                 }
+                trackLabel.render(
+                    this,
+                    "Track label",
+                    EightTracks.TrackLabel.entries.map { it.name.lowercase().replaceFirstChar { it.uppercase() } },
+                    help = "How to label the tracks in the clue list"
+                )
                 div(classes = "form-row") {
                     lightTrackColor.render(this, "Light track color", flexCols = 6) {
                         type = InputType.color
@@ -77,9 +89,11 @@ class EightTracksForm {
             trackClues = trackClues.value.trimmedLines().map { clues ->
                 clues.split("/").map { it.trim() }
             },
-            includeEnumerationsAndDirections = includeEnumerationsAndDirection.value,
+            includeEnumerations = includeEnumerations.value,
+            includeDirections = includeDirections.value,
             lightTrackColor = lightTrackColor.value,
             darkTrackColor = darkTrackColor.value,
+            trackLabel = EightTracks.TrackLabel.valueOf(trackLabel.value.uppercase())
         )
         return eightTracks.asPuzzle()
     }
