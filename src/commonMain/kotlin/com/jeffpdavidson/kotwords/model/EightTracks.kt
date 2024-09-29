@@ -86,10 +86,12 @@ data class EightTracks(
                 // Validate that each section contains all letters of the outer track's section except one.
                 trackSectionLetters.forEach { (i, currentSectionLetters) ->
                     val previousSectionLetters = sectionLetters[i]!!.toMutableList()
-                    require(previousSectionLetters.removeAll(currentSectionLetters)) {
-                        "Invalid section in track ${trackIndex + 1}: " +
-                                "previous track letters = ${sectionLetters[i]!!}, " +
-                                "current track letters = ${currentSectionLetters}"
+                    currentSectionLetters.forEach { letter ->
+                        require(previousSectionLetters.remove(letter)) {
+                            "Invalid section in track ${trackIndex + 1}: " +
+                                    "previous track letters = ${sectionLetters[i]!!}, " +
+                                    "current track letters = ${currentSectionLetters}"
+                        }
                     }
                 }
                 sectionLetters = trackSectionLetters
