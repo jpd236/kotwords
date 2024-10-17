@@ -67,7 +67,7 @@ data class MarchingBands(
             copyright = copyright,
             description = description,
             grid = puzzleGrid,
-            clues = listOf(Puzzle.ClueList("Bands", bandClueList), Puzzle.ClueList("Rows", rowClueList)),
+            clues = listOf(Puzzle.ClueList("Rows", rowClueList), Puzzle.ClueList("Bands", bandClueList)),
             words = bandWordList + rowWordList,
         )
     }

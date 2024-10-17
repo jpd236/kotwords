@@ -482,11 +482,11 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
                         }
                     }
                     clues = listOf(
-                        Puzzle.ClueList("<b>Bands</b>", bandClues),
                         Puzzle.ClueList(
                             "<b>Rows</b>",
                             buildClueMap(isAcross = true, clueList = rowWords, wordLengthsEnabled = false),
-                        )
+                        ),
+                        Puzzle.ClueList("<b>Bands</b>", bandClues),
                     )
                     words = bandWordList + rowWordList
                 } else {
