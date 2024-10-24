@@ -19,6 +19,7 @@ class EightTracksForm {
     private val trackClues: FormFields.TextBoxField = FormFields.TextBoxField("track-clues")
     private val includeEnumerations: FormFields.CheckBoxField = FormFields.CheckBoxField("include-enumerations")
     private val includeDirections: FormFields.CheckBoxField = FormFields.CheckBoxField("include-directions")
+    private val markInnerTrackStarts: FormFields.CheckBoxField = FormFields.CheckBoxField("mark-inner-track-starts")
     private val trackLabel: FormFields.SelectField = FormFields.SelectField("track-label")
     private val lightTrackColor: FormFields.InputField = FormFields.InputField("light-track-color")
     private val darkTrackColor: FormFields.InputField = FormFields.InputField("dark-track-color")
@@ -46,12 +47,13 @@ class EightTracksForm {
                 }
             }, advancedOptionsBlock = {
                 div(classes = "form-row") {
-                    includeEnumerations.render(this, "Include clue enumerations", flexCols = 6) {
+                    includeEnumerations.render(this, "Include clue enumerations", flexCols = 4) {
                         checked = true
                     }
-                    includeDirections.render(this, "Include track directions", flexCols = 6) {
+                    includeDirections.render(this, "Include track directions", flexCols = 4) {
                         checked = true
                     }
+                    markInnerTrackStarts.render(this, "Mark starting squares of entries in inner tracks", flexCols = 4)
                 }
                 trackLabel.render(
                     this,
@@ -93,7 +95,8 @@ class EightTracksForm {
             includeDirections = includeDirections.value,
             lightTrackColor = lightTrackColor.value,
             darkTrackColor = darkTrackColor.value,
-            trackLabel = EightTracks.TrackLabel.valueOf(trackLabel.value.uppercase())
+            trackLabel = EightTracks.TrackLabel.valueOf(trackLabel.value.uppercase()),
+            markInnerTrackStarts = markInnerTrackStarts.value,
         )
         return eightTracks.asPuzzle()
     }

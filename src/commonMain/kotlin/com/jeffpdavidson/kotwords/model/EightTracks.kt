@@ -16,6 +16,7 @@ data class EightTracks(
     val lightTrackColor: String,
     val darkTrackColor: String,
     val trackLabel: TrackLabel = TrackLabel.TRACKS,
+    val markInnerTrackStarts: Boolean = false,
 ) : Puzzleable() {
 
     enum class TrackLabel(val firstTrack: String, val otherTracks: String) {
@@ -53,7 +54,15 @@ data class EightTracks(
                     val coordinates = trackCoordinates[coordinateIndex]
                     val cell = Puzzle.Cell(
                         solution = "$ch",
-                        number = if (trackIndex == 0 && i == 0) "${answerId + 1}" else "",
+                        number = if (i == 0) {
+                            if (trackIndex == 0) {
+                                "${answerId + 1}"
+                            } else if (markInnerTrackStarts) {
+                                "\u2022"
+                            } else {
+                                ""
+                            }
+                        } else "",
                         backgroundColor = if (trackIndex % 2 == 0) darkTrackColor else lightTrackColor,
                         borderDirections = getBorderDirections(coordinateIndex, trackCoordinates.size)
                     )
