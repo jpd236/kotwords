@@ -12,6 +12,7 @@ import com.jeffpdavidson.kotwords.formats.AcrossLite
 import com.jeffpdavidson.kotwords.formats.Apz
 import com.jeffpdavidson.kotwords.formats.BostonGlobe
 import com.jeffpdavidson.kotwords.formats.Crosshare
+import com.jeffpdavidson.kotwords.formats.Guardian
 import com.jeffpdavidson.kotwords.formats.Ipuz
 import com.jeffpdavidson.kotwords.formats.JpzFile
 import com.jeffpdavidson.kotwords.formats.NewYorkTimes
@@ -47,6 +48,7 @@ enum class Format(
     RGZ(listOf("rg", "rgz"), { data, _, _, _ -> Rgz.fromRgzFile(data) }),
     BOSTON_GLOBE_HTML(listOf(), { data, _, _, _ -> BostonGlobe(data.decodeToString()) }),
     CROSSHARE_JSON(listOf(), { data, _, _, _ -> Crosshare(data.decodeToString()) }),
+    GUARDIAN_JSON(listOf(), { data, _, _, copyright -> Guardian(data.decodeToString(), copyright) }),
     NEW_YORK_TIMES_HTML(listOf(), { data, _, _, _ -> NewYorkTimes.fromHtml(data.decodeToString()) }),
     PUZZLE_ME_JSON(listOf(), { data, _, _, _ -> PuzzleMe(data.decodeToString()) }),
     PZZL_TEXT(listOf(), { data, _, _, _ -> Pzzl(data.decodeToString()) }),

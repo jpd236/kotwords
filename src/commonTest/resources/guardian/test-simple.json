@@ -1,0 +1,122 @@
+{
+  "name": "Example Puzzle for Kotwords",
+  "creator": {
+    "name": "Jeff Davidson"
+  },
+  "entries": [
+    {
+      "number": 1,
+      "clue": "First across clue",
+      "direction": "across",
+      "length": 4,
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "solution": "ABCD"
+    },
+    {
+      "number": 5,
+      "clue": "Second across clue",
+      "direction": "across",
+      "length": 4,
+      "position": {
+        "x": 0,
+        "y": 1
+      },
+      "solution": "EFGH"
+    },
+    {
+      "number": 6,
+      "clue": "Third across clue",
+      "direction": "across",
+      "length": 5,
+      "position": {
+        "x": 0,
+        "y": 2
+      },
+      "solution": "IJKLM"
+    },
+    {
+      "number": 8,
+      "clue": "Fourth across clue",
+      "direction": "across",
+      "length": 4,
+      "position": {
+        "x": 1,
+        "y": 3
+      },
+      "solution": "NOPQ"
+    },
+    {
+      "number": 9,
+      "clue": "Fifth across clue",
+      "direction": "across",
+      "length": 4,
+      "position": {
+        "x": 1,
+        "y": 4
+      },
+      "solution": "RSTU"
+    },
+    {
+      "number": 1,
+      "clue": "First down clue",
+      "direction": "down",
+      "length": 3,
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "solution": "AEI"
+    },
+    {
+      "number": 2,
+      "clue": "Second down clue",
+      "direction": "down",
+      "length": 5,
+      "position": {
+        "x": 1,
+        "y": 0
+      },
+      "solution": "BFJNR"
+    },
+    {
+      "number": 3,
+      "clue": "Third down clue",
+      "direction": "down",
+      "length": 5,
+      "position": {
+        "x": 2,
+        "y": 0
+      },
+      "solution": "CGKOS"
+    },
+    {
+      "number": 4,
+      "clue": "Fourth down clue",
+      "direction": "down",
+      "length": 5,
+      "position": {
+        "x": 3,
+        "y": 0
+      },
+      "solution": "DHLPT"
+    },
+    {
+      "number": 7,
+      "clue": "Fifth down clue",
+      "direction": "down",
+      "length": 3,
+      "position": {
+        "x": 4,
+        "y": 2
+      },
+      "solution": "MQU"
+    }
+  ],
+  "dimensions": {
+    "cols": 5,
+    "rows": 5
+  }
+}
