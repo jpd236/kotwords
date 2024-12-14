@@ -13,6 +13,7 @@ import com.jeffpdavidson.kotwords.formats.Apz
 import com.jeffpdavidson.kotwords.formats.BostonGlobe
 import com.jeffpdavidson.kotwords.formats.Cnn
 import com.jeffpdavidson.kotwords.formats.Crosshare
+import com.jeffpdavidson.kotwords.formats.Crosswordr
 import com.jeffpdavidson.kotwords.formats.Guardian
 import com.jeffpdavidson.kotwords.formats.Ipuz
 import com.jeffpdavidson.kotwords.formats.JpzFile
@@ -50,6 +51,7 @@ enum class Format(
     BOSTON_GLOBE_HTML(listOf(), { data, _, _, _ -> BostonGlobe(data.decodeToString()) }),
     CNN_JSON(listOf(), { data, _, _, _ -> Cnn(data.decodeToString()) }),
     CROSSHARE_JSON(listOf(), { data, _, _, _ -> Crosshare(data.decodeToString()) }),
+    CROSSWORDR_JSON(listOf(), { data, _, _, _ -> Crosswordr(data.decodeToString()) }),
     GUARDIAN_JSON(listOf(), { data, _, _, copyright -> Guardian(data.decodeToString(), copyright) }),
     NEW_YORK_TIMES_HTML(listOf(), { data, _, _, _ -> NewYorkTimes.fromHtml(data.decodeToString()) }),
     PUZZLE_ME_JSON(listOf(), { data, _, _, _ -> PuzzleMe(data.decodeToString()) }),
