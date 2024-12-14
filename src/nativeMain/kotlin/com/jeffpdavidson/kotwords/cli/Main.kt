@@ -11,6 +11,7 @@ import com.github.ajalt.clikt.parameters.types.enum
 import com.jeffpdavidson.kotwords.formats.AcrossLite
 import com.jeffpdavidson.kotwords.formats.Apz
 import com.jeffpdavidson.kotwords.formats.BostonGlobe
+import com.jeffpdavidson.kotwords.formats.Cnn
 import com.jeffpdavidson.kotwords.formats.Crosshare
 import com.jeffpdavidson.kotwords.formats.Guardian
 import com.jeffpdavidson.kotwords.formats.Ipuz
@@ -47,6 +48,7 @@ enum class Format(
     APZ(listOf("apz"), { data, _, _, _ -> Apz.fromXmlString(data.decodeToString()).toAcrostic() }),
     RGZ(listOf("rg", "rgz"), { data, _, _, _ -> Rgz.fromRgzFile(data) }),
     BOSTON_GLOBE_HTML(listOf(), { data, _, _, _ -> BostonGlobe(data.decodeToString()) }),
+    CNN_JSON(listOf(), { data, _, _, _ -> Cnn(data.decodeToString()) }),
     CROSSHARE_JSON(listOf(), { data, _, _, _ -> Crosshare(data.decodeToString()) }),
     GUARDIAN_JSON(listOf(), { data, _, _, copyright -> Guardian(data.decodeToString(), copyright) }),
     NEW_YORK_TIMES_HTML(listOf(), { data, _, _, _ -> NewYorkTimes.fromHtml(data.decodeToString()) }),

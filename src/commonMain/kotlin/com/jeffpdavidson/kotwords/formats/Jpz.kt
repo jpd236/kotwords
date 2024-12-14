@@ -16,10 +16,6 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import okio.ByteString.Companion.decodeBase64
 
-private const val CCA_NS = "http://crossword.info/xml/crossword-compiler-applet"
-private const val CC_NS = "http://crossword.info/xml/crossword-compiler"
-private const val PUZZLE_NS = "http://crossword.info/xml/rectangular-puzzle"
-
 // TODO: Is it possible to restrict the types of the elements of this list at compile time?
 // See https://github.com/pdvrieze/xmlutil/issues/30
 private typealias Snippet = List<@Polymorphic Any>
@@ -327,6 +323,10 @@ sealed class Jpz : Puzzleable() {
     }
 
     companion object {
+        internal const val CCA_NS = "http://crossword.info/xml/crossword-compiler-applet"
+        internal const val CC_NS = "http://crossword.info/xml/crossword-compiler"
+        internal const val PUZZLE_NS = "http://crossword.info/xml/rectangular-puzzle"
+
         /**
          * Parse the given JPZ XML.
          *
@@ -635,7 +635,7 @@ sealed class Jpz : Puzzleable() {
 }
 
 @Serializable
-@XmlSerialName("crossword-compiler", CC_NS, "")
+@XmlSerialName("crossword-compiler", Jpz.CC_NS, "")
 data class CrosswordCompiler(override val rectangularPuzzle: RectangularPuzzle) : Jpz() {
     override fun toXmlString(prettyPrint: Boolean): String {
         return getXmlSerializer(prettyPrint).encodeToString(serializer(), this)
@@ -643,7 +643,7 @@ data class CrosswordCompiler(override val rectangularPuzzle: RectangularPuzzle) 
 }
 
 @Serializable
-@XmlSerialName("crossword-compiler-applet", CCA_NS, "")
+@XmlSerialName("crossword-compiler-applet", Jpz.CCA_NS, "")
 data class CrosswordCompilerApplet(
     val appletSettings: AppletSettings = AppletSettings(),
     override val rectangularPuzzle: RectangularPuzzle
