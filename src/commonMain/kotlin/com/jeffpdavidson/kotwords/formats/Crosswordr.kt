@@ -27,10 +27,10 @@ class Crosswordr(val json: String) : DelegatingPuzzleable() {
         val (acrossClues, acrossWords) = toPuzzleClues(puzzle.width, puzzle.content.clues.across, 0)
         val (downClues, downWords) = toPuzzleClues(puzzle.width, puzzle.content.clues.down, 1000)
         return Puzzle(
-            title = puzzle.title ?: "",
-            creator = listOfNotNull(puzzle.byline, puzzle.editedBy?.ifEmpty { null }).joinToString(" / "),
+            title = toHtml(puzzle.title ?: ""),
+            creator = toHtml(listOfNotNull(puzzle.byline, puzzle.editedBy?.ifEmpty { null }).joinToString(" / ")),
             copyright = "",
-            description = puzzle.description ?: "",
+            description = toHtml(puzzle.description ?: ""),
             grid = grid,
             clues = listOf(
                 Puzzle.ClueList(title = "<b>Across</b>", clues = acrossClues),
@@ -38,7 +38,7 @@ class Crosswordr(val json: String) : DelegatingPuzzleable() {
             ),
             words = acrossWords + downWords,
             hasHtmlClues = true,
-            completionMessage = puzzle.postSolveNote ?: "",
+            completionMessage = toHtml(puzzle.postSolveNote ?: ""),
         )
     }
 
@@ -55,7 +55,7 @@ class Crosswordr(val json: String) : DelegatingPuzzleable() {
                 Puzzle.Clue(
                     wordId = wordId,
                     number = "${clue.index}",
-                    text = clue.clue,
+                    text = toHtml(clue.clue),
                 )
             )
             words.add(Puzzle.Word(
@@ -66,5 +66,9 @@ class Crosswordr(val json: String) : DelegatingPuzzleable() {
             ))
         }
         return clues to words
+    }
+
+    private fun toHtml(string: String): String {
+        return string.replace("&", "&amp;")
     }
 }
