@@ -7,7 +7,7 @@ data class MarchingBands(
     val creator: String,
     val copyright: String,
     val description: String,
-    val grid: List<List<Char?>>,
+    val grid: List<List<String>>,
     val bandClues: List<List<String>>,
     val rowClues: List<List<String>>,
     val includeRowNumbers: Boolean,
@@ -30,8 +30,8 @@ data class MarchingBands(
 
     override suspend fun createPuzzle(): Puzzle {
         val puzzleGrid = grid.mapIndexed { y, row ->
-            row.mapIndexed { x, ch ->
-                if (ch == null) {
+            row.mapIndexed { x, cell ->
+                if (cell.isEmpty()) {
                     Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                 } else {
                     val rowNumber = if (x == 0) "${y + 1}" else ""
@@ -43,7 +43,7 @@ data class MarchingBands(
                             darkBandColor
                         }
                     Puzzle.Cell(
-                        solution = "$ch",
+                        solution = cell,
                         number = if (includeRowNumbers) rowNumber else bandLetter,
                         topRightNumber = if (includeRowNumbers) bandLetter else "",
                         backgroundColor = backgroundColor

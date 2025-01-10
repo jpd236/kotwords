@@ -24,7 +24,9 @@ class MarchingBandsForm {
         Html.renderPage {
             form.render(this, bodyBlock = {
                 grid.render(this, "Grid") {
-                    placeholder = "Letters of the grid, separated into rows. Use a period for the middle square."
+                    placeholder =
+                        "Letters of the grid, separated into rows. Use a period for the middle square. " +
+                                "For rebuses, separate each cell in the row with whitespace."
                     rows = "13"
                 }
                 bandClues.render(this, "Band clues") {
@@ -63,7 +65,14 @@ class MarchingBandsForm {
             copyright = form.copyright,
             description = form.description,
             grid = grid.value.uppercase().trimmedLines().map { row ->
-                row.replace("[^A-Z.]".toRegex(), "").map { ch -> if (ch == '.') null else ch }
+                val cells = if (!row.contains("\\s+".toRegex())) {
+                    // No spaces - assume each character is a cell.
+                    row.toCharArray().map { "$it" }
+                } else {
+                    // Split row into cells by whitespace.
+                    row.split("\\s+".toRegex())
+                }
+                cells.map { cell -> if (cell == ".") "" else cell }
             },
             bandClues = bandClues.value.trimmedLines().map { clues ->
                 clues.split("/").map { it.trim() }

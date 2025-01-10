@@ -61,11 +61,11 @@ class MarchingBandsTest {
             copyright = "Test copyright",
             description = "Test description",
             grid = listOf(
-                listOf('A', 'B', 'C', 'D', 'E'),
-                listOf('F', 'G', 'H', 'I', 'J'),
-                listOf('K', 'L', null, 'M', 'N'),
-                listOf('O', 'P', 'Q', 'R', 'S'),
-                listOf('T', 'U', 'V', 'W', 'X')
+                listOf("A", "B", "C", "D", "E"),
+                listOf("F", "G", "H", "I", "J"),
+                listOf("K", "L", "", "M", "N"),
+                listOf("O", "P", "Q", "R", "S"),
+                listOf("T", "U", "V", "W", "X")
             ),
             bandClues = listOf(
                 listOf("Band A1", "Band A2", "Band A3"),
