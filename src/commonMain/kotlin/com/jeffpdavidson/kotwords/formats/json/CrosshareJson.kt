@@ -31,6 +31,7 @@ internal object CrosshareJson {
                         put("type", "text")
                         put("value", element)
                     }
+
                     else -> element
                 }
             }

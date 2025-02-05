@@ -166,7 +166,7 @@ tasks {
 
     val browserDistributionZip by creating(Zip::class) {
         dependsOn(browserProductionWebpackTask)
-        from (browserProductionWebpackTask.outputDirectory)
+        from(browserProductionWebpackTask.outputDirectory)
         destinationDirectory.set(layout.buildDirectory.dir("zip").get().getAsFile())
         archiveAppendix.set("browser-distribution")
     }

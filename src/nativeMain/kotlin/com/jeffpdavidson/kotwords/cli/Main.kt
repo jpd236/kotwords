@@ -93,12 +93,12 @@ class DumpEntries : CliktCommand(help = "Dump information about a puzzle") {
 
     override fun run() {
         val resolvedFormat: Format = format ?: {
-            require (file.name.contains('.')) {
+            require(file.name.contains('.')) {
                 "Puzzle format cannot be inferred; please provide it using --format."
             }
             val extension = file.name.substringAfterLast('.')
-            Format.FORMATS_BY_EXTENSION[extension] ?:
-                throw IllegalArgumentException("Unsupported puzzle format: $extension")
+            Format.FORMATS_BY_EXTENSION[extension]
+                ?: throw IllegalArgumentException("Unsupported puzzle format: $extension")
         }()
         runBlocking {
             val data = FileSystem.SYSTEM.read(file) {

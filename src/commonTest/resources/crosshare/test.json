@@ -35,7 +35,6 @@
             "clue": "Fifth across clue",
             "num": 9
           },
-
           {
             "dir": 1,
             "clue": "First down clue",
@@ -89,7 +88,10 @@
           "$",
           "@"
         ],
-        "highlighted": [10, 14],
+        "highlighted": [
+          10,
+          14
+        ],
         "highlight": "circle",
         "constructorNotes": "Notepad text goes here."
       }
