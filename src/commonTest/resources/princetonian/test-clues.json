@@ -1,0 +1,72 @@
+[
+  {
+    "answer": "ABCD",
+    "clue": "First across clue with special characters αβγδε",
+    "is_across": true,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "answer": "EFGH",
+    "clue": "Second across clue",
+    "is_across": true,
+    "x": 0,
+    "y": 1
+  },
+  {
+    "answer": "iJKLm",
+    "clue": "Third across clue",
+    "is_across": true,
+    "x": 0,
+    "y": 2
+  },
+  {
+    "answer": "NOPQ",
+    "clue": "Fourth across clue",
+    "is_across": true,
+    "x": 1,
+    "y": 3
+  },
+  {
+    "answer": "12$@",
+    "clue": "Fifth across clue",
+    "is_across": true,
+    "x": 1,
+    "y": 4
+  },
+  {
+    "answer": "AEi",
+    "clue": "First down clue",
+    "is_across": false,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "answer": "BFJN1",
+    "clue": "Second down clue",
+    "is_across": false,
+    "x": 1,
+    "y": 0
+  },
+  {
+    "answer": "CGKO2",
+    "clue": "Third down clue",
+    "is_across": false,
+    "x": 2,
+    "y": 0
+  },
+  {
+    "answer": "DHLP$",
+    "clue": "Fourth down clue",
+    "is_across": false,
+    "x": 3,
+    "y": 0
+  },
+  {
+    "answer": "mQ@",
+    "clue": "Fifth down clue",
+    "is_across": false,
+    "x": 4,
+    "y": 2
+  }
+]
