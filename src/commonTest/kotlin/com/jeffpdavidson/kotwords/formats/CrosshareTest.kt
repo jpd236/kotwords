@@ -30,8 +30,8 @@ class CrosshareTest {
     @Test
     fun asCrossword_barred() = runTest {
         assertEquals(
-            readStringResource(PuzzleMeTest::class, "jpz/test-barred.jpz"),
-            Crosshare(readStringResource(CrosshareTest::class, "crosshare/test-barred.json")).asJpz().toXmlString(),
+            Jpz.fromXmlString(readStringResource(PuzzleMeTest::class, "jpz/test-barred.jpz")),
+            Crosshare(readStringResource(CrosshareTest::class, "crosshare/test-barred.json")).asJpz(),
         )
     }
 }
