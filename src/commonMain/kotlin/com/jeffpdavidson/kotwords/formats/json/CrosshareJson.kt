@@ -1,6 +1,7 @@
 package com.jeffpdavidson.kotwords.formats.json
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.JsonTransformingSerializer
@@ -21,6 +22,7 @@ internal object CrosshareJson {
     @Serializable
     internal data class HtmlTag(
         val type: String,
+        val tagName: String? = null,
         val value: String? = null,
         val children: List<HtmlTag> = listOf(),
     ) {
@@ -36,7 +38,15 @@ internal object CrosshareJson {
                 }
             }
         }
+
+        object HtmlTagListSerializer : JsonTransformingSerializer<List<HtmlTag>>(ListSerializer(HtmlTagSerializer))
     }
+
+    @Serializable
+    internal data class CellStyles(
+        val circle: List<Int> = listOf(),
+        val shade: List<Int> = listOf(),
+    )
 
     @Serializable
     internal data class Puzzle(
@@ -45,12 +55,17 @@ internal object CrosshareJson {
         val size: Size,
         val clues: List<Clue>,
         val grid: List<String>,
-        val highlighted: List<Int>,
+        val highlighted: List<Int> = listOf(),
+        val cellStyles: CellStyles = CellStyles(),
+        val vBars: List<Int> = listOf(),
+        val hBars: List<Int> = listOf(),
         val guestConstructor: String? = null,
         @Serializable(with = HtmlTag.HtmlTagSerializer::class)
         val constructorNotes: HtmlTag? = null,
         // Note: this is speculative. Copyright seems to be stripped when uploading .puz files.
         val copyright: String? = null,
+        @Serializable(with = HtmlTag.HtmlTagListSerializer::class)
+        val clueHasts: List<HtmlTag> = listOf(),
     )
 
     @Serializable
@@ -60,5 +75,9 @@ internal object CrosshareJson {
     internal data class Props(val pageProps: PageProps)
 
     @Serializable
-    internal data class Data(val props: Props)
+    internal data class Data(
+        // One of these should be populated, depending on the data source.
+        val props: Props? = null,
+        val pageProps: PageProps? = null,
+    )
 }

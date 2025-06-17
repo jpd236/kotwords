@@ -88,11 +88,12 @@
           "$",
           "@"
         ],
-        "highlighted": [
-          10,
-          14
-        ],
-        "highlight": "circle",
+        "cellStyles": {
+          "circle": [
+            10,
+            14
+          ]
+        },
         "constructorNotes": "Notepad text goes here."
       }
     }

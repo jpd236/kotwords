@@ -1,0 +1,256 @@
+{
+  "props": {
+    "pageProps": {
+      "puzzle": {
+        "authorName": "Jeff Davidson",
+        "title": "Example Puzzle for Kotwords",
+        "copyright": "© 2018 Jeff Davidson",
+        "size": {
+          "rows": 5,
+          "cols": 5
+        },
+        "clues": [
+          {
+            "dir": 0,
+            "clue": "Ignored",
+            "num": 1
+          },
+          {
+            "dir": 0,
+            "clue": "Ignored",
+            "num": 5
+          },
+          {
+            "dir": 0,
+            "clue": "Ignored",
+            "num": 6
+          },
+          {
+            "dir": 0,
+            "clue": "Ignored",
+            "num": 8
+          },
+          {
+            "dir": 0,
+            "clue": "Ignored",
+            "num": 9
+          },
+          {
+            "dir": 1,
+            "clue": "Ignored",
+            "num": 1
+          },
+          {
+            "dir": 1,
+            "clue": "Ignored",
+            "num": 2
+          },
+          {
+            "dir": 1,
+            "clue": "Ignored",
+            "num": 3
+          },
+          {
+            "dir": 1,
+            "clue": "Ignored",
+            "num": 4
+          },
+          {
+            "dir": 1,
+            "clue": "Ignored",
+            "num": 7
+          }
+        ],
+        "grid": [
+          "A",
+          "B",
+          "C",
+          "D",
+          ".",
+          "E",
+          "F",
+          "G",
+          "H",
+          ".",
+          "I",
+          "J",
+          "XYZ",
+          "L",
+          "M",
+          ".",
+          "N",
+          "O",
+          "P",
+          "Q",
+          ".",
+          "1",
+          "2",
+          "$",
+          "@"
+        ],
+        "cellStyles": {
+          "circle": [
+            10,
+            14
+          ]
+        },
+        "constructorNotes": {
+          "type": "text",
+          "value": "Notepad text goes here."
+        },
+        "clueHasts": [
+          {
+            "type": "element",
+            "tagName": "p",
+            "children": [
+              {
+                "type": "text",
+                "value": "First across clue with "
+              },
+              {
+                "type": "element",
+                "tagName": "strong",
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "value": ", "
+              },
+              {
+                "type": "element",
+                "tagName": "em",
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "italic"
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "value": ", and "
+              },
+              {
+                "type": "element",
+                "tagName": "strong",
+                "children": [
+                  {
+                    "type": "element",
+                    "tagName": "em",
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "bold italic"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "value": " text"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "value": "First down clue"
+          },
+          {
+            "type": "text",
+            "value": "Second down clue"
+          },
+          {
+            "type": "text",
+            "value": "Third down clue"
+          },
+          {
+            "type": "text",
+            "value": "Fourth down clue"
+          },
+          {
+            "type": "element",
+            "tagName": "p",
+            "children": [
+              {
+                "type": "text",
+                "value": "Second across clue with "
+              },
+              {
+                "type": "element",
+                "tagName": "sub",
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "subscript"
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "value": " and "
+              },
+              {
+                "type": "element",
+                "tagName": "sup",
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "superscript"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "element",
+            "tagName": "p",
+            "children": [
+              {
+                "type": "text",
+                "value": "Third across clue with "
+              },
+              {
+                "type": "element",
+                "tagName": "sub",
+                "children": [
+                  {
+                    "type": "element",
+                    "tagName": "em",
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "italic subscript"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "value": " and more"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "value": "Fifth down clue"
+          },
+          {
+            "type": "text",
+            "value": "Fourth across clue"
+          },
+          {
+            "type": "text",
+            "value": "Fifth across clue"
+          }
+        ]
+      }
+    }
+  }
+}
