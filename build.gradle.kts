@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "com.jeffpdavidson.kotwords"
-version = "1.4.5"
+version = "1.4.6-SNAPSHOT"
 
 repositories {
     mavenCentral()
