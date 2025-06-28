@@ -19,6 +19,10 @@ elif [ "$GITHUB_BRANCH" != "$BRANCH" ]; then
   echo "Not publishing snapshot; wrong branch. Expected '$BRANCH' but was '$GITHUB_BRANCH'."
 else
   echo "Publishing snapshot..."
-  ./gradlew publishToSonatype closeSonatypeStagingRepository
+  # TODO: publishToMavenLocal should be unnecessary. Trying it as a workaround to ensure all
+  # artifacts are built before any are published, since requests that come from multiple IPs
+  # get split into different staging repositories and can't be merged, and perhaps this is more
+  # likely when the requests are further apart.
+  ./gradlew publishToMavenLocal publishToSonatype closeSonatypeStagingRepository
   echo "Published build!"
 fi
