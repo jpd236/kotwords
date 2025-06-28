@@ -27,6 +27,7 @@ import com.jeffpdavidson.kotwords.formats.UclickJson
 import com.jeffpdavidson.kotwords.formats.UclickXml
 import com.jeffpdavidson.kotwords.formats.WallStreetJournal
 import com.jeffpdavidson.kotwords.formats.WallStreetJournalAcrostic
+import com.jeffpdavidson.kotwords.formats.WashingtonPost
 import com.jeffpdavidson.kotwords.formats.XWordInfo
 import com.jeffpdavidson.kotwords.formats.XWordInfoAcrostic
 import korlibs.time.Date
@@ -64,6 +65,7 @@ enum class Format(
         listOf(),
         { data, _, _, _ -> WallStreetJournalAcrostic(data.decodeToString()) }
     ),
+    WASHINGTON_POST_JSON(listOf(), { data, _, _, _ -> WashingtonPost(data.decodeToString()) }),
     XWORD_INFO_JSON(listOf(), { data, _, _, _ -> XWordInfo(data.decodeToString()) }),
     XWORD_INFO_ACROSTIC_JSON(listOf(), { data, _, author, _ -> XWordInfoAcrostic(data.decodeToString(), author) });
 

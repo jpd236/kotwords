@@ -1,0 +1,137 @@
+{
+  "title": "Example Puzzle for Kotwords",
+  "creator": "Jeff Davidson",
+  "copyright": "© 2018 Jeff Davidson",
+  "description": "Notepad text goes here.",
+  "width": 5,
+  "cells": [
+    {
+      "number": "1",
+      "answer": "A"
+    },
+    {
+      "number": "2",
+      "answer": "B"
+    },
+    {
+      "number": "3",
+      "answer": "C"
+    },
+    {
+      "number": "4",
+      "answer": "D"
+    },
+    {
+      "type": "locked"
+    },
+    {
+      "number": "5",
+      "answer": "E"
+    },
+    {
+      "answer": "F"
+    },
+    {
+      "answer": "G"
+    },
+    {
+      "answer": "H"
+    },
+    {
+      "type": "locked"
+    },
+    {
+      "number": "6",
+      "answer": "I",
+      "circle": true
+    },
+    {
+      "answer": "J"
+    },
+    {
+      "answer": "XYZ"
+    },
+    {
+      "answer": "L"
+    },
+    {
+      "number": "7",
+      "answer": "M",
+      "circle": true
+    },
+    {
+      "type": "locked"
+    },
+    {
+      "number": "8",
+      "answer": "N"
+    },
+    {
+      "answer": "O"
+    },
+    {
+      "answer": "P"
+    },
+    {
+      "answer": "Q"
+    },
+    {
+      "type": "locked"
+    },
+    {
+      "number": "9",
+      "answer": "1"
+    },
+    {
+      "answer": "2"
+    },
+    {
+      "answer": "$"
+    },
+    {
+      "answer": "@"
+    }
+  ],
+  "words": [
+    {
+      "direction": "across",
+      "clue": "First across clue with special characters αβγδε"
+    },
+    {
+      "direction": "across",
+      "clue": "Second across clue"
+    },
+    {
+      "direction": "across",
+      "clue": "Third across clue"
+    },
+    {
+      "direction": "across",
+      "clue": "Fourth across clue"
+    },
+    {
+      "direction": "across",
+      "clue": "Fifth across clue"
+    },
+    {
+      "direction": "down",
+      "clue": "First down clue"
+    },
+    {
+      "direction": "down",
+      "clue": "Second down clue"
+    },
+    {
+      "direction": "down",
+      "clue": "Third down clue"
+    },
+    {
+      "direction": "down",
+      "clue": "Fourth down clue"
+    },
+    {
+      "direction": "down",
+      "clue": "Fifth down clue"
+    }
+  ]
+}
