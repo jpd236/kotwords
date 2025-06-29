@@ -1,11 +1,11 @@
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinMultiplatform
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 
 plugins {
-    `maven-publish`
-    signing
-    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
+    id("com.vanniktech.maven.publish") version "0.33.0"
     id("org.jetbrains.dokka") version "1.9.10"
     kotlin("multiplatform") version "1.9.22"
     kotlin("plugin.serialization") version "1.9.22"
@@ -176,56 +176,35 @@ tasks {
     }
 }
 
-publishing {
-    publications.withType<MavenPublication> {
-        val dokkaJar by tasks.register<Jar>("${name}DokkaJar") {
-            group = JavaBasePlugin.DOCUMENTATION_GROUP
-            // TODO: Determine from https://github.com/gradle/gradle/issues/26091 whether this will always be needed
-            archiveBaseName.set("${archiveBaseName.get()}-${name}")
-            archiveClassifier.set("javadoc")
-            from(tasks.dokkaHtml)
-        }
+mavenPublishing {
+    configure(KotlinMultiplatform(
+        javadocJar = JavadocJar.Dokka("dokkaHtml"),
+        sourcesJar = true,
+    ))
 
-        artifact(dokkaJar)
-        pom {
-            name.set("Kotwords")
-            description.set("Collection of crossword puzzle file format converters and other utilities, written in Kotlin.")
-            url.set("https://jpd236.github.io/kotwords")
-            developers {
-                developer {
-                    id.set("jpd236")
-                    name.set("Jeff Davidson")
-                }
-            }
-            licenses {
-                license {
-                    name.set("The Apache License, Version 2.0")
-                    url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                }
-            }
-            scm {
-                connection.set("scm:git:git://github.com/jpd236/kotwords.git")
-                developerConnection.set("scm:git:ssh://git@github.com/jpd236/kotwords.git")
-                url.set("https://github.com/jpd236/kotwords")
+    publishToMavenCentral()
+    signAllPublications()
+
+    pom {
+        name.set("Kotwords")
+        description.set("Collection of crossword puzzle file format converters and other utilities, written in Kotlin.")
+        url.set("https://jpd236.github.io/kotwords")
+        developers {
+            developer {
+                id.set("jpd236")
+                name.set("Jeff Davidson")
             }
         }
-    }
-}
-
-if (System.getenv("PGP_KEY_ID") != null) {
-    signing {
-        useInMemoryPgpKeys(System.getenv("PGP_KEY_ID"), System.getenv("PGP_KEY"), System.getenv("PGP_PASSPHRASE"))
-        sign(publishing.publications)
-    }
-}
-
-nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
-            username.set(System.getenv("OSSRH_DEPLOY_USERNAME"))
-            password.set(System.getenv("OSSRH_DEPLOY_PASSWORD"))
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+        scm {
+            connection.set("scm:git:git://github.com/jpd236/kotwords.git")
+            developerConnection.set("scm:git:ssh://git@github.com/jpd236/kotwords.git")
+            url.set("https://github.com/jpd236/kotwords")
         }
     }
 }

@@ -46,11 +46,11 @@ jobs:
       - name: Publish snapshot
         if: runner.os == 'macOS'
         env:
-          OSSRH_DEPLOY_USERNAME: ${{ secrets.OSSRH_DEPLOY_USERNAME }}
-          OSSRH_DEPLOY_PASSWORD: ${{ secrets.OSSRH_DEPLOY_PASSWORD }}
-          PGP_KEY: ${{ secrets.PGP_KEY }}
-          PGP_KEY_ID: ${{ secrets.PGP_KEY_ID }}
-          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.OSSRH_DEPLOY_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.OSSRH_DEPLOY_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.PGP_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.PGP_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.PGP_PASSPHRASE }}
         run: ./publish-snapshot.sh
       - name: Archive distributed artifacts
         uses: actions/upload-artifact@v4
