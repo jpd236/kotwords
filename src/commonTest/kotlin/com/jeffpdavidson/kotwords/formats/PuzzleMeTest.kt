@@ -45,28 +45,6 @@ class PuzzleMeTest {
     }
 
     @Test
-    fun decodeRawcFromOnReadyFn_withOnReadyFn() = runTest {
-        val rawcParts = PuzzleMe.extractRawc(readStringResource(PuzzleMeTest::class, "puzzleme/test.html")).split(".")
-        val rawc = rawcParts[0]
-        val key = rawcParts[1].reversed()
-        assertEquals(
-            readStringResource(PuzzleMeTest::class, "puzzleme/test.json").replace("\r\n", "\n"),
-            PuzzleMe.decodeRawc(rawc, """function(){function a(){var x="$key";}}""")
-        )
-    }
-
-    @Test
-    fun getCrosswordJsUrl() = runTest {
-        assertEquals(
-            "http://example.com/js/c-min.js?v=123456789",
-            PuzzleMe.getCrosswordJsUrl(
-                readStringResource(PuzzleMeTest::class, "puzzleme/test-new-rawc.html"),
-                "http://example.com/puzzle.html"
-            )
-        )
-    }
-
-    @Test
     fun toCrossword() = runTest {
         assertTrue(
             readBinaryResource(PuzzleMeTest::class, "puz/test.puz").contentEquals(
