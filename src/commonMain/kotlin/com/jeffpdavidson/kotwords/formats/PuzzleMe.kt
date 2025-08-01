@@ -5,6 +5,8 @@ import com.jeffpdavidson.kotwords.formats.json.PuzzleMeJson
 import com.jeffpdavidson.kotwords.model.MarchingBands
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.RowsGarden
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.JsonObject
 import okio.ByteString.Companion.decodeBase64
 import okio.ByteString.Companion.toByteString
 import kotlin.math.min
@@ -252,16 +254,24 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
         internal fun decodeRawc(rawc: String, crosswordJs: String): String {
             if (!rawc.contains('.') && crosswordJs.isNotEmpty()) {
                 // Try to find the individual numbers of the key and their order in the Javascript.
+                // The order regex is overly permissive, but the digits should appear as a consecutive subsequence, so
+                // we can try all subsequences until we find one that decodes successfully.
                 val keyDigitMatches = KEY_2_DIGIT_REGEX.findAll(crosswordJs).toList()
                 val keyOrderMatches = KEY_2_ORDER_REGEX.findAll(crosswordJs).toList()
-                if (keyDigitMatches.isNotEmpty() && keyDigitMatches.size == keyOrderMatches.size) {
+                if (keyDigitMatches.isNotEmpty() && keyDigitMatches.size <= keyOrderMatches.size) {
                     val keyDigits = keyDigitMatches.map { it.groupValues[1].toInt() }
                     val keyOrders = keyOrderMatches.map { it.groupValues[1].toInt() }
-                    val key = keyDigits.zip(keyOrders).sortedBy { it.second }.map { it.first }
-                    try {
-                        return decodeRawc(rawc, key)
-                    } catch (e: InvalidFormatException) {
-                        // Assume this is an invalid key; try the next technique.
+                    (0..keyOrderMatches.size - keyDigitMatches.size).forEach { startIndex ->
+                        val key = keyDigits.zip(keyOrders.subList(startIndex, startIndex + keyDigitMatches.size))
+                            .sortedBy { it.second }.map { it.first }
+                        try {
+                            val decoded = decodeRawc(rawc, key)
+                            // Ensure the result is valid JSON.
+                            JsonSerializer.fromJson<JsonObject>(decoded)
+                            return decoded
+                        } catch (e: Exception) {
+                            // Assume this is an invalid key; try the next technique.
+                        }
                     }
                 }
 
