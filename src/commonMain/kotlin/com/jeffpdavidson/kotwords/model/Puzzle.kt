@@ -94,7 +94,8 @@ data class Puzzle(
 
     data class ClueList(
         val title: String,
-        val clues: List<Clue>
+        val clues: List<Clue>,
+        val direction: String = "",
     )
 
     enum class PuzzleType {

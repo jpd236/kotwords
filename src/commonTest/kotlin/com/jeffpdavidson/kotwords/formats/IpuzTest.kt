@@ -47,10 +47,21 @@ class IpuzTest {
     }
 
     @Test
+    fun crosswordWithDiagonalClue() = runTest {
+        assertEquals(
+            readStringResource(JpzTest::class, "jpz/test-diagonal.jpz"),
+            Ipuz(readStringResource(IpuzTest::class, "ipuz/test-diagonal.ipuz")).asPuzzle().asJpz().toXmlString()
+        )
+    }
+
+    @Test
     fun puzzleConversion_crossword() = runTest { assertConversionIsEqual("ipuz/test.ipuz") }
 
     @Test
     fun puzzleConversion_crosswordWithClueGaps() = runTest { assertConversionIsEqual("ipuz/gaps.ipuz") }
+
+    @Test
+    fun puzzleConversion_crosswordWithDiagonalClue() = runTest { assertConversionIsEqual("ipuz/test-diagonal.ipuz") }
 
     @Test
     fun puzzleConversion_crosswordWithBgImage() = runTest { assertConversionIsEqual("ipuz/test-bgimage.ipuz") }

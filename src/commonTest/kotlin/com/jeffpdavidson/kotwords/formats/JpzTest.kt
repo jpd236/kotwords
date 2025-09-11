@@ -55,6 +55,13 @@ class JpzTest {
     }
 
     @Test
+    fun jpzReadAndWrite_diagonalClue() = runTest {
+        val jpzFile = JpzFile(readBinaryResource(JpzTest::class, "jpz/test-diagonal.jpz"))
+        val convertedJpz = jpzFile.asPuzzle().asJpz()
+        assertEquals(jpzFile.getPuzzleable(), convertedJpz)
+    }
+
+    @Test
     fun crossword() = runTest {
         assertTrue(
             readBinaryResource(JpzTest::class, "puz/test.puz").contentEquals(
@@ -160,6 +167,9 @@ class JpzTest {
 
     @Test
     fun puzzleConversion_crosswordWithBgImage() = runTest { assertConversionIsEqual("nyt/test-bgimage.jpz") }
+
+    @Test
+    fun puzzleConversion_crosswordWithDiagonalClue() = runTest { assertConversionIsEqual("jpz/test-diagonal.jpz") }
 
     @Test
     fun puzzleConversion_eightTracks() = runTest { assertConversionIsEqual("eight-tracks/annotations.jpz") }

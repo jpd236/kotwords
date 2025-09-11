@@ -99,7 +99,7 @@ class Ipuz(private val json: String) : Puzzleable() {
         val words = mutableListOf<Puzzle.Word>()
         if (ipuz.clues.values.any { clueList -> clueList.any { it.cells.isNotEmpty() } }) {
             // Custom words - use exactly as given.
-            ipuz.clues.entries.forEachIndexed { clueListIndex, (title, clues) ->
+            ipuz.clues.entries.forEachIndexed { clueListIndex, (clueListTitle, clues) ->
                 val puzzleClues = mutableListOf<Puzzle.Clue>()
                 clues.forEachIndexed { clueIndex, clue ->
                     val wordId = 1000 * clueListIndex + clueIndex + 1
@@ -121,7 +121,9 @@ class Ipuz(private val json: String) : Puzzleable() {
                         )
                     )
                 }
-                clueLists.add(Puzzle.ClueList(title = title, clues = puzzleClues))
+                val title = clueListTitle.substringAfter(':')
+                val direction = if (clueListTitle.contains(":")) clueListTitle.substringBefore(':') else ""
+                clueLists.add(Puzzle.ClueList(title = title, direction = direction, clues = puzzleClues))
             }
         } else {
             // No words provided - use standard crossword conventions.
@@ -294,7 +296,9 @@ class Ipuz(private val json: String) : Puzzleable() {
                 puzzle.clues.associate { clueList ->
                     // Strip any HTML tags from the title.
                     val title = Xml.parse(clueList.title, format = DocumentFormat.HTML).text ?: clueList.title
-                    title to clueList.clues.map { clue ->
+                    val fullTitle =
+                        listOfNotNull(clueList.direction.ifEmpty { null }, clueList.title).joinToString(":")
+                    fullTitle to clueList.clues.map { clue ->
                         val cells =
                             wordsByWordId.getOrElse(clue.wordId) { listOf() }.map { listOf(it.x + 1, it.y + 1) }
                         IpuzJson.Clue(
