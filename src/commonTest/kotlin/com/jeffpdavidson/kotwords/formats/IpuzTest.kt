@@ -49,8 +49,8 @@ class IpuzTest {
     @Test
     fun crosswordWithDiagonalClue() = runTest {
         assertEquals(
-            readStringResource(JpzTest::class, "jpz/test-diagonal.jpz"),
-            Ipuz(readStringResource(IpuzTest::class, "ipuz/test-diagonal.ipuz")).asPuzzle().asJpz().toXmlString()
+            JpzFile(readBinaryResource(JpzTest::class, "jpz/test-diagonal.jpz")).getPuzzleable(),
+            Ipuz(readStringResource(IpuzTest::class, "ipuz/test-diagonal.ipuz")).asPuzzle().asJpz()
         )
     }
 
