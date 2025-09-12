@@ -68,6 +68,7 @@ data class Puzzle(
         val hint: Boolean = false,
     )
 
+    /** 0-indexed (x, y) position on a grid. */
     data class Coordinate(
         val x: Int,
         val y: Int,

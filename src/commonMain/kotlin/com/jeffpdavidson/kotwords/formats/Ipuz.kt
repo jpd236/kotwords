@@ -99,12 +99,13 @@ class Ipuz(private val json: String) : Puzzleable() {
         val words = mutableListOf<Puzzle.Word>()
         if (ipuz.clues.values.any { clueList -> clueList.any { it.cells.isNotEmpty() } }) {
             // Custom words - use exactly as given.
+            val coordinateOffset = getCoordinateOffset(grid, ipuz.clues)
             ipuz.clues.entries.forEachIndexed { clueListIndex, (clueListTitle, clues) ->
                 val puzzleClues = mutableListOf<Puzzle.Clue>()
                 clues.forEachIndexed { clueIndex, clue ->
                     val wordId = 1000 * clueListIndex + clueIndex + 1
                     val cells = clue.cells.map { cellList ->
-                        Puzzle.Coordinate(x = cellList[0] - 1, y = cellList[1] - 1)
+                        Puzzle.Coordinate(x = cellList[0] + coordinateOffset, y = cellList[1] + coordinateOffset)
                     }
                     words.add(
                         Puzzle.Word(
@@ -169,6 +170,42 @@ class Ipuz(private val json: String) : Puzzleable() {
             puzzleType = if (ipuzKind == IpuzKind.CODED) Puzzle.PuzzleType.CODED else Puzzle.PuzzleType.CROSSWORD,
             hasHtmlClues = true,
         )
+    }
+
+    /**
+     * Heuristically determine whether this puzzle uses 0-based or 1-based coordinates.
+     *
+     * Due to an ambiguity in the ipuz specification, both coordinate systems have appeared in the wild. We can apply
+     * some heuristics to try to guess the right basis. A future version of the ipuz spec should resolve the ambiguity.
+     *
+     * @return an offset to apply to coordinates when converting to 0-based coordinates
+     */
+    private fun getCoordinateOffset(grid: List<List<Puzzle.Cell>>, clues: Map<String, List<IpuzJson.Clue>>): Int {
+        val hasInvalid0Coordinates = anyCellIsInvalid(grid, clues, 0)
+        val hasInvalid1Coordinates = anyCellIsInvalid(grid, clues, -1)
+        // If the coordinates are all valid with 0-based indexing and invalid with 1-based indexing, we use 0-based
+        // indexing. In any other case, we default to 1-based indexing as we used before.
+        if (!hasInvalid0Coordinates && hasInvalid1Coordinates) {
+            return 0
+        }
+        return -1
+    }
+
+
+    private fun anyCellIsInvalid(
+        grid: List<List<Puzzle.Cell>>,
+        clues: Map<String, List<IpuzJson.Clue>>,
+        offset: Int
+    ): Boolean {
+        return clues.values.any { clueList ->
+            clueList.any { clue ->
+                clue.cells.any { cell ->
+                    val x = cell[0] + offset
+                    val y = cell[1] + offset
+                    !grid.indices.contains(y) || !grid[y].indices.contains(x) || grid[y][x].cellType.isBlack()
+                }
+            }
+        }
     }
 
     override suspend fun asIpuzFile(solved: Boolean): ByteArray {

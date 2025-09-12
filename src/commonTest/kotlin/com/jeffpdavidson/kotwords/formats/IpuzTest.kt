@@ -19,6 +19,13 @@ class IpuzTest {
     }
 
     @Test
+    fun readAndWrite_zeroIndexed() = runTest {
+        val ipuz = Ipuz(readStringResource(IpuzTest::class, "ipuz/test-zero-indexed.ipuz"))
+        val convertedIpuz = ipuz.asPuzzle().asIpuzFile().decodeToString()
+        assertEquals(readStringResource(IpuzTest::class, "ipuz/test.ipuz"), convertedIpuz)
+    }
+
+    @Test
     fun readAndWrite_noSolution() = runTest {
         val ipuzFile = readStringResource(IpuzTest::class, "ipuz/test-no-solution.ipuz")
         val ipuz = Ipuz(ipuzFile)
