@@ -164,15 +164,8 @@ tasks {
 
     val browserProductionWebpackTask = getByName("jsBrowserProductionWebpack", KotlinWebpack::class)
 
-    val browserDistributionZip by creating(Zip::class) {
-        dependsOn(browserProductionWebpackTask)
-        from(browserProductionWebpackTask.outputDirectory)
-        destinationDirectory.set(layout.buildDirectory.dir("zip").get().getAsFile())
-        archiveAppendix.set("browser-distribution")
-    }
-
     assemble {
-        dependsOn(browserDistributionZip)
+        dependsOn(browserProductionWebpackTask)
     }
 }
 
