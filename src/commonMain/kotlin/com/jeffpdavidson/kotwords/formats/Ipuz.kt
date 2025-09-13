@@ -252,6 +252,7 @@ class Ipuz(private val json: String) : Puzzleable() {
             val block = generateSequence('#') { it + 1 }.first { !solutionChars.contains(it) }
             val empty = generateSequence('0') { it + 1 }.first { !solutionChars.contains(it) }
             val wordsByWordId = puzzle.words.associate { it.id to it.cells }
+            val usesStandardCrosswordNumbering = usesStandardCrosswordNumbering(puzzle)
             return IpuzJson(
                 kind = kinds,
                 title = puzzle.title,
@@ -333,14 +334,16 @@ class Ipuz(private val json: String) : Puzzleable() {
                 puzzle.clues.associate { clueList ->
                     // Strip any HTML tags from the title.
                     val title = Xml.parse(clueList.title, format = DocumentFormat.HTML).text ?: clueList.title
-                    val fullTitle =
-                        listOfNotNull(clueList.direction.ifEmpty { null }, clueList.title).joinToString(":")
+                    val fullTitle = listOfNotNull(clueList.direction.ifEmpty { null }, title).joinToString(":")
                     fullTitle to clueList.clues.map { clue ->
                         val cells =
                             wordsByWordId.getOrElse(clue.wordId) { listOf() }.map { listOf(it.x + 1, it.y + 1) }
                         IpuzJson.Clue(
                             number = clue.number,
-                            cells = cells,
+                            // If this puzzle uses standard crossword numbering, omit the explicit list of cells for
+                            // each clue. This increases compatibility with more applications due to the ambiguity
+                            // between whether this list is expected to use 0-based or 1-based coordinates.
+                            cells = if (usesStandardCrosswordNumbering) listOf() else cells,
                             clue = clue.text,
                             enumeration = clue.format,
                         )
@@ -350,6 +353,52 @@ class Ipuz(private val json: String) : Puzzleable() {
                 // Set fakeClues = true if there are any unclued words.
                 fakeClues = puzzle.hasUncluedWords()
             )
+        }
+
+        private fun usesStandardCrosswordNumbering(puzzle: Puzzle): Boolean {
+            // Generate the standard numbering map from clue number to the list of cells for that clue, using
+            // Crossword.forEachClue.
+            if (puzzle.clues.size != 2) {
+                return false
+            }
+            val acrossClues = puzzle.getClues("Across") ?: return false
+            val acrossClueMap = acrossClues.clues.associate {
+                try {
+                    it.number.toInt() to it
+                } catch (e: NumberFormatException) {
+                    return false
+                }
+            }
+            val downClues = puzzle.getClues("Down") ?: return false
+            val downClueMap = downClues.clues.associate {
+                try {
+                    it.number.toInt() to it
+                } catch (e: NumberFormatException) {
+                    return false
+                }
+            }
+            val standardAcrossClueCellMap = mutableMapOf<Int, List<Puzzle.Coordinate>>()
+            val standardDownClueCellMap = mutableMapOf<Int, List<Puzzle.Coordinate>>()
+            Crossword.forEachClue(
+                puzzle.grid,
+                acrossClueMap.mapValues { it.value.text },
+                downClueMap.mapValues { it.value.text },
+            ) { isAcross, clueNumber, _, cells ->
+                val map = if (isAcross) standardAcrossClueCellMap else standardDownClueCellMap
+                map.put(clueNumber, cells)
+            }
+
+            // Generate the same numbering map using the given words in the puzzle.
+            val wordsByWordId = puzzle.words.associate { it.id to it.cells }
+            val acrossClueCellMap = acrossClueMap.mapValues {
+                wordsByWordId.getOrElse(it.value.wordId) { return false }
+            }
+            val downClueCellMap = downClueMap.mapValues {
+                wordsByWordId.getOrElse(it.value.wordId) { return false }
+            }
+
+            // If the maps are identical, then the puzzle is using standard numbering.
+            return standardAcrossClueCellMap == acrossClueCellMap && standardDownClueCellMap == downClueCellMap
         }
     }
 }

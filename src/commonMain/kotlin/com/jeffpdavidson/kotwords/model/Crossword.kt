@@ -48,32 +48,14 @@ data class Crossword(
 
         // Generate numbers and words based on standard crossword numbering.
         val gridNumbers = mutableMapOf<Pair<Int, Int>, Int>()
-        forEachCell(grid) { x, y, clueNumber, isAcross, isDown, _ ->
-            if (clueNumber != null) {
-                gridNumbers[x to y] = clueNumber
-            }
-            if (isAcross) {
-                val word = mutableListOf<Puzzle.Coordinate>()
-                var i = x
-                do {
-                    word.add(Puzzle.Coordinate(x = i, y = y))
-                } while (!hasBorder(grid, i++, y, Puzzle.BorderDirection.RIGHT, useBorders = true))
-                if (clueNumber != null) {
-                    acrossPuzzleClues.add(Puzzle.Clue(clueNumber, "$clueNumber", acrossClues[clueNumber] ?: ""))
-                    words.add(Puzzle.Word(clueNumber, word))
-                }
-            }
-            if (isDown) {
-                val word = mutableListOf<Puzzle.Coordinate>()
-                var j = y
-                do {
-                    word.add(Puzzle.Coordinate(x = x, y = j))
-                } while (!hasBorder(grid, x, j++, Puzzle.BorderDirection.BOTTOM, useBorders = true))
-                if (clueNumber != null) {
-                    downPuzzleClues.add(Puzzle.Clue(1000 + clueNumber, "$clueNumber", downClues[clueNumber] ?: ""))
-                    words.add(Puzzle.Word(1000 + clueNumber, word))
-                }
-            }
+        forEachNumberedCell(grid) { x, y, clueNumber, _, _ ->
+            gridNumbers[x to y] = clueNumber
+        }
+        forEachClue(grid, acrossClues, downClues) { isAcross, clueNumber, clue, cells ->
+            val list = if (isAcross) acrossPuzzleClues else downPuzzleClues
+            val id = clueNumber + (if (isAcross) 0 else 1000)
+            list.add(Puzzle.Clue(id, "$clueNumber", clue))
+            words.add(Puzzle.Word(id, cells))
         }
 
         val acrossTitle = if (hasHtmlClues) "<b>Across</b>" else "Across"
@@ -101,6 +83,37 @@ data class Crossword(
     }
 
     companion object {
+        fun forEachClue(
+            grid: List<List<Puzzle.Cell>>,
+            acrossClues: Map<Int, String>,
+            downClues: Map<Int, String>,
+            useBorders: Boolean = true,
+            clueFn: (isAcross: Boolean, clueNumber: Int, clue: String, cells: List<Puzzle.Coordinate>) -> Unit,
+        ) {
+            forEachCell(grid, useBorders) { x, y, clueNumber, isAcross, isDown, _ ->
+                if (isAcross) {
+                    val word = mutableListOf<Puzzle.Coordinate>()
+                    var i = x
+                    do {
+                        word.add(Puzzle.Coordinate(x = i, y = y))
+                    } while (!hasBorder(grid, i++, y, Puzzle.BorderDirection.RIGHT, useBorders = true))
+                    if (clueNumber != null) {
+                        clueFn(true, clueNumber, acrossClues[clueNumber] ?: "", word)
+                    }
+                }
+                if (isDown) {
+                    val word = mutableListOf<Puzzle.Coordinate>()
+                    var j = y
+                    do {
+                        word.add(Puzzle.Coordinate(x = x, y = j))
+                    } while (!hasBorder(grid, x, j++, Puzzle.BorderDirection.BOTTOM, useBorders = true))
+                    if (clueNumber != null) {
+                        clueFn(false, clueNumber, downClues[clueNumber] ?: "", word)
+                    }
+                }
+            }
+        }
+
         /**
          * Execute the given function for each cell in the grid.
          *
