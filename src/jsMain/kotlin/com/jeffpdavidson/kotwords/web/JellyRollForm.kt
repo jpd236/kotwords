@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.web
 import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.model.JellyRoll
 import com.jeffpdavidson.kotwords.model.Puzzle
+import com.jeffpdavidson.kotwords.util.trimmedAlphabeticalWords
 import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
@@ -97,11 +98,11 @@ class JellyRollForm {
             creator = form.creator,
             copyright = form.copyright,
             description = form.description,
-            jellyRollAnswers = jellyRollAnswers.value.uppercase().split("\\s+".toRegex()),
+            jellyRollAnswers = jellyRollAnswers.value.trimmedAlphabeticalWords(),
             jellyRollClues = jellyRollClues.value.trimmedLines(),
-            lightSquaresAnswers = lightSquaresAnswers.value.uppercase().split("\\s+".toRegex()),
+            lightSquaresAnswers = lightSquaresAnswers.value.trimmedAlphabeticalWords(),
             lightSquaresClues = lightSquaresClues.value.trimmedLines(),
-            darkSquaresAnswers = darkSquaresAnswers.value.uppercase().split("\\s+".toRegex()),
+            darkSquaresAnswers = darkSquaresAnswers.value.trimmedAlphabeticalWords(),
             darkSquaresClues = darkSquaresClues.value.trimmedLines(),
             lightSquareBackgroundColor = lightSquaresColor.value,
             darkSquareBackgroundColor = darkSquaresColor.value,

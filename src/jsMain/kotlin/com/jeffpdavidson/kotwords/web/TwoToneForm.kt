@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.web
 import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.TwoTone
+import com.jeffpdavidson.kotwords.util.trimmedAlphabeticalWords
 import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
@@ -95,11 +96,11 @@ class TwoToneForm {
             creator = form.creator,
             copyright = form.copyright,
             description = form.description,
-            allSquaresAnswers = allSquaresAnswers.value.uppercase().split("\\s+".toRegex()),
+            allSquaresAnswers = allSquaresAnswers.value.trimmedAlphabeticalWords(),
             allSquaresClues = allSquaresClues.value.trimmedLines(),
-            oddSquaresAnswers = oddSquaresAnswers.value.uppercase().split("\\s+".toRegex()),
+            oddSquaresAnswers = oddSquaresAnswers.value.trimmedAlphabeticalWords(),
             oddSquaresClues = oddSquaresClues.value.trimmedLines(),
-            evenSquaresAnswers = evenSquaresAnswers.value.uppercase().split("\\s+".toRegex()),
+            evenSquaresAnswers = evenSquaresAnswers.value.trimmedAlphabeticalWords(),
             evenSquaresClues = evenSquaresClues.value.trimmedLines(),
             oddSquareBackgroundColor = oddSquaresColor.value,
             evenSquareBackgroundColor = evenSquaresColor.value,

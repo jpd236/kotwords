@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.web
 import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.Spiral
+import com.jeffpdavidson.kotwords.util.trimmedAlphabeticalWords
 import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
@@ -81,14 +82,14 @@ class SpiralForm {
             creator = form.creator,
             copyright = form.copyright,
             description = form.description,
-            inwardAnswers = inwardAnswers.value.uppercase().split("\\s+".toRegex()),
+            inwardAnswers = inwardAnswers.value.trimmedAlphabeticalWords(),
             inwardClues = inwardClues.value.trimmedLines(),
-            outwardAnswers = outwardAnswers.value.uppercase().split("\\s+".toRegex()),
+            outwardAnswers = outwardAnswers.value.trimmedAlphabeticalWords(),
             outwardClues = outwardClues.value.trimmedLines(),
             inwardCellsInput = if (inwardCells.value.isBlank()) {
                 listOf()
             } else {
-                inwardCells.value.uppercase().split("\\s+".toRegex())
+                inwardCells.value.trimmedAlphabeticalWords()
             },
             dimensions = width.value.ifEmpty { "0" }.toInt() to height.value.ifEmpty { "0" }.toInt(),
         )

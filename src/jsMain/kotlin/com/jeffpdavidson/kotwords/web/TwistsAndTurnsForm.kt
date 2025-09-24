@@ -4,6 +4,7 @@ import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.formats.PdfFonts
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.TwistsAndTurns
+import com.jeffpdavidson.kotwords.util.trimmedAlphabeticalWords
 import com.jeffpdavidson.kotwords.util.trimmedLines
 import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html.renderPage
@@ -98,8 +99,7 @@ class TwistsAndTurnsForm {
             width = width.value.toInt(),
             height = height.value.toInt(),
             twistBoxSize = twistBoxSize.value.toInt(),
-            turnsAnswers = turnsAnswers.value.uppercase().replace("[^A-Z\\s]".toRegex(), "")
-                .split("\\s+".toRegex()),
+            turnsAnswers = turnsAnswers.value.trimmedAlphabeticalWords(),
             turnsClues = turnsClues.value.trimmedLines(),
             twistsClues = twistsClues.value.trimmedLines(),
             lightTwistsColor = lightTwistsColor.value,
