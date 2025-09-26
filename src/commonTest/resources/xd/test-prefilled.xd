@@ -1,0 +1,35 @@
+## Metadata
+
+title: Example Puzzle for Kotwords
+author: Jeff Davidson
+copyright: © 2018 Jeff Davidson
+description: Notepad text goes here.
+
+## Grid
+
+ABCD.
+EFGH.
+IJKLM
+.NOPQ
+.12$@
+
+## Clues
+A1. First across clue ~ ABCD
+A5. Second across clue ~ EFGH
+A6. Third across clue ~ IJKLM
+A8. Fourth across clue ~ NOPQ
+A9. Fifth across clue ~ 12$@
+
+D1. First down clue ~ AEI
+D2. Second down clue ~ BFJN1
+D3. Third down clue ~ CGKO2
+D4. Fourth down clue ~ DHLP$
+D7. Fifth down clue ~ MQ@
+
+## Start
+
+....#
+....#
+..K..
+#....
+#....

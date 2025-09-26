@@ -1,0 +1,44 @@
+## Metadata
+
+title: Example Puzzle for Kotwords
+author: Jeff Davidson
+copyright: © 2018 Jeff Davidson
+
+## Grid
+
+ABCDE
+FGHIJ
+KL.MN
+OPQRS
+TUVWX
+
+## Clues
+
+A1. First across clue ~ ABCD
+A6. Second across clue ~ FGHIJ
+A7. Third across clue ~ OPQRS
+A9. Fourth across clue ~ TUVWX
+
+D2. First down clue ~ BGLPU
+D3. Second down clue ~ CH
+D4. Third down clue ~ DIMRW
+D5. Fourth down clue ~ EJNS
+D6. Fifth down clue ~ FKOT
+D8. Sixth down clue ~ QV
+
+## Notes
+
+Notepad text goes here.
+
+## Design
+
+<style>
+T { bar-top: true }
+L { bar-left: true }
+</style>
+
+....L
+T....
+.L#LL
+.....
+.L..T

@@ -62,6 +62,20 @@ class JpzTest {
     }
 
     @Test
+    fun jpzReadAndWrite_shaded() = runTest {
+        val jpzFile = JpzFile(readBinaryResource(JpzTest::class, "jpz/test-shaded.jpz"))
+        val convertedJpz = jpzFile.asPuzzle().asJpz(appletSettings = null)
+        assertEquals(jpzFile.getPuzzleable(), convertedJpz)
+    }
+
+    @Test
+    fun jpzReadAndWrite_prefilled() = runTest {
+        val jpzFile = JpzFile(readBinaryResource(JpzTest::class, "jpz/test-prefilled.jpz"))
+        val convertedJpz = jpzFile.asPuzzle().asJpz(appletSettings = null)
+        assertEquals(jpzFile.getPuzzleable(), convertedJpz)
+    }
+
+    @Test
     fun crossword() = runTest {
         assertTrue(
             readBinaryResource(JpzTest::class, "puz/test.puz").contentEquals(
@@ -170,6 +184,12 @@ class JpzTest {
 
     @Test
     fun puzzleConversion_crosswordWithDiagonalClue() = runTest { assertConversionIsEqual("jpz/test-diagonal.jpz") }
+
+    @Test
+    fun puzzleConversion_crosswordWithShadedSquares() = runTest { assertConversionIsEqual("jpz/test-shaded.jpz") }
+
+    @Test
+    fun puzzleConversion_crosswordWithPrefilledSquares() = runTest { assertConversionIsEqual("jpz/test-prefilled.jpz") }
 
     @Test
     fun puzzleConversion_eightTracks() = runTest { assertConversionIsEqual("eight-tracks/annotations.jpz") }

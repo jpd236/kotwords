@@ -1,0 +1,48 @@
+## Metadata
+
+<!-- Single line comment should be ignored -->
+
+<!--
+  Multi line comment
+  Should be ignored
+-->
+
+title: Example Puzzle for Kotwords
+author: Jeff Davidson
+copyright: © 2018 Jeff Davidson
+description: Notepad text goes here.
+rebus: ❶=XYZ
+
+## Grid
+
+ABCD.
+EFGH.
+IJ❶LM
+.NOPQ
+.12$@
+
+## Clues
+
+A1. First across clue with special characters αβγδε ~ ABCD
+A1 ^Hint: Alternate clue which should be ignored.
+A1 ^Refs: A5 A6
+A5. {@ Second across clue | ignored-url @} ~ EFGH
+A6. {! ignored-image-url | Third across clue | 123 | 456 !} ~ IJXYZLM
+A8. {!! ignored-image-url | Fourth across clue | 123 | 456 !} ~ NOPQ
+A9. {# Fifth across clue | #123456 | #654321 #} ~ 12$@
+
+D1. First down clue ~ AEI
+D2. Second down clue ~ BFJN1
+D3. Third down clue ~ CGXYZO2
+D4. Fourth down clue ~ DHLP$
+D7. Fifth down clue ~ MQ@
+
+## Design
+
+<style>O { background: circle }</style>
+
+....#
+....#
+O...O
+#....
+#....
