@@ -30,6 +30,7 @@ import com.jeffpdavidson.kotwords.formats.WallStreetJournalAcrostic
 import com.jeffpdavidson.kotwords.formats.WashingtonPost
 import com.jeffpdavidson.kotwords.formats.XWordInfo
 import com.jeffpdavidson.kotwords.formats.XWordInfoAcrostic
+import com.jeffpdavidson.kotwords.formats.Xd
 import korlibs.time.Date
 import korlibs.time.DateTime
 import kotlinx.coroutines.runBlocking
@@ -66,6 +67,7 @@ enum class Format(
         { data, _, _, _ -> WallStreetJournalAcrostic(data.decodeToString()) }
     ),
     WASHINGTON_POST_JSON(listOf(), { data, _, _, _ -> WashingtonPost(data.decodeToString()) }),
+    XD(listOf("xd"), { data, _, _, _ -> Xd(data.decodeToString()) }),
     XWORD_INFO_JSON(listOf(), { data, _, _, _ -> XWordInfo(data.decodeToString()) }),
     XWORD_INFO_ACROSTIC_JSON(listOf(), { data, _, author, _ -> XWordInfoAcrostic(data.decodeToString(), author) });
 
