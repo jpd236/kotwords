@@ -71,7 +71,7 @@ class Xd(private val data: String) : DelegatingPuzzleable() {
         if (!design.isEmpty()) {
             // Styles are between <style> and </style> tags.
             val styleSection = design.joinToString("").substringAfter("<style>").substringBefore("</style>")
-            val styles = "\\s*(.)\\s*\\{([^}]*)}".toRegex().findAll(styleSection).associate { style ->
+            val styles = "\\s*(.)\\s*\\{([^}]*)\\}".toRegex().findAll(styleSection).associate { style ->
                 style.groupValues[1][0] to style.groupValues[2].trim().split(";\\s*".toRegex()).associate {
                     val key = it.substringBefore(':').trim()
                     val value = it.substringAfter(':').trim()
