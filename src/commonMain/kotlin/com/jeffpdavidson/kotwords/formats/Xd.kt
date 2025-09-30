@@ -143,7 +143,7 @@ class Xd(private val data: String) : DelegatingPuzzleable() {
     private fun toClueMap(clues: List<String>): Map<Int, String> {
         return clues.filter { clue ->
             // Filter out alternative clues.
-            clue.matches("^[AD][0-9]+. .*$".toRegex())
+            clue.matches("^[AD][0-9]+\\. .*$".toRegex())
         }.associate { clue ->
             val number = clue.substringBefore(". ").substring(1).toInt()
             val clueText = clue.substringAfter(". ").substringBeforeLast(" ~ ")
