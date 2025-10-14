@@ -1,7 +1,13 @@
-package com.jeffpdavidson.kotwords.formats
+package com.jeffpdavidson.kotwords.formats.pdf
 
 import com.github.ajalt.colormath.model.HSL
 import com.github.ajalt.colormath.model.RGB
+import com.jeffpdavidson.kotwords.formats.DocumentFormat
+import com.jeffpdavidson.kotwords.formats.Element
+import com.jeffpdavidson.kotwords.formats.Node
+import com.jeffpdavidson.kotwords.formats.TextNode
+import com.jeffpdavidson.kotwords.formats.Xml
+import com.jeffpdavidson.kotwords.formats.pdf.Pdf.asPdf
 import com.jeffpdavidson.kotwords.model.Puzzle
 
 /** Extension functions to render crosswords as PDFs. */
@@ -9,56 +15,56 @@ object Pdf {
     // Constants/functions dictating the PDF style.
 
     /** Top/bottom and left/right margin size. */
-    private const val MARGIN = 36f
+    private const val MARGIN = 36.0
 
     /** Size of the puzzle title. */
-    private const val TITLE_SIZE = 16f
+    private const val TITLE_SIZE = 16.0
 
     /** Size of the puzzle author. */
-    private const val AUTHOR_SIZE = 14f
+    private const val AUTHOR_SIZE = 14.0
 
     /** Size of the puzzle notes. */
-    private const val NOTES_SIZE = 10f
+    private const val NOTES_SIZE = 10.0
 
     /** Size of the puzzle copyright. */
-    private const val COPYRIGHT_SIZE = 9f
+    private const val COPYRIGHT_SIZE = 9.0
 
     /** Size of the space between adjacent clue columns. */
-    private const val COLUMN_PADDING = 12f
+    private const val COLUMN_PADDING = 12.0
 
     /** X offset of clue numbers in grid squares. (The Y offset is based on font size). */
-    private const val GRID_NUMBER_X_OFFSET = 2f
+    private const val GRID_NUMBER_X_OFFSET = 2.0
 
     /** Maximum size of clues. */
-    private const val CLUE_TEXT_MAX_SIZE = 11f
+    private const val CLUE_TEXT_MAX_SIZE = 11.0
 
     /** Minimum size of clues. */
-    private const val CLUE_TEXT_MIN_SIZE = 5f
+    private const val CLUE_TEXT_MIN_SIZE = 5.0
 
     /** Maximum size of answer text. */
-    private const val SOLUTION_TEXT_MAX_SIZE = 16f
+    private const val SOLUTION_TEXT_MAX_SIZE = 16.0
 
     /** Minimum size of answer text. */
-    private const val SOLUTION_TEXT_MIN_SIZE = 3f
+    private const val SOLUTION_TEXT_MIN_SIZE = 3.0
 
     /** Amount to shrink the font size for each render attempt if text does not fit in the given bounds. */
-    private const val TEXT_SIZE_DELTA = 0.1f
+    private const val TEXT_SIZE_DELTA = 0.1
 
     /** Line spacing for text. */
-    private const val LINE_SPACING = 1.15f
+    private const val LINE_SPACING = 1.15
 
     /** Space between the header text and the start of the clues. */
     // Divide by LINE_SPACING since the margin is drawn as a new line below the creator/description
-    private const val HEADER_CLUES_SPACING = 28f / LINE_SPACING
+    private const val HEADER_CLUES_SPACING = 28.0 / LINE_SPACING
 
     /** Percentage of the current font size to use for sub/superscripts. */
-    private const val SUB_SUPER_SCRIPT_FONT_SIZE_PERCENTAGE = 0.75f
+    private const val SUB_SUPER_SCRIPT_FONT_SIZE_PERCENTAGE = 0.75
 
     /** Percentage of the current font size to offset superscripts upwards. */
-    private const val SUPER_SCRIPT_OFFSET_PERCENTAGE = 0.2f
+    private const val SUPER_SCRIPT_OFFSET_PERCENTAGE = 0.2
 
     /** Percentage of the current font size to offset subscripts downwards. */
-    private const val SUB_SCRIPT_OFFSET_PERCENTAGE = 0.2f
+    private const val SUB_SCRIPT_OFFSET_PERCENTAGE = 0.2
 
     /** Returns the number of columns to use for the clues. */
     private fun getClueColumns(clueCount: Int): Int = if (clueCount >= 50) {
@@ -68,19 +74,19 @@ object Pdf {
     }
 
     /** Returns the percentage of the content width to use for the grid. */
-    private fun getGridWidthPercentage(clueCount: Int): Float =
+    private fun getGridWidthPercentage(clueCount: Int): Double =
         if (clueCount >= 50) {
-            0.7f
+            0.7
         } else {
-            0.6f
+            0.6
         }
 
     /** Result metrics from drawing the grid. */
-    data class DrawGridResult(
+    internal data class DrawGridResult(
         /** The maximum height of the rendered grid. */
-        val gridHeight: Float,
+        val gridHeight: Double,
         /** The start (x) offset of the bottom row of the rendered grid; used to align the copyright text. */
-        val bottomRowStartOffset: Float,
+        val bottomRowStartOffset: Double,
     )
 
     /**
@@ -92,18 +98,18 @@ object Pdf {
     internal suspend fun asPdf(
         puzzle: Puzzle,
         fontFamily: PdfFontFamily,
-        blackSquareLightnessAdjustment: Float,
+        blackSquareLightnessAdjustment: Double,
         gridRenderer: suspend (
             document: PdfDocument,
             puzzle: Puzzle,
-            blackSquareLightnessAdjustment: Float,
-            gridWidth: Float,
-            gridX: Float,
-            gridY: Float,
+            blackSquareLightnessAdjustment: Double,
+            gridWidth: Double,
+            gridX: Double,
+            gridY: Double,
             fontFamily: PdfFontFamily,
         ) -> DrawGridResult,
     ): ByteArray = with(puzzle) {
-        PdfDocument.create().run {
+        PdfDocument().run {
             val pageWidth = width
             val pageHeight = height
             val headerWidth = pageWidth - 2 * MARGIN
@@ -122,7 +128,12 @@ object Pdf {
             newLineAtOffset(titleX, titleY)
 
             // Header - title, creator, description.
-            val boldFontFamily = fontFamily.copy(baseFont = fontFamily.boldFont, italicFont = fontFamily.boldItalicFont)
+            val boldFontFamily = PdfFontFamily(
+                baseFont = fontFamily.boldFont,
+                boldFont = fontFamily.boldFont,
+                italicFont = fontFamily.boldItalicFont,
+                boldItalicFont = fontFamily.boldItalicFont,
+            )
             positionY = drawMultiLineText(
                 title,
                 fontFamily = boldFontFamily,
@@ -144,8 +155,12 @@ object Pdf {
                 nextFontSize = nextFontSize
             )
             if (hasDescription) {
-                val italicFontFamily =
-                    fontFamily.copy(baseFont = fontFamily.italicFont, boldFont = fontFamily.boldItalicFont)
+                val italicFontFamily = PdfFontFamily(
+                    baseFont = fontFamily.italicFont,
+                    italicFont = fontFamily.italicFont,
+                    boldFont = fontFamily.boldItalicFont,
+                    boldItalicFont = fontFamily.boldItalicFont,
+                )
                 positionY = drawMultiLineText(
                     description,
                     fontFamily = italicFontFamily,
@@ -170,7 +185,7 @@ object Pdf {
             )
 
             // Clues
-            setFillColor(0f, 0f, 0f)
+            setFillColor(0.0, 0.0, 0.0)
             beginText()
             newLineAtOffset(titleX, positionY)
 
@@ -220,10 +235,10 @@ object Pdf {
     internal suspend fun drawGrid(
         document: PdfDocument,
         puzzle: Puzzle,
-        blackSquareLightnessAdjustment: Float,
-        gridWidth: Float,
-        gridX: Float,
-        gridY: Float,
+        blackSquareLightnessAdjustment: Double,
+        gridWidth: Double,
+        gridX: Double,
+        gridY: Double,
         fontFamily: PdfFontFamily,
     ): DrawGridResult = document.run {
         val grid = puzzle.grid
@@ -233,7 +248,7 @@ object Pdf {
         val gridHeight = gridSquareSize * gridRows
         val gridNumberSize = gridSquareSize / 3
 
-        val gridBlackColor = getAdjustedColor(RGB("#000000"), blackSquareLightnessAdjustment)
+        val gridBlackColor = getAdjustedColor(RGB.Companion("#000000"), blackSquareLightnessAdjustment)
 
         grid.forEachIndexed { y, row ->
             row.forEachIndexed eachSquare@{ x, square ->
@@ -244,22 +259,25 @@ object Pdf {
                 // Otherwise, use a white background.
                 val backgroundColor = when {
                     square.backgroundColor.isNotBlank() ->
-                        getAdjustedColor(RGB(square.backgroundColor), blackSquareLightnessAdjustment)
+                        getAdjustedColor(RGB.Companion(square.backgroundColor), blackSquareLightnessAdjustment)
 
                     square.cellType == Puzzle.CellType.BLOCK && !puzzle.diagramless -> gridBlackColor
-                    else -> RGB("#ffffff")
+                    else -> RGB.Companion("#ffffff")
                 }
-                setFillColor(backgroundColor.r, backgroundColor.g, backgroundColor.b)
-                if (square.cellType == Puzzle.CellType.VOID) {
-                    drawRect(squareX, squareY, gridSquareSize, gridSquareSize, fill = true)
-                } else {
-                    setStrokeColor(gridBlackColor.r, gridBlackColor.g, gridBlackColor.b)
-                    drawRect(squareX, squareY, gridSquareSize, gridSquareSize, fill = true, stroke = true)
-                }
-
+                setFillColor(backgroundColor.r.toDouble(), backgroundColor.g.toDouble(), backgroundColor.b.toDouble())
+                drawRect(squareX, squareY, gridSquareSize, gridSquareSize, fill = true)
 
                 if (square.backgroundImage is Puzzle.Image.Data) {
                     drawImage(squareX, squareY, gridSquareSize, gridSquareSize, square.backgroundImage)
+                }
+
+                if (square.cellType != Puzzle.CellType.VOID) {
+                    setStrokeColor(
+                        gridBlackColor.r.toDouble(),
+                        gridBlackColor.g.toDouble(),
+                        gridBlackColor.b.toDouble()
+                    )
+                    drawRect(squareX, squareY, gridSquareSize, gridSquareSize, fill = false, stroke = true)
                 }
 
                 if (!square.cellType.isBlack()) {
@@ -314,7 +332,7 @@ object Pdf {
                             "Solution text does not fit into square"
                         }
                         // Center align each line and draw the text.
-                        setFillColor(0f, 0f, 0f)
+                        setFillColor(0.0, 0.0, 0.0)
                         val textHeight = solutionLines.size * solutionTextSize
                         solutionLines.forEachIndexed { i, line ->
                             beginText()
@@ -331,7 +349,7 @@ object Pdf {
                     }
                 }
                 if (square.borderDirections.isNotEmpty()) {
-                    setLineWidth(3f)
+                    setLineWidth(3.0)
                     square.borderDirections.forEach { borderDirection ->
                         val squareXEnd = squareX + gridSquareSize
                         val squareYEnd = squareY + gridSquareSize
@@ -342,30 +360,30 @@ object Pdf {
                             Puzzle.BorderDirection.RIGHT -> drawLine(squareXEnd, squareY, squareXEnd, squareYEnd)
                         }
                     }
-                    setLineWidth(1f)
+                    setLineWidth(1.0)
                 }
             }
         }
-        return DrawGridResult(gridHeight = gridHeight, bottomRowStartOffset = 0f)
+        return DrawGridResult(gridHeight = gridHeight, bottomRowStartOffset = 0.0)
     }
 
     /** Return the adjusted color as a result of applying [lightnessAdjustment] to the given [rgb] color. */
-    fun getAdjustedColor(rgb: RGB, lightnessAdjustment: Float): RGB {
+    internal fun getAdjustedColor(rgb: RGB, lightnessAdjustment: Double): RGB {
         val hsl = rgb.toHSL()
         return HSL(hsl.h, hsl.s, (hsl.l + (1.0 - hsl.l) * lightnessAdjustment)).toSRGB()
     }
 
     private suspend fun PdfDocument.drawSquareNumber(
-        x: Float,
-        y: Float,
+        x: Double,
+        y: Double,
         text: String,
-        textWidth: Float,
-        gridNumberSize: Float,
+        textWidth: Double,
+        gridNumberSize: Double,
         font: PdfFont,
         backgroundColor: RGB,
     ) {
         // Erase a rectangle around the number to make sure it stands out if there is a circle.
-        setFillColor(backgroundColor.r, backgroundColor.g, backgroundColor.b)
+        setFillColor(backgroundColor.r.toDouble(), backgroundColor.g.toDouble(), backgroundColor.b.toDouble())
         drawRect(
             x,
             y,
@@ -374,7 +392,7 @@ object Pdf {
             fill = true,
         )
 
-        setFillColor(0f, 0f, 0f)
+        setFillColor(0.0, 0.0, 0.0)
         beginText()
         newLineAtOffset(x, y)
         setFont(font, gridNumberSize)
@@ -390,12 +408,12 @@ object Pdf {
     private suspend fun PdfDocument.drawMultiLineText(
         text: String,
         fontFamily: PdfFontFamily,
-        fontSize: Float,
-        lineWidth: Float,
+        fontSize: Double,
+        lineWidth: Double,
         isHtml: Boolean,
-        initialPositionY: Float,
-        nextFontSize: Float,
-    ): Float {
+        initialPositionY: Double,
+        nextFontSize: Double,
+    ): Double {
         val richTextElements = splitTextToLines(
             document = this,
             rawText = text,
@@ -406,7 +424,7 @@ object Pdf {
         )
         return drawRichText(
             richTextElements,
-            baseFont = fontFamily.baseFont,
+            fontFamily = fontFamily,
             fontSize = fontSize,
             initialPositionY = initialPositionY,
             render = true,
@@ -414,12 +432,19 @@ object Pdf {
         )
     }
 
+    internal enum class Style(val getFont: (PdfFontFamily) -> PdfFont) {
+        REGULAR(PdfFontFamily::baseFont),
+        BOLD(PdfFontFamily::boldFont),
+        ITALIC(PdfFontFamily::italicFont),
+        BOLD_ITALIC(PdfFontFamily::boldItalicFont),
+    }
+
     internal enum class Script {
         REGULAR,
         SUBSCRIPT,
         SUPERSCRIPT;
 
-        fun getScaledFontSize(fontSize: Float): Float {
+        fun getScaledFontSize(fontSize: Double): Double {
             return when (this) {
                 REGULAR -> fontSize
                 else -> fontSize * SUB_SUPER_SCRIPT_FONT_SIZE_PERCENTAGE
@@ -427,7 +452,7 @@ object Pdf {
         }
     }
 
-    internal data class Format(val font: PdfFont, val script: Script)
+    internal data class Format(val style: Style, val script: Script)
 
     internal sealed class RichTextElement {
         data class Text(val text: String) : RichTextElement()
@@ -441,8 +466,8 @@ object Pdf {
         document: PdfDocument,
         rawText: String,
         fontFamily: PdfFontFamily,
-        fontSize: Float,
-        lineWidth: Float,
+        fontSize: Double,
+        lineWidth: Double,
         isHtml: Boolean,
     ): List<RichTextElement> = rawText.split('\n').flatMap { line ->
         splitParagraphToLines(document, line, fontFamily, fontSize, lineWidth, isHtml)
@@ -452,8 +477,8 @@ object Pdf {
         document: PdfDocument,
         rawText: String,
         fontFamily: PdfFontFamily,
-        fontSize: Float,
-        lineWidth: Float,
+        fontSize: Double,
+        lineWidth: Double,
         isHtml: Boolean,
     ): List<RichTextElement> {
         // Parse the HTML to create a list of character + font pairs.
@@ -495,18 +520,18 @@ object Pdf {
                 }
 
                 is TextNode -> {
-                    val currentFont = getFont(fontFamily, nodeState.boldTagLevel, nodeState.italicTagLevel)
+                    val currentStyle = getStyle(nodeState.boldTagLevel, nodeState.italicTagLevel)
                     val currentScript = getScript(nodeState.subTagLevel, nodeState.supTagLevel)
-                    val text = nodeState.node.text.map { FormattedChar(it, Format(currentFont, currentScript)) }
+                    val text = nodeState.node.text.map { FormattedChar(it, Format(currentStyle, currentScript)) }
                     formattedChars.addAll(text)
                 }
             }
         }
 
         // Split the formatted text into lines, and convert into a stream of text, font changes, and new lines.
-        val lines = splitTextToLines(document, formattedChars, fontFamily.baseFont, fontSize, lineWidth)
+        val lines = splitTextToLines(document, formattedChars, fontFamily, fontSize, lineWidth)
         val richTextElements = mutableListOf<RichTextElement>()
-        val baseFormat = Format(fontFamily.baseFont, Script.REGULAR)
+        val baseFormat = Format(Style.REGULAR, Script.REGULAR)
         var currentFormat = baseFormat
         lines.forEach { line ->
             forEachFormat(line) { text, format ->
@@ -524,12 +549,12 @@ object Pdf {
         return richTextElements
     }
 
-    private fun getFont(fontFamily: PdfFontFamily, boldTagLevel: Int, italicTagLevel: Int): PdfFont {
+    private fun getStyle(boldTagLevel: Int, italicTagLevel: Int): Style {
         return when {
-            boldTagLevel > 0 && italicTagLevel > 0 -> fontFamily.boldItalicFont
-            boldTagLevel > 0 -> fontFamily.boldFont
-            italicTagLevel > 0 -> fontFamily.italicFont
-            else -> fontFamily.baseFont
+            boldTagLevel > 0 && italicTagLevel > 0 -> Style.BOLD_ITALIC
+            boldTagLevel > 0 -> Style.BOLD
+            italicTagLevel > 0 -> Style.ITALIC
+            else -> Style.REGULAR
         }
     }
 
@@ -581,21 +606,21 @@ object Pdf {
     private suspend fun splitTextToLines(
         document: PdfDocument,
         text: List<FormattedChar>,
-        baseFont: PdfFont,
-        fontSize: Float,
-        lineWidth: Float,
+        fontFamily: PdfFontFamily,
+        fontSize: Double,
+        lineWidth: Double,
     ): List<List<FormattedChar>> {
         val lines = mutableListOf<List<FormattedChar>>()
         var currentLine = mutableListOf<FormattedChar>()
         lines += currentLine
-        var currentLineLength = 0f
+        var currentLineLength = 0.0
         var currentSeparator = ""
-        var currentSeparatorFormat = Format(baseFont, Script.REGULAR)
+        var currentSeparatorFormat = Format(Style.REGULAR, Script.REGULAR)
         forEachWord(text) { formattedWord, nextSeparator ->
-            val separatorLength = document.getTextWidth(currentSeparator, currentSeparatorFormat, fontSize)
-            var wordLength = 0f
+            val separatorLength = document.getTextWidth(currentSeparator, currentSeparatorFormat, fontFamily, fontSize)
+            var wordLength = 0.0
             forEachFormat(formattedWord) { word, format ->
-                wordLength += document.getTextWidth(word, format, fontSize)
+                wordLength += document.getTextWidth(word, format, fontFamily, fontSize)
             }
             if (currentLineLength + separatorLength + wordLength > lineWidth) {
                 // This word pushes us over the line length limit, so we'll need a new line.
@@ -603,9 +628,14 @@ object Pdf {
                     // Word is too long to fit on a single line; have to chop by letter.
                     formattedWord.forEach { formattedChar ->
                         val charLength =
-                            document.getTextWidth(formattedChar.char.toString(), formattedChar.format, fontSize)
+                            document.getTextWidth(
+                                formattedChar.char.toString(),
+                                formattedChar.format,
+                                fontFamily,
+                                fontSize
+                            )
                         val wordSeparatorLengthPts =
-                            document.getTextWidth(currentSeparator, currentSeparatorFormat, fontSize)
+                            document.getTextWidth(currentSeparator, currentSeparatorFormat, fontFamily, fontSize)
                         if (currentLineLength + wordSeparatorLengthPts + charLength > lineWidth) {
                             currentLine = mutableListOf(formattedChar)
                             lines += currentLine
@@ -636,20 +666,20 @@ object Pdf {
     }
 
     private data class CluePosition(
-        val positionY: Float,
+        val positionY: Double,
         val column: Int,
-        val columnBottomY: Float,
+        val columnBottomY: Double,
     )
 
     private suspend fun PdfDocument.showClueLists(
         puzzle: Puzzle,
         fontFamily: PdfFontFamily,
-        columnWidth: Float,
+        columnWidth: Double,
         columns: Int,
-        clueTopY: Float,
-        gridY: Float,
-        gridHeight: Float,
-        clueTextSize: Float,
+        clueTopY: Double,
+        gridY: Double,
+        gridHeight: Double,
+        clueTextSize: Double,
         render: Boolean
     ): Boolean {
         var positionY = clueTopY
@@ -686,7 +716,7 @@ object Pdf {
 
             if (i != puzzle.clues.lastIndex) {
                 if (render) {
-                    newLineAtOffset(0f, -clueTextSize)
+                    newLineAtOffset(0.0, -clueTextSize)
                 }
                 positionY -= clueTextSize
             }
@@ -703,20 +733,20 @@ object Pdf {
      */
     private suspend fun PdfDocument.drawRichText(
         richTextElements: List<RichTextElement>,
-        baseFont: PdfFont,
-        fontSize: Float,
-        initialPositionY: Float,
+        fontFamily: PdfFontFamily,
+        fontSize: Double,
+        initialPositionY: Double,
         render: Boolean,
-        nextFontSize: Float = fontSize,
-    ): Float {
-        var currentFont = baseFont
+        nextFontSize: Double = fontSize,
+    ): Double {
+        var currentFont = fontFamily.baseFont
         var currentFontSize = fontSize
         setFont(currentFont, currentFontSize)
 
         var currentScript = Script.REGULAR
-        var currentLinePosition = 0f
-        var lastLineXOffset = 0f
-        var lastLineYOffset = 0f
+        var currentLinePosition = 0.0
+        var lastLineXOffset = 0.0
+        var lastLineYOffset = 0.0
         var positionY = initialPositionY
 
         val lastNewLineIndex = richTextElements.lastIndexOf(RichTextElement.NewLine)
@@ -734,15 +764,15 @@ object Pdf {
                     val offset = (if (i == lastNewLineIndex) nextFontSize else fontSize) * LINE_SPACING
                     if (render) {
                         newLineAtOffset(-lastLineXOffset, -offset)
-                        currentLinePosition = 0f
-                        lastLineXOffset = 0f
+                        currentLinePosition = 0.0
+                        lastLineXOffset = 0.0
                     }
                     positionY -= offset
                 }
 
                 is RichTextElement.SetFormat -> {
                     if (render) {
-                        val newFont = element.format.font
+                        val newFont = element.format.style.getFont(fontFamily)
                         val newFontSize = element.format.script.getScaledFontSize(fontSize)
                         if (newFont != currentFont || newFontSize != currentFontSize) {
                             setFont(newFont, newFontSize)
@@ -754,7 +784,7 @@ object Pdf {
                                 when (element.format.script) {
                                     Script.SUPERSCRIPT -> fontSize * SUPER_SCRIPT_OFFSET_PERCENTAGE
                                     Script.SUBSCRIPT -> -fontSize * SUB_SCRIPT_OFFSET_PERCENTAGE
-                                    Script.REGULAR -> 0f
+                                    Script.REGULAR -> 0.0
                                 }
                             newLineAtOffset(currentLinePosition - lastLineXOffset, yOffset - lastLineYOffset)
                             lastLineXOffset = currentLinePosition
@@ -773,12 +803,12 @@ object Pdf {
         clues: Puzzle.ClueList,
         isHtml: Boolean,
         fontFamily: PdfFontFamily,
-        columnWidth: Float,
+        columnWidth: Double,
         columns: Int,
-        clueTopY: Float,
-        gridY: Float,
-        gridHeight: Float,
-        clueTextSize: Float,
+        clueTopY: Double,
+        gridY: Double,
+        gridHeight: Double,
+        clueTextSize: Double,
         cluePosition: CluePosition,
         render: Boolean
     ): Pair<Boolean, CluePosition> {
@@ -790,7 +820,7 @@ object Pdf {
             getTextWidth("${it.number.ifBlank { "•" }} ", fontFamily.baseFont, clueTextSize)
         }
 
-        val clueHeaderSize = clueTextSize + 1.0f
+        val clueHeaderSize = clueTextSize + 1.0
         val title = (if (isHtml) clues.title else "<b>${clues.title}</b>").uppercase()
         val titleElements =
             splitTextToLines(this, title, fontFamily, clueHeaderSize, columnWidth - maxPrefixWidth, isHtml = true)
@@ -808,7 +838,7 @@ object Pdf {
                     if (index == 0) {
                         clueHeaderSize * (1 + LINE_SPACING * (titleLineCount - 1)) + (LINE_SPACING - 1) * clueTextSize
                     } else {
-                        0f
+                        0.0
                     }
 
             if (positionY + clueTextSize - clueHeight < columnBottomY) {
@@ -825,50 +855,59 @@ object Pdf {
             }
 
             if (index == 0) {
-                if (render) newLineAtOffset(maxPrefixWidth, 0f)
+                if (render) newLineAtOffset(maxPrefixWidth, 0.0)
                 positionY = drawRichText(
                     titleElements,
-                    baseFont = fontFamily.baseFont,
+                    fontFamily = fontFamily,
                     fontSize = clueHeaderSize,
                     initialPositionY = positionY,
                     render = render,
                     nextFontSize = clueTextSize,
                 )
-                if (render) newLineAtOffset(-maxPrefixWidth, 0f)
+                if (render) newLineAtOffset(-maxPrefixWidth, 0.0)
             }
 
             if (render) {
                 val prefix = "${clue.number.ifBlank { "•" }} "
                 val prefixWidth = getTextWidth(prefix, fontFamily.baseFont, clueTextSize)
-                newLineAtOffset(maxPrefixWidth - prefixWidth, 0f)
+                newLineAtOffset(maxPrefixWidth - prefixWidth, 0.0)
                 setFont(fontFamily.baseFont, clueTextSize)
                 drawText(prefix)
-                newLineAtOffset(prefixWidth, 0f)
+                newLineAtOffset(prefixWidth, 0.0)
             }
 
             positionY = drawRichText(
                 clueElements,
-                baseFont = fontFamily.baseFont,
+                fontFamily = fontFamily,
                 fontSize = clueTextSize,
                 initialPositionY = positionY,
                 render = render,
             )
 
             if (render) {
-                newLineAtOffset(-maxPrefixWidth, 0f)
+                newLineAtOffset(-maxPrefixWidth, 0.0)
             }
         }
         return true to CluePosition(positionY = positionY, column = column, columnBottomY = columnBottomY)
     }
 
-    private suspend fun findBestFontSize(minSize: Float, maxSize: Float, testFn: suspend (Float) -> Boolean): Float? {
+    private suspend fun findBestFontSize(
+        minSize: Double,
+        maxSize: Double,
+        testFn: suspend (Double) -> Boolean
+    ): Double? {
         val textSizes = generateSequence(maxSize) { it - TEXT_SIZE_DELTA }.takeWhile { it >= minSize }.toList()
         val insertionIndex = -textSizes.binarySearchAsync { size -> if (testFn(size)) 1 else -1 } - 1
         return if (insertionIndex > textSizes.lastIndex) null else textSizes[insertionIndex]
     }
 
-    private suspend fun PdfDocument.getTextWidth(text: String, format: Format, fontSize: Float): Float {
-        return getTextWidth(text, format.font, format.script.getScaledFontSize(fontSize))
+    private suspend fun PdfDocument.getTextWidth(
+        text: String,
+        format: Format,
+        fontFamily: PdfFontFamily,
+        fontSize: Double
+    ): Double {
+        return getTextWidth(text, format.style.getFont(fontFamily), format.script.getScaledFontSize(fontSize))
     }
 
     /** Copy of [binarySearch] with a suspending comparison function. */

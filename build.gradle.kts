@@ -70,6 +70,7 @@ kotlin {
                 implementation("io.github.pdvrieze.xmlutil:serialization:0.91.3")
                 implementation("com.github.ajalt.colormath:colormath:3.6.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+                implementation("com.soywiz:korlibs-image-core:6.0.0")
 
                 // TODO: Migrate to kotlinx-datetime when it can be done without breaking ksoup.
                 // Ensure any size hit to the JS bundle is acceptable.
@@ -91,7 +92,6 @@ kotlin {
 
         val jvmMain by getting {
             dependencies {
-                implementation("org.apache.pdfbox:pdfbox:3.0.1")
                 implementation("org.jsoup:jsoup:1.22.1")
             }
         }
@@ -105,19 +105,12 @@ kotlin {
         val jsMain by getting {
             dependencies {
                 implementation(npm("jszip", "3.10.1"))
-                implementation(npm("pdf-lib", "1.17.1"))
-                implementation(npm("@pdf-lib/fontkit", "1.1.1"))
                 implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.12.0")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-pako:2026.3.5-2.1.0")
             }
         }
 
         val jsTest by getting {
-            dependencies {
-                // TODO: Find out how to use newer versions - 4.x seems to use ES6 modules which are not handled
-                // smoothly. Note also that PdfJs.kt and ImageComparator.kt will need updates.
-                implementation(npm("pdfjs-dist", "3.11.174"))
-            }
-
             languageSettings {
                 optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
             }

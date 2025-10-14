@@ -20,5 +20,3 @@ actual suspend fun <T : Any> readStringResource(clazz: KClass<T>, resourceName: 
         readUtf8()
     }
 }
-
-actual typealias IgnoreNative = kotlin.test.Ignore

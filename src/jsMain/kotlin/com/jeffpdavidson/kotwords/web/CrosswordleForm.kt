@@ -51,9 +51,9 @@ class CrosswordleForm {
             downClues = downClues.value.trimmedLines(),
         ).asPuzzle()
 
-    private suspend fun createPdf(blackSquareLightnessAdjustment: Float): ByteArray =
+    private suspend fun createPdf(blackSquareLightnessAdjustment: Double): ByteArray =
         createPuzzle().asPdf(
-            fontFamily = PdfFonts.getNotoFontFamily(),
+            fontFamily = PdfFonts.NOTO_FONT_FAMILY,
             blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
         )
 }

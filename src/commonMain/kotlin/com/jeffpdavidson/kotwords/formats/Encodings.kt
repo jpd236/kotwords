@@ -12,6 +12,8 @@ internal expect object Encodings {
     fun decodeHtmlEntities(string: String): String
 
     fun unescape(string: String): String
+
+    fun deflate(bytes: ByteArray): ByteArray
 }
 
 /** Unicode values corresponding to bytes 0x80-0x9F in CP1252. */

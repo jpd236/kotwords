@@ -1,8 +1,8 @@
 package com.jeffpdavidson.kotwords.model
 
-import com.jeffpdavidson.kotwords.formats.Pdf
-import com.jeffpdavidson.kotwords.formats.PdfDocument
-import com.jeffpdavidson.kotwords.formats.PdfFontFamily
+import com.jeffpdavidson.kotwords.formats.pdf.Pdf
+import com.jeffpdavidson.kotwords.formats.pdf.PdfDocument
+import com.jeffpdavidson.kotwords.formats.pdf.PdfFontFamily
 import com.jeffpdavidson.kotwords.formats.Puzzleable
 
 data class TwistsAndTurns(
@@ -115,7 +115,7 @@ data class TwistsAndTurns(
 
     override suspend fun asPdf(
         fontFamily: PdfFontFamily,
-        blackSquareLightnessAdjustment: Float,
+        blackSquareLightnessAdjustment: Double,
     ): ByteArray {
         return Pdf.asPdf(asPuzzle(), fontFamily, blackSquareLightnessAdjustment, ::drawGrid)
     }
@@ -123,10 +123,10 @@ data class TwistsAndTurns(
     private suspend fun drawGrid(
         document: PdfDocument,
         puzzle: Puzzle,
-        blackSquareLightnessAdjustment: Float,
-        gridWidth: Float,
-        gridX: Float,
-        gridY: Float,
+        blackSquareLightnessAdjustment: Double,
+        gridWidth: Double,
+        gridX: Double,
+        gridY: Double,
         fontFamily: PdfFontFamily,
     ): Pdf.DrawGridResult = document.run {
         // Use the regular grid drawing function, but padded on the left and right to have space for the "START" and
@@ -248,13 +248,13 @@ data class TwistsAndTurns(
     private fun isLightTwist(x: Int, y: Int, twistBoxSize: Int): Boolean =
         (((x - 1) / twistBoxSize) % 2) == (((y - 1) / twistBoxSize) % 2)
 
-    private fun PdfDocument.drawArrow(x: Float, y: Float, width: Float, height: Float, leftSide: Boolean) {
+    private fun PdfDocument.drawArrow(x: Double, y: Double, width: Double, height: Double, leftSide: Boolean) {
         val midX = if (leftSide) x - width else x + width
         val endY = y - height
         drawLine(x, y, midX, y)
         drawLine(midX, y, midX, endY)
         drawLine(midX, endY, x, endY)
-        val arrowWidth = width / 4f
+        val arrowWidth = width / 4.0
         val arrowEndX = if (leftSide) x - arrowWidth else x + arrowWidth
         drawLine(x, endY, arrowEndX, endY - arrowWidth)
         drawLine(x, endY, arrowEndX, endY + arrowWidth)
