@@ -1,17 +1,14 @@
 package com.jeffpdavidson.kotwords.model
 
-import com.jeffpdavidson.kotwords.IgnoreNative
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
-import com.jeffpdavidson.kotwords.formats.ImageComparator
-import com.jeffpdavidson.kotwords.formats.ImageComparator.assertPdfEquals
 import com.jeffpdavidson.kotwords.formats.JpzFile
-import com.jeffpdavidson.kotwords.formats.PdfTest
-import com.jeffpdavidson.kotwords.formats.getNotoSerifFontFamily
+import com.jeffpdavidson.kotwords.formats.pdf.getNotoSerifFontFamily
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 
 class MarchingBandsTest {
     @Test
@@ -45,12 +42,11 @@ class MarchingBandsTest {
     }
 
     @Test
-    @IgnoreNative  // Depends on PDF support
     fun pdfGeneration() = runTest {
-        assertPdfEquals(
-            readBinaryResource(ImageComparator::class, "marching-bands/marching-bands.pdf"),
-            JpzFile(readBinaryResource(PdfTest::class, "marching-bands/marching-bands.jpz"))
-                .asPuzzle().asPdf(blackSquareLightnessAdjustment = 0.75f, fontFamily = getNotoSerifFontFamily())
+        assertContentEquals(
+            readBinaryResource(MarchingBandsTest::class, "marching-bands/marching-bands.pdf"),
+            JpzFile(readBinaryResource(MarchingBandsTest::class, "marching-bands/marching-bands.jpz"))
+                .asPuzzle().asPdf(blackSquareLightnessAdjustment = 0.75, fontFamily = getNotoSerifFontFamily())
         )
     }
 

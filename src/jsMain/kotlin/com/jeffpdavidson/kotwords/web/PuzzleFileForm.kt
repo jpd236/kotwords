@@ -3,7 +3,7 @@ package com.jeffpdavidson.kotwords.web
 import com.github.ajalt.colormath.model.RGB
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.formats.Ipuz
-import com.jeffpdavidson.kotwords.formats.Pdf
+import com.jeffpdavidson.kotwords.formats.pdf.Pdf
 import com.jeffpdavidson.kotwords.js.Interop.toArrayBuffer
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.web.html.FormFields
@@ -65,7 +65,7 @@ internal class PuzzleFileForm(
     includeCompletionMessage: Boolean = true,
     private val completionMessageDefaultValue: String = "Congratulations! The puzzle is solved correctly.",
     private val completionMessageHelpText: String = "",
-    private val createPdfFn: (suspend (blackSquareLightnessAdjustment: Float) -> ByteArray)? = null,
+    private val createPdfFn: (suspend (blackSquareLightnessAdjustment: Double) -> ByteArray)? = null,
     enableSaveData: Boolean = true,
     enableMetadataInput: Boolean = true,
     supportsIpuz: Boolean = true,
@@ -373,7 +373,7 @@ internal class PuzzleFileForm(
 
     private suspend fun downloadPdf(puzzle: Puzzle) {
         createPdfFn?.let {
-            download("${getFileNameFn(puzzle)}.pdf", it(inkSaverPercentageField!!.value / 100f))
+            download("${getFileNameFn(puzzle)}.pdf", it(inkSaverPercentageField!!.value / 100.0))
         }
     }
 
@@ -413,7 +413,7 @@ internal class PuzzleFileForm(
 
     private fun elementId(elementId: String) = if (id.isNotEmpty()) "$id-$elementId" else elementId
 
-    private fun getInkSaverColor(value: Int): String = Pdf.getAdjustedColor(RGB("#000000"), value / 100f).toHex()
+    private fun getInkSaverColor(value: Int): String = Pdf.getAdjustedColor(RGB("#000000"), value / 100.0).toHex()
 
     companion object {
         private const val KEY_PUZZLE_TYPE = "puzzle-type"

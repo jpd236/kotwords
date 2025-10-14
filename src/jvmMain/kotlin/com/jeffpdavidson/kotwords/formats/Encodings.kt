@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.formats
 
+import okio.Buffer
+import okio.deflate
 import org.jsoup.parser.Parser
 import java.net.URLDecoder
 import java.nio.charset.Charset
@@ -29,5 +31,16 @@ internal actual object Encodings {
 
     actual fun unescape(string: String): String {
         return commonUnescape(string)
+    }
+
+    actual fun deflate(bytes: ByteArray): ByteArray {
+        val source = Buffer()
+        source.write(bytes)
+
+        val sink = Buffer()
+        val deflaterSink = sink.deflate()
+        deflaterSink.write(source, source.size)
+        deflaterSink.close()
+        return sink.readByteArray()
     }
 }

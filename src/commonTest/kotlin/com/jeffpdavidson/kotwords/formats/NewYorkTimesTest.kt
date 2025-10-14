@@ -1,6 +1,5 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.IgnoreNative
 import com.jeffpdavidson.kotwords.model.assertPuzzleEquals
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
@@ -71,7 +70,6 @@ class NewYorkTimesTest {
     }
 
     @Test
-    @IgnoreNative  // Depends on image support
     fun toPuzzle_bgImage_api() = runTest {
         val puzzle = NewYorkTimes.fromApiJson(
             readStringResource(NewYorkTimesTest::class, "nyt/test-bgimage-api.json"),

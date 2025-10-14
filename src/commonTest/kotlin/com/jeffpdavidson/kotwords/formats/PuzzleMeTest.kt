@@ -1,6 +1,5 @@
 package com.jeffpdavidson.kotwords.formats
 
-import com.jeffpdavidson.kotwords.IgnoreNative
 import com.jeffpdavidson.kotwords.model.assertPuzzleEquals
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
@@ -114,7 +113,6 @@ class PuzzleMeTest {
     }
 
     @Test
-    @IgnoreNative  // Depends on image support
     fun toPuzzle_bgImage() = runTest {
         val puzzleMe = PuzzleMe(readStringResource(PuzzleMeTest::class, "puzzleme/test-bgimage.json"))
         assertPuzzleEquals(

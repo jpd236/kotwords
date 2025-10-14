@@ -76,13 +76,13 @@ class TwistsAndTurnsForm {
             sortTwists = false,
         ).asPuzzle()
 
-    private suspend fun createPdf(blackSquareLightnessAdjustment: Float): ByteArray =
+    private suspend fun createPdf(blackSquareLightnessAdjustment: Double): ByteArray =
         createTwistsAndTurns(
             separateLightAndDarkTwists = true,
             numberTwists = false,
             sortTwists = alphabetizeTwistsClues.value,
         ).asPdf(
-            fontFamily = PdfFonts.getNotoFontFamily(),
+            fontFamily = PdfFonts.NOTO_FONT_FAMILY,
             blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
         )
 

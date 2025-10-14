@@ -1,5 +1,8 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.formats.pdf.FONT_FAMILY_TIMES_ROMAN
+import com.jeffpdavidson.kotwords.formats.pdf.Pdf
+import com.jeffpdavidson.kotwords.formats.pdf.PdfFontFamily
 import com.jeffpdavidson.kotwords.model.Puzzle
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -90,7 +93,7 @@ abstract class Puzzleable {
      */
     open suspend fun asPdf(
         fontFamily: PdfFontFamily = FONT_FAMILY_TIMES_ROMAN,
-        blackSquareLightnessAdjustment: Float = 0f,
+        blackSquareLightnessAdjustment: Double = 0.0,
     ): ByteArray {
         return Pdf.asPdf(asPuzzle(), fontFamily, blackSquareLightnessAdjustment, Pdf::drawGrid)
     }
@@ -111,6 +114,6 @@ abstract class DelegatingPuzzleable : Puzzleable() {
     override suspend fun asJpzFile(solved: Boolean): ByteArray = getPuzzleable().asJpzFile(solved)
     override suspend fun asPdf(
         fontFamily: PdfFontFamily,
-        blackSquareLightnessAdjustment: Float,
+        blackSquareLightnessAdjustment: Double,
     ): ByteArray = getPuzzleable().asPdf(fontFamily, blackSquareLightnessAdjustment)
 }

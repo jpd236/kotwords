@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.formats
 
+import js.typedarrays.toByteArray
+import js.typedarrays.toUint8Array
 import kotlinx.browser.document
 import org.w3c.dom.HTMLTextAreaElement
 
@@ -24,6 +26,11 @@ internal actual object Encodings {
     }
 
     actual fun unescape(string: String): String = jsunescape(string)
+
+    actual fun deflate(bytes: ByteArray): ByteArray {
+        // TODO: Use the okio implementation from JVM/native once https://github.com/square/okio/issues/1550 is fixed
+        return pako.deflate(bytes.toUint8Array()).toByteArray()
+    }
 }
 
 @JsName("unescape")

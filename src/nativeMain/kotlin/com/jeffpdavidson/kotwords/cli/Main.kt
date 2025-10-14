@@ -12,6 +12,7 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
+import com.github.ajalt.clikt.parameters.types.double
 import com.github.ajalt.clikt.parameters.types.enum
 import com.jeffpdavidson.kotwords.cli.InputFile.Companion.inputFile
 import com.jeffpdavidson.kotwords.cli.InputFile.PathFile
@@ -40,25 +41,80 @@ import com.jeffpdavidson.kotwords.formats.WashingtonPost
 import com.jeffpdavidson.kotwords.formats.XWordInfo
 import com.jeffpdavidson.kotwords.formats.XWordInfoAcrostic
 import com.jeffpdavidson.kotwords.formats.Xd
+import com.jeffpdavidson.kotwords.formats.pdf.FONT_FAMILY_TIMES_ROMAN
+import com.jeffpdavidson.kotwords.formats.pdf.PdfFont
+import com.jeffpdavidson.kotwords.formats.pdf.PdfFontFamily
+import com.jeffpdavidson.kotwords.formats.pdf.PdfFontId
+import com.jeffpdavidson.kotwords.formats.pdf.TtfFonts
 import korlibs.time.Date
 import korlibs.time.DateTime
 import korlibs.time.date
 import korlibs.time.nowLocal
 import korlibs.time.parse
 import kotlinx.coroutines.runBlocking
+import okio.Buffer
+import okio.ByteString.Companion.decodeBase64
 import okio.FileSystem
+import okio.GzipSource
 import okio.Path
 import okio.Path.Companion.toPath
+import okio.buffer
+import okio.use
+
+enum class FontFamilyId(val fontFamily: PdfFontFamily) {
+    TIMES_ROMAN(FONT_FAMILY_TIMES_ROMAN),
+    NOTO_SERIF(
+        PdfFontFamily(
+            baseFont = PdfFont.TtfFont(PdfFontId.TtfFontId("NotoSerif-Regular")) {
+                decodeTtfResource(TtfFonts.NOTOSERIF_REGULAR_TTF_BASE64)
+            },
+            boldFont = PdfFont.TtfFont(PdfFontId.TtfFontId("NotoSerif-Bold")) {
+                decodeTtfResource(TtfFonts.NOTOSERIF_BOLD_TTF_BASE64)
+            },
+            italicFont = PdfFont.TtfFont(PdfFontId.TtfFontId("NotoSerif-Italic")) {
+                decodeTtfResource(TtfFonts.NOTOSERIF_ITALIC_TTF_BASE64)
+            },
+            boldItalicFont = PdfFont.TtfFont(PdfFontId.TtfFontId("NotoSerif-BoldItalic")) {
+                decodeTtfResource(TtfFonts.NOTOSERIF_BOLDITALIC_TTF_BASE64)
+            },
+        )
+    );
+
+    companion object {
+        private fun decodeTtfResource(encodedTtf: String): ByteArray {
+            val compressedBytes = encodedTtf.decodeBase64() ?: throw IllegalStateException("Unable to decode TTF")
+            val buffer = Buffer().write(compressedBytes)
+            return GzipSource(buffer).buffer().use { it.readByteArray() }
+        }
+    }
+}
+
+data class PdfOptions(
+    val fontFamilyId: FontFamilyId,
+    val blackSquareLightnessAdjustment: Double,
+)
 
 enum class Format(
     val extensions: List<String>,
-    val readFn: suspend (ByteArray, Date, author: String, copyright: String) -> Puzzleable,
-    val writeFn: (suspend (Puzzleable) -> ByteArray)? = null,
+    val readFn: (suspend (ByteArray, Date, author: String, copyright: String) -> Puzzleable)? = null,
+    val writeFn: (suspend (Puzzleable, PdfOptions) -> ByteArray)? = null,
 ) {
     // Input/output formats
-    IPUZ(listOf("ipuz"), { data, _, _, _ -> Ipuz(data.decodeToString()) }, { it.asIpuzFile() }),
-    JPZ(listOf("jpz", "xml"), { data, _, _, _ -> JpzFile(data) }, { it.asJpzFile() }),
-    PUZ(listOf("puz"), { data, _, _, _ -> AcrossLite(data) }, { it.asAcrossLiteBinary() }),
+    IPUZ(listOf("ipuz"), { data, _, _, _ -> Ipuz(data.decodeToString()) }, { puzzle, _ -> puzzle.asIpuzFile() }),
+    JPZ(listOf("jpz", "xml"), { data, _, _, _ -> JpzFile(data) }, { puzzle, _ -> puzzle.asJpzFile() }),
+    PUZ(listOf("puz"), { data, _, _, _ -> AcrossLite(data) }, { puzzle, _ -> puzzle.asAcrossLiteBinary() }),
+
+    // Output-only formats
+    PDF(
+        extensions = listOf(),
+        readFn = null,
+        writeFn = { puzzle, pdfOptions ->
+            puzzle.asPdf(
+                fontFamily = pdfOptions.fontFamilyId.fontFamily,
+                blackSquareLightnessAdjustment = pdfOptions.blackSquareLightnessAdjustment
+            )
+        }
+    ),
 
     // Input-only formats
     APZ(listOf("apz"), { data, _, _, _ -> Apz.fromXmlString(data.decodeToString()).toAcrostic() }),
@@ -131,7 +187,9 @@ class DumpEntries : CliktCommand() {
         runBlocking {
             val data = file.readContents()
             // Since we're just dumping the grid, the date/author/copyright don't matter.
-            val puzzle = resolvedFormat.readFn(data, DateTime.nowLocal().local.date, "", "").asPuzzle()
+            val readFn =
+                resolvedFormat.readFn ?: throw IllegalArgumentException("File format not supported for reading")
+            val puzzle = readFn(data, DateTime.nowLocal().local.date, "", "").asPuzzle()
             val wordIdToWordMap = puzzle.words.associateBy { it.id }
             puzzle.clues.forEach { clueList ->
                 // Strip HTML from direction. The formatting options are rarely desirable here.
@@ -198,14 +256,24 @@ class Convert : CliktCommand() {
         .default("")
     val copyright by option(help = "For Uclick JSON inputs, the copyright of the puzzle. Defaults to blank.")
         .default("")
+    val fontFamily by option(help = "For PDF output, the font family to use. Defaults to NOTO_SERIF.")
+        .choice(FontFamilyId.entries.map { fontFamilyId -> fontFamilyId.name to fontFamilyId }.toMap())
+        .default(FontFamilyId.NOTO_SERIF)
+    val blackSquareLightnessAdjustment by option(
+        help = "For PDF output, percentage (from 0 to 1) indicating how much to brighten black/colored squares (i.e. " +
+                "to save ink). 0 indicates no adjustment; 1 would be fully white. Defaults to 0."
+    ).double().default(0.0)
 
     override fun help(context: Context): String = "Convert a puzzle between formats"
 
     override fun run() {
         runBlocking {
             val inputData = inputFile.readContents()
-            val puzzleable = inputFormat.readFn(inputData, date, author, copyright)
-            val outputData = outputFormat.writeFn!!(puzzleable)
+            val readFn = inputFormat.readFn ?: throw IllegalArgumentException("File format not supported for reading")
+            val puzzleable = readFn(inputData, date, author, copyright)
+            val writeFn =
+                outputFormat.writeFn ?: throw IllegalArgumentException("File format not supported for writing")
+            val outputData = writeFn(puzzleable, PdfOptions(fontFamily, blackSquareLightnessAdjustment))
             outputFile.writeContents(outputData)
         }
     }

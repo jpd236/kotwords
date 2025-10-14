@@ -171,17 +171,17 @@ class CrosswordForm {
         ).asPuzzle()
     }
 
-    private suspend fun createPdfFromManualEntry(blackSquareLightnessAdjustment: Float): ByteArray =
+    private suspend fun createPdfFromManualEntry(blackSquareLightnessAdjustment: Double): ByteArray =
         createPuzzleFromManualEntry().asPdf(
-            fontFamily = PdfFonts.getNotoFontFamily(),
+            fontFamily = PdfFonts.NOTO_FONT_FAMILY,
             blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
         )
 
     private suspend fun createPuzzleFromPuzFile(): Puzzle = AcrossLite(Interop.readBlob(file.value)).asPuzzle()
 
-    private suspend fun createPdfFromPuzFile(blackSquareLightnessAdjustment: Float): ByteArray =
+    private suspend fun createPdfFromPuzFile(blackSquareLightnessAdjustment: Double): ByteArray =
         createPuzzleFromPuzFile().asPdf(
-            fontFamily = PdfFonts.getNotoFontFamily(),
+            fontFamily = PdfFonts.NOTO_FONT_FAMILY,
             blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
         )
 

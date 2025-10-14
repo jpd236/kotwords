@@ -1,14 +1,13 @@
 package com.jeffpdavidson.kotwords.model
 
-import com.jeffpdavidson.kotwords.IgnoreNative
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
-import com.jeffpdavidson.kotwords.formats.ImageComparator.assertPdfEquals
-import com.jeffpdavidson.kotwords.formats.getNotoSerifFontFamily
+import com.jeffpdavidson.kotwords.formats.pdf.getNotoSerifFontFamily
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 
 // TODO: Expand test coverage
 class TwistsAndTurnsTest {
@@ -27,32 +26,30 @@ class TwistsAndTurnsTest {
     }
 
     @Test
-    @IgnoreNative  // Depends on PDF support
     fun pdfGeneration_unsortedTwists() = runTest {
         val expected = readBinaryResource(TwistsAndTurnsTest::class, "twists-and-turns/unsorted-twists.pdf")
-        assertPdfEquals(
+        assertContentEquals(
             expected, puzzle.copy(
                 separateLightAndDarkTwists = true,
                 numberTwists = false,
                 sortTwists = false,
             ).asPdf(
-                blackSquareLightnessAdjustment = 0.5f,
+                blackSquareLightnessAdjustment = 0.5,
                 fontFamily = getNotoSerifFontFamily(),
             )
         )
     }
 
     @Test
-    @IgnoreNative  // Depends on PDF support
     fun pdfGeneration_sortedTwists() = runTest {
         val expected = readBinaryResource(TwistsAndTurnsTest::class, "twists-and-turns/sorted-twists.pdf")
-        assertPdfEquals(
+        assertContentEquals(
             expected, puzzle.copy(
                 separateLightAndDarkTwists = true,
                 numberTwists = false,
                 sortTwists = true
             ).asPdf(
-                blackSquareLightnessAdjustment = 0.5f,
+                blackSquareLightnessAdjustment = 0.5,
                 fontFamily = getNotoSerifFontFamily(),
             )
         )
