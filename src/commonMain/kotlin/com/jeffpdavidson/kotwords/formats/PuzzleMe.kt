@@ -217,7 +217,7 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
                 rawc.indexOf("ye").let { if (it == -1) rawc.length else it },
                 rawc.indexOf("we").let { if (it == -1) rawc.length else it },
             ) + 2
-            val candidateKeyPrefixes = mutableListOf(if (firstKeyDigit > 17) listOf() else listOf(firstKeyDigit))
+            val candidateKeyPrefixes = mutableListOf(if (firstKeyDigit > 18) listOf() else listOf(firstKeyDigit))
 
             while (!candidateKeyPrefixes.isEmpty()) {
                 val candidateKeyPrefix = candidateKeyPrefixes.removeAt(0)
@@ -232,14 +232,14 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
                     }
                     return deobfuscatedRawc
                 }
-                candidateKeyPrefixes.addAll((2..17).map {
+                candidateKeyPrefixes.addAll((2..18).map {
                     candidateKeyPrefix + it
                 }.filter { newCandidateKeyPrefix ->
                     // While we don't know the rest of the key, we can put bounds on the sum of the digits of the key
                     // given its length. We can thus try every possible sum, decoding chunks of the rawc with the
                     // digits we have while leaving gaps for the remaining key digits between each chunk.
                     val remainingDigits = 7 - candidateKeyPrefix.size - 1
-                    ((2 * remainingDigits)..(17 * remainingDigits)).any { spacing ->
+                    ((2 * remainingDigits)..(18 * remainingDigits)).any { spacing ->
                         isValidKeyPrefix(rawc, newCandidateKeyPrefix, spacing)
                     }
                 })
