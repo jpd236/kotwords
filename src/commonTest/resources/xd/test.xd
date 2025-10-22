@@ -11,7 +11,6 @@ title: Example Puzzle for Kotwords
 author: Jeff Davidson
 copyright: © 2018 Jeff Davidson
 description: Notepad text goes here.
-rebus: ❶=XYZ
 
 ## Grid
 
@@ -36,6 +35,10 @@ D2. Second down clue ~ BFJN1
 D3. Third down clue ~ CGXYZO2
 D4. Fourth down clue ~ DHLP$
 D7. Fifth down clue ~ MQ@
+
+## Metadata
+
+rebus: ❶=XYZ
 
 ## Design
 

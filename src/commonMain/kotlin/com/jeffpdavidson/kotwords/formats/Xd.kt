@@ -15,9 +15,8 @@ class Xd(private val data: String) : DelegatingPuzzleable() {
 
     override suspend fun getPuzzleable(): Puzzleable {
         // Parse each section into a map from the section name to the non-empty lines of that section.
-        val sections = mutableMapOf<String, List<String>>()
+        val sections = mutableMapOf<String, MutableList<String>>()
         var currentSection = mutableListOf<String>()
-        var currentSectionName = ""
         val lines = data.trimmedLines()
         var inComment = false
         lines.forEachIndexed { i, line ->
@@ -35,12 +34,9 @@ class Xd(private val data: String) : DelegatingPuzzleable() {
                 }
             }
             if (isSectionStart || isFileEnd) {
-                if (currentSectionName.isNotEmpty()) {
-                    sections.put(currentSectionName, currentSection.toList())
-                }
                 if (isSectionStart) {
-                    currentSectionName = line.substring(3).lowercase()
-                    currentSection.clear()
+                    val currentSectionName = line.substring(3).lowercase()
+                    currentSection = sections.getOrPut(currentSectionName) { mutableListOf() }
                 }
             }
         }
@@ -55,9 +51,13 @@ class Xd(private val data: String) : DelegatingPuzzleable() {
         val acrossClues = toClueMap(clues.first)
         val downClues = toClueMap(clues.second)
 
-        // Description can either come from "description" metadata or the Notes section.
-        val description =
-            (metadata["description"] ?: "").ifBlank { sections.getOrElse("notes") { listOf() }.joinToString("\n") }
+        // Description can either come from "description" metadata, the Notes section, or the Help section.
+        val descriptionCandidates = listOf(
+            metadata["description"],
+            sections.getOrElse("notes") { listOf() }.joinToString("\n"),
+            sections.getOrElse("help") { listOf() }.joinToString("\n")
+        )
+        val description = descriptionCandidates.first { it?.isNotBlank() == true } ?: ""
 
         // Map from special characters in the grid to the rebus entry that should go in those cells.
         val rebusMap = (metadata["rebus"] ?: "").split(" ").associate {
