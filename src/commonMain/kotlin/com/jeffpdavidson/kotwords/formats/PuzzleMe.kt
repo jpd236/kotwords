@@ -17,6 +17,8 @@ private val PUZZLE_DATA_REGEX = """\bwindow\.(?:puzzleEnv\.)?rawc\s*=\s*'([^']+)
 private val ROWS_REGEX = """Row \d+: """.toRegex(RegexOption.IGNORE_CASE)
 private val BANDS_REGEX = """[^:]*band: """.toRegex(RegexOption.IGNORE_CASE)
 
+private val KEY_DIGIT_REGEX = """<[a-z]+.length\?(\d+)""".toRegex()
+
 /** Container for a puzzle in the PuzzleMe (Amuse Labs) format. */
 class PuzzleMe(val json: String) : DelegatingPuzzleable() {
 
@@ -178,13 +180,21 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
     }
 
     companion object {
-        fun fromHtml(html: String): PuzzleMe = PuzzleMe(extractPuzzleJson(html))
+        /**
+         * Returns the URL containing the crosswordJs to be passed to [fromHtml], or null if it couldn't be determined.
+         */
+        fun getCrosswordJsUrl(html: String, baseUri: String): String? {
+            return Xml.parse(html, baseUri, format = DocumentFormat.HTML)
+                .selectFirst("script[src*='c-min.js']")?.attr("abs:src")
+        }
 
-        fun fromRawc(rawc: String): PuzzleMe =
-            PuzzleMe(decodeRawc(rawc))
+        fun fromHtml(html: String, crosswordJs: String = ""): PuzzleMe = PuzzleMe(extractPuzzleJson(html, crosswordJs))
 
-        internal fun extractPuzzleJson(html: String): String {
-            return decodeRawc(extractRawc(html))
+        fun fromRawc(rawc: String, crosswordJs: String = ""): PuzzleMe =
+            PuzzleMe(decodeRawc(rawc, crosswordJs = crosswordJs))
+
+        internal fun extractPuzzleJson(html: String, crosswordJs: String = ""): String {
+            return decodeRawc(extractRawc(html), crosswordJs = crosswordJs)
         }
 
         private fun extractRawc(html: String): String {
@@ -210,17 +220,38 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
             throw InvalidFormatException("Could not find puzzle data in PuzzleMe HTML")
         }
 
-        private fun deobfuscateRawc(rawc: String): String {
+        private fun deobfuscateRawc(rawc: String, crosswordJs: String = ""): String {
+            // If JS was provided, attempt to extract the key digits from it. This is a small optimization, but more
+            // importantly, it can help as a bridge solution in case the domain of possible key digits changes and the
+            // raw brute force solution stops working.
+            val candidateKeyDigits: Set<Int> =
+                if (crosswordJs.isNotEmpty()) {
+                    val keyDigitMatches = KEY_DIGIT_REGEX.findAll(crosswordJs).toList()
+                    if (keyDigitMatches.size == 7) {
+                        keyDigitMatches.map { it.groupValues[1].toInt() }.toSet()
+                    } else {
+                        (2..19).toSet()
+                    }
+                } else {
+                    (2..19).toSet()
+                }
+            val minKeyDigit = candidateKeyDigits.min()
+            val maxKeyDigit = candidateKeyDigits.max()
+
+            val candidateKeyPrefixes = mutableListOf<List<Int>>(listOf())
+
             // As an optimization, we expect the first two characters of the JSON to be {" or {\n, so we can use this to
             // guess the first digit of the key. If this heuristic fails, we just start with an empty key.
             val firstKeyDigit = min(
                 rawc.indexOf("ye").let { if (it == -1) rawc.length else it },
                 rawc.indexOf("we").let { if (it == -1) rawc.length else it },
             ) + 2
-            val candidateKeyPrefixes = mutableListOf(if (firstKeyDigit > 18) listOf() else listOf(firstKeyDigit))
+            if (firstKeyDigit in candidateKeyDigits) {
+                candidateKeyPrefixes.add(listOf(firstKeyDigit))
+            }
 
             while (!candidateKeyPrefixes.isEmpty()) {
-                val candidateKeyPrefix = candidateKeyPrefixes.removeAt(0)
+                val candidateKeyPrefix = candidateKeyPrefixes.removeAt(candidateKeyPrefixes.lastIndex)
                 if (candidateKeyPrefix.size == 7) {
                     // This is a full key candidate. Test if the decoding result is valid JSON, as it's possible that
                     // a slight variant of the valid key doesn't fail our heuristics.
@@ -232,14 +263,14 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
                     }
                     return deobfuscatedRawc
                 }
-                candidateKeyPrefixes.addAll((2..18).map {
+                candidateKeyPrefixes.addAll(candidateKeyDigits.map {
                     candidateKeyPrefix + it
                 }.filter { newCandidateKeyPrefix ->
                     // While we don't know the rest of the key, we can put bounds on the sum of the digits of the key
                     // given its length. We can thus try every possible sum, decoding chunks of the rawc with the
                     // digits we have while leaving gaps for the remaining key digits between each chunk.
                     val remainingDigits = 7 - candidateKeyPrefix.size - 1
-                    ((2 * remainingDigits)..(18 * remainingDigits)).any { spacing ->
+                    ((minKeyDigit * remainingDigits)..(maxKeyDigit * remainingDigits)).any { spacing ->
                         isValidKeyPrefix(rawc, newCandidateKeyPrefix, spacing)
                     }
                 })
@@ -311,11 +342,11 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
             return true
         }
 
-        private fun decodeRawc(rawc: String, key: List<Int> = listOf()): String {
+        private fun decodeRawc(rawc: String, key: List<Int> = listOf(), crosswordJs: String = ""): String {
             val deobfuscatedRawc = if (key.isNotEmpty()) {
                 deobfuscateRawc(rawc, key)
             } else {
-                deobfuscateRawc(rawc)
+                deobfuscateRawc(rawc, crosswordJs)
             }
             return deobfuscatedRawc.decodeBase64()?.utf8() ?: throw InvalidFormatException("Rawc is invalid base64")
         }
