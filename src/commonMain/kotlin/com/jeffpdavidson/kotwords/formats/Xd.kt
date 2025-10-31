@@ -57,7 +57,7 @@ class Xd(private val data: String) : DelegatingPuzzleable() {
             sections.getOrElse("notes") { listOf() }.joinToString("\n"),
             sections.getOrElse("help") { listOf() }.joinToString("\n")
         )
-        val description = descriptionCandidates.first { it?.isNotBlank() == true } ?: ""
+        val description = descriptionCandidates.firstOrNull { it?.isNotBlank() == true } ?: ""
 
         // Map from special characters in the grid to the rebus entry that should go in those cells.
         val rebusMap = (metadata["rebus"] ?: "").split(" ").associate {
