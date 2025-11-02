@@ -97,6 +97,12 @@ data class Puzzle(
         val title: String,
         val clues: List<Clue>,
         val direction: String = "",
+        /**
+         * Puzzle formats which have more than two clue lists should specify identical mergedTitles for clue lists which
+         * can be merged together to create at most two lists total. The common titles will be used as the titles of the
+         * merged lists.
+         */
+        val mergedTitle: String = "",
     )
 
     enum class PuzzleType {

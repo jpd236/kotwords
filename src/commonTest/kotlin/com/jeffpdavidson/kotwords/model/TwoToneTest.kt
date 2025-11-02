@@ -5,6 +5,7 @@ import com.jeffpdavidson.kotwords.readStringResource
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class TwoToneTest {
     @Test
@@ -65,5 +66,27 @@ class TwoToneTest {
                 )
             ).toXmlString()
         )
+    }
+
+    @Test
+    fun ipuzGeneration() = runTest {
+        val twoTone = TwoTone(
+            title = "Test title",
+            creator = "Test creator",
+            copyright = "Test copyright",
+            description = "Test description",
+            allSquaresAnswers = listOf("ABCDE", "FGHI"),
+            allSquaresClues = listOf("Clue 1", "Clue 2"),
+            oddSquaresAnswers = listOf("ACE", "GI"),
+            oddSquaresClues = listOf("Odd clue 1", "Odd clue 2"),
+            evenSquaresAnswers = listOf("BD", "FH"),
+            evenSquaresClues = listOf("Even clue 1", "Even clue 2"),
+            oddSquareBackgroundColor = "#C0C0C0",
+            evenSquareBackgroundColor = "#FFFFFF",
+        )
+        val puzzle = twoTone.asPuzzle()
+
+        val expected = readStringResource(TwoToneTest::class, "two-tone/two-tone.ipuz")
+        assertEquals(expected, puzzle.asIpuzFile().decodeToString())
     }
 }

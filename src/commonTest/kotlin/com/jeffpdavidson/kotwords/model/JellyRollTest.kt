@@ -5,6 +5,7 @@ import com.jeffpdavidson.kotwords.readStringResource
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class JellyRollTest {
     @Test
@@ -98,5 +99,28 @@ class JellyRollTest {
                 )
             ).toXmlString()
         )
+    }
+
+    @Test
+    fun ipuzGeneration() = runTest {
+        val jellyRoll = JellyRoll(
+            title = "Test title",
+            creator = "Test creator",
+            copyright = "Test copyright",
+            description = "Test description",
+            jellyRollAnswers = listOf("ABCDE", "FGHI"),
+            jellyRollClues = listOf("Clue 1", "Clue 2"),
+            lightSquaresAnswers = listOf("ADE", "HI"),
+            lightSquaresClues = listOf("Light clue 1", "Light clue 2"),
+            darkSquaresAnswers = listOf("BC", "FG"),
+            darkSquaresClues = listOf("Dark clue 1", "Dark clue 2"),
+            darkSquareBackgroundColor = "#C0C0C0",
+            lightSquareBackgroundColor = "#FFFFFF",
+            combineJellyRollClues = false,
+        )
+        val puzzle = jellyRoll.asPuzzle()
+
+        val expected = readStringResource(JellyRollTest::class, "jelly-roll/jelly-roll.ipuz")
+        assertEquals(expected, puzzle.asIpuzFile().decodeToString())
     }
 }

@@ -133,7 +133,8 @@ data class TwoTone(
             grid = grid,
             clues = listOf(
                 Puzzle.ClueList("All Squares", allSquaresJpzClues),
-                Puzzle.ClueList("Every Other", oddSquaresJpzClues + evenSquaresJpzClues)
+                Puzzle.ClueList("Odd Squares", oddSquaresJpzClues, mergedTitle = "Every Other"),
+                Puzzle.ClueList("Even Squares", evenSquaresJpzClues, mergedTitle = "Every Other")
             ),
             words = allSquaresJpzWords + oddSquaresJpzWords + evenSquaresJpzWords,
         )

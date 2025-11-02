@@ -162,7 +162,8 @@ data class JellyRoll(
             grid = grid,
             clues = listOf(
                 Puzzle.ClueList("Jelly Rolls", allSquaresPuzzleClues),
-                Puzzle.ClueList("Colored Paths", lightSquaresPuzzleClues + darkSquaresPuzzleClues)
+                Puzzle.ClueList("Light Squares", lightSquaresPuzzleClues, mergedTitle = "Colored Paths"),
+                Puzzle.ClueList("Dark Squares", darkSquaresPuzzleClues, mergedTitle = "Colored Paths"),
             ),
             words = allSquaresPuzzleWords + lightSquaresPuzzleWords + darkSquaresPuzzleWords,
         )

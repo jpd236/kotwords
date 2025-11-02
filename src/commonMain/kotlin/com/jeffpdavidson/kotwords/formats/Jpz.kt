@@ -461,20 +461,15 @@ sealed class Jpz : Puzzleable() {
                 )
             }
 
-            val jpzClues = clues.map { clueList ->
-                val htmlTitle = clueList.title.toSnippet(hasHtmlClues)
-                val title = if (hasHtmlClues) htmlTitle else listOf(B(htmlTitle))
-                RectangularPuzzle.Crossword.Clues(
-                    title = Html(title),
-                    clues = clueList.clues.map { clue ->
-                        RectangularPuzzle.Crossword.Clues.Clue(
-                            word = clue.wordId,
-                            number = clue.number,
-                            text = clue.text.toSnippet(hasHtmlClues),
-                            format = clue.format.ifEmpty { null },
-                        )
-                    })
-            }
+            val jpzClues = clues
+                .groupBy { it.mergedTitle }
+                .flatMap { (mergedTitle, clueLists) ->
+                    if (mergedTitle.isEmpty()) {
+                        clueLists.map { clueList -> toJpzClueList(clueList.title, hasHtmlClues, clueList.clues) }
+                    } else {
+                        listOf(toJpzClueList(mergedTitle, hasHtmlClues, clueLists.flatMap { it.clues }))
+                    }
+                }
 
             val crossword = RectangularPuzzle.Crossword(jpzGrid, jpzWords, jpzClues)
 
@@ -527,6 +522,25 @@ sealed class Jpz : Puzzleable() {
             } else {
                 CrosswordCompiler(rectangularPuzzle = rectangularPuzzle)
             }
+        }
+
+        private fun toJpzClueList(
+            title: String,
+            hasHtmlClues: Boolean,
+            clues: List<Puzzle.Clue>,
+        ): Jpz.RectangularPuzzle.Crossword.Clues {
+            val htmlTitle = title.toSnippet(hasHtmlClues)
+            val jpzTitle = if (hasHtmlClues) htmlTitle else listOf(B(htmlTitle))
+            return RectangularPuzzle.Crossword.Clues(
+                title = Html(jpzTitle),
+                clues = clues.map { clue ->
+                    RectangularPuzzle.Crossword.Clues.Clue(
+                        word = clue.wordId,
+                        number = clue.number,
+                        text = clue.text.toSnippet(hasHtmlClues),
+                        format = clue.format.ifEmpty { null },
+                    )
+                })
         }
 
         private fun getAlphabet(grid: List<List<Puzzle.Cell>>): String =
