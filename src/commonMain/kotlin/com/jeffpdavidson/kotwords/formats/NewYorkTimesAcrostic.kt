@@ -50,7 +50,7 @@ class NewYorkTimesAcrostic(val json: String) : DelegatingPuzzleable() {
             creator = creator,
             copyright = copyright,
             description = "",
-            suggestedWidth = null,
+            gridWidth = 0,
             solution = solution,
             gridKey = gridKey.keys.sorted().map { wordKey ->
                 gridKey[wordKey]!!.entries.sortedBy { it.key }.map { it.value }

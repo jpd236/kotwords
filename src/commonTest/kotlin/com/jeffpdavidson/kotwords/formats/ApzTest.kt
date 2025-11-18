@@ -18,7 +18,7 @@ class ApzTest {
             creator = "Test creator",
             copyright = "Test copyright",
             description = "Test description",
-            suggestedWidth = null,
+            gridWidth = 0,
             solution = "ACRO-ST IC",
             gridKey = listOf(listOf(2, 1, 3), listOf(5, 6, 4, 7, 8)),
             clues = listOf("Clue 1", "Clue 2"),

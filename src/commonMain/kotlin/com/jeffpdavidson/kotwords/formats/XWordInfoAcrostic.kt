@@ -24,7 +24,7 @@ class XWordInfoAcrostic(private val json: String, private val author: String) : 
             creator = author,
             copyright = "\u00a9 ${decodeHtmlEntities(response.copyright)}",
             description = "",
-            suggestedWidth = response.cols,
+            gridWidth = response.cols,
             solution = response.answerKey,
             gridKey = response.clueData.map { clueKey -> clueKey.split(",").map { it.toInt() } },
             clues = response.clues.map { decodeHtmlEntities(it) },

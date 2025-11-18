@@ -29,7 +29,7 @@ class AcrosticForm {
         // TODO: Remove once Ipuz supports Acrostics.
         supportsIpuz = false,
     )
-    private val suggestedWidth: FormFields.InputField = FormFields.InputField("suggested-width")
+    private val gridWidth: FormFields.InputField = FormFields.InputField("grid-width")
     private val solution: FormFields.TextBoxField = FormFields.TextBoxField("solution")
     private val gridKey: FormFields.TextBoxField = FormFields.TextBoxField("grid-key")
     private val clues: FormFields.TextBoxField = FormFields.TextBoxField("clues")
@@ -76,7 +76,9 @@ class AcrosticForm {
             }
             append.tabs(Tabs.Tab("manual-entry-tab", "Form") {
                 manualEntryForm.render(this, bodyBlock = {
-                    suggestedWidth.render(this, "Suggested width (optional)") {
+                    gridWidth.render(this, "Grid width (optional)",
+                        help = "Width to use for the quote grid. If blank, a reasonable default will be selected."
+                    ) {
                         type = InputType.number
                     }
                     solution.render(this, "Solution") {
@@ -146,7 +148,7 @@ class AcrosticForm {
             creator = manualEntryForm.creator,
             copyright = manualEntryForm.copyright,
             description = manualEntryForm.description,
-            suggestedWidth = suggestedWidth.value,
+            gridWidth = gridWidth.value,
             solution = solution.value,
             gridKey = gridKey.value,
             clues = clues.value,

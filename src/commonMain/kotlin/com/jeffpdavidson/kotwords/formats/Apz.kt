@@ -42,7 +42,7 @@ data class Apz(
             creator = metadata.creator ?: "",
             copyright = metadata.copyright ?: "",
             description = metadata.description ?: "",
-            suggestedWidth = metadata.suggestedwidth ?: "",
+            gridWidth = metadata.suggestedwidth ?: "",
             solution = solution ?: "",
             gridKey = gridkey ?: "",
             clues = clues ?: "",

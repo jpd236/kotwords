@@ -37,6 +37,23 @@ class AcrosticTest {
         )
     }
 
+    @Test
+    fun asJpz_withExplicitWidth() = runTest {
+        assertXmlEquals(
+            readStringResource(AcrosticTest::class, "acrostic/acrostic-explicit-width.jpz"),
+            acrostic.copy(
+                gridWidth = 4,
+                includeAttribution = true,
+            ).asPuzzle().asJpz(
+                appletSettings = CrosswordCompilerApplet.AppletSettings(
+                    cursorColor = "#00b100",
+                    selectedCellsColor = "#80ff80",
+                    completion = CrosswordCompilerApplet.AppletSettings.Completion(message = "All done!"),
+                )
+            ).toXmlString()
+        )
+    }
+
     @Suppress("UnusedDataClassCopyResult")
     @Test
     fun createWithAnswerValidation() {
@@ -99,7 +116,7 @@ class AcrosticTest {
             creator = "Test creator",
             copyright = "Test copyright",
             description = "Test description",
-            suggestedWidth = 0,
+            gridWidth = 0,
             solution = "ACRO-ST IC",
             gridKey = listOf(listOf(2, 1, 3), listOf(5, 6, 4, 7, 8)),
             clues = listOf("Clue 1", "Clue 2"),

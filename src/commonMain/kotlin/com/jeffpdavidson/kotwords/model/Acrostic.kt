@@ -8,7 +8,7 @@ data class Acrostic(
     val creator: String,
     val copyright: String,
     val description: String,
-    val suggestedWidth: Int?,
+    val gridWidth: Int = 0,
     val solution: String,
     val gridKey: List<List<Int>>,
     val clues: List<String>,
@@ -51,11 +51,12 @@ data class Acrostic(
         // Determine the width of the puzzle and both clue columns.
         val answerColumnSize = (gridKey.size + 1) / 2
         val gridKeyColumns = gridKey.chunked(answerColumnSize)
-        val answerColumnWidths = getAnswerColumnWidths(
-            gridKeyColumns, suggestedWidth
-                ?: 0
-        )
+        val answerColumnWidths = getAnswerColumnWidths(gridKeyColumns, gridWidth)
         val width = answerColumnWidths.first + answerColumnWidths.second + 1
+        // If gridWidth was provided, use that as the grid width. Otherwise, match the grid width to the width of the
+        // answers so there's no surrounding whitespace.
+        val resolvedGridWidth = if (gridWidth != 0) gridWidth else width
+        val gridStartX = (width - resolvedGridWidth) / 2
 
         // Map from number in the grid key to the letter of the clue whose answer has that number.
         val solutionIndexToClueLetterMap =
@@ -68,12 +69,21 @@ data class Acrostic(
         var x = 0
         var y = 0
         val quoteWord = mutableListOf<Puzzle.Coordinate>()
+
+        fun addBlankCells(cells: Int) {
+            row.addAll(generateBlankCells(cells))
+            x += cells
+        }
+
         fun nextRow() {
+            addBlankCells(width - x)
             grid.add(row)
             row = mutableListOf()
             x = 0
             y++
         }
+
+        addBlankCells(gridStartX)
         solution.forEach { ch ->
             row.add(
                 when (ch) {
@@ -100,27 +110,29 @@ data class Acrostic(
 
             // Go to the next square, moving down a row if needed.
             x++
-            if (x >= width) {
+            if (x >= gridStartX + resolvedGridWidth) {
                 nextRow()
+                addBlankCells(gridStartX)
             }
         }
 
-        fun endSection() {
-            // Fill the rest of the current row with white squares.
-            if (x > 0) {
-                row.addAll(generateBlankCells(width - x))
+        fun endSection(startX: Int) {
+            // Finish the current row.
+            if (x > startX) {
                 nextRow()
             }
 
             // Add a spacer row of white squares.
-            row.addAll(generateBlankCells(width))
             nextRow()
         }
-        endSection()
+        endSection(gridStartX)
 
         // Add the attribution (first letters of each clue).
         val attributionWord: MutableList<Puzzle.Coordinate>?
         if (includeAttribution) {
+            val attributionWidth = minOf(gridKey.size, width)
+            val attributionStartX = (width - attributionWidth) / 2
+            addBlankCells(attributionStartX)
             attributionWord = mutableListOf()
             gridKey.forEachIndexed { answerIndex, answer ->
                 val cell = Puzzle.Cell(
@@ -131,11 +143,12 @@ data class Acrostic(
                 attributionWord.add(Puzzle.Coordinate(x = x, y = y))
                 row.add(cell)
                 x++
-                if (x >= width) {
+                if (x >= attributionStartX + attributionWidth) {
                     nextRow()
+                    addBlankCells(attributionStartX)
                 }
             }
-            endSection()
+            endSection(attributionStartX)
         } else {
             attributionWord = null
         }
@@ -211,7 +224,7 @@ data class Acrostic(
             creator: String,
             copyright: String,
             description: String,
-            suggestedWidth: String,
+            gridWidth: String,
             solution: String,
             gridKey: String,
             clues: String,
@@ -219,7 +232,7 @@ data class Acrostic(
             completionMessage: String,
             includeAttribution: Boolean,
         ): Acrostic {
-            val suggestedWidthInt = if (suggestedWidth.isEmpty()) null else suggestedWidth.toInt()
+            val gridWidthInt = if (gridWidth.isEmpty()) 0 else gridWidth.toInt()
             val answersList = answers.uppercase().trimmedLines()
             val normalizedSolution = solution.uppercase()
             val gridKeyList = if (gridKey.isBlank()) {
@@ -232,7 +245,7 @@ data class Acrostic(
                 creator = creator,
                 copyright = copyright,
                 description = description,
-                suggestedWidth = suggestedWidthInt,
+                gridWidth = gridWidthInt,
                 solution = normalizedSolution,
                 gridKey = gridKeyList,
                 clues = clues.trimmedLines(),
@@ -286,10 +299,11 @@ data class Acrostic(
         }
 
         internal fun getAnswerColumnWidths(
-            splitAnswers: List<List<List<Any>>>, suggestedWidth: Int = 0
+            splitAnswers: List<List<List<Any>>>, gridWidth: Int
         ): Pair<Int, Int> {
             val widths: List<Int> = splitAnswers.map { it.maxOf(List<Any>::size) + 1 }
-            val totalWidth = maxOf(widths[0] + widths[1] + 1, 27, suggestedWidth)
+            // If a grid width is specified, use that; otherwise, pick 27 as a sensible default.
+            val totalWidth = maxOf(widths[0] + widths[1] + 1, if (gridWidth == 0) 27 else gridWidth)
             val leftWidth = widths[0] + (totalWidth - widths[0] - widths[1] - 1) / 2
             return leftWidth to (totalWidth - leftWidth - 1)
         }

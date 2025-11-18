@@ -33,7 +33,7 @@ class WallStreetJournalAcrostic(private val json: String) : DelegatingPuzzleable
             creator = creator,
             copyright = "\u00a9 ${date.yearInt} ${decodeHtmlEntities(response.copy.publisher)}",
             description = "",
-            suggestedWidth = response.copy.gridsize.cols,
+            gridWidth = response.copy.gridsize.cols,
             solution = response.settings.solution,
             gridKey = gridKey.keys.sorted().map { wordKey ->
                 gridKey[wordKey]!!.entries.sortedBy { it.key }.map { it.value }
