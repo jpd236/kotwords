@@ -182,8 +182,6 @@ data class Acrostic(
             // Right column answer
             if (answerRow < gridKeyColumns[1].size) {
                 addClue(gridKeyColumns[0].size + answerRow, width, gridKeyColumns[1][answerRow])
-            } else {
-                row.addAll(generateBlankCells(width - x))
             }
             nextRow()
         }
