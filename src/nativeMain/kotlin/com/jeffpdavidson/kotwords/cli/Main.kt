@@ -1,13 +1,19 @@
 package com.jeffpdavidson.kotwords.cli
 
+import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
+import com.github.ajalt.clikt.parameters.options.NullableOption
+import com.github.ajalt.clikt.parameters.options.RawOption
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.enum
+import com.jeffpdavidson.kotwords.cli.InputFile.Companion.inputFile
+import com.jeffpdavidson.kotwords.cli.InputFile.PathFile
+import com.jeffpdavidson.kotwords.cli.OutputFile.Companion.outputFile
 import com.jeffpdavidson.kotwords.formats.AcrossLite
 import com.jeffpdavidson.kotwords.formats.Apz
 import com.jeffpdavidson.kotwords.formats.BostonGlobe
@@ -35,6 +41,7 @@ import korlibs.time.Date
 import korlibs.time.DateTime
 import kotlinx.coroutines.runBlocking
 import okio.FileSystem
+import okio.Path
 import okio.Path.Companion.toPath
 
 enum class Format(
@@ -56,6 +63,7 @@ enum class Format(
     CROSSWORDR_JSON(listOf(), { data, _, _, _ -> Crosswordr(data.decodeToString()) }),
     GUARDIAN_JSON(listOf(), { data, _, _, copyright -> Guardian(data.decodeToString(), copyright) }),
     NEW_YORK_TIMES_HTML(listOf(), { data, _, _, _ -> NewYorkTimes.fromHtml(data.decodeToString()) }),
+
     // For now, set stream to empty, since this only impacts the title ("NY Times" vs "NY Times Mini Crossword").
     NEW_YORK_TIMES_JSON(listOf(), { data, _, _, _ -> NewYorkTimes.fromApiJson(data.decodeToString(), stream = "") }),
     PUZZLE_ME_JSON(listOf(), { data, _, _, _ -> PuzzleMe(data.decodeToString()) }),
@@ -88,28 +96,20 @@ class KotwordsCli : CliktCommand() {
 
 class DumpEntries : CliktCommand(help = "Dump information about a puzzle") {
     val format by option(help = "Puzzle file format. By default, use the file's extension.").enum<Format>()
-    val file by option(help = "Puzzle file path").convert {
-        val path = it.toPath()
-        if (!FileSystem.SYSTEM.exists(path)) {
-            fail("File not found: $path")
-        } else {
-            path
-        }
-    }.required()
+    val file by option(help = "Puzzle file path. Use '-' for stdin.").inputFile().required()
 
     override fun run() {
         val resolvedFormat: Format = format ?: {
-            require(file.name.contains('.')) {
+            val fileValue = file
+            require(fileValue is PathFile && fileValue.path.name.contains('.')) {
                 "Puzzle format cannot be inferred; please provide it using --format."
             }
-            val extension = file.name.substringAfterLast('.')
+            val extension = fileValue.path.name.substringAfterLast('.')
             Format.FORMATS_BY_EXTENSION[extension]
                 ?: throw IllegalArgumentException("Unsupported puzzle format: $extension")
         }()
         runBlocking {
-            val data = FileSystem.SYSTEM.read(file) {
-                readByteArray()
-            }
+            val data = file.readContents()
             // Since we're just dumping the grid, the date/author/copyright don't matter.
             val puzzle = resolvedFormat.readFn(data, DateTime.nowLocal().local.date, "", "").asPuzzle()
             puzzle.words.forEach { word ->
@@ -127,20 +127,13 @@ class Convert : CliktCommand(help = "Convert a puzzle between formats") {
     val inputFormat by option(help = "Input puzzle format").choice(Format.entries.map { format ->
         format.name to format
     }.toMap()).required()
-    val inputFile by option(help = "Input puzzle file path").convert {
-        val path = it.toPath()
-        if (!FileSystem.SYSTEM.exists(path)) {
-            fail("File not found: $path")
-        } else {
-            path
-        }
-    }.required()
+    val inputFile by option(help = "Input puzzle file path. Use '-' for stdin.").inputFile().required()
     val outputFormat by option(help = "Output puzzle format").choice(Format.entries.filter { format ->
         format.writeFn != null
     }.map { format ->
         format.name to format
     }.toMap()).required()
-    val outputFile by option(help = "Output puzzle file path").convert { it.toPath() }.required()
+    val outputFile by option(help = "Output puzzle file path. Use '-' for stdout.").outputFile().required()
     val date by option(
         help = "For Uclick JPZ/XML inputs, the date of the puzzle in YYYY-MM-DD format. Defaults to today."
     ).convert {
@@ -153,13 +146,75 @@ class Convert : CliktCommand(help = "Convert a puzzle between formats") {
 
     override fun run() {
         runBlocking {
-            val inputData = FileSystem.SYSTEM.read(inputFile) {
-                readByteArray()
-            }
+            val inputData = inputFile.readContents()
             val puzzleable = inputFormat.readFn(inputData, date, author, copyright)
             val outputData = outputFormat.writeFn!!(puzzleable)
-            FileSystem.SYSTEM.write(outputFile) {
-                write(outputData)
+            outputFile.writeContents(outputData)
+        }
+    }
+}
+
+sealed interface InputFile {
+    fun readContents(): ByteArray
+
+    data object Stdin : InputFile {
+        override fun readContents(): ByteArray {
+            return generateSequence { readlnOrNull() }.joinToString("\n").encodeToByteArray()
+        }
+    }
+
+    data class PathFile(val path: Path) : InputFile {
+        override fun readContents(): ByteArray {
+            return FileSystem.SYSTEM.read(path) {
+                readByteArray()
+            }
+        }
+    }
+
+    companion object {
+        fun RawOption.inputFile(): NullableOption<InputFile, InputFile> {
+            return convert(completionCandidates = CompletionCandidates.Path) { str ->
+                if (str == "-") {
+                    Stdin
+                } else {
+                    val path = str.toPath()
+                    if (!FileSystem.SYSTEM.exists(path)) {
+                        fail("File not found: $path")
+                    }
+                    PathFile(path)
+                }
+            }
+        }
+    }
+}
+
+sealed interface OutputFile {
+    fun writeContents(data: ByteArray)
+
+    data object Stdout : OutputFile {
+        override fun writeContents(data: ByteArray) {
+            data.decodeToString().lineSequence().forEach { line ->
+                println(line)
+            }
+        }
+    }
+
+    data class PathFile(val path: Path) : OutputFile {
+        override fun writeContents(data: ByteArray) {
+            FileSystem.SYSTEM.write(path) {
+                write(data)
+            }
+        }
+    }
+
+    companion object {
+        fun RawOption.outputFile(): NullableOption<OutputFile, OutputFile> {
+            return convert(completionCandidates = CompletionCandidates.Path) { str ->
+                if (str == "-") {
+                    Stdout
+                } else {
+                    OutputFile.PathFile(str.toPath())
+                }
             }
         }
     }
