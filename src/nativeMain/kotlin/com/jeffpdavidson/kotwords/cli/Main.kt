@@ -56,6 +56,8 @@ enum class Format(
     CROSSWORDR_JSON(listOf(), { data, _, _, _ -> Crosswordr(data.decodeToString()) }),
     GUARDIAN_JSON(listOf(), { data, _, _, copyright -> Guardian(data.decodeToString(), copyright) }),
     NEW_YORK_TIMES_HTML(listOf(), { data, _, _, _ -> NewYorkTimes.fromHtml(data.decodeToString()) }),
+    // For now, set stream to empty, since this only impacts the title ("NY Times" vs "NY Times Mini Crossword").
+    NEW_YORK_TIMES_JSON(listOf(), { data, _, _, _ -> NewYorkTimes.fromApiJson(data.decodeToString(), stream = "") }),
     PUZZLE_ME_JSON(listOf(), { data, _, _, _ -> PuzzleMe(data.decodeToString()) }),
     PZZL_TEXT(listOf(), { data, _, _, _ -> Pzzl(data.decodeToString()) }),
     UCLICK_JPZ(listOf(), { data, date, _, _ -> UclickJpz(data.decodeToString(), date) }),
