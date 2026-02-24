@@ -348,17 +348,17 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
 
                 // Strings
                 writeString(
-                    AcrossLiteSanitizer.substituteUnsupportedText(title, sanitizeCharacters = !useUtf8),
+                    HtmlSanitizer.substituteUnsupportedText(title, sanitizeCharacters = !useUtf8),
                     charset,
                     nullTerminated = true,
                 )
                 writeString(
-                    AcrossLiteSanitizer.substituteUnsupportedText(creator, sanitizeCharacters = !useUtf8),
+                    HtmlSanitizer.substituteUnsupportedText(creator, sanitizeCharacters = !useUtf8),
                     charset,
                     nullTerminated = true,
                 )
                 writeString(
-                    AcrossLiteSanitizer.substituteUnsupportedText(copyright, sanitizeCharacters = !useUtf8),
+                    HtmlSanitizer.substituteUnsupportedText(copyright, sanitizeCharacters = !useUtf8),
                     charset,
                     nullTerminated = true,
                 )
@@ -378,7 +378,7 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
                     if (unsupportedFeatures) UNSUPPORTED_FEATURES_WARNING else null
                 ).joinToString("\n\n")
                 writeString(
-                    AcrossLiteSanitizer.substituteUnsupportedText(combinedNotes, sanitizeCharacters = !useUtf8),
+                    HtmlSanitizer.substituteUnsupportedText(combinedNotes, sanitizeCharacters = !useUtf8),
                     charset,
                     nullTerminated = true,
                 )
@@ -668,7 +668,7 @@ private fun getValidSolutionRebus(cell: Puzzle.Cell): String? {
         if (processedCandidate.length <= 8) {
             // Try substituting invalid characters.
             processedCandidate =
-                AcrossLiteSanitizer.substituteUnsupportedText(processedCandidate, sanitizeCharacters = true)
+                HtmlSanitizer.substituteUnsupportedText(processedCandidate, sanitizeCharacters = true)
             if (isValidGridString(processedCandidate)) {
                 return processedCandidate
             }

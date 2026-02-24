@@ -79,7 +79,7 @@ internal object AcrossLiteSanitizer {
         givenToSanitizedClueNumberMap: Map<String, String>?,
         sanitizeCharacters: Boolean,
     ): String {
-        val cleanedClue = substituteUnsupportedText(givenClue ?: "", sanitizeCharacters).trim()
+        val cleanedClue = HtmlSanitizer.substituteUnsupportedText(givenClue ?: "", sanitizeCharacters).trim()
         val renumberedClue =
             if (givenToSanitizedClueNumberMap == null) {
                 cleanedClue
@@ -103,35 +103,5 @@ internal object AcrossLiteSanitizer {
             return "${renumberedClue.substring(0 until 502)}..."
         }
         return renumberedClue.ifBlank { "-" }
-    }
-
-    // Empty tags which should be filtered out to avoid replacing them with unnecessary substitution characters.
-    private val emptyTagRegexes = listOf("<b></b>", "<i></i>").map { it.toRegex(RegexOption.IGNORE_CASE) }
-
-    private val htmlClueReplacements = mapOf(
-        "</?b>" to "*",
-        "</?i>" to "\"",
-        "</?[a-z]+>" to "",
-        "&amp;" to "&",
-        "&lt;" to "<",
-    ).mapKeys { it.key.toRegex(RegexOption.IGNORE_CASE) }
-
-    fun substituteUnsupportedText(text: String, sanitizeCharacters: Boolean): String {
-        // First, filter out any empty tags repeatedly until none remain (to handle nesting).
-        var withoutEmpty = text
-        do {
-            val temp = withoutEmpty
-            withoutEmpty = emptyTagRegexes.fold(withoutEmpty) { clue, regex -> clue.replace(regex, "") }
-        } while (temp != withoutEmpty)
-
-        // Next, replace all HTML with supported substitutions.
-        val withoutHtml = htmlClueReplacements.entries.fold(withoutEmpty) { clue, (from, to) ->
-            clue.replace(from, to)
-        }
-
-        if (!sanitizeCharacters) {
-            return withoutHtml
-        }
-        return Unidecode.unidecode(withoutHtml)
     }
 }

@@ -21,6 +21,7 @@ import com.jeffpdavidson.kotwords.formats.Cnn
 import com.jeffpdavidson.kotwords.formats.Crosshare
 import com.jeffpdavidson.kotwords.formats.Crosswordr
 import com.jeffpdavidson.kotwords.formats.Guardian
+import com.jeffpdavidson.kotwords.formats.HtmlSanitizer
 import com.jeffpdavidson.kotwords.formats.Ipuz
 import com.jeffpdavidson.kotwords.formats.JpzFile
 import com.jeffpdavidson.kotwords.formats.NewYorkTimes
@@ -97,6 +98,18 @@ class KotwordsCli : CliktCommand() {
 class DumpEntries : CliktCommand(help = "Dump information about a puzzle") {
     val format by option(help = "Puzzle file format. By default, use the file's extension.").enum<Format>()
     val file by option(help = "Puzzle file path. Use '-' for stdin.").inputFile().required()
+    val outputFormat by option(
+        help = """
+        Format to use when outputting each entry. Supports the following substitutions:
+
+        - ${'$'}{number} - clue number
+        - ${'$'}{direction} - clue direction
+        - ${'$'}{clue} - clue text
+        - ${'$'}{answer} - answer
+
+        Defaults to "${'$'}{number}-${'$'}{direction}: ${'$'}{clue} - ${'$'}{answer}".
+    """.trimIndent()
+    ).default("\${number}-\${direction}: \${clue} - \${answer}")
 
     override fun run() {
         val resolvedFormat: Format = format ?: {
@@ -112,14 +125,49 @@ class DumpEntries : CliktCommand(help = "Dump information about a puzzle") {
             val data = file.readContents()
             // Since we're just dumping the grid, the date/author/copyright don't matter.
             val puzzle = resolvedFormat.readFn(data, DateTime.nowLocal().local.date, "", "").asPuzzle()
-            puzzle.words.forEach { word ->
-                println(
-                    word.cells.joinToString("") { coordinate ->
+            val wordIdToWordMap = puzzle.words.associateBy { it.id }
+            puzzle.clues.forEach { clueList ->
+                // Strip HTML from direction. The formatting options are rarely desirable here.
+                val direction = HtmlSanitizer.substituteUnsupportedText(
+                    clueList.title,
+                    sanitizeCharacters = false,
+                    formatHtml = false
+                )
+                clueList.clues.forEach { clue ->
+                    val word = wordIdToWordMap[clue.wordId]?.cells ?: listOf()
+                    val solution = word.joinToString("") { coordinate ->
                         puzzle.grid[coordinate.y][coordinate.x].solution
                     }
-                )
+                    println(SUBSTITUTION_PATTERN.findAll(outputFormat).fold(outputFormat) { result, matchResult ->
+                        val (match, key) = matchResult.groupValues
+                        result.replace(
+                            match, when (key) {
+                                "number" -> clue.number
+                                "direction" -> direction
+                                "clue" -> HtmlSanitizer.substituteUnsupportedText(clue.text, sanitizeCharacters = false)
+                                "answer" -> solution
+                                else -> match
+                            }
+                        )
+                    })
+                }
             }
         }
+    }
+
+    companion object {
+        private val SUBSTITUTION_PATTERN = "\\\$\\{([a-z]+)}".toRegex()
+
+        private val STRIP_HTML_REPLACEMENTS = mapOf(
+            "</?[a-z]+>" to "",
+            "&amp;" to "&",
+            "&lt;" to "<",
+        ).mapKeys { it.key.toRegex(RegexOption.IGNORE_CASE) }
+
+        private val FORMAT_HTML_REPLACEMENTS = mapOf(
+            "</?b>" to "*",
+            "</?i>" to "\"",
+        ).mapKeys { it.key.toRegex(RegexOption.IGNORE_CASE) } + STRIP_HTML_REPLACEMENTS
     }
 }
 
