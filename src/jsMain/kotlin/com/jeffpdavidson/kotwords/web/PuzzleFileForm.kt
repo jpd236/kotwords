@@ -10,6 +10,7 @@ import com.jeffpdavidson.kotwords.web.html.FormFields
 import com.jeffpdavidson.kotwords.web.html.Html
 import korlibs.time.DateFormat
 import korlibs.time.DateTime
+import korlibs.time.nowLocal
 import kotlinx.browser.document
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -268,7 +269,7 @@ internal class PuzzleFileForm(
             // Since the form may not be complete, we can't generate the Puzzle to obtain the title. Look for it
             // directly from the form, or else just use the puzzle type and date.
             val title = (document.getElementById("title") as HTMLInputElement?)?.value
-            val fileName = if (title == null || title.isBlank()) {
+            val fileName = if (title.isNullOrBlank()) {
                 "$puzzleType-${DateTime.nowLocal().format(DateFormat.FORMAT_DATE)}"
             } else {
                 getDefaultFileName(title)

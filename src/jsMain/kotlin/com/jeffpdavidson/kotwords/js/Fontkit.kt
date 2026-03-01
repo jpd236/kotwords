@@ -1,10 +1,10 @@
 package com.jeffpdavidson.kotwords.js
 
-external class Fontkit
+internal external class Fontkit
 
 @JsModule("@pdf-lib/fontkit")
 @JsNonModule
 @JsName("fontkit")
-external object FontkitModule {
+internal external object FontkitModule {
     val default: Fontkit
 }

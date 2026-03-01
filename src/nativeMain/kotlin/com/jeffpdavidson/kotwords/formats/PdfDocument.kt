@@ -2,7 +2,7 @@ package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.model.Puzzle
 
-actual class PdfDocument {
+internal actual class PdfDocument {
     actual val width: Float
         get() = TODO("Not yet implemented")
     actual val height: Float

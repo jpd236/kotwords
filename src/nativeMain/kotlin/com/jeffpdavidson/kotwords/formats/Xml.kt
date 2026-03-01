@@ -32,6 +32,6 @@ internal actual object Xml {
             DocumentFormat.HTML -> Parser.htmlParser()
             DocumentFormat.XML -> Parser.xmlParser()
         }
-        return ElementImpl(Ksoup.parse(html, baseUri ?: "", parser))
+        return ElementImpl(Ksoup.parse(html, parser, baseUri ?: ""))
     }
 }

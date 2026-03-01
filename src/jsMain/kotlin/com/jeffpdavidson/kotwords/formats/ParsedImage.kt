@@ -50,7 +50,7 @@ internal actual class ParsedImage private constructor(
         return Interop.readBlob(blob)
     }
 
-    override fun close() {
+    actual override fun close() {
         canvas.remove()
     }
 

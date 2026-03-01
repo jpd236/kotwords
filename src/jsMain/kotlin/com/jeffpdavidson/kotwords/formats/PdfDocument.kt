@@ -20,7 +20,7 @@ import com.jeffpdavidson.kotwords.model.Puzzle
 import kotlinx.coroutines.await
 
 /** Javascript implementation of [PdfDocument], built atop pdf-lib. */
-actual class PdfDocument {
+internal actual class PdfDocument {
 
     private lateinit var pdf: PDFDocument
     private lateinit var page: PDFPage

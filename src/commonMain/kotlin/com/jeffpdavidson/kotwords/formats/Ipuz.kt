@@ -416,7 +416,8 @@ private enum class IpuzKind(val uri: String) {
 }
 
 @Serializable
-internal data class IpuzJson @OptIn(ExperimentalSerializationApi::class) constructor(
+internal data class IpuzJson constructor(
+    @OptIn(ExperimentalSerializationApi::class)
     @EncodeDefault val version: String = "http://ipuz.org/v2",
     val kind: List<String>,
     val title: String = "",
@@ -435,6 +436,7 @@ internal data class IpuzJson @OptIn(ExperimentalSerializationApi::class) constru
     @Serializable(with = CrosswordValueGridSerializer::class)
     val solution: List<List<CrosswordValue>> = listOf(),
     @Serializable(with = ClueMapSerializer::class)
+    @OptIn(ExperimentalSerializationApi::class)
     @EncodeDefault val clues: Map<String, List<Clue>> = mapOf(),
     @SerialName("showenumerations") val showEnumerations: Boolean = false,
     // Proprietary extension introduced by squares.io for when some clue lists are unassociated with answers.

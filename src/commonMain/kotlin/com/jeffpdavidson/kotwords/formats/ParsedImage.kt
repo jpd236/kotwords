@@ -29,6 +29,8 @@ internal expect class ParsedImage : Closeable {
 
     suspend fun toPngBytes(): ByteArray
 
+    override fun close()
+
     companion object {
         suspend fun parse(format: ParsedImageFormat, data: ByteArray): ParsedImage
     }

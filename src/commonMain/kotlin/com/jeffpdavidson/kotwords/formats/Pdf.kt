@@ -217,7 +217,7 @@ object Pdf {
     }
 
     /** Default grid drawing function for [asPdf]. */
-    suspend fun drawGrid(
+    internal suspend fun drawGrid(
         document: PdfDocument,
         puzzle: Puzzle,
         blackSquareLightnessAdjustment: Float,

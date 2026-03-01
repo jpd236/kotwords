@@ -34,7 +34,7 @@ internal actual class ParsedImage : Closeable {
         }
     }
 
-    override fun close() {
+    actual override fun close() {
         TODO("Not yet implemented")
     }
 }

@@ -8,7 +8,7 @@ import com.jeffpdavidson.kotwords.model.Puzzle
  * Implementations should assume one-page, letter-sized documents. All units are in points. Coordinates are measured as
  * distance from the bottom-left corner of the document.
  */
-expect class PdfDocument private constructor() {
+internal expect class PdfDocument private constructor() {
     val width: Float
     val height: Float
 

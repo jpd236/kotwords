@@ -31,7 +31,7 @@ internal actual class ParsedImage private constructor(private val bufferedImage:
         return output.toByteArray()
     }
 
-    override fun close() {}
+    actual override fun close() {}
 
     actual companion object {
         actual suspend fun parse(format: ParsedImageFormat, data: ByteArray): ParsedImage {

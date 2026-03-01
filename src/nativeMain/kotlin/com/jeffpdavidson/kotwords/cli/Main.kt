@@ -2,6 +2,8 @@ package com.jeffpdavidson.kotwords.cli
 
 import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.main
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.options.NullableOption
 import com.github.ajalt.clikt.parameters.options.RawOption
@@ -40,6 +42,9 @@ import com.jeffpdavidson.kotwords.formats.XWordInfoAcrostic
 import com.jeffpdavidson.kotwords.formats.Xd
 import korlibs.time.Date
 import korlibs.time.DateTime
+import korlibs.time.date
+import korlibs.time.nowLocal
+import korlibs.time.parse
 import kotlinx.coroutines.runBlocking
 import okio.FileSystem
 import okio.Path
@@ -95,7 +100,7 @@ class KotwordsCli : CliktCommand() {
     override fun run() = Unit
 }
 
-class DumpEntries : CliktCommand(help = "Dump information about a puzzle") {
+class DumpEntries : CliktCommand() {
     val format by option(help = "Puzzle file format. By default, use the file's extension.").enum<Format>()
     val file by option(help = "Puzzle file path. Use '-' for stdin.").inputFile().required()
     val outputFormat by option(
@@ -110,6 +115,8 @@ class DumpEntries : CliktCommand(help = "Dump information about a puzzle") {
         Defaults to "${'$'}{number}-${'$'}{direction}: ${'$'}{clue} - ${'$'}{answer}".
     """.trimIndent()
     ).default("\${number}-\${direction}: \${clue} - \${answer}")
+
+    override fun help(context: Context): String = "Dump information about a puzzle"
 
     override fun run() {
         val resolvedFormat: Format = format ?: {
@@ -171,7 +178,7 @@ class DumpEntries : CliktCommand(help = "Dump information about a puzzle") {
     }
 }
 
-class Convert : CliktCommand(help = "Convert a puzzle between formats") {
+class Convert : CliktCommand() {
     val inputFormat by option(help = "Input puzzle format").choice(Format.entries.map { format ->
         format.name to format
     }.toMap()).required()
@@ -191,6 +198,8 @@ class Convert : CliktCommand(help = "Convert a puzzle between formats") {
         .default("")
     val copyright by option(help = "For Uclick JSON inputs, the copyright of the puzzle. Defaults to blank.")
         .default("")
+
+    override fun help(context: Context): String = "Convert a puzzle between formats"
 
     override fun run() {
         runBlocking {

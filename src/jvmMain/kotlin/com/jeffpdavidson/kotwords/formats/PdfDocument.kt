@@ -12,7 +12,7 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
-actual class PdfDocument {
+internal actual class PdfDocument {
     private val document = PDDocument()
     private val page = PDPage()
     private val content: PDPageContentStream
