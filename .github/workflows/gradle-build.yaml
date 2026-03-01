@@ -38,7 +38,7 @@ jobs:
             ./gradlew --no-daemon linkReleaseExecutableLinuxX64 linuxX64Test
             cp build/bin/linuxX64/releaseExecutable/kotwords.kexe kotwords-cli-linux
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            ./gradlew --no-daemon jvmJar jsBrowserProductionWebpack linkReleaseExecutableMacosX64 jvmTest jsTest macosX64Test
+            ./gradlew --no-daemon jvmJar jsBrowserDistribution linkReleaseExecutableMacosX64 jvmTest jsTest macosX64Test
             cp build/bin/macosX64/releaseExecutable/kotwords.kexe kotwords-cli-mac
           elif [ "$RUNNER_OS" == "Windows" ]; then
             ./gradlew --no-daemon linkReleaseExecutableMingwX64 mingwX64Test
