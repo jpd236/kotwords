@@ -566,7 +566,7 @@ object Pdf {
         var currentFormat: Format? = null
         text.forEach { formattedChar ->
             if (currentFormat != null && currentFormat != formattedChar.format) {
-                fn(currentString.toString(), currentFormat!!)
+                fn(currentString.toString(), currentFormat)
                 currentString.clear()
             }
             currentString.append(formattedChar.char)

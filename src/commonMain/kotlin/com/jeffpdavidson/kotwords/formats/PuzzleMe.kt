@@ -133,10 +133,10 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
                         }
                     row.add(
                         Puzzle.Cell(
-                            solution = if (isPrefilled && box!! == "*") {
+                            solution = if (isPrefilled && box == "*") {
                                 ""
                             } else {
-                                box!!
+                                box
                             },
                             cellType = if (isPrefilled) Puzzle.CellType.CLUE else Puzzle.CellType.REGULAR,
                             backgroundShape = backgroundShape,

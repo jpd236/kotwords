@@ -42,7 +42,7 @@ See the [Javadoc](https://javadoc.io/doc/com.jeffpdavidson.kotwords/kotwords) fo
 Kotwords is a standard Gradle project that can be imported into IntelliJ. Common commands include:
 
 * Run all tests for all environments: `./gradlew check`
-* Run a local instance of the web tools: `./gradlew jsRun`
+* Run a local instance of the web tools: `./gradlew jsBrowserDevelopmentRun`
 * Publish to the local Maven repository for testing in another application: `./gradlew publishToMavenLocal`
 
 Bug reports and contributions welcome!

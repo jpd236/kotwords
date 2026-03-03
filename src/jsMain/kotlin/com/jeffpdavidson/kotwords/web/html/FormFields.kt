@@ -366,7 +366,6 @@ internal object FormFields {
          * @param options the options to show in the menu
          * @param help optional help text used to describe the field in more detail
          * @param flexCols optional number of columns this field should take up in the parent container.
-         * @param block optional block run in the scope of the [SELECT] tag for further customization.
          */
         fun render(
             parent: FlowContent, label: String, options: List<String>, help: String = "", flexCols: Int? = null

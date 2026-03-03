@@ -1,15 +1,16 @@
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinMultiplatform
+import com.vanniktech.maven.publish.SourcesJar
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 
 plugins {
-    id("com.vanniktech.maven.publish") version "0.35.0"
-    id("org.jetbrains.dokka") version "2.0.0"
-    kotlin("multiplatform") version "2.0.21"
-    kotlin("plugin.serialization") version "2.0.21"
+    id("com.vanniktech.maven.publish") version "0.36.0"
+    id("org.jetbrains.dokka") version "2.1.0"
+    kotlin("multiplatform") version "2.3.10"
+    kotlin("plugin.serialization") version "2.3.10"
 }
 
 group = "com.jeffpdavidson.kotwords"
@@ -27,7 +28,6 @@ java {
 @OptIn(ExperimentalKotlinGradlePluginApi::class)  // for compilerOptions
 kotlin {
     jvm {
-        withJava()
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_1_8)
         }
@@ -63,13 +63,13 @@ kotlin {
 
         val commonMain by getting {
             dependencies {
-                implementation("com.squareup.okio:okio:3.9.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.3")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+                implementation("com.squareup.okio:okio:3.16.4")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.10.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
                 implementation("net.mamoe.yamlkt:yamlkt:0.13.0")
-                implementation("io.github.pdvrieze.xmlutil:serialization:0.90.3")
-                implementation("com.github.ajalt.colormath:colormath:3.6.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+                implementation("io.github.pdvrieze.xmlutil:serialization:0.91.3")
+                implementation("com.github.ajalt.colormath:colormath:3.6.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 
                 // TODO: Migrate to kotlinx-datetime when it can be done without breaking ksoup.
                 // Ensure any size hit to the JS bundle is acceptable.
@@ -79,10 +79,9 @@ kotlin {
 
         val commonTest by getting {
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-test-annotations-common")
-                implementation("org.jetbrains.kotlin:kotlin-test-common")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
-                implementation("io.github.pdvrieze.xmlutil:testutil:0.90.3")
+                implementation("org.jetbrains.kotlin:kotlin-test")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+                implementation("io.github.pdvrieze.xmlutil:testutil:0.91.3")
             }
 
             languageSettings {
@@ -98,10 +97,6 @@ kotlin {
         }
 
         val jvmTest by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-test-junit")
-            }
-
             languageSettings {
                 optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
             }
@@ -118,7 +113,6 @@ kotlin {
 
         val jsTest by getting {
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-test-js")
                 // TODO: Find out how to use newer versions - 4.x seems to use ES6 modules which are not handled
                 // smoothly. Note also that PdfJs.kt and ImageComparator.kt will need updates.
                 implementation(npm("pdfjs-dist", "3.11.174"))
@@ -132,9 +126,9 @@ kotlin {
         val nativeMain by getting {
             dependencies {
                 implementation("com.soywiz:korlibs-io:6.0.0")
-                implementation("com.fleeksoft.ksoup:ksoup:0.1.9")
+                implementation("com.fleeksoft.ksoup:ksoup:0.2.6")
                 implementation("net.thauvin.erik.urlencoder:urlencoder-lib:1.6.0")
-                implementation("com.github.ajalt.clikt:clikt:5.0.1")
+                implementation("com.github.ajalt.clikt:clikt:5.1.0")
             }
         }
     }
@@ -146,6 +140,7 @@ kotlin {
 
 tasks.withType<Test> {
     maxHeapSize = "2G"
+    useJUnitPlatform()
 }
 
 dokka {
@@ -171,7 +166,7 @@ tasks {
 mavenPublishing {
     configure(KotlinMultiplatform(
         javadocJar = JavadocJar.Dokka("dokkaGeneratePublicationHtml"),
-        sourcesJar = true,
+        sourcesJar = SourcesJar.Sources(),
     ))
 
     publishToMavenCentral()

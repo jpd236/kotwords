@@ -113,7 +113,7 @@ data class HelterSkelter(
                 }
             }
             require(foundVector != null) { "Could not find answer $answer in grid" }
-            foundVectors.add(foundVector!!)
+            foundVectors.add(foundVector)
         }
         return foundVectors.toList()
     }
