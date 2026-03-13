@@ -65,10 +65,10 @@ jobs:
           path: build/dist/js/productionExecutable/
       - name: Archive distributed artifacts
         uses: actions/upload-artifact@v7
-        archive: false
         with:
           name: kotwords-build-${{ runner.os }}
           path: kotwords-cli-*
+          archive: false
       - name: Upload to GitHub Release
         # Only run this step for tagged releases
         if: startsWith(github.ref, 'refs/tags/')
