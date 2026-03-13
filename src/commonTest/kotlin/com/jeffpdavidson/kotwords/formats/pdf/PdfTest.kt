@@ -25,7 +25,7 @@ class PdfTest {
         assertContentEquals(
             readBinaryResource(PdfTest::class, "pdf/test-customFonts.pdf"),
             AcrossLite(readBinaryResource(PdfTest::class, "puz/test.puz"))
-                .asCrossword().asPdf(blackSquareLightnessAdjustment =  0.75, fontFamily = getNotoSerifFontFamily())
+                .asCrossword().asPdf(blackSquareLightnessAdjustment = 0.75, fontFamily = getNotoSerifFontFamily())
         )
     }
 

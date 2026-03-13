@@ -91,11 +91,11 @@ data class JellyRoll(
                             number = if (numberedSquares.contains(i)) "${currentNumber++}" else "",
                             solution = "${letters[i]}",
                             backgroundColor =
-                            if (LIGHT_SQUARE_MODULOS.contains(i % 4)) {
-                                lightSquareBackgroundColor
-                            } else {
-                                darkSquareBackgroundColor
-                            },
+                                if (LIGHT_SQUARE_MODULOS.contains(i % 4)) {
+                                    lightSquareBackgroundColor
+                                } else {
+                                    darkSquareBackgroundColor
+                                },
                             borderDirections = listOfNotNull(squareList[i].borderDirection).toSet()
                         )
                     } else {

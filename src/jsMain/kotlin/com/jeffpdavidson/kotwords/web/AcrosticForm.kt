@@ -76,7 +76,8 @@ class AcrosticForm {
             }
             append.tabs(Tabs.Tab("manual-entry-tab", "Form") {
                 manualEntryForm.render(this, bodyBlock = {
-                    gridWidth.render(this, "Grid width (optional)",
+                    gridWidth.render(
+                        this, "Grid width (optional)",
                         help = "Width to use for the quote grid. If blank, a reasonable default will be selected."
                     ) {
                         type = InputType.number

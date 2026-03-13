@@ -1,7 +1,6 @@
 package com.jeffpdavidson.kotwords.formats.json
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
 internal object CnnJson {

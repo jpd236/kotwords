@@ -1,7 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
-import com.jeffpdavidson.kotwords.formats.json.WallStreetJournalJson
 import com.jeffpdavidson.kotwords.formats.json.WashingtonPostJson
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Puzzle

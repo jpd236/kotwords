@@ -306,21 +306,22 @@ class Ipuz(private val json: String) : Puzzleable() {
                     }
                 },
                 saved =
-                if (puzzle.grid.flatten().any { it.entry.isNotEmpty() } || solved) {
-                    puzzle.grid.map { row ->
-                        row.map { cell ->
-                            IpuzJson.CrosswordValue(value = if (cell.cellType.isBlack()) {
-                                null
-                            } else if (solved) {
-                                cell.solution
-                            } else {
-                                cell.entry.ifEmpty { null }
-                            })
+                    if (puzzle.grid.flatten().any { it.entry.isNotEmpty() } || solved) {
+                        puzzle.grid.map { row ->
+                            row.map { cell ->
+                                IpuzJson.CrosswordValue(
+                                    value = if (cell.cellType.isBlack()) {
+                                    null
+                                } else if (solved) {
+                                    cell.solution
+                                } else {
+                                    cell.entry.ifEmpty { null }
+                                })
+                            }
                         }
-                    }
-                } else {
-                    listOf()
-                },
+                    } else {
+                        listOf()
+                    },
                 solution = if (puzzle.hasSolution()) {
                     puzzle.grid.map { row ->
                         row.map { cell ->
@@ -331,24 +332,24 @@ class Ipuz(private val json: String) : Puzzleable() {
                     listOf()
                 },
                 clues =
-                puzzle.clues.associate { clueList ->
-                    // Strip any HTML tags from the title.
-                    val title = Xml.parse(clueList.title, format = DocumentFormat.HTML).text ?: clueList.title
-                    val fullTitle = listOfNotNull(clueList.direction.ifEmpty { null }, title).joinToString(":")
-                    fullTitle to clueList.clues.map { clue ->
-                        val cells =
-                            wordsByWordId.getOrElse(clue.wordId) { listOf() }.map { listOf(it.x + 1, it.y + 1) }
-                        IpuzJson.Clue(
-                            number = clue.number,
-                            // If this puzzle uses standard crossword numbering, omit the explicit list of cells for
-                            // each clue. This increases compatibility with more applications due to the ambiguity
-                            // between whether this list is expected to use 0-based or 1-based coordinates.
-                            cells = if (usesStandardCrosswordNumbering) listOf() else cells,
-                            clue = clue.text,
-                            enumeration = clue.format,
-                        )
-                    }
-                },
+                    puzzle.clues.associate { clueList ->
+                        // Strip any HTML tags from the title.
+                        val title = Xml.parse(clueList.title, format = DocumentFormat.HTML).text ?: clueList.title
+                        val fullTitle = listOfNotNull(clueList.direction.ifEmpty { null }, title).joinToString(":")
+                        fullTitle to clueList.clues.map { clue ->
+                            val cells =
+                                wordsByWordId.getOrElse(clue.wordId) { listOf() }.map { listOf(it.x + 1, it.y + 1) }
+                            IpuzJson.Clue(
+                                number = clue.number,
+                                // If this puzzle uses standard crossword numbering, omit the explicit list of cells for
+                                // each clue. This increases compatibility with more applications due to the ambiguity
+                                // between whether this list is expected to use 0-based or 1-based coordinates.
+                                cells = if (usesStandardCrosswordNumbering) listOf() else cells,
+                                clue = clue.text,
+                                enumeration = clue.format,
+                            )
+                        }
+                    },
                 showEnumerations = puzzle.clues.any { clueList -> clueList.clues.any { it.format.isNotEmpty() } },
                 // Set fakeClues = true if there are any unclued words.
                 fakeClues = puzzle.hasUncluedWords()

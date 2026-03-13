@@ -9,7 +9,6 @@ import korlibs.time.format
 import korlibs.time.parseDate
 import okio.ByteString
 import okio.ByteString.Companion.toByteString
-import okio.use
 import kotlin.math.roundToInt
 
 private val PUZZLE_DATA_REGEX = """\bpluribus\s*=\s*'([^']+)'""".toRegex()

@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.formats
 
+import com.jeffpdavidson.kotwords.formats.PuzzleMe.Companion.fromHtml
 import com.jeffpdavidson.kotwords.formats.json.JsonSerializer
 import com.jeffpdavidson.kotwords.formats.json.PuzzleMeJson
 import com.jeffpdavidson.kotwords.model.MarchingBands

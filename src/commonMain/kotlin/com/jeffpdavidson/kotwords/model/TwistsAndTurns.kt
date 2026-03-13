@@ -1,9 +1,9 @@
 package com.jeffpdavidson.kotwords.model
 
+import com.jeffpdavidson.kotwords.formats.Puzzleable
 import com.jeffpdavidson.kotwords.formats.pdf.Pdf
 import com.jeffpdavidson.kotwords.formats.pdf.PdfDocument
 import com.jeffpdavidson.kotwords.formats.pdf.PdfFontFamily
-import com.jeffpdavidson.kotwords.formats.Puzzleable
 
 data class TwistsAndTurns(
     val title: String,
