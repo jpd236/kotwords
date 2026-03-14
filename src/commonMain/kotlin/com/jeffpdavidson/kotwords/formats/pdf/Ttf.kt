@@ -1,5 +1,7 @@
 package com.jeffpdavidson.kotwords.formats.pdf
 
+import okio.Buffer
+
 /** Represents a parsed TTF font. */
 internal class ParsedTtf(val fontData: ByteArray) {
     /** The number of glyph space units per em for this font. */
@@ -58,18 +60,16 @@ internal class ParsedTtf(val fontData: ByteArray) {
     }
 
     /**
-     * Create a copy of this font with glyph data for characters other than [usedChars] zeroed out.
+     * Create a copy of this font with glyph data for characters other than [usedChars] removed.
      *
-     * Zeroing out unused data is a simple way of saving storage space when the font is deflated. An alternative would
-     * be to rewrite the whole font from scratch with unused characters removed; however, this would require
-     * significantly more bookkeeping to update every section of the font, including offset references, to match.
+     * Rewrites the 'glyf' and 'loca' tables to exclusively contain data for used characters, packing them tightly.
+     * Unused characters are still present (to avoid having to modify composite glyph structures) but have a length of
+     * 0.
      */
-    fun createZeroedFont(usedChars: Set<Char>): ByteArray {
-        val result = fontData.copyOf()
-
-        val head = tableOffsets["head"] ?: return result
-        val loca = tableOffsets["loca"] ?: return result
-        val glyf = tableOffsets["glyf"] ?: return result
+    fun createSubsettedFont(usedChars: Set<Char>): ByteArray {
+        val head = tableOffsets["head"] ?: return fontData
+        val loca = tableOffsets["loca"] ?: return fontData
+        val glyf = tableOffsets["glyf"] ?: return fontData
 
         val isLongLoca = readUInt16(head.offset.toInt() + 50) == 1
 
@@ -87,20 +87,128 @@ internal class ParsedTtf(val fontData: ByteArray) {
         }
 
         val numGlyphs = (loca.length / (if (isLongLoca) 4 else 2)).toInt() - 1
-        for (id in 0 until numGlyphs) {
-            if (id in usedGlyphs) continue
 
-            val offset = getGlyphOffset(glyphId = id, locaOffset = loca.offset.toInt(), isLongLoca = isLongLoca)
-            val nextOffset = getGlyphOffset(glyphId = id + 1, locaOffset = loca.offset.toInt(), isLongLoca = isLongLoca)
-            val length = nextOffset - offset
+        val newGlyf = Buffer()
+        val newLoca = Buffer()
 
-            if (length > 0) {
-                val start = glyf.offset.toInt() + offset
-                result.fill(0, start, start + length)
+        for (id in 0..numGlyphs) {
+            val locaValue = if (isLongLoca) newGlyf.size.toInt() else newGlyf.size.toInt() / 2
+            if (isLongLoca) {
+                newLoca.writeInt(locaValue)
+            } else {
+                newLoca.writeShort(locaValue)
+            }
+
+            if (id < numGlyphs && id in usedGlyphs) {
+                val offset = getGlyphOffset(glyphId = id, locaOffset = loca.offset.toInt(), isLongLoca = isLongLoca)
+                val nextOffset =
+                    getGlyphOffset(glyphId = id + 1, locaOffset = loca.offset.toInt(), isLongLoca = isLongLoca)
+                val length = nextOffset - offset
+
+                if (length > 0) {
+                    val start = glyf.offset.toInt() + offset
+                    newGlyf.write(fontData, start, length)
+                }
             }
         }
 
-        return result
+        val unpaddedGlyfSize = newGlyf.size.toInt()
+        while (newGlyf.size % 4 != 0L) {
+            newGlyf.writeByte(0)
+        }
+        val unpaddedLocaSize = newLoca.size.toInt()
+        while (newLoca.size % 4 != 0L) {
+            newLoca.writeByte(0)
+        }
+
+        // Values are padded to be 4-byte aligned.
+        val newTablesData =
+            mutableMapOf<String, ByteArray>("glyf" to newGlyf.readByteArray(), "loca" to newLoca.readByteArray())
+        // Lengths of each table, without padding.
+        val unpaddedTableLengths = mutableMapOf<String, Int>("glyf" to unpaddedGlyfSize, "loca" to unpaddedLocaSize)
+
+        tableOffsets.filterKeys { it in TABLES_TO_KEEP }.forEach { (tag, entry) ->
+            val length = entry.length.toInt()
+            unpaddedTableLengths[tag] = length
+            val padding = if (length % 4 == 0) 0 else 4 - (length % 4)
+            val data = ByteArray(length + padding)
+            fontData.copyInto(
+                destination = data,
+                destinationOffset = 0,
+                startIndex = entry.offset.toInt(),
+                endIndex = (entry.offset + entry.length).toInt()
+            )
+            newTablesData[tag] = data
+        }
+
+        val result = Buffer()
+        result.write(fontData, 0, 4)
+
+        val numTables = newTablesData.size
+        var maxPow2 = 1
+        var entrySelector = 0
+        while (maxPow2 * 2 <= numTables) {
+            maxPow2 *= 2
+            entrySelector++
+        }
+        val searchRange = maxPow2 * 16
+        val rangeShift = numTables * 16 - searchRange
+
+        result.writeShort(numTables)
+        result.writeShort(searchRange)
+        result.writeShort(entrySelector)
+        result.writeShort(rangeShift)
+
+        val sortedTags = newTablesData.keys.sorted()
+
+        var currentOffset = 12 + (newTablesData.size * 16)
+        var headOffset = 0
+        for (tag in sortedTags) {
+            if (tag == "head") {
+                headOffset = currentOffset
+            }
+            val data = newTablesData[tag]!!
+            result.writeUtf8(tag)
+            result.writeInt(calculateChecksum(data))
+            result.writeInt(currentOffset)
+            result.writeInt(unpaddedTableLengths[tag]!!)
+            currentOffset += data.size
+        }
+
+        for (tag in sortedTags) {
+            result.write(newTablesData[tag]!!)
+        }
+
+        val resultBytes = result.readByteArray()
+
+        // Calculate the global checksum in the head table.
+        resultBytes[headOffset + 8] = 0
+        resultBytes[headOffset + 9] = 0
+        resultBytes[headOffset + 10] = 0
+        resultBytes[headOffset + 11] = 0
+
+        val globalChecksum = calculateChecksum(resultBytes)
+        val adjustment = (0xB1B0AFBAL - globalChecksum) and 0xFFFFFFFFL
+
+        resultBytes[headOffset + 8] = (adjustment shr 24).toByte()
+        resultBytes[headOffset + 9] = (adjustment shr 16).toByte()
+        resultBytes[headOffset + 10] = (adjustment shr 8).toByte()
+        resultBytes[headOffset + 11] = adjustment.toByte()
+
+        return resultBytes
+    }
+
+    private fun calculateChecksum(data: ByteArray): Int {
+        var sum = 0L
+        for (i in 0 until data.size step 4) {
+            var value = 0L
+            if (i < data.size) value = value or ((data[i].toLong() and 0xFF) shl 24)
+            if (i + 1 < data.size) value = value or ((data[i + 1].toLong() and 0xFF) shl 16)
+            if (i + 2 < data.size) value = value or ((data[i + 2].toLong() and 0xFF) shl 8)
+            if (i + 3 < data.size) value = value or (data[i + 3].toLong() and 0xFF)
+            sum = (sum + value) and 0xFFFFFFFFL
+        }
+        return sum.toInt()
     }
 
     private fun parseTableDirectory(): Map<String, TableEntry> {
@@ -256,5 +364,10 @@ internal class ParsedTtf(val fontData: ByteArray) {
                 ((fontData[offset + 1].toLong() and 0xFF) shl 16) or
                 ((fontData[offset + 2].toLong() and 0xFF) shl 8) or
                 (fontData[offset + 3].toLong() and 0xFF)
+    }
+
+    companion object {
+        /** Tables to keep when creating the subset font. */
+        private val TABLES_TO_KEEP = setOf("head", "hhea", "maxp", "cvt ", "prep", "fpgm", "hmtx", "gasp")
     }
 }

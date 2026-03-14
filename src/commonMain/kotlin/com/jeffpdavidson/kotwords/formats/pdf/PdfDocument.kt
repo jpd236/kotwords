@@ -409,7 +409,7 @@ internal class PdfDocument {
                         resource.cidFontId,
                         "<< /Type /Font /Subtype /CIDFontType2 /BaseFont /$fontName /CIDSystemInfo " +
                                 "<< /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> " +
-                                "/FontDescriptor ${resource.descriptorId} 0 R /W [ $widths ] >>"
+                                "/FontDescriptor ${resource.descriptorId} 0 R /CIDToGIDMap /Identity /W [ $widths ] >>"
                     )
 
                     writeObj(
@@ -422,9 +422,9 @@ internal class PdfDocument {
 
                     writeFlateStreamObj(resource.toUnicodeId, generateToUnicodeCMap(resource).encodeToByteArray())
 
-                    val zeroedFontData =
-                        resource.parsedTtf.createZeroedFont(usedChars[font] ?: emptySet())
-                    writeFlateStreamObj(resource.fileStreamId, zeroedFontData, includeUncompressedLength = true)
+                    val subsettedFontData =
+                        resource.parsedTtf.createSubsettedFont(usedChars[font] ?: emptySet())
+                    writeFlateStreamObj(resource.fileStreamId, subsettedFontData, includeUncompressedLength = true)
                 }
             }
         }
