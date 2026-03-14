@@ -10,7 +10,7 @@
       "\u0000",
       "X",
       "X",
-      "X",
+      "\u0000",
       "X",
       "X",
       "\u0000"
@@ -34,13 +34,13 @@
       "X"
     ],
     [
-      "X",
+      "\u0000",
       "C",
       "G",
       "XYZ",
       "O",
       "2",
-      "X"
+      "\u0000"
     ],
     [
       "X",
@@ -64,7 +64,7 @@
       "\u0000",
       "X",
       "X",
-      "X",
+      "\u0000",
       "X",
       "X",
       "\u0000"
@@ -260,7 +260,8 @@
       "x": 3,
       "y": 0,
       "isCircled": false,
-      "isVoid": true
+      "isVoid": false,
+      "bgColor": "#ff0000"
     },
     {
       "x": 4,
@@ -308,7 +309,8 @@
       "x": 0,
       "y": 3,
       "isCircled": false,
-      "isVoid": true
+      "isVoid": false,
+      "bgColor": "#ff0000"
     },
     {
       "x": 1,
@@ -326,7 +328,8 @@
       "x": 6,
       "y": 3,
       "isCircled": false,
-      "isVoid": true
+      "isVoid": false,
+      "bgColor": "#ff0000"
     },
     {
       "x": 0,
@@ -374,7 +377,8 @@
       "x": 3,
       "y": 6,
       "isCircled": false,
-      "isVoid": true
+      "isVoid": false,
+      "bgColor": "#ff0000"
     },
     {
       "x": 4,

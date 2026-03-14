@@ -156,14 +156,18 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
             grid.add(row)
         }
 
-        // Post-solve revealed squares can lead to entirely black rows/columns on the outer edges. Delete these.
-        val anyNonBlackSquare = { row: List<Puzzle.Cell> -> row.any { !it.cellType.isBlack() } }
+        // Post-solve revealed squares can lead to entirely black rows/columns on the outer edges. Delete these, but
+        // retain anything that may be grid art.
+        val shouldBeRetained = { cell: Puzzle.Cell ->
+            !cell.cellType.isBlack() || cell.backgroundColor.isNotEmpty() || cell.backgroundImage !is Puzzle.Image.None
+        }
+        val anyNonBlackSquare = { row: List<Puzzle.Cell> -> row.any(shouldBeRetained) }
         val topRowsToDelete = grid.indexOfFirst(anyNonBlackSquare)
         val bottomRowsToDelete = grid.size - grid.indexOfLast(anyNonBlackSquare) - 1
         val leftRowsToDelete =
-            grid.filter(anyNonBlackSquare).minOf { row -> row.indexOfFirst { !it.cellType.isBlack() } }
+            grid.filter(anyNonBlackSquare).minOf { row -> row.indexOfFirst(shouldBeRetained) }
         val rightRowsToDelete = grid[0].size -
-                grid.filter(anyNonBlackSquare).maxOf { row -> row.indexOfLast { !it.cellType.isBlack() } } - 1
+                grid.filter(anyNonBlackSquare).maxOf { row -> row.indexOfLast(shouldBeRetained) } - 1
         val filteredGrid = grid.drop(topRowsToDelete).dropLast(bottomRowsToDelete)
             .map { row -> row.drop(leftRowsToDelete).dropLast(rightRowsToDelete) }
 

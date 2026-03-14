@@ -77,13 +77,22 @@ class PuzzleMeTest {
     }
 
     @Test
-    fun toCrossword_voids() = runTest {
+    fun toCrossword_voids_puz() = runTest {
         assertTrue(
             readBinaryResource(PuzzleMeTest::class, "puz/test.puz").contentEquals(
                 PuzzleMe(
                     readStringResource(PuzzleMeTest::class, "puzzleme/test-void.json")
                 ).asPuzzle().asAcrossLiteBinary()
             )
+        )
+    }
+
+    @Test
+    fun toCrossword_jpz() = runTest {
+        val puzzleMe = PuzzleMe(readStringResource(PuzzleMeTest::class, "puzzleme/test-void.json"))
+        assertPuzzleEquals(
+            JpzFile(readBinaryResource(PuzzleMeTest::class, "jpz/test-void.jpz")).asPuzzle(),
+            puzzleMe.asPuzzle(),
         )
     }
 

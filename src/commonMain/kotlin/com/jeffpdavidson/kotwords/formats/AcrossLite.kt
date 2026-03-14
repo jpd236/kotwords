@@ -236,8 +236,18 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
             var unsupportedFeatures =
                 hasUnsupportedFeatures || clues.size > 2 || grid.flatAny { it.backgroundImage != Puzzle.Image.None }
 
-            // Validate that the solution and entry grids only contains supported characters.
-            val cleanedGrid = grid.map { row ->
+            // Validate that the solution and entry grids only contains supported characters, and strip out surrounding
+            // rows/columns which only have black cells.
+            val shouldBeRetained = { cell: Puzzle.Cell -> !cell.cellType.isBlack() }
+            val anyNonBlackSquare = { row: List<Puzzle.Cell> -> row.any(shouldBeRetained) }
+            val topRowsToDelete = grid.indexOfFirst(anyNonBlackSquare)
+            val bottomRowsToDelete = grid.size - grid.indexOfLast(anyNonBlackSquare) - 1
+            val leftRowsToDelete =
+                grid.filter(anyNonBlackSquare).minOf { row -> row.indexOfFirst(shouldBeRetained) }
+            val rightRowsToDelete = grid[0].size -
+                    grid.filter(anyNonBlackSquare).maxOf { row -> row.indexOfLast(shouldBeRetained) } - 1
+            val cleanedGrid = grid.drop(topRowsToDelete).dropLast(bottomRowsToDelete)
+                .map { row -> row.drop(leftRowsToDelete).dropLast(rightRowsToDelete) }.map { row ->
                 row.map { cell ->
                     if (cell.cellType.isBlack()) {
                         cell
@@ -445,13 +455,14 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
                 fun Puzzle.Cell.hasColor() = !cellType.isBlack() && backgroundColor.isNotEmpty()
                 if (cleanedGrid.flatAny { it.isCircled() || it.isGiven() || it.hasColor() }) {
                     val hasCircledSquare = cleanedGrid.flatAny { it.isCircled() }
+                    val allNonBlackCellsHaveColor = cleanedGrid.flatAll { it.cellType.isBlack() || it.hasColor() }
                     writeExtraSection("GEXT", squareCount) { packetBuilder ->
                         packetBuilder.writeGrid(cleanedGrid, 0) {
                             var status = 0
                             // If at least one square is circled, respect the isCircled bit and ignore all background
                             // colors. If no squares are circled, then circle any square with an explicit background
-                            // color.
-                            if (it.isCircled() || (!hasCircledSquare && it.hasColor())) {
+                            // color unless all squares have a background color.
+                            if (it.isCircled() || (!hasCircledSquare && !allNonBlackCellsHaveColor && it.hasColor())) {
                                 status = status or 0x80
                             }
                             if (it.isGiven()) status = status or 0x40
@@ -530,6 +541,10 @@ private inline fun BufferedSink.writeGrid(
 
 private inline fun <T> List<List<T>>.flatAny(predicate: (T) -> Boolean): Boolean {
     return any { row -> row.any { predicate(it) } }
+}
+
+private inline fun <T> List<List<T>>.flatAll(predicate: (T) -> Boolean): Boolean {
+    return all { row -> row.all { predicate(it) } }
 }
 
 private fun BufferedSource.readNullTerminatedString(charset: Charset): String {
