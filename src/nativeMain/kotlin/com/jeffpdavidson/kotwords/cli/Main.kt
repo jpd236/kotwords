@@ -179,14 +179,14 @@ class DumpEntries : CliktCommand() {
         help = """
         Format to use when outputting each entry. Supports the following substitutions:
 
-        - ${'$'}{number} - clue number
-        - ${'$'}{direction} - clue direction
-        - ${'$'}{clue} - clue text
-        - ${'$'}{answer} - answer
+        - [[number]] - clue number${'\u0085'}
+        - [[direction]] - clue direction${'\u0085'}
+        - [[clue]] - clue text${'\u0085'}
+        - [[answer]] - answer
 
-        Defaults to "${'$'}{number}-${'$'}{direction}: ${'$'}{clue} - ${'$'}{answer}".
+        Defaults to "[[number]]-[[direction]]: [[clue]] - [[answer]]".
     """.trimIndent()
-    ).default("\${number}-\${direction}: \${clue} - \${answer}")
+    ).default("[[number]]-[[direction]]: [[clue]] - [[answer]]")
 
     override fun help(context: Context): String = "Dump information about a puzzle"
 
@@ -237,7 +237,7 @@ class DumpEntries : CliktCommand() {
     }
 
     companion object {
-        private val SUBSTITUTION_PATTERN = "\\\$\\{([a-z]+)}".toRegex()
+        private val SUBSTITUTION_PATTERN = "\\[\\[([a-z]+)\\]\\]".toRegex()
 
         private val STRIP_HTML_REPLACEMENTS = mapOf(
             "</?[a-z]+>" to "",
