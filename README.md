@@ -9,7 +9,8 @@ Collection of crossword puzzle file format converters and other utilities, writt
 The library uses Kotlin multiplatform and supports Java, Javascript, and native Mac/Windows/Linux.
 
 This project also includes a [web interface](https://jpd236.github.io/kotwords/) for generating digital versions of
-different variety puzzles.
+different variety puzzles and a command line tool to perform conversions and dump puzzle
+information.
 
 ## Features
 
@@ -36,6 +37,31 @@ Sample code for parsing a JPZ file and converting it to a PDF with only Down clu
 ```
 
 See the [Javadoc](https://javadoc.io/doc/com.jeffpdavidson.kotwords/kotwords) for full API details.
+
+## Command-line interface
+
+[Release builds](https://github.com/jpd236/kotwords/releases) include Mac/Windows/Linux command-line tools.
+
+Example to convert a PUZ file to a PDF:
+
+```shell
+kotwords-cli convert \
+    --input-file=/path/to/puzzle.puz
+    --input-format=PUZ
+    --output-file=/path/to/puzzle.pdf
+    --output-format=PDF
+```
+
+Example to print all clues and answers in a JPZ file:
+
+```shell
+kotwords-cli dump-entries
+    --file=/path/to/puzzle.jpz
+    --output-format="[[clue]]: [[answer]]"
+```
+
+Run the tool with no flags to see all available commands, and add --help after any command to see
+the available options.
 
 ## Development
 
