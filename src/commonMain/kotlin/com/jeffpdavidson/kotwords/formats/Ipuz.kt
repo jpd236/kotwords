@@ -311,12 +311,12 @@ class Ipuz(private val json: String) : Puzzleable() {
                             row.map { cell ->
                                 IpuzJson.CrosswordValue(
                                     value = if (cell.cellType.isBlack()) {
-                                    null
-                                } else if (solved) {
-                                    cell.solution
-                                } else {
-                                    cell.entry.ifEmpty { null }
-                                })
+                                        null
+                                    } else if (solved) {
+                                        cell.solution
+                                    } else {
+                                        cell.entry.ifEmpty { null }
+                                    })
                             }
                         }
                     } else {

@@ -60,11 +60,11 @@ class Crosswordr(val json: String) : DelegatingPuzzleable() {
             )
             words.add(
                 Puzzle.Word(
-                id = wordId,
-                cells = clue.cells.map { cell ->
-                    Puzzle.Coordinate(x = cell % gridWidth, y = cell / gridWidth)
-                }
-            ))
+                    id = wordId,
+                    cells = clue.cells.map { cell ->
+                        Puzzle.Coordinate(x = cell % gridWidth, y = cell / gridWidth)
+                    }
+                ))
         }
         return clues to words
     }
