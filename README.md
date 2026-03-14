@@ -46,17 +46,17 @@ Example to convert a PUZ file to a PDF:
 
 ```shell
 kotwords-cli convert \
-    --input-file=/path/to/puzzle.puz
-    --input-format=PUZ
-    --output-file=/path/to/puzzle.pdf
+    --input-file=/path/to/puzzle.puz \
+    --input-format=PUZ \
+    --output-file=/path/to/puzzle.pdf \
     --output-format=PDF
 ```
 
 Example to print all clues and answers in a JPZ file:
 
 ```shell
-kotwords-cli dump-entries
-    --file=/path/to/puzzle.jpz
+kotwords-cli dump-entries \
+    --file=/path/to/puzzle.jpz \
     --output-format="[[clue]]: [[answer]]"
 ```
 
