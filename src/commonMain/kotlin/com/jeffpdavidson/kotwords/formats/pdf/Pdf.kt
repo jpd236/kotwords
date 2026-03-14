@@ -271,16 +271,13 @@ object Pdf {
                     drawImage(squareX, squareY, gridSquareSize, gridSquareSize, square.backgroundImage)
                 }
 
-                if (square.cellType != Puzzle.CellType.VOID) {
+                if (!square.cellType.isBlack()) {
                     setStrokeColor(
                         gridBlackColor.r.toDouble(),
                         gridBlackColor.g.toDouble(),
                         gridBlackColor.b.toDouble()
                     )
-                    drawRect(squareX, squareY, gridSquareSize, gridSquareSize, fill = false, stroke = true)
-                }
 
-                if (!square.cellType.isBlack()) {
                     if (square.backgroundShape == Puzzle.BackgroundShape.CIRCLE) {
                         drawCircle(squareX, squareY, gridSquareSize / 2, stroke = true)
                     }
@@ -364,6 +361,25 @@ object Pdf {
                 }
             }
         }
+
+        // Now, go over the grid and draw the grid lines. We do this after all cells are drawn to ensure nothing
+        // obscures the lines.
+        grid.forEachIndexed { y, row ->
+            row.forEachIndexed eachSquare@{ x, square ->
+                val squareX = gridX + x * gridSquareSize
+                val squareY = gridY + gridHeight - (y + 1) * gridSquareSize
+
+                if (square.cellType != Puzzle.CellType.VOID) {
+                    setStrokeColor(
+                        gridBlackColor.r.toDouble(),
+                        gridBlackColor.g.toDouble(),
+                        gridBlackColor.b.toDouble()
+                    )
+                    drawRect(squareX, squareY, gridSquareSize, gridSquareSize, fill = false, stroke = true)
+                }
+            }
+        }
+
         return DrawGridResult(gridHeight = gridHeight, bottomRowStartOffset = 0.0)
     }
 
