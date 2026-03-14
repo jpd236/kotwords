@@ -248,33 +248,33 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
                     grid.filter(anyNonBlackSquare).maxOf { row -> row.indexOfLast(shouldBeRetained) } - 1
             val cleanedGrid = grid.drop(topRowsToDelete).dropLast(bottomRowsToDelete)
                 .map { row -> row.drop(leftRowsToDelete).dropLast(rightRowsToDelete) }.map { row ->
-                row.map { cell ->
-                    if (cell.cellType.isBlack()) {
-                        cell
-                    } else {
-                        val sanitizedSolution = getValidSolutionRebus(cell)
-                        val validSolution =
-                            if (sanitizedSolution != null) {
-                                sanitizedSolution
-                            } else {
-                                if (hasSolution()) {
-                                    // Show a warning about unsupported features.
-                                    unsupportedFeatures = true
-                                }
-                                // Fall back to "X".
-                                "X"
-                            }
-                        require(cell.entry.isEmpty() || isValidGridString(cell.entry)) {
-                            "Unsupported entry: ${cell.entry}"
-                        }
-                        if (validSolution == cell.solution) {
+                    row.map { cell ->
+                        if (cell.cellType.isBlack()) {
                             cell
                         } else {
-                            cell.copy(solution = validSolution)
+                            val sanitizedSolution = getValidSolutionRebus(cell)
+                            val validSolution =
+                                if (sanitizedSolution != null) {
+                                    sanitizedSolution
+                                } else {
+                                    if (hasSolution()) {
+                                        // Show a warning about unsupported features.
+                                        unsupportedFeatures = true
+                                    }
+                                    // Fall back to "X".
+                                    "X"
+                                }
+                            require(cell.entry.isEmpty() || isValidGridString(cell.entry)) {
+                                "Unsupported entry: ${cell.entry}"
+                            }
+                            if (validSolution == cell.solution) {
+                                cell
+                            } else {
+                                cell.copy(solution = validSolution)
+                            }
                         }
                     }
                 }
-            }
 
             fun BufferedSink.writeExtraSection(name: String, length: Int, writeDataFn: (BufferedSink) -> Unit) {
                 writeString(name, Charset.CP_1252, nullTerminated = false)
