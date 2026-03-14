@@ -2,17 +2,21 @@ package com.jeffpdavidson.kotwords.formats.pdf
 
 import com.jeffpdavidson.kotwords.readBinaryResource
 
-suspend fun getNotoSerifFontFamily() = PdfFontFamily(
-    PdfFont.TtfFont(PdfFontId.TtfFontId("NotoSerif-Regular")) {
-        readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-Regular.ttf")
+fun getNotoSerifFontFamily() = getFontFamily("NotoSerif")
+
+fun getNotoSansFontFamily() = getFontFamily("NotoSans")
+
+private fun getFontFamily(name: String): PdfFontFamily = PdfFontFamily(
+    PdfFont.TtfFont(PdfFontId.TtfFontId("$name-Regular")) {
+        readBinaryResource(PdfTest::class, "pdf/fonts/$name-Regular.ttf")
     },
-    PdfFont.TtfFont(PdfFontId.TtfFontId("NotoSerif-Bold")) {
-        readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-Bold.ttf")
+    PdfFont.TtfFont(PdfFontId.TtfFontId("$name-Bold")) {
+        readBinaryResource(PdfTest::class, "pdf/fonts/$name-Bold.ttf")
     },
-    PdfFont.TtfFont(PdfFontId.TtfFontId("NotoSerif-Italic")) {
-        readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-Italic.ttf")
+    PdfFont.TtfFont(PdfFontId.TtfFontId("$name-Italic")) {
+        readBinaryResource(PdfTest::class, "pdf/fonts/$name-Italic.ttf")
     },
-    PdfFont.TtfFont(PdfFontId.TtfFontId("NotoSerif-BoldItalic")) {
-        readBinaryResource(PdfTest::class, "pdf/fonts/NotoSerif-BoldItalic.ttf")
+    PdfFont.TtfFont(PdfFontId.TtfFontId("$name-BoldItalic")) {
+        readBinaryResource(PdfTest::class, "pdf/fonts/$name-BoldItalic.ttf")
     },
 )

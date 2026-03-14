@@ -30,6 +30,15 @@ class PdfTest {
     }
 
     @Test
+    fun asPdf_customFonts_sansSerif() = runTest(timeout = 60.seconds) {
+        assertContentEquals(
+            readBinaryResource(PdfTest::class, "pdf/test-customFonts-sansSerif.pdf"),
+            AcrossLite(readBinaryResource(PdfTest::class, "puz/test.puz"))
+                .asCrossword().asPdf(blackSquareLightnessAdjustment = 0.75, fontFamily = getNotoSansFontFamily())
+        )
+    }
+
+    @Test
     fun asPdf_bgImages() = runTest(timeout = 60.seconds) {
         assertContentEquals(
             readBinaryResource(PdfTest::class, "pdf/test-bgimage.pdf"),

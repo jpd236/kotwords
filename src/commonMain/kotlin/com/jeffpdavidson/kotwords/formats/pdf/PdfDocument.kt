@@ -403,7 +403,8 @@ internal class PdfDocument {
 
                     val widths =
                         charToGlyph.entries.sortedBy { (_, glyphId) -> glyphId }.joinToString(" ") { (char, glyphId) ->
-                            "$glyphId [${meta.charToWidth[char] ?: 0}]"
+                            val scaledWidth = ((meta.charToWidth[char] ?: 0) * 1000.0 / meta.unitsPerEm).toInt()
+                            "$glyphId [$scaledWidth]"
                         }
                     writeObj(
                         resource.cidFontId,

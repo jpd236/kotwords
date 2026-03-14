@@ -78,6 +78,22 @@ enum class FontFamilyId(val fontFamily: PdfFontFamily) {
                 decodeTtfResource(TtfFonts.NOTOSERIF_BOLDITALIC_TTF_BASE64)
             },
         )
+    ),
+    NOTO_SANS(
+        PdfFontFamily(
+            baseFont = PdfFont.TtfFont(PdfFontId.TtfFontId("NotoSans-Regular")) {
+                decodeTtfResource(TtfFonts.NOTOSANS_REGULAR_TTF_BASE64)
+            },
+            boldFont = PdfFont.TtfFont(PdfFontId.TtfFontId("NotoSans-Bold")) {
+                decodeTtfResource(TtfFonts.NOTOSANS_BOLD_TTF_BASE64)
+            },
+            italicFont = PdfFont.TtfFont(PdfFontId.TtfFontId("NotoSans-Italic")) {
+                decodeTtfResource(TtfFonts.NOTOSANS_ITALIC_TTF_BASE64)
+            },
+            boldItalicFont = PdfFont.TtfFont(PdfFontId.TtfFontId("NotoSans-BoldItalic")) {
+                decodeTtfResource(TtfFonts.NOTOSANS_BOLDITALIC_TTF_BASE64)
+            },
+        )
     );
 
     companion object {

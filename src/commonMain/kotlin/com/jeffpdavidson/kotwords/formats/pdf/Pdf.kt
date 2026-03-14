@@ -368,7 +368,7 @@ object Pdf {
     }
 
     /** Return the adjusted color as a result of applying [lightnessAdjustment] to the given [rgb] color. */
-    internal fun getAdjustedColor(rgb: RGB, lightnessAdjustment: Double): RGB {
+    fun getAdjustedColor(rgb: RGB, lightnessAdjustment: Double): RGB {
         val hsl = rgb.toHSL()
         return HSL(hsl.h, hsl.s, (hsl.l + (1.0 - hsl.l) * lightnessAdjustment)).toSRGB()
     }
