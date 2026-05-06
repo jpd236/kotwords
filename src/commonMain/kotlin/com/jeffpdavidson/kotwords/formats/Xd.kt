@@ -46,6 +46,7 @@ class Xd(private val data: String) : DelegatingPuzzleable() {
             .map { it.split(": ", limit = 2) }
             .filter { it.size == 2 }
             .associate { it[0] to it[1] }
+            .mapValues { (_, value) -> if (value == "N/A") "" else value }
 
         val clues = sections.getOrElse("clues") { listOf<String>() }.partition { it.startsWith("A") }
         val acrossClues = toClueMap(clues.first)
