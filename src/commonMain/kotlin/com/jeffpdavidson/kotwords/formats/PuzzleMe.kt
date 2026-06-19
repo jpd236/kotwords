@@ -368,7 +368,7 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
                 Puzzle.Clue(
                     wordId = getWordId(isAcross, "${i + 1}"),
                     number = word.clueNum,
-                    text = toHtml(word.clue.clue),
+                    text = toHtml(word.clue),
                     format = format,
                 )
             }
@@ -407,6 +407,13 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
 
         private fun getWordId(isAcross: Boolean, clueNum: String): Int = (if (isAcross) 0 else 1000) + clueNum.toInt()
 
+        private fun toHtml(clue: PuzzleMeJson.Clue): String {
+            return listOfNotNull(
+                clue.clue.ifEmpty { null }?.let { toHtml(it) },
+                if (clue.media.isEmpty()) null else "<i>[Unsupported media]</i>"
+            ).joinToString(" ")
+        }
+
         /**
          * Convert a PuzzleMe JSON string to HTML.
          *
@@ -417,9 +424,9 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
         internal fun toHtml(clue: String): String {
             return Encodings.decodeHtmlEntities(clue)
                 .replace("&", "&amp;")
-                .replace("\\s*<br/?>\\s*".toRegex(RegexOption.IGNORE_CASE), "\n")
+                .replace("\\s*<br ?/?>\\s*".toRegex(RegexOption.IGNORE_CASE), "\n")
                 // Strip other unsupported tags.
-                .replace("</?(?:div|img)(?: [^>]*)?/?>".toRegex(RegexOption.IGNORE_CASE), "")
+                .replace("</?(?:div|img|p)(?: [^>]*)?/?>".toRegex(RegexOption.IGNORE_CASE), "")
                 // Strip <a> tags but leave their contents.
                 .replace("<a(?: [^>]*)?>(.*?)</a>".toRegex(RegexOption.IGNORE_CASE), "$1")
                 .replace("<", "&lt;")
@@ -449,7 +456,7 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
                     description = description,
                     rows = acrossWords.map { word ->
                         val answers = word.originalTerm.split(" / ")
-                        val clues = toHtml(word.clue.clue).split(" / ")
+                        val clues = toHtml(word.clue).split(" / ")
                         if (answers.size != clues.size) {
                             throw InvalidFormatException("Row clue has mismatched clue and answer counts")
                         }
@@ -458,13 +465,13 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
                         }
                     },
                     light = downWords.filter { it.clueNum.toInt() == acrossWords.size + 1 }.map { word ->
-                        RowsGarden.Entry(clue = toHtml(word.clue.clue), answer = word.originalTerm)
+                        RowsGarden.Entry(clue = toHtml(word.clue), answer = word.originalTerm)
                     },
                     medium = downWords.filter { it.clueNum.toInt() == acrossWords.size + 3 }.map { word ->
-                        RowsGarden.Entry(clue = toHtml(word.clue.clue), answer = word.originalTerm)
+                        RowsGarden.Entry(clue = toHtml(word.clue), answer = word.originalTerm)
                     },
                     dark = downWords.filter { it.clueNum.toInt() == acrossWords.size + 2 }.map { word ->
-                        RowsGarden.Entry(clue = toHtml(word.clue.clue), answer = word.originalTerm)
+                        RowsGarden.Entry(clue = toHtml(word.clue), answer = word.originalTerm)
                     },
                     addWordCount = false,
                     addHyphenated = false,
@@ -517,7 +524,7 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
                         Puzzle.Clue(
                             wordId = getWordId(isAcross = false, clueNum = "${i + 1}"),
                             number = ('A' + i).toString(),
-                            text = toHtml(word.clue.clue)
+                            text = toHtml(word.clue)
                         )
                     }
 
@@ -564,7 +571,7 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
                     words = buildWordList(filteredGrid, acrossWords) + buildWordList(filteredGrid, downWords)
                 }
 
-                return Puzzle(
+                Puzzle(
                     title = title,
                     creator = creator,
                     copyright = copyright,
@@ -573,6 +580,7 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
                     clues = clues,
                     hasHtmlClues = true,
                     words = words,
+                    hasUnsupportedFeatures = data.placedWords.any { it.clue.media.isNotEmpty() },
                 )
             }
         }

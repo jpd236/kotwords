@@ -10,7 +10,13 @@ import kotlinx.serialization.serializer
 
 internal object PuzzleMeJson {
     @Serializable
-    internal data class Clue(val clue: String = "")
+    internal object Media
+
+    @Serializable
+    internal data class Clue(
+        val clue: String = "",
+        val media: List<Media> = listOf(),
+    )
 
     internal object NumberToStringSerializer : JsonTransformingSerializer<String>(serializer()) {
         override fun transformDeserialize(element: JsonElement): JsonElement {

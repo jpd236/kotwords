@@ -253,12 +253,16 @@ class Ipuz(private val json: String) : Puzzleable() {
             val empty = generateSequence('0') { it + 1 }.first { !solutionChars.contains(it) }
             val wordsByWordId = puzzle.words.associate { it.id to it.cells }
             val usesStandardCrosswordNumbering = usesStandardCrosswordNumbering(puzzle)
+            val combinedNotes = listOfNotNull(
+                puzzle.description.ifBlank { null },
+                if (puzzle.hasUnsupportedFeatures) UNSUPPORTED_FEATURES_WARNING else null
+            ).joinToString("\n\n")
             return IpuzJson(
                 kind = kinds,
                 title = puzzle.title,
                 copyright = puzzle.copyright,
                 author = puzzle.creator,
-                notes = puzzle.description,
+                notes = combinedNotes,
                 explanation = puzzle.completionMessage,
                 block = "$block",
                 empty = "$empty",
