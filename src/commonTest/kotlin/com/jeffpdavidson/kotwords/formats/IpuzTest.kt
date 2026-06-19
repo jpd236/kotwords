@@ -62,6 +62,14 @@ class IpuzTest {
     }
 
     @Test
+    fun crosswordWithEmptyClue() = runTest {
+        assertEquals(
+            JpzFile(readBinaryResource(IpuzTest::class, "jpz/test-empty-clue.jpz")).getPuzzleable(),
+            Ipuz(readStringResource(IpuzTest::class, "ipuz/test-empty-clue.ipuz")).asPuzzle().asJpz()
+        )
+    }
+
+    @Test
     fun puzzleConversion_crossword() = runTest { assertConversionIsEqual("ipuz/test.ipuz") }
 
     @Test
@@ -113,6 +121,11 @@ class IpuzTest {
 
     @Test
     fun puzzleConversion_twoTone() = runTest { assertConversionIsEqual("two-tone/two-tone.ipuz") }
+
+    @Test
+    fun puzzleConversion_emptyClue() = runTest {
+        assertConversionIsEqual("ipuz/test-empty-clue.ipuz")
+    }
 
     private suspend fun assertConversionIsEqual(ipuzPath: String) {
         val ipuzJson = readStringResource(IpuzTest::class, ipuzPath)

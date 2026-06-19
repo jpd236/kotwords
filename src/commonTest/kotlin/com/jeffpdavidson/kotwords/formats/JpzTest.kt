@@ -85,6 +85,15 @@ class JpzTest {
     }
 
     @Test
+    fun crosswordWithEmptyClue() = runTest {
+        assertTrue(
+            readBinaryResource(JpzTest::class, "puz/test-empty-clue.puz").contentEquals(
+                JpzFile(readBinaryResource(JpzTest::class, "jpz/test-empty-clue.jpz")).asPuzzle().asAcrossLiteBinary()
+            )
+        )
+    }
+
+    @Test
     fun crosswordWithAppletMetadata() = runTest {
         assertTrue(
             readBinaryResource(JpzTest::class, "puz/test.puz").contentEquals(
@@ -175,6 +184,9 @@ class JpzTest {
 
     @Test
     fun puzzleConversion_crossword() = runTest { assertConversionIsEqual("jpz/test.jpz") }
+
+    @Test
+    fun puzzleConversion_crosswordWithEmptyClue() = runTest { assertConversionIsEqual("jpz/test-empty-clue.jpz") }
 
     @Test
     fun puzzleConversion_crosswordWithClueGaps() = runTest { assertConversionIsEqual("jpz/gaps.jpz") }

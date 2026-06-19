@@ -566,7 +566,8 @@ internal data class IpuzJson constructor(
     data class Clue(
         @Serializable(with = NumericStringSerializer::class) val number: String = "",
         val cells: List<List<Int>> = listOf(),
-        val clue: String = "",
+        @OptIn(ExperimentalSerializationApi::class)
+        @EncodeDefault val clue: String = "",
         val enumeration: String = "",
     ) {
         object ClueSerializer : JsonTransformingSerializer<Clue>(serializer()) {
