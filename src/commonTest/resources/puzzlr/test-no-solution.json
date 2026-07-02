@@ -1,0 +1,153 @@
+[
+  {
+    "result": {
+      "data": {
+        "id": 0,
+        "date": "2018-04-10",
+        "shortId": "test",
+        "data": {
+          "title": "Example Puzzle for Kotwords",
+          "author": "Jeff Davidson",
+          "date": "2018-04-10",
+          "description": "© 2018 Jeff Davidson",
+          "contestClueText": "Notepad text goes here.",
+          "width": 5,
+          "height": 5,
+          "grid": [
+            [
+              {"answer": "", "clueNumber": 1},
+              {"answer": "", "clueNumber": 2},
+              {"answer": "", "clueNumber": 3},
+              {"answer": "", "clueNumber": 4},
+              {"answer": "", "isBlack": true}
+            ],
+            [
+              {"answer": "", "clueNumber": 5},
+              {"answer": ""},
+              {"answer": ""},
+              {"answer": ""},
+              {"answer": "", "isBlack": true}
+            ],
+            [
+              {"answer": "", "clueNumber": 6, "isCircled": true},
+              {"answer": ""},
+              {"answer": ""},
+              {"answer": ""},
+              {"answer": "", "isCircled": true}
+            ],
+            [
+              {"answer": "", "isBlack": true},
+              {"answer": "", "clueNumber": 8},
+              {"answer": ""},
+              {"answer": ""},
+              {"answer": ""}
+            ],
+            [
+              {"answer": "", "isBlack": true},
+              {"answer": "", "clueNumber": 9},
+              {"answer": ""},
+              {"answer": ""},
+              {"answer": ""}
+            ]
+          ],
+          "clues": {
+            "across": [
+              {
+                "number": 1,
+                "text": "First across clue with special characters αβγδε",
+                "direction": "across",
+                "answer": "",
+                "startRow": 0,
+                "startCol": 0,
+                "length": 4
+              },
+              {
+                "number": 5,
+                "text": "Second across clue",
+                "direction": "across",
+                "answer": "",
+                "startRow": 1,
+                "startCol": 0,
+                "length": 4
+              },
+              {
+                "number": 6,
+                "text": "Third across clue",
+                "direction": "across",
+                "answer": "",
+                "startRow": 2,
+                "startCol": 0,
+                "length": 5
+              },
+              {
+                "number": 8,
+                "text": "Fourth across clue",
+                "direction": "across",
+                "answer": "",
+                "startRow": 3,
+                "startCol": 1,
+                "length": 4
+              },
+              {
+                "number": 9,
+                "text": "Fifth across clue",
+                "direction": "across",
+                "answer": "",
+                "startRow": 4,
+                "startCol": 1,
+                "length": 4
+              }
+            ],
+            "down": [
+              {
+                "number": 1,
+                "text": "First down clue",
+                "direction": "down",
+                "answer": "",
+                "startRow": 0,
+                "startCol": 0,
+                "length": 3
+              },
+              {
+                "number": 2,
+                "text": "Second down clue",
+                "direction": "down",
+                "answer": "",
+                "startRow": 0,
+                "startCol": 1,
+                "length": 5
+              },
+              {
+                "number": 3,
+                "text": "Third down clue",
+                "direction": "down",
+                "answer": "",
+                "startRow": 0,
+                "startCol": 2,
+                "length": 5
+              },
+              {
+                "number": 4,
+                "text": "Fourth down clue",
+                "direction": "down",
+                "answer": "",
+                "startRow": 0,
+                "startCol": 3,
+                "length": 5
+              },
+              {
+                "number": 7,
+                "text": "Fifth down clue",
+                "direction": "down",
+                "answer": "",
+                "startRow": 2,
+                "startCol": 4,
+                "length": 3
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+]
