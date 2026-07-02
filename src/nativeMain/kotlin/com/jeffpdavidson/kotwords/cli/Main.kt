@@ -30,6 +30,7 @@ import com.jeffpdavidson.kotwords.formats.JpzFile
 import com.jeffpdavidson.kotwords.formats.NewYorkTimes
 import com.jeffpdavidson.kotwords.formats.PuzzleMe
 import com.jeffpdavidson.kotwords.formats.Puzzleable
+import com.jeffpdavidson.kotwords.formats.Puzzlr
 import com.jeffpdavidson.kotwords.formats.Pzzl
 import com.jeffpdavidson.kotwords.formats.Rgz
 import com.jeffpdavidson.kotwords.formats.UclickJpz
