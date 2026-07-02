@@ -81,6 +81,7 @@ internal object NewYorkTimesPluribusJson {
     @Serializable
     data class Overlays(
         val beforeStart: UrlValue = UrlValue.BooleanValue(false),
+        val afterSolve: UrlValue = UrlValue.BooleanValue(false),
     )
 
     @Serializable
@@ -116,6 +117,12 @@ internal object NewYorkTimesPluribusJson {
 
             override val beforeStartOverlay: String? = if (data.overlays.beforeStart is UrlValue.StringValue) {
                 data.overlays.beforeStart.value.ifEmpty { null }
+            } else {
+                null
+            }
+
+            override val afterSolveOverlay: String? = if (data.overlays.afterSolve is UrlValue.StringValue) {
+                data.overlays.afterSolve.value.ifEmpty { null }
             } else {
                 null
             }

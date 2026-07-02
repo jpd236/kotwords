@@ -99,6 +99,12 @@ class NewYorkTimes internal constructor(
 
         val webNotes = data.notes?.filter { it.platforms.web }
 
+        val completionMessage = if (data.afterSolveOverlay?.isNotEmpty() == true) {
+            "Congratulations! This image is intended to display on the completed grid: ${data.afterSolveOverlay}"
+        } else {
+            ""
+        }
+
         return Puzzle(
             title = listOfNotNull(baseTitle, data.title.normalizeEntities().ifEmpty { null }).joinToString(" "),
             creator = renderByline(constructors = data.constructors, editor = data.editor),
@@ -118,6 +124,7 @@ class NewYorkTimes internal constructor(
             },
             hasHtmlClues = true,
             hasUnsupportedFeatures = hasUnsupportedFeatures,
+            completionMessage = completionMessage,
         )
     }
 

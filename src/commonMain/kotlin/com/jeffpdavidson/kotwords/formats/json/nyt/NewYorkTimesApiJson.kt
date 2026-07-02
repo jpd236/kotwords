@@ -11,7 +11,10 @@ internal object NewYorkTimesApiJson {
     data class Dimensions(val height: Int, val width: Int)
 
     @Serializable
-    data class Overlays(val beforeStart: Int? = null)
+    data class Overlays(
+        val beforeStart: Int? = null,
+        val afterSolve: Int? = null,
+    )
 
     @Serializable
     data class Text(
@@ -95,12 +98,16 @@ internal object NewYorkTimesApiJson {
                 )
             }
 
-            override val beforeStartOverlay: String? =
-                if (body.overlays.beforeStart != null && (body.overlays.beforeStart - 1) in data.assets.indices) {
-                    data.assets[body.overlays.beforeStart - 1].uri.ifEmpty { null }
+            override val beforeStartOverlay: String? = getOverlayImage(body.overlays.beforeStart)
+            override val afterSolveOverlay: String? = getOverlayImage(body.overlays.afterSolve)
+
+            private fun getOverlayImage(index: Int?): String? {
+                return if (index != null && index - 1 in data.assets.indices) {
+                    data.assets[index - 1].uri.ifEmpty { null }
                 } else {
                     null
                 }
+            }
         }
     }
 }

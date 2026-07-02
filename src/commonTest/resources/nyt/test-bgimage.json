@@ -254,7 +254,8 @@
       }
     ],
     "overlays": {
-      "beforeStart": "https://fake.url/bgimage.png"
+      "beforeStart": "https://fake.url/bgimage.png",
+      "afterSolve": "https://fake.url/aftersolve.png"
     },
     "board": {
       "children": [

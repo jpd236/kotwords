@@ -62,5 +62,6 @@ internal interface NewYorkTimesJson {
     val clueLists: List<ClueList>
     val clues: List<Clue>
     val beforeStartOverlay: String?
+    val afterSolveOverlay: String?
     val board: XmlElement
 }

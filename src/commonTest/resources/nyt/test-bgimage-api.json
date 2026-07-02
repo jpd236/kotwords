@@ -2,6 +2,9 @@
   "assets": [
     {
       "uri": "https://fake.url/bgimage.png"
+    },
+    {
+      "uri": "https://fake.url/aftersolve.png"
     }
   ],
   "body": [
@@ -308,7 +311,8 @@
         ]
       },
       "overlays": {
-        "beforeStart": 1
+        "beforeStart": 1,
+        "afterSolve": 2
       }
     }
   ],
