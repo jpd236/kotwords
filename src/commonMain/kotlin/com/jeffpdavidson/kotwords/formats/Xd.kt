@@ -110,7 +110,7 @@ class Xd(private val data: String) : DelegatingPuzzleable() {
             description = description.toHtml(),
             grid = sections.getOrElse("grid") { listOf<String>() }.mapIndexed { y, row ->
                 row.mapIndexed { x, ch ->
-                    if (ch == '.') {
+                    if (ch == '#' || ch == '.') {
                         Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                     } else {
                         val solutionChar = "${ch.uppercase()}"
