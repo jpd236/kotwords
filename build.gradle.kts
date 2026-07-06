@@ -5,9 +5,10 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
+import org.gradle.jvm.tasks.Jar
 
 plugins {
-    id("com.vanniktech.maven.publish") version "0.36.0"
+    id("com.vanniktech.maven.publish") version "0.37.0"
     id("org.jetbrains.dokka") version "2.1.0"
     kotlin("multiplatform") version "2.3.10"
     kotlin("plugin.serialization") version "2.3.10"
@@ -128,6 +129,18 @@ kotlin {
 
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+}
+
+// Exclude large and/or internal-only source files from sources JARs.
+tasks.withType<Jar>().matching { task -> task.name.endsWith("SourcesJar") }.configureEach {
+    filesMatching(listOf(
+        "**/cli/**",
+        "**/formats/pdf/TtfFonts.kt",
+        "**/formats/unidecode/x*.kt",
+        "**/web/**",
+    )) {
+        exclude()
     }
 }
 
