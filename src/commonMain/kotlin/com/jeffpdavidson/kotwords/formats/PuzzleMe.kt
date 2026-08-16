@@ -44,8 +44,7 @@ class PuzzleMe(val json: String) : DelegatingPuzzleable() {
             }
 
         val images = data.imagesInGrid.flatMap { image ->
-            val format = ParsedImageFormat.fromExtension(image.imageFormat)
-            val parsedImage = ParsedImage.parse(format, image.image.decodeBase64()!!.toByteArray())
+            val parsedImage = ParsedImage.parse(image.image.decodeBase64()!!.toByteArray())
             val widthBoxes = image.endX - image.startX + 1
             val heightBoxes = image.endY - image.startY + 1
             val imageWidth = (parsedImage.width / widthBoxes.toDouble())

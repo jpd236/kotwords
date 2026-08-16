@@ -7,23 +7,6 @@ import korlibs.image.core.CoreImageFormat
 import korlibs.image.core.decodeBytes
 import korlibs.image.core.encodeBytes
 
-internal enum class ParsedImageFormat {
-    GIF,
-    JPG,
-    PNG;
-
-    companion object {
-        fun fromExtension(extension: String): ParsedImageFormat {
-            return when (extension.lowercase()) {
-                "gif" -> GIF
-                "jpg", "jpeg" -> JPG
-                "png" -> PNG
-                else -> throw UnsupportedOperationException("Unknown image type $extension")
-            }
-        }
-    }
-}
-
 internal class ParsedImage private constructor(private val coreImage: CoreImage32) {
     val width: Int = coreImage.width
     val height: Int = coreImage.height
@@ -60,10 +43,7 @@ internal class ParsedImage private constructor(private val coreImage: CoreImage3
     }
 
     companion object {
-        suspend fun parse(
-            format: ParsedImageFormat,
-            data: ByteArray
-        ): ParsedImage {
+        suspend fun parse(data: ByteArray): ParsedImage {
             return ParsedImage(CoreImage.decodeBytes(data).to32())
         }
     }

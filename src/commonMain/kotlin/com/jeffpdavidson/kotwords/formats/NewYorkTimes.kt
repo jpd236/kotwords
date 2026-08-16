@@ -39,8 +39,7 @@ class NewYorkTimes internal constructor(
             }
         val cellBackgrounds = mutableMapOf<Pair<Int, Int>, ByteString>()
         if (backgroundImageData != null) {
-            val format = ParsedImageFormat.fromExtension(backgroundImageUrl!!.substringAfterLast('.'))
-            ParsedImage.parse(format, backgroundImageData).let { backgroundImage ->
+            ParsedImage.parse(backgroundImageData).let { backgroundImage ->
                 val borderWidth = getBorderWidth(backgroundImage.width)
                 if (borderWidth == null) {
                     // Have a background image but can't determine the border width to crop it properly.
