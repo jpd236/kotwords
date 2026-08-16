@@ -151,6 +151,10 @@ enum class Format(
     UCLICK_JPZ(listOf(), { data, date, _, _ -> UclickJpz(data.decodeToString(), date) }),
     UCLICK_JSON(listOf(), { data, _, _, copyright -> UclickJson(data.decodeToString(), copyright) }),
     UCLICK_XML(listOf(), { data, date, _, _ -> UclickXml(data.decodeToString(), date) }),
+    USA_TODAY_JSON(
+        listOf(),
+        { data, _, _, copyright -> UclickJson.fromUsaTodayJson(data.decodeToString(), copyright) }
+    ),
     WALL_STREET_JOURNAL_JSON(listOf(), { data, _, _, _ -> WallStreetJournal(data.decodeToString()) }),
     WALL_STREET_JOURNAL_ACROSTIC_JSON(
         listOf(),

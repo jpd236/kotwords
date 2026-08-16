@@ -22,6 +22,19 @@ class UclickJsonTest {
     }
 
     @Test
+    fun usaTodayCrossword() = runTest {
+        assertTrue(
+            readBinaryResource(UclickJsonTest::class, "puz/test-simple.puz").contentEquals(
+                UclickJson.fromUsaTodayJson(
+                    readStringResource(UclickJsonTest::class, "uclick/test-simple-usatoday.json"),
+                    copyright = "Jeff Davidson",
+                    addDateToTitle = false
+                ).asPuzzle().asAcrossLiteBinary()
+            )
+        )
+    }
+
+    @Test
     fun urlDecoding() = runTest {
         val puzzle = UclickJson(readStringResource(UclickJsonTest::class, "uclick/test-urldecode.json")).asPuzzle()
         assertEquals("Author A & Author B", puzzle.creator)
