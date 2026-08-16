@@ -26,7 +26,7 @@ In your `build.gradle`:
 
 ```groovy
 dependencies {
-  implementation "com.jeffpdavidson.kotwords:kotwords:1.5.3"
+  implementation "com.jeffpdavidson.kotwords:kotwords:1.5.4"
 }
 ```
 
