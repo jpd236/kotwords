@@ -1,0 +1,95 @@
+{
+  "json": {
+    "headline": "",
+    "type": "crossword",
+    "copy": {
+      "title": "Example Puzzle for Kotwords",
+      "id": 12345,
+      "description": "Notepad text goes here.",
+      "publisher": "",
+      "setter": "Jeff Davidson",
+      "byline": "Jeff Davidson",
+      "gridsize": {
+        "type": "Standard",
+        "cols": "5",
+        "rows": "5"
+      },
+      "words": [
+        { "id": 1, "x": "1-4", "y": "1", "solution": "ABCD" },
+        { "id": 2, "x": "1-4", "y": "2", "solution": "EFGH" },
+        { "id": 3, "x": "1-5", "y": "3", "solution": "IJKLM" },
+        { "id": 4, "x": "2-5", "y": "4", "solution": "NOPQ" },
+        { "id": 5, "x": "2-5", "y": "5", "solution": "RSTU" },
+        { "id": 6, "x": "1", "y": "1-3", "solution": "AEI" },
+        { "id": 7, "x": "2", "y": "1-5", "solution": "BFJNR" },
+        { "id": 8, "x": "3", "y": "1-5", "solution": "CGKOS" },
+        { "id": 9, "x": "4", "y": "1-5", "solution": "DHLPT" },
+        { "id": 10, "x": "5", "y": "3-5", "solution": "MQU" }
+      ],
+      "clues": [
+        {
+          "name": "Clues",
+          "title": "Across",
+          "clues": [
+            { "word": 1, "number": 1, "clue": "First across clue with <i>italic</i> &amp; &#039;quotes&#039;", "format": "4" },
+            { "word": 2, "number": 5, "clue": "Second across clue", "format": "4" },
+            { "word": 3, "number": 6, "clue": "Third across clue", "format": "5" },
+            { "word": 4, "number": 8, "clue": "Fourth across clue", "format": "4" },
+            { "word": 5, "number": 9, "clue": "Fifth across clue", "format": "4" }
+          ]
+        },
+        {
+          "name": "Clues",
+          "title": "Down",
+          "clues": [
+            { "word": 6, "number": 1, "clue": "First down clue", "format": "3" },
+            { "word": 7, "number": 2, "clue": "Second down clue", "format": "5" },
+            { "word": 8, "number": 3, "clue": "Third down clue", "format": "5" },
+            { "word": 9, "number": 4, "clue": "Fourth down clue", "format": "5" },
+            { "word": 10, "number": 7, "clue": "Fifth down clue", "format": "3" }
+          ]
+        }
+      ]
+    },
+    "grid": [
+      [
+        { "SquareID": 1, "Number": "1", "Blank": "", "Letter": "A" },
+        { "SquareID": 2, "Number": "2", "Blank": "", "Letter": "B" },
+        { "SquareID": 3, "Number": "3", "Blank": "", "Letter": "C" },
+        { "SquareID": 4, "Number": "4", "Blank": "", "Letter": "D" },
+        { "SquareID": 5, "Number": "", "Blank": "blank", "Letter": "" }
+      ],
+      [
+        { "SquareID": 6, "Number": "5", "Blank": "", "Letter": "E" },
+        { "SquareID": 7, "Number": "", "Blank": "", "Letter": "F" },
+        { "SquareID": 8, "Number": "", "Blank": "", "Letter": "G" },
+        { "SquareID": 9, "Number": "", "Blank": "", "Letter": "H" },
+        { "SquareID": 10, "Number": "", "Blank": "blank", "Letter": "" }
+      ],
+      [
+        { "SquareID": 11, "Number": "6", "Blank": "", "Letter": "I", "Shaded": true },
+        { "SquareID": 12, "Number": "", "Blank": "", "Letter": "J" },
+        { "SquareID": 13, "Number": "", "Blank": "", "Letter": "K" },
+        { "SquareID": 14, "Number": "", "Blank": "", "Letter": "L" },
+        { "SquareID": 15, "Number": "7", "Blank": "", "Letter": "M", "Shaded": true }
+      ],
+      [
+        { "SquareID": 16, "Number": "", "Blank": "blank", "Letter": "" },
+        { "SquareID": 17, "Number": "8", "Blank": "", "Letter": "N" },
+        { "SquareID": 18, "Number": "", "Blank": "", "Letter": "O" },
+        { "SquareID": 19, "Number": "", "Blank": "", "Letter": "P" },
+        { "SquareID": 20, "Number": "", "Blank": "", "Letter": "Q" }
+      ],
+      [
+        { "SquareID": 21, "Number": "", "Blank": "blank", "Letter": "" },
+        { "SquareID": 22, "Number": "9", "Blank": "", "Letter": "R" },
+        { "SquareID": 23, "Number": "", "Blank": "", "Letter": "S" },
+        { "SquareID": 24, "Number": "", "Blank": "", "Letter": "T" },
+        { "SquareID": 25, "Number": "", "Blank": "", "Letter": "U" }
+      ]
+    ],
+    "meta": {
+      "variant": "Cryptic Crossword"
+    }
+  }
+}

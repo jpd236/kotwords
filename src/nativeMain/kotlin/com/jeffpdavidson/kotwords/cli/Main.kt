@@ -33,6 +33,7 @@ import com.jeffpdavidson.kotwords.formats.Puzzleable
 import com.jeffpdavidson.kotwords.formats.Puzzlr
 import com.jeffpdavidson.kotwords.formats.Pzzl
 import com.jeffpdavidson.kotwords.formats.Rgz
+import com.jeffpdavidson.kotwords.formats.Telegraph
 import com.jeffpdavidson.kotwords.formats.UclickJpz
 import com.jeffpdavidson.kotwords.formats.UclickJson
 import com.jeffpdavidson.kotwords.formats.UclickXml
@@ -148,6 +149,7 @@ enum class Format(
     PUZZLE_ME_JSON(listOf(), { data, _, _, _ -> PuzzleMe(data.decodeToString()) }),
     PUZZLR_JSON(listOf(), { data, _, _, _ -> Puzzlr(data.decodeToString()) }),
     PZZL_TEXT(listOf(), { data, _, _, _ -> Pzzl(data.decodeToString()) }),
+    TELEGRAPH_JSON(listOf(), { data, _, _, copyright -> Telegraph(data.decodeToString(), copyright) }),
     UCLICK_JPZ(listOf(), { data, date, _, _ -> UclickJpz(data.decodeToString(), date) }),
     UCLICK_JSON(listOf(), { data, _, _, copyright -> UclickJson(data.decodeToString(), copyright) }),
     UCLICK_XML(listOf(), { data, date, _, _ -> UclickXml(data.decodeToString(), date) }),
