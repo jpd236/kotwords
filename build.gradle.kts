@@ -43,14 +43,6 @@ kotlin {
     linuxX64()
     macosX64()
 
-    targets.all {
-        if (this is KotlinNativeTarget) {
-            binaries.executable {
-                entryPoint = "com.jeffpdavidson.kotwords.cli.main"
-            }
-        }
-    }
-
     applyDefaultHierarchyTemplate()
 
     sourceSets {
@@ -122,8 +114,25 @@ kotlin {
                 implementation("com.soywiz:korlibs-io:6.0.0")
                 implementation("com.fleeksoft.ksoup:ksoup:0.2.6")
                 implementation("net.thauvin.erik.urlencoder:urlencoder-lib:1.6.0")
+            }
+        }
+
+        val nativeCli by creating {
+            dependencies {
                 implementation("com.github.ajalt.clikt:clikt:5.1.0")
             }
+        }
+    }
+
+    targets.withType<KotlinNativeTarget> {
+        val mainCompilation = compilations.getByName("main")
+        val cliCompilation = compilations.create("cli") {
+            associateWith(mainCompilation)
+        }
+        this@kotlin.sourceSets.getByName("${name}Cli").dependsOn(this@kotlin.sourceSets.getByName("nativeCli"))
+        binaries.executable {
+            compilation = cliCompilation
+            entryPoint = "com.jeffpdavidson.kotwords.cli.main"
         }
     }
 
@@ -133,7 +142,7 @@ kotlin {
 }
 
 // Exclude large and/or internal-only source files from sources JARs.
-tasks.withType<Jar>().matching { task -> task.name.endsWith("SourcesJar") }.configureEach {
+tasks.withType<Jar>().matching { it.name.endsWith("SourcesJar", ignoreCase = true) }.configureEach {
     filesMatching(listOf(
         "**/cli/**",
         "**/formats/pdf/TtfFonts.kt",
