@@ -14,6 +14,7 @@ object Index {
     private val GENERATORS = listOf(
         "Acrostic",
         "Around the Bend",
+        "Cascades",
         "Coded",
         "Crossword",
         "Crosswordle",
