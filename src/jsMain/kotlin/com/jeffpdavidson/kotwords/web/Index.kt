@@ -26,6 +26,7 @@ object Index {
         "Marching Bands",
         "Patchwork",
         "Rows Garden",
+        "Shapeshifter",
         "Snake Charmer",
         "Spell Weaving",
         "Spiral",
