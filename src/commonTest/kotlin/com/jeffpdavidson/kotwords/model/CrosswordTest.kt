@@ -209,6 +209,107 @@ class CrosswordTest {
         )
     }
 
+    @Test
+    fun fromRawInput() {
+        val crossword = Crossword.fromRawInput(
+            title = "Title",
+            creator = "Creator",
+            copyright = "Copyright",
+            description = "Description",
+            grid = """
+                AB.
+                CDE
+                .FG
+            """.trimIndent(),
+            acrossClues = """
+                Clue 1A
+                Clue 3A
+                Clue 5A
+            """.trimIndent(),
+            downClues = """
+                Clue 1D
+                Clue 2D
+                Clue 4D
+            """.trimIndent(),
+        )
+
+        assertEquals("Title", crossword.title)
+        assertEquals("Creator", crossword.creator)
+        assertEquals("Copyright", crossword.copyright)
+        assertEquals("Description", crossword.description)
+        assertEquals(
+            listOf(
+                listOf(Puzzle.Cell("A"), Puzzle.Cell("B"), Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)),
+                listOf(Puzzle.Cell("C"), Puzzle.Cell("D"), Puzzle.Cell("E")),
+                listOf(Puzzle.Cell(cellType = Puzzle.CellType.BLOCK), Puzzle.Cell("F"), Puzzle.Cell("G")),
+            ),
+            crossword.grid,
+        )
+        assertEquals(
+            mapOf(1 to "Clue 1A", 3 to "Clue 3A", 5 to "Clue 5A"),
+            crossword.acrossClues,
+        )
+        assertEquals(
+            mapOf(1 to "Clue 1D", 2 to "Clue 2D", 4 to "Clue 4D"),
+            crossword.downClues,
+        )
+    }
+
+    @Test
+    fun fromRawInput_answerLengths() {
+        val crossword = Crossword.fromRawInput(
+            title = "Title",
+            creator = "Creator",
+            copyright = "Copyright",
+            grid = """
+                ABC
+                DEF
+                GHI
+            """.trimIndent(),
+            acrossAnswerLengths = """
+                1 2
+                3
+                2 1
+            """.trimIndent(),
+            downAnswerLengths = """
+                2 1
+                3
+                1 2
+            """.trimIndent(),
+            acrossClues = "2A\n3A\n5A",
+            downClues = "1D\n2D\n4D",
+        )
+
+        assertEquals(
+            listOf(
+                listOf(
+                    Puzzle.Cell("A"),
+                    Puzzle.Cell("B", borderDirections = setOf(Puzzle.BorderDirection.LEFT)),
+                    Puzzle.Cell("C"),
+                ),
+                listOf(
+                    Puzzle.Cell("D"),
+                    Puzzle.Cell("E"),
+                    Puzzle.Cell("F", borderDirections = setOf(Puzzle.BorderDirection.TOP)),
+                ),
+                listOf(
+                    Puzzle.Cell("G", borderDirections = setOf(Puzzle.BorderDirection.TOP)),
+                    Puzzle.Cell("H"),
+                    Puzzle.Cell("I", borderDirections = setOf(Puzzle.BorderDirection.LEFT)),
+                ),
+            ),
+            crossword.grid,
+        )
+        assertEquals(
+            mapOf(2 to "2A", 3 to "3A", 5 to "5A"),
+            crossword.acrossClues,
+        )
+        assertEquals(
+            mapOf(1 to "1D", 2 to "2D", 4 to "4D"),
+            crossword.downClues,
+        )
+    }
+
     private fun assertGridHasNumbers(
         grid: List<List<Puzzle.Cell>>,
         expectedAcrossCells: List<Pair<Pair<Int, Int>, Int>>,

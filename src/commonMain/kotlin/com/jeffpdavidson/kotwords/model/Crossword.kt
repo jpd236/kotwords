@@ -1,6 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.Puzzleable
+import com.jeffpdavidson.kotwords.util.trimmedLines
 
 /**
  * A representation of a crossword puzzle with standard numbering.
@@ -206,6 +207,111 @@ data class Crossword(
             }
             return borderCell.cellType.isBlack() ||
                     (useBorders && borderCell.borderDirections.contains(oppositeDirection))
+        }
+
+        fun fromRawInput(
+            title: String,
+            creator: String,
+            copyright: String,
+            description: String = "",
+            grid: String,
+            acrossClues: String,
+            downClues: String,
+            acrossAnswerLengths: String = "",
+            downAnswerLengths: String = "",
+            borders: Map<Pair<Int, Int>, Set<Puzzle.BorderDirection>> = emptyMap(),
+            hasHtmlClues: Boolean = false,
+            diagramless: Boolean = false,
+        ): Crossword {
+            val computedBorders = borders.mapValues { it.value.toMutableSet() }.toMutableMap()
+            val acrossAnswerLengthRows = acrossAnswerLengths.trimmedLines()
+            if (acrossAnswerLengthRows.isNotEmpty()) {
+                acrossAnswerLengthRows.forEachIndexed { y, lengths ->
+                    var x = 0
+                    lengths.split("\\s+".toRegex()).forEachIndexed { i, length ->
+                        if (i > 0) {
+                            computedBorders.getOrPut(x to y) { mutableSetOf() }.add(Puzzle.BorderDirection.LEFT)
+                        }
+                        x += length.toInt()
+                    }
+                }
+            }
+            val downAnswerLengthRows = downAnswerLengths.trimmedLines()
+            if (downAnswerLengthRows.isNotEmpty()) {
+                downAnswerLengthRows.forEachIndexed { x, lengths ->
+                    var y = 0
+                    lengths.split("\\s+".toRegex()).forEachIndexed { i, length ->
+                        if (i > 0) {
+                            computedBorders.getOrPut(x to y) { mutableSetOf() }.add(Puzzle.BorderDirection.TOP)
+                        }
+                        y += length.toInt()
+                    }
+                }
+            }
+
+            val crosswordGrid = grid.uppercase().trimmedLines().mapIndexed { y, row ->
+                val columns = if (row.contains("\\s".toRegex())) {
+                    row.split("\\s+".toRegex())
+                } else {
+                    row.map { "$it" }
+                }
+                columns.mapIndexed { x, col ->
+                    when (col) {
+                        "." -> Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
+                        "-" -> Puzzle.Cell(
+                            solution = "",
+                            borderDirections = computedBorders.getOrElse(x to y) { setOf() },
+                        )
+
+                        else -> Puzzle.Cell(
+                            solution = col,
+                            borderDirections = computedBorders.getOrElse(x to y) { setOf() },
+                        )
+                    }
+                }
+            }
+            require(crosswordGrid.isNotEmpty() && crosswordGrid.all { it.size == crosswordGrid[0].size }) {
+                "Crossword grid is not square"
+            }
+
+            val orderedAcrossClues = acrossClues.trimmedLines()
+            val orderedDownClues = downClues.trimmedLines()
+            val acrossCluesByClueNumber = mutableMapOf<Int, String>()
+            val downCluesByClueNumber = mutableMapOf<Int, String>()
+            var currentAcrossClue = 0
+            var currentDownClue = 0
+            forEachNumberedCell(crosswordGrid) { _, _, clueNumber, isAcross, isDown ->
+                if (isAcross) {
+                    require(currentAcrossClue in orderedAcrossClues.indices) {
+                        "Number of across clues does not match grid"
+                    }
+                    acrossCluesByClueNumber[clueNumber] = orderedAcrossClues[currentAcrossClue++]
+                }
+                if (isDown) {
+                    require(currentDownClue in orderedDownClues.indices) {
+                        "Number of down clues does not match grid"
+                    }
+                    downCluesByClueNumber[clueNumber] = orderedDownClues[currentDownClue++]
+                }
+            }
+            require(currentAcrossClue == orderedAcrossClues.size) {
+                "Too many across clues; expected $currentAcrossClue from grid but have ${orderedAcrossClues.size}"
+            }
+            require(currentDownClue == orderedDownClues.size) {
+                "Too many down clues; expected $currentDownClue from grid but have ${orderedDownClues.size}"
+            }
+
+            return Crossword(
+                title = title,
+                creator = creator,
+                copyright = copyright,
+                description = description,
+                grid = crosswordGrid,
+                acrossClues = acrossCluesByClueNumber,
+                downClues = downCluesByClueNumber,
+                hasHtmlClues = hasHtmlClues,
+                diagramless = diagramless,
+            )
         }
     }
 }
