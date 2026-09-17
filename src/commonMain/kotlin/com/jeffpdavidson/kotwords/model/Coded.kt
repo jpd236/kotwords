@@ -74,7 +74,7 @@ data class Coded(
     }
 
     companion object {
-        fun fromRawInput(
+        internal fun fromRawInput(
             title: String,
             creator: String,
             copyright: String,

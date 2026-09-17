@@ -305,11 +305,16 @@ object Pdf {
                             backgroundColor = backgroundColor,
                         )
                     }
-                    if (square.cellType == Puzzle.CellType.CLUE && square.solution.isNotBlank()) {
+                    val textToRender = if (square.cellType == Puzzle.CellType.CLUE) {
+                        square.solution
+                    } else {
+                        square.entry
+                    }
+                    if (textToRender.isNotBlank()) {
                         // Render the square's solution.
                         // Truncate the solution if it's greater than eight characters, and split it into two lines if
                         // it's more than four characters.
-                        var solutionString = square.solution
+                        var solutionString = textToRender
                         if (solutionString.length > 8) {
                             solutionString = solutionString.substring(0, 5) + "..."
                         }

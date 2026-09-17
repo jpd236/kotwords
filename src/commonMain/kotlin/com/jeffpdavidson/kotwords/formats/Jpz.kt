@@ -589,9 +589,12 @@ sealed class Jpz : Puzzleable() {
         @SerialName("dummy")
         private data class Dummy(@XmlValue(true) val data: Snippet)
 
+        private val LINE_BREAK_REGEX = "(?:[ \\t]*(?:<br\\s*/?>|\\r?\\n))+[ \\t]*".toRegex()
+
         /** Parse the given HTML string as a [Snippet] (i.e. for use in clues). */
         internal fun htmlToSnippet(html: String): Snippet {
-            val dummyXml = "<dummy>$html</dummy>"
+            val sanitizedHtml = html.trim().replace(LINE_BREAK_REGEX, " / ")
+            val dummyXml = "<dummy>$sanitizedHtml</dummy>"
             var snippet = XML(module()) {
                 autoPolymorphic = true
             }.decodeFromString(Dummy.serializer(), dummyXml).data
@@ -622,7 +625,7 @@ sealed class Jpz : Puzzleable() {
             if (start) {
                 val first = trimmed[0]
                 trimmed[0] = when (first) {
-                    is String -> first.trimStart()
+                    is String -> first.trimStart().removePrefix("/").trimStart()
                     is B -> B(trimWhitespace(first.data, start = true, end = false))
                     is I -> I(trimWhitespace(first.data, start = true, end = false))
                     is Sub -> Sub(trimWhitespace(first.data, start = true, end = false))
@@ -634,7 +637,7 @@ sealed class Jpz : Puzzleable() {
             if (end) {
                 val last = trimmed[trimmed.lastIndex]
                 trimmed[trimmed.lastIndex] = when (last) {
-                    is String -> last.trimEnd()
+                    is String -> last.trimEnd().removeSuffix("/").trimEnd()
                     is B -> B(trimWhitespace(last.data, start = false, end = true))
                     is I -> I(trimWhitespace(last.data, start = false, end = true))
                     is Sub -> Sub(trimWhitespace(last.data, start = false, end = true))

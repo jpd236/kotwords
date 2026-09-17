@@ -117,7 +117,7 @@ class Ipuz(private val json: String) : Puzzleable() {
                         Puzzle.Clue(
                             wordId = wordId,
                             number = clue.number,
-                            text = clue.clue,
+                            text = fromIpuzHtml(clue.clue),
                             format = if (ipuz.showEnumerations) clue.enumeration else ""
                         )
                     )
@@ -129,9 +129,9 @@ class Ipuz(private val json: String) : Puzzleable() {
         } else {
             // No words provided - use standard crossword conventions.
             val acrossClues = ipuz.clues.getOrElse("Across") { listOf() }
-            val acrossClueMap = acrossClues.associate { it.number.toInt() to it.clue }
+            val acrossClueMap = acrossClues.associate { it.number.toInt() to fromIpuzHtml(it.clue) }
             val downClues = ipuz.clues.getOrElse("Down") { listOf() }
-            val downClueMap = downClues.associate { it.number.toInt() to it.clue }
+            val downClueMap = downClues.associate { it.number.toInt() to fromIpuzHtml(it.clue) }
             val crossword = Crossword(
                 title = ipuz.title,
                 creator = ipuz.author,
@@ -161,8 +161,8 @@ class Ipuz(private val json: String) : Puzzleable() {
             title = ipuz.title,
             creator = ipuz.author,
             copyright = ipuz.copyright,
-            description = ipuz.notes,
-            completionMessage = ipuz.explanation,
+            description = fromIpuzHtml(ipuz.notes),
+            completionMessage = fromIpuzHtml(ipuz.explanation),
             grid = grid,
             clues = clueLists,
             words = words,
@@ -262,8 +262,8 @@ class Ipuz(private val json: String) : Puzzleable() {
                 title = puzzle.title,
                 copyright = puzzle.copyright,
                 author = puzzle.creator,
-                notes = combinedNotes,
-                explanation = puzzle.completionMessage,
+                notes = toIpuzHtml(combinedNotes),
+                explanation = toIpuzHtml(puzzle.completionMessage),
                 block = "$block",
                 empty = "$empty",
                 dimensions = IpuzJson.Dimensions(
@@ -305,7 +305,7 @@ class Ipuz(private val json: String) : Puzzleable() {
                                 color = cell.backgroundColor.substringAfter('#'),
                                 colorText = cell.foregroundColor.substringAfter('#'),
                             ),
-                            value = if (cell.cellType == Puzzle.CellType.CLUE) cell.solution else "",
+                            value = if (cell.cellType == Puzzle.CellType.CLUE) cell.solution else cell.entry,
                         )
                     }
                 },
@@ -349,7 +349,7 @@ class Ipuz(private val json: String) : Puzzleable() {
                                 // each clue. This increases compatibility with more applications due to the ambiguity
                                 // between whether this list is expected to use 0-based or 1-based coordinates.
                                 cells = if (usesStandardCrosswordNumbering) listOf() else cells,
-                                clue = clue.text,
+                                clue = toIpuzHtml(clue.text),
                                 enumeration = clue.format,
                             )
                         }
@@ -405,6 +405,10 @@ class Ipuz(private val json: String) : Puzzleable() {
             // If the maps are identical, then the puzzle is using standard numbering.
             return standardAcrossClueCellMap == acrossClueCellMap && standardDownClueCellMap == downClueCellMap
         }
+
+        private val HTML_LINE_BREAK_REGEX = "\\s*<br\\s*/?>\\s*".toRegex(RegexOption.IGNORE_CASE)
+        private fun fromIpuzHtml(text: String): String = text.replace(HTML_LINE_BREAK_REGEX, "\n")
+        private fun toIpuzHtml(text: String): String = text.replace("\r?\n".toRegex(), "<br />")
     }
 }
 

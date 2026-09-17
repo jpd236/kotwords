@@ -217,7 +217,7 @@ data class Acrostic(
     }
 
     companion object {
-        fun fromRawInput(
+        internal fun fromRawInput(
             title: String,
             creator: String,
             copyright: String,

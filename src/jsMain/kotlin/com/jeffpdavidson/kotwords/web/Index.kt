@@ -31,6 +31,7 @@ object Index {
         "Snake Charmer",
         "Spell Weaving",
         "Spiral",
+        "Twins",
         "Twists and Turns",
         "Two-Tone"
     )

@@ -70,6 +70,15 @@ class IpuzTest {
     }
 
     @Test
+    fun crosswordWithHtmlLineBreaks() = runTest {
+        val puzzle = Ipuz(readStringResource(IpuzTest::class, "ipuz/test-html-line-breaks.ipuz")).asPuzzle()
+        assertEquals("Notepad text goes here.\nSecond line of notes.", puzzle.description)
+        assertEquals("Explanation line 1\nExplanation line 2", puzzle.completionMessage)
+        assertEquals("First across clue\nSecond line αβγδε", puzzle.clues[0].clues[0].text)
+        assertEquals("First down clue\nSecond line", puzzle.clues[1].clues[0].text)
+    }
+
+    @Test
     fun puzzleConversion_crossword() = runTest { assertConversionIsEqual("ipuz/test.ipuz") }
 
     @Test
@@ -125,6 +134,11 @@ class IpuzTest {
     @Test
     fun puzzleConversion_emptyClue() = runTest {
         assertConversionIsEqual("ipuz/test-empty-clue.ipuz")
+    }
+
+    @Test
+    fun puzzleConversion_htmlLineBreaks() = runTest {
+        assertConversionIsEqual("ipuz/test-html-line-breaks.ipuz")
     }
 
     private suspend fun assertConversionIsEqual(ipuzPath: String) {

@@ -177,6 +177,46 @@ class JpzTest {
     }
 
     @Test
+    fun htmlToSnippet_lineBreaks() = runTest {
+        assertEquals(
+            listOf("Line 1 / Line 2"),
+            Jpz.htmlToSnippet("Line 1\nLine 2")
+        )
+        assertEquals(
+            listOf("Line 1 / Line 2"),
+            Jpz.htmlToSnippet("Line 1<br />Line 2")
+        )
+        assertEquals(
+            listOf(Jpz.B(listOf("Line 1")), Jpz.Span(listOf(" / ")), Jpz.B(listOf("Line 2"))),
+            Jpz.htmlToSnippet("<b>Line 1</b>\n<b>Line 2</b>")
+        )
+        assertEquals(
+            listOf(Jpz.B(listOf("Line 1")), Jpz.Span(listOf(" / ")), Jpz.B(listOf("Line 2"))),
+            Jpz.htmlToSnippet("<b>Line 1</b><br><b>Line 2</b>")
+        )
+        assertEquals(
+            listOf("Line 1 / Line 2"),
+            Jpz.htmlToSnippet("Line 1\n\n\nLine 2")
+        )
+        assertEquals(
+            listOf("Line 1 / Line 2"),
+            Jpz.htmlToSnippet("Line 1\n  \n  \nLine 2")
+        )
+        assertEquals(
+            listOf("Line 1 / Line 2"),
+            Jpz.htmlToSnippet("Line 1<br><br>Line 2")
+        )
+        assertEquals(
+            listOf("Line 1 / Line 2"),
+            Jpz.htmlToSnippet("Line 1<br /><br />Line 2")
+        )
+        assertEquals(
+            listOf("Line 1 / Line 2"),
+            Jpz.htmlToSnippet("Line 1<br>\n<br>Line 2")
+        )
+    }
+
+    @Test
     fun puzzleConversion_acrostic() = runTest { assertConversionIsEqual("acrostic/acrostic-attribution.jpz") }
 
     @Test

@@ -209,7 +209,7 @@ data class Crossword(
                     (useBorders && borderCell.borderDirections.contains(oppositeDirection))
         }
 
-        fun fromRawInput(
+        internal fun fromRawInput(
             title: String,
             creator: String,
             copyright: String,
