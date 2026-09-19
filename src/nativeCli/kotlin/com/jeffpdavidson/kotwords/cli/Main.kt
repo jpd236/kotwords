@@ -43,6 +43,7 @@ import com.jeffpdavidson.kotwords.formats.WashingtonPost
 import com.jeffpdavidson.kotwords.formats.XWordInfo
 import com.jeffpdavidson.kotwords.formats.XWordInfoAcrostic
 import com.jeffpdavidson.kotwords.formats.Xd
+import com.jeffpdavidson.kotwords.formats.pdf.GridCorner
 import com.jeffpdavidson.kotwords.formats.pdf.FONT_FAMILY_TIMES_ROMAN
 import com.jeffpdavidson.kotwords.formats.pdf.PdfFont
 import com.jeffpdavidson.kotwords.formats.pdf.PdfFontFamily
@@ -110,6 +111,7 @@ enum class FontFamilyId(val fontFamily: PdfFontFamily) {
 data class PdfOptions(
     val fontFamilyId: FontFamilyId,
     val blackSquareLightnessAdjustment: Double,
+    val gridCorner: GridCorner,
 )
 
 enum class Format(
@@ -129,7 +131,8 @@ enum class Format(
         writeFn = { puzzle, pdfOptions ->
             puzzle.asPdf(
                 fontFamily = pdfOptions.fontFamilyId.fontFamily,
-                blackSquareLightnessAdjustment = pdfOptions.blackSquareLightnessAdjustment
+                blackSquareLightnessAdjustment = pdfOptions.blackSquareLightnessAdjustment,
+                gridCorner = pdfOptions.gridCorner,
             )
         }
     ),
@@ -287,6 +290,9 @@ class Convert : CliktCommand() {
         help = "For PDF output, percentage (from 0 to 1) indicating how much to brighten black/colored squares (i.e. " +
                 "to save ink). 0 indicates no adjustment; 1 would be fully white. Defaults to 0."
     ).double().default(0.0)
+    val gridCorner by option(
+        help = "For PDF output, corner of the page to place the grid on. Defaults to BOTTOM_RIGHT."
+    ).enum<GridCorner>().default(GridCorner.BOTTOM_RIGHT)
 
     override fun help(context: Context): String = "Convert a puzzle between formats"
 
@@ -297,7 +303,10 @@ class Convert : CliktCommand() {
             val puzzleable = readFn(inputData, date, author, copyright)
             val writeFn =
                 outputFormat.writeFn ?: throw IllegalArgumentException("File format not supported for writing")
-            val outputData = writeFn(puzzleable, PdfOptions(fontFamily, blackSquareLightnessAdjustment))
+            val outputData = writeFn(
+                puzzleable,
+                PdfOptions(fontFamily, blackSquareLightnessAdjustment, gridCorner),
+            )
             outputFile.writeContents(outputData)
         }
     }

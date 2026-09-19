@@ -299,40 +299,49 @@ internal object FormFields {
          * @param parent the parent [FlowContent] to render into
          * @param label the label for the input field
          * @param help optional help text used to describe the field in more detail
+         * @param flexCols optional number of columns this field should take up in the parent container.
          * @param block optional block run in the scope of the [INPUT] tag for further customization.
          */
-        fun render(parent: FlowContent, label: String, help: String = "", block: INPUT.() -> Unit = {}) {
+        fun render(
+            parent: FlowContent,
+            label: String,
+            help: String = "",
+            flexCols: Int? = null,
+            block: INPUT.() -> Unit = {}
+        ) {
             with(parent) {
-                label {
-                    htmlFor = htmlId
-                    +label
-                }
-                div("d-flex align-items-center") {
-                    input(type = InputType.range, classes = "custom-range") {
-                        this.id = htmlId
-                        style = "max-width: 300px;"
-                        value = "0"
-                        onInputFunction = {
-                            onColorChange()
+                formGroup(flexCols) {
+                    label {
+                        htmlFor = htmlId
+                        +label
+                    }
+                    div("d-flex align-items-center") {
+                        input(type = InputType.range, classes = "custom-range") {
+                            this.id = htmlId
+                            style = "max-width: 300px;"
+                            value = "0"
+                            onInputFunction = {
+                                onColorChange()
+                            }
+                            if (help.isNotBlank()) {
+                                attributes["aria-describedby"] = "$htmlId-help"
+                            }
+                            block()
                         }
-                        if (help.isNotBlank()) {
-                            attributes["aria-describedby"] = "$htmlId-help"
+                        div("ml-2 border d-block") {
+                            this.id = "$htmlId-square"
+                            style = "width: 1.5em; height: 1.5em; border-color: black !important; " +
+                                    "background-color: ${colorGetter(0)}"
                         }
-                        block()
+                        span("ml-2") {
+                            this.id = "$htmlId-text"
+                            +"0%"
+                        }
                     }
-                    div("ml-2 border d-block") {
-                        this.id = "$htmlId-square"
-                        style = "width: 1.5em; height: 1.5em; border-color: black !important; " +
-                                "background-color: ${colorGetter(0)}"
-                    }
-                    span("ml-2") {
-                        this.id = "$htmlId-text"
-                        +"0%"
-                    }
-                }
 
-                if (help.isNotBlank()) {
-                    help(htmlId, help)
+                    if (help.isNotBlank()) {
+                        help(htmlId, help)
+                    }
                 }
             }
         }
@@ -358,17 +367,24 @@ internal object FormFields {
                 input.value = value
             }
 
+
         /**
          * Render the field into the given [FlowContent].
          *
          * @param parent the parent [FlowContent] to render into
          * @param label the label for the select field
-         * @param options the options to show in the menu
+         * @param options the options to show in the menu as a map of value to display label
          * @param help optional help text used to describe the field in more detail
          * @param flexCols optional number of columns this field should take up in the parent container.
+         * @param defaultValue optional value to pre-select
          */
         fun render(
-            parent: FlowContent, label: String, options: List<String>, help: String = "", flexCols: Int? = null
+            parent: FlowContent,
+            label: String,
+            options: Map<String, String>,
+            help: String = "",
+            flexCols: Int? = null,
+            defaultValue: String? = null,
         ) {
             with(parent) {
                 formGroup(flexCols) {
@@ -381,9 +397,11 @@ internal object FormFields {
                         if (help.isNotBlank()) {
                             attributes["aria-describedby"] = "$htmlId-help"
                         }
-                        options.forEach { value ->
+                        options.forEach { (optionValue, optionLabel) ->
                             option {
-                                +value
+                                value = optionValue
+                                selected = (optionValue == defaultValue)
+                                +optionLabel
                             }
                         }
                     }

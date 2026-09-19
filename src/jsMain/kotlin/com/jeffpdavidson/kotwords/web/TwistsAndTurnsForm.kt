@@ -2,6 +2,7 @@ package com.jeffpdavidson.kotwords.web
 
 import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.formats.PdfFonts
+import com.jeffpdavidson.kotwords.formats.pdf.GridCorner
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.TwistsAndTurns
 import com.jeffpdavidson.kotwords.util.trimmedAlphabeticalWords
@@ -76,7 +77,7 @@ class TwistsAndTurnsForm {
             sortTwists = false,
         ).asPuzzle()
 
-    private suspend fun createPdf(blackSquareLightnessAdjustment: Double): ByteArray =
+    private suspend fun createPdf(gridCorner: GridCorner, blackSquareLightnessAdjustment: Double): ByteArray =
         createTwistsAndTurns(
             separateLightAndDarkTwists = true,
             numberTwists = false,
@@ -84,6 +85,7 @@ class TwistsAndTurnsForm {
         ).asPdf(
             fontFamily = PdfFonts.NOTO_FONT_FAMILY,
             blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
+            gridCorner = gridCorner,
         )
 
     private fun createTwistsAndTurns(

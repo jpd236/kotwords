@@ -2,6 +2,7 @@ package com.jeffpdavidson.kotwords.web
 
 import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.formats.PdfFonts
+import com.jeffpdavidson.kotwords.formats.pdf.GridCorner
 import com.jeffpdavidson.kotwords.model.HelterSkelter
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.util.trimmedAlphabeticalWords
@@ -50,10 +51,11 @@ class HelterSkelterForm {
 
     private suspend fun createPuzzle(): Puzzle = createHelterSkelter().asPuzzle()
 
-    private suspend fun createPdf(blackSquareLightnessAdjustment: Double): ByteArray =
+    private suspend fun createPdf(gridCorner: GridCorner, blackSquareLightnessAdjustment: Double): ByteArray =
         createPuzzle().asPdf(
             fontFamily = PdfFonts.NOTO_FONT_FAMILY,
             blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
+            gridCorner = gridCorner,
         )
 
     private fun createHelterSkelter(): HelterSkelter {

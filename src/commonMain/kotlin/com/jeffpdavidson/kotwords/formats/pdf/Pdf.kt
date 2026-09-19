@@ -10,6 +10,17 @@ import com.jeffpdavidson.kotwords.formats.Xml
 import com.jeffpdavidson.kotwords.formats.pdf.Pdf.asPdf
 import com.jeffpdavidson.kotwords.model.Puzzle
 
+/** Corner of the page to place the grid on. */
+enum class GridCorner {
+    TOP_LEFT,
+    TOP_RIGHT,
+    BOTTOM_LEFT,
+    BOTTOM_RIGHT;
+
+    val isTop: Boolean get() = this == TOP_LEFT || this == TOP_RIGHT
+    val isLeft: Boolean get() = this == TOP_LEFT || this == BOTTOM_LEFT
+}
+
 /** Extension functions to render crosswords as PDFs. */
 object Pdf {
     // Constants/functions dictating the PDF style.
@@ -40,6 +51,9 @@ object Pdf {
 
     /** Minimum size of clues. */
     private const val CLUE_TEXT_MIN_SIZE = 5.0
+
+    /** Clue header size for CLUE_TEXT_MAX_SIZE clues. */
+    private const val BASE_CLUE_HEADER_SIZE = CLUE_TEXT_MAX_SIZE + 1.0
 
     /** Maximum size of answer text. */
     private const val SOLUTION_TEXT_MAX_SIZE = 16.0
@@ -99,6 +113,13 @@ object Pdf {
         puzzle: Puzzle,
         fontFamily: PdfFontFamily,
         blackSquareLightnessAdjustment: Double,
+        gridCorner: GridCorner = GridCorner.BOTTOM_RIGHT,
+        gridHeightProvider: suspend (
+            document: PdfDocument,
+            puzzle: Puzzle,
+            gridWidth: Double,
+            fontFamily: PdfFontFamily,
+        ) -> Double = ::getGridHeight,
         gridRenderer: suspend (
             document: PdfDocument,
             puzzle: Puzzle,
@@ -107,7 +128,7 @@ object Pdf {
             gridX: Double,
             gridY: Double,
             fontFamily: PdfFontFamily,
-        ) -> DrawGridResult,
+        ) -> DrawGridResult = ::drawGrid,
     ): ByteArray = with(puzzle) {
         PdfDocument().run {
             val pageWidth = width
@@ -115,8 +136,7 @@ object Pdf {
             val headerWidth = pageWidth - 2 * MARGIN
             val clueCount = clues.sumOf { it.clues.size }
             val gridWidth = getGridWidthPercentage(clueCount) * headerWidth
-            val gridX = pageWidth - MARGIN - gridWidth
-            val gridY = MARGIN + COPYRIGHT_SIZE
+            val gridX = if (gridCorner.isLeft) MARGIN else pageWidth - MARGIN - gridWidth
             val columns = getClueColumns(clueCount)
             val columnWidth = (headerWidth - (columns - 1) * COLUMN_PADDING) / columns
             val titleX = MARGIN
@@ -174,20 +194,25 @@ object Pdf {
             endText()
 
             // Grid
+            val gridTop = positionY + BASE_CLUE_HEADER_SIZE
+            val gridHeight = gridHeightProvider(this, puzzle, gridWidth, fontFamily)
+            val finalGridY = if (gridCorner.isTop) {
+                gridTop - gridHeight
+            } else {
+                MARGIN + COPYRIGHT_SIZE
+            }
             val drawGridResult = gridRenderer(
                 this,
                 puzzle,
                 blackSquareLightnessAdjustment,
                 gridWidth,
                 gridX,
-                gridY,
+                finalGridY,
                 fontFamily,
             )
 
             // Clues
             setFillColor(0.0, 0.0, 0.0)
-            beginText()
-            newLineAtOffset(titleX, positionY)
 
             // Try progressively smaller clue sizes until we find one small enough to fit every clue on one page.
             setFont(fontFamily.baseFont, CLUE_TEXT_MAX_SIZE)
@@ -197,38 +222,55 @@ object Pdf {
                     fontFamily = fontFamily,
                     columnWidth = columnWidth,
                     columns = columns,
-                    clueTopY = positionY,
-                    gridY = gridY,
+                    gridTop = gridTop,
+                    gridY = finalGridY,
                     gridHeight = drawGridResult.gridHeight,
+                    gridCorner = gridCorner,
                     clueTextSize = it,
-                    render = false
+                    render = false,
                 )
             }
             require(bestTextSize != null) {
                 "Clues do not fit on a single page"
             }
+            beginText()
             showClueLists(
                 puzzle = this@with,
                 fontFamily = fontFamily,
                 columnWidth = columnWidth,
                 columns = columns,
-                clueTopY = positionY,
-                gridY = gridY,
+                gridTop = gridTop,
+                gridY = finalGridY,
                 gridHeight = drawGridResult.gridHeight,
+                gridCorner = gridCorner,
                 clueTextSize = bestTextSize,
-                render = true
+                render = true,
             )
             endText()
 
             // Copyright
+            val copyrightY = if (gridCorner.isTop) finalGridY - COPYRIGHT_SIZE else MARGIN
             beginText()
-            newLineAtOffset(gridX + drawGridResult.bottomRowStartOffset, MARGIN)
+            newLineAtOffset(gridX + drawGridResult.bottomRowStartOffset, copyrightY)
             setFont(fontFamily.baseFont, COPYRIGHT_SIZE)
             drawText(copyright)
             endText()
 
             toByteArray()
         }
+    }
+
+    /** Default grid height calculation function for [asPdf]. */
+    internal suspend fun getGridHeight(
+        document: PdfDocument,
+        puzzle: Puzzle,
+        gridWidth: Double,
+        fontFamily: PdfFontFamily,
+    ): Double {
+        val gridRows = puzzle.grid.size
+        val gridCols = puzzle.grid.maxOf { it.size }
+        val gridSquareSize = gridWidth / gridCols
+        return gridSquareSize * gridRows
     }
 
     /** Default grid drawing function for [asPdf]. */
@@ -245,7 +287,7 @@ object Pdf {
         val gridRows = grid.size
         val gridCols = grid.maxOf { it.size }
         val gridSquareSize = gridWidth / gridCols
-        val gridHeight = gridSquareSize * gridRows
+        val gridHeight = getGridHeight(document, puzzle, gridWidth, fontFamily)
         val gridNumberSize = gridSquareSize / 3
 
         val gridBlackColor = getAdjustedColor(RGB.Companion("#000000"), blackSquareLightnessAdjustment)
@@ -692,21 +734,77 @@ object Pdf {
         val columnBottomY: Double,
     )
 
+    private fun isGridColumn(
+        col: Int,
+        columns: Int,
+        gridCorner: GridCorner,
+    ): Boolean = if (gridCorner.isLeft) col < columns - 1 else col > 0
+
+    private fun getColTopBoundary(
+        col: Int,
+        columns: Int,
+        gridTop: Double,
+        gridY: Double,
+        gridCorner: GridCorner,
+        clueTextSize: Double,
+    ): Double {
+        return if (gridCorner.isTop && isGridColumn(col, columns, gridCorner)) {
+            gridY - COPYRIGHT_SIZE - clueTextSize
+        } else {
+            gridTop
+        }
+    }
+
+    private fun getColBottomY(
+        col: Int,
+        columns: Int,
+        gridY: Double,
+        gridHeight: Double,
+        gridCorner: GridCorner,
+        clueTextSize: Double,
+    ): Double {
+        return if (!gridCorner.isTop && isGridColumn(col, columns, gridCorner)) {
+            gridY + gridHeight + clueTextSize
+        } else if (gridCorner.isTop) {
+            MARGIN
+        } else {
+            gridY
+        }
+    }
+
     private suspend fun PdfDocument.showClueLists(
         puzzle: Puzzle,
         fontFamily: PdfFontFamily,
         columnWidth: Double,
         columns: Int,
-        clueTopY: Double,
+        gridTop: Double,
         gridY: Double,
         gridHeight: Double,
+        gridCorner: GridCorner,
         clueTextSize: Double,
         render: Boolean
     ): Boolean {
-        var positionY = clueTopY
+        val clueHeaderSize = clueTextSize + 1.0
+        val initialPositionY = getColTopBoundary(
+            col = 0,
+            columns = columns,
+            gridTop = gridTop,
+            gridY = gridY,
+            gridCorner = gridCorner,
+            clueTextSize = clueTextSize,
+        ) - clueHeaderSize
+        var positionY = initialPositionY
         var column = 0
-        var columnBottomY = gridY
+        var columnBottomY = getColBottomY(
+            col = 0,
+            columns = columns,
+            gridY = gridY,
+            gridHeight = gridHeight,
+            gridCorner = gridCorner,
+            clueTextSize = clueTextSize,
+        )
         if (render) {
+            newLineAtOffset(MARGIN, initialPositionY)
             setFont(fontFamily.baseFont, clueTextSize)
         }
         var lastSuccess = true
@@ -719,9 +817,10 @@ object Pdf {
                     fontFamily = fontFamily,
                     columnWidth = columnWidth,
                     columns = columns,
-                    clueTopY = clueTopY,
+                    gridTop = gridTop,
                     gridY = gridY,
                     gridHeight = gridHeight,
+                    gridCorner = gridCorner,
                     clueTextSize = clueTextSize,
                     cluePosition = CluePosition(positionY = positionY, column = column, columnBottomY = columnBottomY),
                     render = render
@@ -826,9 +925,10 @@ object Pdf {
         fontFamily: PdfFontFamily,
         columnWidth: Double,
         columns: Int,
-        clueTopY: Double,
+        gridTop: Double,
         gridY: Double,
         gridHeight: Double,
+        gridCorner: GridCorner,
         clueTextSize: Double,
         cluePosition: CluePosition,
         render: Boolean
@@ -863,16 +963,32 @@ object Pdf {
                     }
 
             if (positionY + clueTextSize - clueHeight < columnBottomY) {
-                // This clue extends below the grid, so move to the next column.
+                // This clue extends below the column bottom, so move to the next column.
                 if (++column == columns) {
                     // Can't fit clues at this font size
                     return false to CluePosition(positionY = positionY, column = column, columnBottomY = columnBottomY)
                 }
+                val firstLineFontSize = if (index == 0) clueHeaderSize else clueTextSize
+                val nextTopY = getColTopBoundary(
+                    col = column,
+                    columns = columns,
+                    gridTop = gridTop,
+                    gridY = gridY,
+                    gridCorner = gridCorner,
+                    clueTextSize = clueTextSize,
+                ) - firstLineFontSize
                 if (render) {
-                    newLineAtOffset(columnWidth + COLUMN_PADDING, clueTopY - positionY)
+                    newLineAtOffset(columnWidth + COLUMN_PADDING, nextTopY - positionY)
                 }
-                positionY = clueTopY
-                columnBottomY = gridY + gridHeight + clueTextSize
+                positionY = nextTopY
+                columnBottomY = getColBottomY(
+                    col = column,
+                    columns = columns,
+                    gridY = gridY,
+                    gridHeight = gridHeight,
+                    gridCorner = gridCorner,
+                    clueTextSize = clueTextSize,
+                )
             }
 
             if (index == 0) {

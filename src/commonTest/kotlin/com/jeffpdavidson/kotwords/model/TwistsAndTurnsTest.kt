@@ -1,6 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
+import com.jeffpdavidson.kotwords.formats.pdf.GridCorner
 import com.jeffpdavidson.kotwords.formats.pdf.getNotoSerifFontFamily
 import com.jeffpdavidson.kotwords.readBinaryResource
 import com.jeffpdavidson.kotwords.readStringResource
@@ -36,6 +37,70 @@ class TwistsAndTurnsTest {
             ).asPdf(
                 blackSquareLightnessAdjustment = 0.5,
                 fontFamily = getNotoSerifFontFamily(),
+            )
+        )
+    }
+
+    @Test
+    fun pdfGeneration_bottomRight() = runTest {
+        val expected = readBinaryResource(TwistsAndTurnsTest::class, "twists-and-turns/unsorted-twists.pdf")
+        assertContentEquals(
+            expected, puzzle.copy(
+                separateLightAndDarkTwists = true,
+                numberTwists = false,
+                sortTwists = false,
+            ).asPdf(
+                blackSquareLightnessAdjustment = 0.5,
+                fontFamily = getNotoSerifFontFamily(),
+                gridCorner = GridCorner.BOTTOM_RIGHT,
+            )
+        )
+    }
+
+    @Test
+    fun pdfGeneration_bottomLeft() = runTest {
+        val expected = readBinaryResource(TwistsAndTurnsTest::class, "twists-and-turns/unsorted-twists-bottomLeft.pdf")
+        assertContentEquals(
+            expected, puzzle.copy(
+                separateLightAndDarkTwists = true,
+                numberTwists = false,
+                sortTwists = false,
+            ).asPdf(
+                blackSquareLightnessAdjustment = 0.5,
+                fontFamily = getNotoSerifFontFamily(),
+                gridCorner = GridCorner.BOTTOM_LEFT,
+            )
+        )
+    }
+
+    @Test
+    fun pdfGeneration_topRight() = runTest {
+        val expected = readBinaryResource(TwistsAndTurnsTest::class, "twists-and-turns/unsorted-twists-topRight.pdf")
+        assertContentEquals(
+            expected, puzzle.copy(
+                separateLightAndDarkTwists = true,
+                numberTwists = false,
+                sortTwists = false,
+            ).asPdf(
+                blackSquareLightnessAdjustment = 0.5,
+                fontFamily = getNotoSerifFontFamily(),
+                gridCorner = GridCorner.TOP_RIGHT,
+            )
+        )
+    }
+
+    @Test
+    fun pdfGeneration_topLeft() = runTest {
+        val expected = readBinaryResource(TwistsAndTurnsTest::class, "twists-and-turns/unsorted-twists-topLeft.pdf")
+        assertContentEquals(
+            expected, puzzle.copy(
+                separateLightAndDarkTwists = true,
+                numberTwists = false,
+                sortTwists = false,
+            ).asPdf(
+                blackSquareLightnessAdjustment = 0.5,
+                fontFamily = getNotoSerifFontFamily(),
+                gridCorner = GridCorner.TOP_LEFT,
             )
         )
     }

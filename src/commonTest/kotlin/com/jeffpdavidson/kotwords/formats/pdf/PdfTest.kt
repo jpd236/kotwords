@@ -21,6 +21,33 @@ class PdfTest {
     }
 
     @Test
+    fun asPdf_bottomLeft() = runTest(timeout = 60.seconds) {
+        assertContentEquals(
+            readBinaryResource(PdfTest::class, "pdf/test-bottomLeft.pdf"),
+            AcrossLite(readBinaryResource(PdfTest::class, "puz/test-simple.puz"))
+                .asCrossword().asPdf(blackSquareLightnessAdjustment = 0.75, gridCorner = GridCorner.BOTTOM_LEFT)
+        )
+    }
+
+    @Test
+    fun asPdf_topRight() = runTest(timeout = 60.seconds) {
+        assertContentEquals(
+            readBinaryResource(PdfTest::class, "pdf/test-topRight.pdf"),
+            AcrossLite(readBinaryResource(PdfTest::class, "puz/test-simple.puz"))
+                .asCrossword().asPdf(blackSquareLightnessAdjustment = 0.75, gridCorner = GridCorner.TOP_RIGHT)
+        )
+    }
+
+    @Test
+    fun asPdf_topLeft() = runTest(timeout = 60.seconds) {
+        assertContentEquals(
+            readBinaryResource(PdfTest::class, "pdf/test-topLeft.pdf"),
+            AcrossLite(readBinaryResource(PdfTest::class, "puz/test-simple.puz"))
+                .asCrossword().asPdf(blackSquareLightnessAdjustment = 0.75, gridCorner = GridCorner.TOP_LEFT)
+        )
+    }
+
+    @Test
     fun asPdf_customFonts() = runTest(timeout = 60.seconds) {
         assertContentEquals(
             readBinaryResource(PdfTest::class, "pdf/test-customFonts.pdf"),

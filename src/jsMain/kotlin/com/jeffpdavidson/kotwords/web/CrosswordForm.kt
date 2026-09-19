@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.web
 import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.formats.AcrossLite
 import com.jeffpdavidson.kotwords.formats.PdfFonts
+import com.jeffpdavidson.kotwords.formats.pdf.GridCorner
 import com.jeffpdavidson.kotwords.js.Interop
 import com.jeffpdavidson.kotwords.model.Crossword
 import com.jeffpdavidson.kotwords.model.Puzzle
@@ -94,18 +95,26 @@ class CrosswordForm {
         ).asPuzzle()
     }
 
-    private suspend fun createPdfFromManualEntry(blackSquareLightnessAdjustment: Double): ByteArray =
+    private suspend fun createPdfFromManualEntry(
+        gridCorner: GridCorner,
+        blackSquareLightnessAdjustment: Double,
+    ): ByteArray =
         createPuzzleFromManualEntry().asPdf(
             fontFamily = PdfFonts.NOTO_FONT_FAMILY,
             blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
+            gridCorner = gridCorner,
         )
 
     private suspend fun createPuzzleFromPuzFile(): Puzzle = AcrossLite(Interop.readBlob(file.value)).asPuzzle()
 
-    private suspend fun createPdfFromPuzFile(blackSquareLightnessAdjustment: Double): ByteArray =
+    private suspend fun createPdfFromPuzFile(
+        gridCorner: GridCorner,
+        blackSquareLightnessAdjustment: Double,
+    ): ByteArray =
         createPuzzleFromPuzFile().asPdf(
             fontFamily = PdfFonts.NOTO_FONT_FAMILY,
             blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
+            gridCorner = gridCorner,
         )
 
     private fun getFileName(): String {

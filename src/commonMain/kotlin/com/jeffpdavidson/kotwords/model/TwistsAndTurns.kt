@@ -1,6 +1,7 @@
 package com.jeffpdavidson.kotwords.model
 
 import com.jeffpdavidson.kotwords.formats.Puzzleable
+import com.jeffpdavidson.kotwords.formats.pdf.GridCorner
 import com.jeffpdavidson.kotwords.formats.pdf.Pdf
 import com.jeffpdavidson.kotwords.formats.pdf.PdfDocument
 import com.jeffpdavidson.kotwords.formats.pdf.PdfFontFamily
@@ -116,20 +117,36 @@ data class TwistsAndTurns(
     override suspend fun asPdf(
         fontFamily: PdfFontFamily,
         blackSquareLightnessAdjustment: Double,
+        gridCorner: GridCorner,
     ): ByteArray {
-        return Pdf.asPdf(asPuzzle(), fontFamily, blackSquareLightnessAdjustment, ::drawGrid)
+        return Pdf.asPdf(
+            puzzle = asPuzzle(),
+            fontFamily = fontFamily,
+            blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
+            gridCorner = gridCorner,
+            gridHeightProvider = ::getGridHeight,
+            gridRenderer = ::drawGrid,
+        )
     }
 
-    private suspend fun drawGrid(
-        document: PdfDocument,
-        puzzle: Puzzle,
-        blackSquareLightnessAdjustment: Double,
+    private data class GridDimensions(
+        val startEndFontSize: Double,
+        val startEndMargin: Double,
+        val startWidth: Double,
+        val endWidth: Double,
+        val arrowWidth: Double,
+        val leftPadding: Double,
+        val rightPadding: Double,
+        val adjustedGridWidth: Double,
+        val gridSquareSize: Double,
+        val gridHeight: Double,
+    )
+
+    private suspend fun PdfDocument.getGridDimensions(
         gridWidth: Double,
-        gridX: Double,
-        gridY: Double,
         fontFamily: PdfFontFamily,
-    ): Pdf.DrawGridResult = document.run {
-        // Use the regular grid drawing function, but padded on the left and right to have space for the "START" and
+    ): GridDimensions {
+        // Use the regular dimensions, but padded on the left and right to have space for the "START" and
         // "END" text along with the arrow between each row.
         val originalGridSquareSize = gridWidth / this@TwistsAndTurns.width
         val startEndFontSize = originalGridSquareSize / 4
@@ -144,29 +161,63 @@ data class TwistsAndTurns(
             endWidth
         }
         val adjustedGridWidth = gridWidth - leftPadding - rightPadding
+        val gridSquareSize = adjustedGridWidth / this@TwistsAndTurns.width
+        val gridHeight = gridSquareSize * this@TwistsAndTurns.height
+        return GridDimensions(
+            startEndFontSize = startEndFontSize,
+            startEndMargin = startEndMargin,
+            startWidth = startWidth,
+            endWidth = endWidth,
+            arrowWidth = arrowWidth,
+            leftPadding = leftPadding,
+            rightPadding = rightPadding,
+            adjustedGridWidth = adjustedGridWidth,
+            gridSquareSize = gridSquareSize,
+            gridHeight = gridHeight,
+        )
+    }
+
+    private suspend fun getGridHeight(
+        document: PdfDocument,
+        puzzle: Puzzle,
+        gridWidth: Double,
+        fontFamily: PdfFontFamily,
+    ): Double = document.run {
+        getGridDimensions(gridWidth, fontFamily).gridHeight
+    }
+
+    private suspend fun drawGrid(
+        document: PdfDocument,
+        puzzle: Puzzle,
+        blackSquareLightnessAdjustment: Double,
+        gridWidth: Double,
+        gridX: Double,
+        gridY: Double,
+        fontFamily: PdfFontFamily,
+    ): Pdf.DrawGridResult = document.run {
+        val dimensions = getGridDimensions(gridWidth, fontFamily)
         val drawGridResult = Pdf.drawGrid(
             document = document,
             puzzle = puzzle,
             blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
-            gridWidth = adjustedGridWidth,
-            gridX = gridX + leftPadding,
+            gridWidth = dimensions.adjustedGridWidth,
+            gridX = gridX + dimensions.leftPadding,
             gridY = gridY,
             fontFamily = fontFamily
         )
-        val gridSquareSize = adjustedGridWidth / this@TwistsAndTurns.width
 
         // Draw the START and END text.
         beginText()
-        setFont(fontFamily.baseFont, startEndFontSize)
-        newLineAtOffset(gridX, gridY + drawGridResult.gridHeight - gridSquareSize / 2 - startEndFontSize / 2)
+        setFont(fontFamily.baseFont, dimensions.startEndFontSize)
+        newLineAtOffset(gridX, gridY + drawGridResult.gridHeight - dimensions.gridSquareSize / 2 - dimensions.startEndFontSize / 2)
         drawText("START")
         endText()
 
         beginText()
         if (this@TwistsAndTurns.height % 2 == 0) {
-            newLineAtOffset(gridX + startWidth - endWidth, gridY + gridSquareSize / 2 - startEndFontSize / 2)
+            newLineAtOffset(gridX + dimensions.startWidth - dimensions.endWidth, gridY + dimensions.gridSquareSize / 2 - dimensions.startEndFontSize / 2)
         } else {
-            newLineAtOffset(gridX + gridWidth - endWidth, gridY + gridSquareSize / 2 - startEndFontSize / 2)
+            newLineAtOffset(gridX + gridWidth - dimensions.endWidth, gridY + dimensions.gridSquareSize / 2 - dimensions.startEndFontSize / 2)
         }
         drawText("END")
         endText()
@@ -175,18 +226,18 @@ data class TwistsAndTurns(
         (0 until this@TwistsAndTurns.height - 1).forEach { y ->
             if (y % 2 == 0) {
                 drawArrow(
-                    x = gridX + gridWidth - rightPadding + startEndMargin,
-                    y = gridY + drawGridResult.gridHeight - (y + 0.75f) * gridSquareSize,
-                    width = arrowWidth,
-                    height = 0.5f * gridSquareSize,
+                    x = gridX + gridWidth - dimensions.rightPadding + dimensions.startEndMargin,
+                    y = gridY + drawGridResult.gridHeight - (y + 0.75f) * dimensions.gridSquareSize,
+                    width = dimensions.arrowWidth,
+                    height = 0.5f * dimensions.gridSquareSize,
                     leftSide = false,
                 )
             } else {
                 drawArrow(
-                    x = gridX + startWidth,
-                    y = gridY + drawGridResult.gridHeight - (y + 0.75f) * gridSquareSize,
-                    width = arrowWidth,
-                    height = 0.5f * gridSquareSize,
+                    x = gridX + dimensions.startWidth,
+                    y = gridY + drawGridResult.gridHeight - (y + 0.75f) * dimensions.gridSquareSize,
+                    width = dimensions.arrowWidth,
+                    height = 0.5f * dimensions.gridSquareSize,
                     leftSide = true,
                 )
             }
@@ -194,7 +245,7 @@ data class TwistsAndTurns(
 
         Pdf.DrawGridResult(
             gridHeight = drawGridResult.gridHeight,
-            bottomRowStartOffset = drawGridResult.bottomRowStartOffset + leftPadding
+            bottomRowStartOffset = drawGridResult.bottomRowStartOffset + dimensions.leftPadding
         )
     }
 

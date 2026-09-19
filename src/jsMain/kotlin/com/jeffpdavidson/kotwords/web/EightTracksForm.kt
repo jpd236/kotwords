@@ -58,7 +58,9 @@ class EightTracksForm {
                 trackLabel.render(
                     this,
                     "Track label",
-                    EightTracks.TrackLabel.entries.map { it.name.lowercase().replaceFirstChar { it.uppercase() } },
+                    EightTracks.TrackLabel.entries.associate {
+                        it.name to it.name.lowercase().replaceFirstChar { char -> char.uppercase() }
+                    },
                     help = "How to label the tracks in the clue list"
                 )
                 div(classes = "form-row") {
@@ -95,7 +97,7 @@ class EightTracksForm {
             includeDirections = includeDirections.value,
             lightTrackColor = lightTrackColor.value,
             darkTrackColor = darkTrackColor.value,
-            trackLabel = EightTracks.TrackLabel.valueOf(trackLabel.value.uppercase()),
+            trackLabel = EightTracks.TrackLabel.valueOf(trackLabel.value),
             markInnerTrackStarts = markInnerTrackStarts.value,
         )
         return eightTracks.asPuzzle()

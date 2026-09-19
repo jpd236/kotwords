@@ -1,6 +1,7 @@
 package com.jeffpdavidson.kotwords.formats
 
 import com.jeffpdavidson.kotwords.formats.pdf.FONT_FAMILY_TIMES_ROMAN
+import com.jeffpdavidson.kotwords.formats.pdf.GridCorner
 import com.jeffpdavidson.kotwords.formats.pdf.Pdf
 import com.jeffpdavidson.kotwords.formats.pdf.PdfFontFamily
 import com.jeffpdavidson.kotwords.model.Puzzle
@@ -90,12 +91,14 @@ abstract class Puzzleable {
      * @param blackSquareLightnessAdjustment Percentage (from 0 to 1) indicating how much to brighten black/colored
      *                                       squares (i.e. to save ink). 0 indicates no adjustment; 1 would be fully
      *                                       white.
+     * @param gridCorner Corner of the page to place the grid on.
      */
     open suspend fun asPdf(
         fontFamily: PdfFontFamily = FONT_FAMILY_TIMES_ROMAN,
         blackSquareLightnessAdjustment: Double = 0.0,
+        gridCorner: GridCorner = GridCorner.BOTTOM_RIGHT,
     ): ByteArray {
-        return Pdf.asPdf(asPuzzle(), fontFamily, blackSquareLightnessAdjustment, Pdf::drawGrid)
+        return Pdf.asPdf(asPuzzle(), fontFamily, blackSquareLightnessAdjustment, gridCorner)
     }
 }
 
@@ -115,5 +118,6 @@ abstract class DelegatingPuzzleable : Puzzleable() {
     override suspend fun asPdf(
         fontFamily: PdfFontFamily,
         blackSquareLightnessAdjustment: Double,
-    ): ByteArray = getPuzzleable().asPdf(fontFamily, blackSquareLightnessAdjustment)
+        gridCorner: GridCorner,
+    ): ByteArray = getPuzzleable().asPdf(fontFamily, blackSquareLightnessAdjustment, gridCorner)
 }

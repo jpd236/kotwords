@@ -3,6 +3,7 @@ package com.jeffpdavidson.kotwords.web
 import com.github.ajalt.colormath.model.RGB
 import com.jeffpdavidson.kotwords.formats.CrosswordCompilerApplet
 import com.jeffpdavidson.kotwords.formats.Ipuz
+import com.jeffpdavidson.kotwords.formats.pdf.GridCorner
 import com.jeffpdavidson.kotwords.formats.pdf.Pdf
 import com.jeffpdavidson.kotwords.js.Interop.toArrayBuffer
 import com.jeffpdavidson.kotwords.model.Puzzle
@@ -64,7 +65,7 @@ internal class PuzzleFileForm(
     includeCompletionMessage: Boolean = true,
     private val completionMessageDefaultValue: String = "Congratulations! The puzzle is solved correctly.",
     private val completionMessageHelpText: String = "",
-    private val createPdfFn: (suspend (blackSquareLightnessAdjustment: Double) -> ByteArray)? = null,
+    private val createPdfFn: (suspend (gridCorner: GridCorner, blackSquareLightnessAdjustment: Double) -> ByteArray)? = null,
     enableSaveData: Boolean = true,
     enableMetadataInput: Boolean = true,
     supportsIpuz: Boolean = true,
@@ -114,6 +115,12 @@ internal class PuzzleFileForm(
     private val inkSaverPercentageField: FormFields.ColorRangeSlider? =
         if (createPdfFn != null) {
             FormFields.ColorRangeSlider(elementId("ink-saver-percentage"), ::getInkSaverColor)
+        } else {
+            null
+        }
+    private val gridCornerField: FormFields.SelectField? =
+        if (createPdfFn != null) {
+            FormFields.SelectField(elementId("grid-corner"))
         } else {
             null
         }
@@ -234,6 +241,19 @@ internal class PuzzleFileForm(
                         "Ink saver percentage (for PDFs)",
                         help = "Percentage to lighten colors in the grid. " +
                                 "0% keeps colors unchanged; 100% lightens everything to pure white."
+                    )
+
+                    gridCornerField?.render(
+                        this,
+                        "Grid corner (for PDFs)",
+                        options = mapOf(
+                            GridCorner.BOTTOM_RIGHT.name to "Bottom right",
+                            GridCorner.BOTTOM_LEFT.name to "Bottom left",
+                            GridCorner.TOP_RIGHT.name to "Top right",
+                            GridCorner.TOP_LEFT.name to "Top left",
+                        ),
+                        defaultValue = GridCorner.BOTTOM_RIGHT.name,
+                        help = "Corner of the page to place the grid on."
                     )
                 }
             }
@@ -372,7 +392,10 @@ internal class PuzzleFileForm(
 
     private suspend fun downloadPdf(puzzle: Puzzle) {
         createPdfFn?.let {
-            download("${getFileNameFn(puzzle)}.pdf", it(inkSaverPercentageField!!.value / 100.0))
+            val gridCorner = gridCornerField?.value?.let { value ->
+                GridCorner.valueOf(value)
+            } ?: GridCorner.BOTTOM_RIGHT
+            download("${getFileNameFn(puzzle)}.pdf", it(gridCorner, inkSaverPercentageField!!.value / 100.0))
         }
     }
 

@@ -2,6 +2,7 @@ package com.jeffpdavidson.kotwords.web
 
 import com.jeffpdavidson.kotwords.KotwordsInternal
 import com.jeffpdavidson.kotwords.formats.PdfFonts
+import com.jeffpdavidson.kotwords.formats.pdf.GridCorner
 import com.jeffpdavidson.kotwords.model.Puzzle
 import com.jeffpdavidson.kotwords.model.Shapeshifter
 import com.jeffpdavidson.kotwords.util.trimmedLines
@@ -53,10 +54,11 @@ class ShapeshifterForm {
 
     private suspend fun createPuzzle(): Puzzle = createShapeshifter().asPuzzle()
 
-    private suspend fun createPdf(blackSquareLightnessAdjustment: Double): ByteArray =
+    private suspend fun createPdf(gridCorner: GridCorner, blackSquareLightnessAdjustment: Double): ByteArray =
         createShapeshifter().asPdf(
             fontFamily = PdfFonts.NOTO_FONT_FAMILY,
             blackSquareLightnessAdjustment = blackSquareLightnessAdjustment,
+            gridCorner = gridCorner,
         )
 
     private fun createShapeshifter(): Shapeshifter {
