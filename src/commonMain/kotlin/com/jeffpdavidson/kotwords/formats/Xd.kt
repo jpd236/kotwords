@@ -113,10 +113,10 @@ class Xd(private val data: String) : DelegatingPuzzleable() {
                     if (ch == '#' || ch == '.') {
                         Puzzle.Cell(cellType = Puzzle.CellType.BLOCK)
                     } else {
-                        val solutionChar = "${ch.uppercase()}"
-                        val solution = rebusMap.getOrElse(solutionChar) { solutionChar }
+                        val solutionChar = if (ch in 'a'..'z') "${ch.uppercaseChar()}" else "$ch"
+                        val solution = rebusMap[solutionChar] ?: rebusMap["$ch"] ?: solutionChar
                         val style = styleMap[x to y] ?: mapOf()
-                        val backgroundShape = if (style["background"] == "circle" || ch.isLowerCase()) {
+                        val backgroundShape = if (style["background"] == "circle" || ch in 'a'..'z') {
                             Puzzle.BackgroundShape.CIRCLE
                         } else {
                             Puzzle.BackgroundShape.NONE
