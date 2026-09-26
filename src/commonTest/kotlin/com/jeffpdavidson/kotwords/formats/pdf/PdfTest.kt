@@ -1,5 +1,6 @@
 package com.jeffpdavidson.kotwords.formats.pdf
 
+import com.github.ajalt.colormath.model.RGB
 import com.jeffpdavidson.kotwords.formats.AcrossLite
 import com.jeffpdavidson.kotwords.formats.JpzFile
 import com.jeffpdavidson.kotwords.formats.pdf.Pdf.splitTextToLines
@@ -8,6 +9,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
 
 class PdfTest {
@@ -81,6 +83,48 @@ class PdfTest {
             JpzFile(readBinaryResource(PdfTest::class, "jpz/test-html.jpz"))
                 .asPuzzle().asPdf(blackSquareLightnessAdjustment = 0.75, fontFamily = getNotoSerifFontFamily())
         )
+    }
+
+    @Test
+    fun getAdjustedColor_noAdjustment() {
+        assertEquals("#000000", Pdf.getAdjustedColor(RGB("#000000"), 0.0).toHex().lowercase())
+        assertEquals("#123456", Pdf.getAdjustedColor(RGB("#123456"), 0.0).toHex().lowercase())
+    }
+
+    @Test
+    fun getAdjustedColor_fullAdjustment() {
+        assertEquals("#ffffff", Pdf.getAdjustedColor(RGB("#000000"), 1.0).toHex().lowercase())
+        assertEquals("#ffffff", Pdf.getAdjustedColor(RGB("#123456"), 1.0).toHex().lowercase())
+    }
+
+    @Test
+    fun getAdjustedColor_whiteIsUnchanged() {
+        assertEquals("#ffffff", Pdf.getAdjustedColor(RGB("#ffffff"), 0.75).toHex().lowercase())
+    }
+
+    @Test
+    fun getAdjustedColor_preservesLightTints() {
+        // Subtle tints and pastels should not wash out into pure white
+        val subtleBlue = Pdf.getAdjustedColor(RGB("#bae6fd"), 0.75)
+        assertEquals("#ccecfe", subtleBlue.toHex().lowercase())
+
+        val subtleGray = Pdf.getAdjustedColor(RGB("#eaeaea"), 0.75)
+        assertEquals("#ededed", subtleGray.toHex().lowercase())
+    }
+
+    @Test
+    fun getAdjustedColor_monotonicity() {
+        // Darker colors should always remain darker than lighter colors (no inversion or clumping)
+        val black = Pdf.getAdjustedColor(RGB("#000000"), 0.75).r
+        val darkGray = Pdf.getAdjustedColor(RGB("#404040"), 0.75).r
+        val medGray = Pdf.getAdjustedColor(RGB("#808080"), 0.75).r
+        val lightGray = Pdf.getAdjustedColor(RGB("#c0c0c0"), 0.75).r
+        val faintTint = Pdf.getAdjustedColor(RGB("#eaeaea"), 0.75).r
+        assertTrue(black < darkGray)
+        assertTrue(darkGray < medGray)
+        assertTrue(medGray < lightGray)
+        assertTrue(lightGray < faintTint)
+        assertTrue(faintTint < 1.0f)
     }
 
     // Note for splitTextToLines tests: a 100 pt line fits 16 10pt Courier characters.

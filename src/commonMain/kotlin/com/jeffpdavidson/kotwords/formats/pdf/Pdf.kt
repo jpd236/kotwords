@@ -1,7 +1,8 @@
 package com.jeffpdavidson.kotwords.formats.pdf
 
-import com.github.ajalt.colormath.model.HSL
+import com.github.ajalt.colormath.model.Oklab
 import com.github.ajalt.colormath.model.RGB
+import kotlin.math.sqrt
 import com.jeffpdavidson.kotwords.formats.DocumentFormat
 import com.jeffpdavidson.kotwords.formats.Element
 import com.jeffpdavidson.kotwords.formats.Node
@@ -432,8 +433,19 @@ object Pdf {
 
     /** Return the adjusted color as a result of applying [lightnessAdjustment] to the given [rgb] color. */
     fun getAdjustedColor(rgb: RGB, lightnessAdjustment: Double): RGB {
-        val hsl = rgb.toHSL()
-        return HSL(hsl.h, hsl.s, (hsl.l + (1.0 - hsl.l) * lightnessAdjustment)).toSRGB()
+        if (lightnessAdjustment <= 0.0) return rgb
+        if (lightnessAdjustment >= 1.0) return RGB("#ffffff")
+
+        // Oklab is a uniform color space; scale colors towards white using this space to ensure changes are
+        // perceptually equivalent. See https://en.wikipedia.org/wiki/Oklab_color_space.
+        // Use tone mapping (https://en.wikipedia.org/wiki/Tone_mapping) to map the tone to a new color space where the
+        // farthest a color can be from white (1, 0, 0) is (1 - lightnessAdjustment).
+        val oklab = rgb.toOklab()
+        val deltaL = 1.0f - oklab.l
+        val distanceFromWhite = sqrt(deltaL * deltaL + oklab.a * oklab.a + oklab.b * oklab.b)
+        val k = (lightnessAdjustment / (1.0 - lightnessAdjustment)).toFloat()
+        val scale = 1.0f / (1.0f + k * distanceFromWhite)
+        return Oklab(1.0f - deltaL * scale, oklab.a * scale, oklab.b * scale).toSRGB().clamp()
     }
 
     private suspend fun PdfDocument.drawSquareNumber(
