@@ -119,6 +119,10 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
 
                 when (sectionTitle) {
                     "GRBS" -> {
+                        if (sectionLength < width * height) {
+                            skip(sectionLength + 1L)
+                            continue
+                        }
                         for (y in 0 until height) {
                             for (x in 0 until width) {
                                 val square = readByte().toInt()
@@ -141,8 +145,8 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
 
                     "RUSR" -> {
                         // Handle invalid/empty RUSR sections gracefully.
-                        if (sectionLength == 0.toShort()) {
-                            skip(1)
+                        if (sectionLength < width * height) {
+                            skip(sectionLength + 1L)
                             continue
                         }
                         for (y in 0 until height) {
@@ -153,9 +157,15 @@ class AcrossLite(private val binaryData: ByteArray) : DelegatingPuzzleable() {
                                 }
                             }
                         }
+                        // Skip the null terminator.
+                        skip(1)
                     }
 
                     "GEXT" -> {
+                        if (sectionLength < width * height) {
+                            skip(sectionLength + 1L)
+                            continue
+                        }
                         for (y in 0 until height) {
                             for (x in 0 until width) {
                                 val square = readByte().toInt()
