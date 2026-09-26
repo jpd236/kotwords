@@ -209,15 +209,24 @@ data class TwistsAndTurns(
         // Draw the START and END text.
         beginText()
         setFont(fontFamily.baseFont, dimensions.startEndFontSize)
-        newLineAtOffset(gridX, gridY + drawGridResult.gridHeight - dimensions.gridSquareSize / 2 - dimensions.startEndFontSize / 2)
+        newLineAtOffset(
+            gridX,
+            gridY + drawGridResult.gridHeight - dimensions.gridSquareSize / 2 - dimensions.startEndFontSize / 2
+        )
         drawText("START")
         endText()
 
         beginText()
         if (this@TwistsAndTurns.height % 2 == 0) {
-            newLineAtOffset(gridX + dimensions.startWidth - dimensions.endWidth, gridY + dimensions.gridSquareSize / 2 - dimensions.startEndFontSize / 2)
+            newLineAtOffset(
+                gridX + dimensions.startWidth - dimensions.endWidth,
+                gridY + dimensions.gridSquareSize / 2 - dimensions.startEndFontSize / 2
+            )
         } else {
-            newLineAtOffset(gridX + gridWidth - dimensions.endWidth, gridY + dimensions.gridSquareSize / 2 - dimensions.startEndFontSize / 2)
+            newLineAtOffset(
+                gridX + gridWidth - dimensions.endWidth,
+                gridY + dimensions.gridSquareSize / 2 - dimensions.startEndFontSize / 2
+            )
         }
         drawText("END")
         endText()

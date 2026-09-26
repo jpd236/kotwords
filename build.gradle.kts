@@ -1,11 +1,11 @@
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinMultiplatform
 import com.vanniktech.maven.publish.SourcesJar
+import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
-import org.gradle.jvm.tasks.Jar
 
 plugins {
     id("com.vanniktech.maven.publish") version "0.37.0"
@@ -143,12 +143,14 @@ kotlin {
 
 // Exclude large and/or internal-only source files from sources JARs.
 tasks.withType<Jar>().matching { it.name.endsWith("SourcesJar", ignoreCase = true) }.configureEach {
-    filesMatching(listOf(
-        "**/cli/**",
-        "**/formats/pdf/TtfFonts.kt",
-        "**/formats/unidecode/x*.kt",
-        "**/web/**",
-    )) {
+    filesMatching(
+        listOf(
+            "**/cli/**",
+            "**/formats/pdf/TtfFonts.kt",
+            "**/formats/unidecode/x*.kt",
+            "**/web/**",
+        )
+    ) {
         exclude()
     }
 }
@@ -179,10 +181,12 @@ tasks {
 }
 
 mavenPublishing {
-    configure(KotlinMultiplatform(
-        javadocJar = JavadocJar.Dokka("dokkaGeneratePublicationHtml"),
-        sourcesJar = SourcesJar.Sources(),
-    ))
+    configure(
+        KotlinMultiplatform(
+            javadocJar = JavadocJar.Dokka("dokkaGeneratePublicationHtml"),
+            sourcesJar = SourcesJar.Sources(),
+        )
+    )
 
     publishToMavenCentral()
     signAllPublications()

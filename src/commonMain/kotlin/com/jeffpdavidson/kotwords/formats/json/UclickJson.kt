@@ -1,7 +1,6 @@
 package com.jeffpdavidson.kotwords.formats.json
 
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 

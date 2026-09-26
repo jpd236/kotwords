@@ -43,8 +43,8 @@ import com.jeffpdavidson.kotwords.formats.WashingtonPost
 import com.jeffpdavidson.kotwords.formats.XWordInfo
 import com.jeffpdavidson.kotwords.formats.XWordInfoAcrostic
 import com.jeffpdavidson.kotwords.formats.Xd
-import com.jeffpdavidson.kotwords.formats.pdf.GridCorner
 import com.jeffpdavidson.kotwords.formats.pdf.FONT_FAMILY_TIMES_ROMAN
+import com.jeffpdavidson.kotwords.formats.pdf.GridCorner
 import com.jeffpdavidson.kotwords.formats.pdf.PdfFont
 import com.jeffpdavidson.kotwords.formats.pdf.PdfFontFamily
 import com.jeffpdavidson.kotwords.formats.pdf.PdfFontId
