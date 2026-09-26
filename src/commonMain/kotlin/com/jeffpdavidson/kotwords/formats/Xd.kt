@@ -52,11 +52,22 @@ class Xd(private val data: String) : DelegatingPuzzleable() {
         val acrossClues = toClueMap(clues.first)
         val downClues = toClueMap(clues.second)
 
+        // Help is an unofficial field used by New Yorker puzzles; it may contain HTML which needs to be sanitized.
+        val help = sections.getOrElse("help") { listOf() }.joinToString("\n").let { helpText ->
+            Encodings.decodeHtmlEntities(helpText)
+                .replace("\\s*<br ?/?>\\s*".toRegex(RegexOption.IGNORE_CASE), "\n")
+                // Strip unsupported HTML tags like <div>, <p>, <img>.
+                .replace("</?(?:div|img|p)(?: [^>]*)?/?>".toRegex(RegexOption.IGNORE_CASE), "")
+                // Strip <a> tags but leave their contents.
+                .replace("<a(?: [^>]*)?>([\\s\\S]*?)</a>".toRegex(RegexOption.IGNORE_CASE), "$1")
+                .trim()
+        }
+
         // Description can either come from "description" metadata, the Notes section, or the Help section.
         val descriptionCandidates = listOf(
             metadata["description"],
             sections.getOrElse("notes") { listOf() }.joinToString("\n"),
-            sections.getOrElse("help") { listOf() }.joinToString("\n")
+            help,
         )
         val description = descriptionCandidates.firstOrNull { it?.isNotBlank() == true } ?: ""
 
