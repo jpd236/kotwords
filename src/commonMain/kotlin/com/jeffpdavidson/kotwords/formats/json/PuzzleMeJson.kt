@@ -72,10 +72,10 @@ internal object PuzzleMeJson {
 
     @Serializable
     internal data class Data(
-        val title: String,
-        val description: String,
-        val copyright: String,
-        val author: String,
+        val title: String = "",
+        val description: String = "",
+        val copyright: String = "",
+        val author: String = "",
         val help: String? = null,
         val box: List<List<String?>>,
         val cellInfos: List<CellInfo> = listOf(),
